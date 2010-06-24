@@ -1,0 +1,58 @@
+Author: Karl.Voit@IST.TUGraz.at
+
+tagstore is a moving target project with no predefined design. Therefore
+development will be an agile one, embracing changes every time.
+
+To cope with this fact, methods like unit testing, refactoring, ... from
+software design paradigms like extreme programming are being used.
+
+Development language: US English for variable names, functions, comments, ...
+
+
+CODING STYLE ############################################################################
+
+If not defined otherwise, the rules of PEP8 apply to this project: 
+http://www.python.org/dev/peps/pep-0008/
+
+--> PLEASE PRINT OUT AND READ PEP8! <--
+
+ThisIsAClass
+this_is_a_method
+THIS_IS_A_CONSTANT
+this_is_a_variable OR thisisavariable
+
+*never ever* use non self explaining variable names like e.g. single letter variables!
+
+## this is a (permanent) comment line
+# this is only a temporarily comment with source code
+
+HEADER ##################################################################################
+
+#!/usr/bin/env python
+# -*- coding: iso-8859-15 -*-
+## this file is part of tagstore, an alternative way of storing and retrieving information
+## Copyright (C) 2010  Karl Voit, [your name]
+## 
+## This program is free software; you can redistribute it and/or modify it under the terms 
+## of the GNU General Public License as published by the Free Software Foundation; either 
+## version 3 of the License, or (at your option) any later version.
+## 
+## This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+## without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+## See the GNU General Public License for more details.
+## 
+## You should have received a copy of the GNU General Public License along with this program; 
+## if not, see <http://www.gnu.org/licenses/>.
+
+
+FOOTER ##################################################################################
+
+## end
+
+FIXXME ###################################################################################
+
+FIXXMEs mark things that should be handled later on!
+e.g.:    if SOMETHING < 3:   ## FIXXME: also check OTHER for special case like double definition
+
+anything important missing here?
+
