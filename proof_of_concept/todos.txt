@@ -1,0 +1,388 @@
+-++########## Latest change: Wed Mar 18 13:34:15 CET 2009
+
+-++#######################   closed issues   ################################++-
+
+[20090311][20090311][][] Mercurial
+
+hg init
+echo ".*" > .hgignore
+echo "analysis" >> .hgignore
+hg add ...
+hg ci ...
+
+[20090311][20090311][ask-user][] limit dazuschreiben
+
+
+[20090311][20090311][watchdog][] während Texteingabe neue Datei -> nicht übersehen
+
+Testszenatio: tagstore übersieht tatsächlich Dateien während Tageingabe!
+
+Lösung: ask-user-script per & im Hinterrund starten
+
+
+[20090311][20090311][ask-user][] Liste der am häufigsten verwendeten Tags
+
+vk@gary ~/tagstore/FILES/METADATA % cat .*|sort|uniq -c|sort -n -r|head -n 5|sed 's/\W*[0-9]*\W//'
+test
+20090311
+20090310
+test5
+test4
+vk@gary ~/tagstore/FILES/METADATA %
+
+
+
+[20090311][20090311][ask-user][] Liste der zuletzt verwendeten Tags
+
+
+[20090311][20090311][watchdog][] cp FILE tagstore/ -> ask-user soll reagieren
+
+
+[20090311][20090311][watchdog][] mv FILE tagstore/ -> ask-user soll reagieren
+
+
+[20090311][20090311][ask-user][] get config from tagstore.cfg
+
+[20090311][20090311][watchdog][] get config from tagstore.cfg
+
+
+[20090311][20090311][][] Limits Symlinks
+
+siehe Analyse
+
+max #subdirs (ext3) = 32000-2
+max inodes = #Bytes/(2^13)
+
+2^13 = 8192
+
+FIXXME: Wie viele Dateien (welcher Größe) mit max. # tags in 10GB-Partition?
+
+#inodes (ext3, 10GB) = 1 310 702
+
+bei LIMIT=6 -> ca. 4000 inodes/tagstore-file
+-> 2600 Einträge mit 6 tags möglich
+-> ergibt 4MB/File durchschnittlich (unabhängig von der Partitionsgröße)
+
+bei LIMIT=5 -> ca. 650 inodes/tagstore-file
+-> 16 132 Einträge mit 5 tags möglich
+-> ergibt 650 kB/File durchschnittlich (unabhängig von der Partitionsgröße)
+
+bei LIMIT=4 -> ca. 110 inodes/tagstore-file
+-> 95 325 Einträge mit 4 tags möglich
+-> ergibt 110 kB/File durchschnittlich (unabhängig von der Partitionsgröße)
+
+10 GB = 10 485 760 kB
+
+Siehe 20090311_Inode_Analysis.ods
+
+[20090312][20090312][watchdog][] Tag tsdryrun -> echo statt cmd
+
+
+[20090312][20090312][ask-user][] Tag tsdryrun -> echo statt cmd
+
+
+[20090312][20090313][add-link][] Tag tsdryrun -> echo statt cmd
+
+
+[20090313][20090317][watchdog][] Verzeichnisse taggen ermöglichen
+
+inotify:
+2009-03-13_14h09m44s new file: /home/vk/tagstore/FILES/ CREATE,ISDIR testdir2
+
+add-link bekommt keinen Verzeichnisnamen übermittelt
+
+vk@gary ~2d % inotifywait --monitor --quiet -e moved_to -e create -e delete --format "%e %w%f"  inotify\ tests
+CREATE inotify tests/afile
+CREATE,ISDIR inotify tests/adirectory
+CREATE inotify tests/asymlink
+DELETE inotify tests/afile
+DELETE,ISDIR inotify tests/adirectory
+DELETE inotify tests/asymlink
+CREATE inotify tests/a file with spaces
+MOVED_TO inotify tests/a_file_that_is_moved_to_destination_directory
+
+-> six cases:
+1. create file/symlink  CREATE
+2. create directory     CREATE,ISDIR
+3. delete file/symlink  DELETE
+4. delete directory     DELETE,ISDIR
+5. moved file           MOVED_TO
+6. moved directory      MOVED_TO,ISDIR
+
+[20090312][20090317][][] Präsentation mit tagstore Problem, Lösungsansatz, Schema
+
+
+[20090311][20090317][][] Löschen einer Datei im tagstore
+
+inotify meldet DELETE oder MOVED_FROM
+then:
+
+rm METAFILE (if any!)
+
+get_num_of_broken_symlinks
+get_num_of_empty_dirs
+
+while num_of_broken_symlinks>0 OR num_of_empty_dirs>0 do
+    if num_of_broken_symlinks
+        delete_broken_symlinks
+    if num_of_empty_dirs
+        delete_empty_dirs
+    get_num_of_broken_symlinks
+    get_num_of_empty_dirs
+done
+
+[20090318][20090318][][] reduziere add-tag-Dialog # Tags, wenn DATESTAMP dazukommt
+
+plus Abfrage
+
+
+[20090318][20090318][][] new config ADDDATESTAMP
+
+YYYYMMDD -> DATESTAMPFORMAT=YYYYMMDD
+omit_YYYYMMDD_if_eight_numbers_are_entered -> OMIT_DATESTAMP_IF_DATESTAMP_IS_ENTERED_BY_USER
+bzw.
+DATESTAMPFORMAT=YYYYMM
+
+betrifft: ask-user und add-link
+
+
+[20090318][20090318][][] wenn ADDDATESTAMP, dann ignoriere datestamp-tags bei Vorschlägen im ask-user-Dialog
+
+
+-++#######################   open issues   ##################################++-
+
+[20090324][][][] relative statt absolute
+
+ermöglicht Verschieben von Tagstore-Ordnern
+ermöglicht Synchronisieren mit Systemen, wo Tagstore-Ordner woanders liegen ~ != $HOME
+
+
+[20090313][][ask-user][] statt cat ... besser find ...
+
+find . -type f -name ".*" -print0 -exec ls "\{\}" \;
+
+FIXXME: Erweitern der Voraussetzungen um "find"
+
+
+[20090311][][watchdog][] Dotfiles per inotify-exception ignorieren
+
+
+[20090410][][][] tagstore.cfg im FILEDIR direkt
+
+... und watcher greift direkt darauf zu
+
+u.U.: bei config-Änderung neu einlesen?
+
+-> ermöglicht viele parallele Tagstores wie zB pro Projekt usw
+
+[20090410][][][] *ein* zentraler watcher-daemon für alle Tagstores?
+
+
+[20090311][][][] README
+
+temporarily workaround
+
+Wichtig: es werden NIEMALS Dateien in FILEDIR gelöscht!
+
+Absolute Links: kein Verschieben von Verzeichnishierarchien im tagstore möglich
+
+Wichtige Hinweise: siehe config-Datei
+
+[20090311][][][watchdog] mv/cp MULTIPLE FILES tagstore -> für ALLE fragen
+
+derzeitiges Verhalten: nur für die erste Datei wird gefragt
+
+watchdog: Erkennen, ob mehrere Zeilen gefunden wurden
+
+Eventuell: Liste von Dateien in *einem* ask-user-Aufruf übergeben
+  -> macht nicht X Fenster parallel auf
+  -> definierte Reihenfolge
+  -> löst eventuell Problem mit "cd FILEDIR; mv empty_dir_1 empty_dir2"
+
+[20090311][][watchdog][] Tilde-Tempfiles ignorieren
+
+
+[20090311][][][] Erläutern Vor/Nachteile einer DB statt Dateisystem+Symlinks
+
+
+[20090311][][][] Editieren der Tags einer Datei
+
+Gleich wie: Löschen, neu erstellen plus alte Tags als Default-Vorschlag (ev. sort|uniq)
+
+
+[20090311][][ask-user][] Tag-Vervollständigung
+
+
+[20090311][][ask-user][] Tag-Vorschläge nach Heuristik
+
+
+[20090311][][add-link][] Namenskonflikt handlen: Tag==Dir
+
+
+[20090311][][add-link][] Namenskonflikt handlen: Tag==filename
+
+... vermutlich kein Problem
+
+
+
+
+[20090311][][][] Test: Anzahl der angelegten DIRs wieder rein und untersuchen
+
+
+[20090311][][][] ask-user + Cancel: Was passiert mit ungetaggten Dateien?
+
+im Filespace lauter Files ohne zugehörige Metadatei
+Aufräumscript?
+
+
+[20090311][][add-link][] eventuell: Dateien nicht in *einem* Dir sondern auf Datumdirs aufgeteilt
+
+
+[20090311][][add-link][] Datums-Tags in gesonderter Hierarchie
+
+if mkdir DATE && curdir=TAGDIR then
+    cd $DATEDIR && mkdir DATE
+
+
+
+
+[20090311][][][] tagstore init
+
+
+[20090311][][][] tagstore_add_entry.py -> tagstore.py
+
+
+[20090311][][][] tagstore_add_entry.py: mv things -> def
+
+
+[20090311][][][] tagstore_add_entry.py: Weitere Funktionen per SWITCH-Parameter
+
+case ARGV[1]
+    init
+    is_file
+    is_dir
+
+
+[20090311][][add-link][] tagstore_add_entry.py: Exceptions: user-Dialog-Meldung
+
+
+[20090311][][ask-user][] bulk-tagging von mehreren Dateien
+
+
+[20090313][][][] Sicherstellen, dass Leerzeichen in Fixverzeichnissen und/oder Dateinamen kein Problem darstellen
+
+
+[20090317][][][] User verwirrt durch tag==Verzeichnis
+
+Pro tag kommen Verzeichnisse Wie unterscheidet nun der User, ob ein Verzeichnis
+nur ein Tag-Verzeichnis ist, oder ob es sich dabei um ein verlinktes
+Datenverzeichnis im tagstore-Container handelt?
+
+
+[20090317][][][] Definiertes fixes Vokabular von Tags?
+
+User definiert sich in config Menge an Tags (Ausnahme: Datumsstempel)
+add-link prüft, ob Tags vordefiniert wurden und aktzeptiert keine anderen
+
+
+[20090317][][cleanup][] durch (fehlerhaftes) Nachtaggen fehlende Links
+
+
+[20090317][][cleanup][] leere Verzeichnisse
+
+if [ `find -depth -type d -empty|wc -l` -gt 0 ]; then
+
+BAD: find -depth -type d -empty -exec rmdir {} \;
+
+GOOD: find -depth -type d -empty -print0 | xargs -0 rmdir
+
+[20090317][][cleanup][] Mehrfache Tags in Metadaten
+
+... durch zB Mehrfachtaggen?
+
+[20090317][][cleanup][] Metadata-File ohne File
+
+
+[20090317][][cleanup][] File ohne Metadata-File
+
+
+[20090317][][cleanup][] Symlinks ohne File (dead links)
+
+Suchen:
+find . -type l ! -exec test -r {} \; -print
+
+Löschen:
+find . -type l ! -exec test -r {} \; -print0 | xargs -0 rm
+
+[20090317][][cleanup][] File ohne Symlinks
+
+Suche nach Links, die auf eine Datei zeigen:
+find . -lname /home/vk/tagstore/FILES/HSi13-1.pdf
+WICHTIG: absolute Pfade beim Linkanlegen (tagstore tut das) UND bei der Suche!
+
+
+
+
+[20090317][][][] Wenn "FILEDIR in TAGDIR" und "TAGDIR: mv dir1 dir2" -> dir2 wird gelöscht, sofern leer
+
+... weil:
+DELETE dir1
+CREATE dir2
+... gleichzeitig
+ABER:
+sobald dir1 gelöscht wird, findet die Aufräumfunktion von watchdog ein leeres Verzeichnis
+
+
+[20090318][][][] Tool zum Neugenerieren von TAGDIR komplett aus FILEDIR und METADATADIR
+
+
+[20090325][][][] option for "ADD-TIMESTAMP-TO-FILE" and "TIMESTAMPFORMAT_FILE"
+
+
+[20090429][][][] Qt und Completions
+
+laut Kevin Kramer: ab Qt 4.0 QCompl*
+
+
+[20090429][][][] inode-Problem und andere FS
+
+lauf Gebi: XFS gar kein Problem da keine Begrenzung und ext3 mit mehr inodes erstellen
+
+
+-++#######################   permanent entries   ############################++-
+
+[20090311][20090311][][] Voraussetzungen zusammenfassen
+
+watchdog:
+egrep
+sed
+/bin/date
+inotifywait
+
+ask-user:
+egrep
+sed
+mktemp
+cat
+sort
+uniq
+head
+ssft.sh + Frontend (kdialog, ...)
+
+add-link:
+Python (vermutlich >2.5)
+Python-lib: import os
+Python-lib: import sys
+Python-lib: import ConfigParser
+Python-lib: from datetime import datetime, date, time
+Python-lib: import re
+Filesystem capable of symlinks
+
+
+
+
+-++#######################   End   ##########################################++-
+
+ %%% Local Variables:
+## vim:foldmethod=expr
+## vim:fde=getline(v\:lnum)=~'^-\+\+#\\{10\\}'?0\:getline(v\:lnum)=~'^\\%([[].*[]]\\)\\{4\\}'?'>1'\:'1':
