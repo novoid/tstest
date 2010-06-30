@@ -20,6 +20,9 @@ repository should be usable:
 
 Commit only to trunk. No branching unless absolutely necessary.
 
+If your commit closes an issue, close the issue e.g. by using a commit line like:
+"fixed the wrong output formatting; closes #42"
+
 
 CODING STYLE ############################################################################
 
