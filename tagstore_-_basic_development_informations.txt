@@ -9,6 +9,17 @@ software design paradigms like extreme programming are being used.
 
 Development language: US English for variable names, functions, comments, ...
 
+Test local (and debug) before committing! At any time, the code in the
+repository should be usable:
+    1. Update
+    2. Code
+    3. Test
+    4. Update (& merge)
+    5. Test
+    6. Commit
+
+Commit only to trunk. No branching unless absolutely necessary.
+
 
 CODING STYLE ############################################################################
 
