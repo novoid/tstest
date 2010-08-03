@@ -19,10 +19,14 @@ Created on Jul 29, 2010
 @author: chris
 '''
 import sys
+import gettext
+
 from PyQt4.QtCore import QObject, SIGNAL, Qt
 from PyQt4.QtGui import QTextBrowser, QDialog, QLabel, QVBoxLayout
 from PyQt4.Qt import QApplication
 from tswidget.TagStoreWidget import TagStoreCompleter, TagStoreLineEdit
+
+gettext.install("tagstore", "/Users/chris/Documents/workspace/tasgStore_SVN/locale/")
 
 class TestForm(QDialog):
     '''
@@ -34,17 +38,17 @@ class TestForm(QDialog):
         Constructor
         '''
         super(TestForm, self).__init__(parent)
-        
+
         self.textarea = QTextBrowser()
-        self.textarea.setText("This is a NON-EDITABLE textarea ... \n just for testing purpose")
-        self.tag_line = TagStoreLineEdit("First test with PyQt")
+        self.textarea.setText(_("This is a NON-EDITABLE textarea ... \n just for testing purpose"))
+        self.tag_line = TagStoreLineEdit(_("First test with PyQt"))
         self.tag_line.selectAll()
         
-        self.label = QLabel("check out multiple tag suggestions")
+        self.label = QLabel(_(u"check out multiple tag suggestions"))
 
         # TODO: temporary taglist for testing
         # TODO: get the real tags from TagStoreLogic
-        wList = ['Chris', 'Karl', 'Wolfgang', 'TUG', 'DA']
+        wList = ['Chris', 'Christoph', 'Koala', 'Karl', 'Wolfgang', 'TUG', 'DA']
         
         completer = TagStoreCompleter(wList, self.tag_line);
         completer.setCaseSensitivity(Qt.CaseInsensitive)
@@ -64,9 +68,8 @@ class TestForm(QDialog):
 
         self.tag_line.setFocus()
         #self.connect(self.tag_line, SIGNAL("returnPressed()"), self.updateUi)
-        self.setWindowTitle("Hello PyQt")
+        self.setWindowTitle(_("Hello PyQt"))
         
-
 app = QApplication(sys.argv)
 form = TestForm()
 form.show()
