@@ -20,39 +20,17 @@ Created on Jul 31, 2010
 
 
 
-class TagStoreOsWrapper(object):
+class TagStoreTagHandler(object):
     '''
-    This class provides an os-independend interface for all necessary tagStore operations 
+    Class for all required tag operations, like get_tags, get_latest_tags, get_most_popular_tags, ...
     '''
+
 
     def __init__(self, params):
         '''
         Constructor
         '''
         
-    def get_configuration(self):
+    def get_all_tags(self):
         pass
-
-    def get_broken_links(self):
-        pass
-    
-    def get_empty_dirs(self):
-        pass
-
-
-    def delete_broken_symlinks(self):
-        pass
-    
-    def delete_empty_directories(self):
-        pass
-
-    def remove_metadatafile(self):
-        pass
-
-    def remove_dead_links_and_empty_directories(self):
-        pass
-
-    def delete_item(self):
-        pass
-## end
-        
+## end 

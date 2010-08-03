@@ -20,39 +20,19 @@ Created on Jul 31, 2010
 
 
 
-class TagStoreOsWrapper(object):
+class ConfigReader(object):
     '''
-    This class provides an os-independend interface for all necessary tagStore operations 
+    Class for conveniently accessing config parameters
     '''
+
 
     def __init__(self, params):
         '''
         Constructor
         '''
-        
-    def get_configuration(self):
-        pass
-
-    def get_broken_links(self):
+    
+    # TODO: make a static method
+    def get_value(self, property):
         pass
     
-    def get_empty_dirs(self):
-        pass
-
-
-    def delete_broken_symlinks(self):
-        pass
-    
-    def delete_empty_directories(self):
-        pass
-
-    def remove_metadatafile(self):
-        pass
-
-    def remove_dead_links_and_empty_directories(self):
-        pass
-
-    def delete_item(self):
-        pass
 ## end
-        
