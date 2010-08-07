@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-
 # -*- coding: iso-8859-15 -*-
 ## this file is part of tagstore, an alternative way of storing and retrieving information
-## Copyright (C) 2010  Karl Voit, Christoph Friedl, Wolfgang Wintersteller
+## Copyright (C) 2010  Karl Voit, [your name]
 ##
 ## This program is free software; you can redistribute it and/or modify it under the terms
 ## of the GNU General Public License as published by the Free Software Foundation; either
@@ -14,23 +13,16 @@
 ##
 ## You should have received a copy of the GNU General Public License along with this program;
 ## if not, see <http://www.gnu.org/licenses/>.
-'''
-Created on Jul 31, 2010
-'''
 
+import sys
 
+from PyQt4.Qt import QApplication
+from tsdialog import TagStoreDialog
 
-class TagStoreTagHandler(object):
-    '''
-    Class for all required tag operations, like get_tags, get_latest_tags, get_most_popular_tags, ...
-    '''
+if __name__ == '__main__':
 
-
-    def __init__(self, params):
-        '''
-        Constructor
-        '''
-        
-    def get_all_tags(self):
-        pass
-## end 
+    app = QApplication(sys.argv)
+    form = TagStoreDialog.TagStoreDialog("dummyFile.txt")
+    form.show()
+    sys.exit(app.exec_()) 
+## end
