@@ -30,7 +30,7 @@ copies or substantial portions of the Software.
 
 from PyQt4.QtCore import QObject, SIGNAL
 from PyQt4.QtGui import QLineEdit, QCompleter, QStringListModel
-
+import logging
 class TagStoreLineEdit(QLineEdit):
     '''
     
@@ -62,6 +62,8 @@ class TagStoreLineEdit(QLineEdit):
         self.emit(SIGNAL("text_changed(PyQt_PyObject, PyQt_PyObject)"), text_tags, prefix)
 
     def complete_text(self, text):
+        self.log = logging.getLogger('TagStoreLogger')
+        self.log.info("logging from widget: %s" % id(self.log))
         cursor_pos = self.cursorPosition()
         before_text = unicode(self.text())[:cursor_pos]
         after_text = unicode(self.text())[cursor_pos:]
@@ -73,13 +75,13 @@ class TagStoreLineEdit(QLineEdit):
 
 class TagStoreCompleter(QCompleter):
     
-    def __init__(self, tag_list, parent):
-        QCompleter.__init__(self, tag_list, parent)
-        self.tag_list = set(tag_list)
+    def __init__(self, tagList, parent):
+        QCompleter.__init__(self, tagList, parent)
+        self.tagList = set(tagList)
         
     def update(self, text_tags, completion_prefix):
         ## remove the already used tags from the available list
-        tags = list(self.tag_list.difference(text_tags))
+        tags = list(self.tagList.difference(text_tags))
 
         model = QStringListModel(tags, self)
         self.setModel(model)
@@ -87,4 +89,7 @@ class TagStoreCompleter(QCompleter):
         if completion_prefix.strip() != '':
             ## use the default completion algorithm
             self.complete()
+    
+    def set_taglist(self, tagList):
+        self.tagList = set(tagList)
 ## end

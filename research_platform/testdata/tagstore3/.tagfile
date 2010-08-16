@@ -1,19 +1,10 @@
 [descriptive]
 TUG=test1.txt, test2.txt, DA.txt
 tagstore=DA.txt
-chris=DA.txt
 masterarbeit=DA.txt
-karl=test3.txt
-voit=
-wolfgang=
 IST=test3.txt, test2.txt, test1.txt
-privat=
-presentations=DA.txt, test2.txt
 
 [categorizing]
 NONE=
 
 [Recent]
-tagstore=
-TUG=
-IST=

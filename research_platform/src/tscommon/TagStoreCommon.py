@@ -15,8 +15,9 @@
 ## You should have received a copy of the GNU General Public License along with this program;
 ## if not, see <http://www.gnu.org/licenses/>.
 
-import sys
 import ConfigParser
+import logging
+from PyQt4.QtCore import Qt
 
 class TagStoreConstants(object):
     '''
@@ -24,10 +25,10 @@ class TagStoreConstants(object):
     '''
     
     ## name of the file where tag information is stored
-    TAG_FILE_NAME = ".tag_dictionary"
+    TAG_FILE_NAME = ".tagfile"
 
     ## default path to the config file
-    CONFIG_PATH = "../conf/tagstore.cfg"
+    CONFIG_PATH = "../../conf/tagstore.cfg"
 
     ## use this constants when accessing data from the config file
     CONFIG_FILEDIR = "FILEDIR"
@@ -37,6 +38,8 @@ class TagStoreConstants(object):
     ## defines how much tags are presented to the user
     NR_OF_POPULAR_TAGS = 4
     RECENTLY_USED_TAGS = 5
+
+    LOG_FILENAME = "tagstore.log"
 
     ## constants for the sections used in the config file
     TAG_SECTION_GENERAL = "General"
@@ -54,13 +57,13 @@ class TagStoreConfigReader(object):
     Class for conveniently accessing config parameters
     '''
 
-    def __init__(self, params):
+    def __init__(self, configPath):
         '''
         Create the pasrser object and read the config file
         '''
         ## read the config file
         self.parser = ConfigParser.SafeConfigParser()
-        self.parser.read(TagStoreConstants.CONFIG_PATH)
+        self.parser.read(configPath)
     
     # TODO: make a static method
     def get_value(self, section, key):
@@ -78,13 +81,12 @@ class TagStoreTagHandler(object):
     Class for all required tag operations, like get_tags, get_latest_tags, get_most_popular_tags, ...
     '''
 
-    def __init__(self, params):
+    def __init__(self, tagFilePath):
         '''
         Constructor
         '''
-        config = TagStoreConfigReader(sys.argv)
-        self.tagFilePath = config.get_value(TagStoreConstants.TAG_SECTION_GENERAL, TagStoreConstants.CONFIG_FILEDIR) + "/" + TagStoreConstants.TAG_FILE_NAME
-
+        self.log = logging.getLogger("TagStoreLogger")
+        self.tagFilePath = tagFilePath
         ## read the tagfile as a config file
         self.tagParser = ConfigParser.SafeConfigParser()
         self.tagParser.read(self.tagFilePath)
@@ -138,23 +140,65 @@ class TagStoreTagHandler(object):
                             break
         return tags
     
-        def write_new_tag(self, section, tagName):
-            '''
-            write a new tag to the given section
-            '''
+    def _exists_tag(self, tagName):
+        ''' returns the original tagname, if the tagname already exists in the current tagstore
+        ignore case
+        '''
+        for section in self.tagParser.sections():
+            for element in self.tagParser.items(section):
+                tag = element[0]
+                #if tagName.compare(tag, Qt.CaseInsensitive):
+                if tagName.lower() == tag.lower():
+                    return tag
+        return None
+        
+    def handle_new_file(self, fileName, tagName, section = "descriptive"):
+        # TODO: also look for duplicate filenames?
+        if tagName == None or tagName == "":
+            self.log.error("Tagname is None or empty ...")
             pass
         
-        def add_file(self, tagName, fileName):
-            '''
-            add a filename to the given tagName
-            '''
-            pass
-        def remove_file(self, tagName, fileName):
-            '''
-            remove a filename from the given tagName
-            '''
-            pass
+        self.log.debug("handling new file ... %s" % fileName)
+        if self._exists_tag(tagName) is None:
+            ## tag does not exist yet
+            self.log.debug("tag *** %s *** does not exist yet" % tagName)
+            self._write_new_tag(section, tagName)
+        else:
+            ## add the filename to the already existing tag
+            self.log.debug("tag *** %s *** already exists" % tagName)
         
+        self._add_file(section, str(tagName), fileName)
+            
+    
+    def _write_new_tag(self, section, tagName):
+        '''
+        write a new tag to the given section
+        '''
+        if tagName == "":
+            pass
+        self.log.debug("writing new tag %s" % tagName)
+        self.tagParser.set(section, tagName, "")
+    
+    def _add_file(self, section, tagName, fileName):
+        '''
+        add a filename to the given tagName
+        '''
+        self.log.debug("adding new file %s to tag %s" % (fileName, tagName))
+        oldVal = self.tagParser.get(section, tagName)
+        if oldVal != "":
+            newVal = oldVal + "," + fileName
+        else:
+            newVal = fileName
+            
+        self.tagParser.set(section, tagName, newVal)
+        self.tagParser.write(open(self.tagFilePath, "w"))
+        
+    def _remove_file(self, tagName, fileName):
+        '''
+        remove a filename from the given tagName
+        '''
+        pass
+
 class TagCount(object):
     '''
     object for storing a tagname and the count of its associations
