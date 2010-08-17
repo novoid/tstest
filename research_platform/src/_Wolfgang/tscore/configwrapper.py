@@ -21,49 +21,49 @@ class ConfigWrapper(QtCore.QObject):
 
     __pyqtSignals__ = ("changed()", )
 
-    def __init__(self, configfilePath):
+    def __init__(self, config_file_path):
         QtCore.QObject.__init__(self)
         
         self.__watcher = QtCore.QFileSystemWatcher(self)
-        self.__watcher.addPath(configfilePath)
-        self.__watcher.connect(self.__watcher,QtCore.SIGNAL("fileChanged(QString)"), self.__fileChanged)
-        self.__settings = QtCore.QSettings(configfilePath, QtCore.QSettings.IniFormat)
+        self.__watcher.addPath(config_file_path)
+        self.__watcher.connect(self.__watcher,QtCore.SIGNAL("fileChanged(QString)"), self.__file_changed)
+        self.__settings = QtCore.QSettings(config_file_path, QtCore.QSettings.IniFormat)
         
-    def __fileChanged(self):
+    def __file_changed(self):
         self.__settings.sync()
         self.emit(QtCore.SIGNAL("changed()"))
         
-    def getStoreConfigDirectory(self):
+    def get_store_config_directory(self):
         self.__settings.beginGroup("settings")
         directory = unicode(self.__settings.value("store_config_directory", ".ts").toString())
         self.__settings.endGroup()
         return directory
         
-    def getStoreConfigExtention(self):
+    def get_store_configfile_name(self):
         self.__settings.beginGroup("settings")
         extention = unicode(self.__settings.value("store_config_extention", "tgs").toString())
         self.__settings.endGroup()
         return extention
         
-    def getTagSeperator(self):
+    def get_tag_seperator(self):
         self.__settings.beginGroup("settings")
         seperator = unicode(self.__settings.value("tag_seperator", ", ").toString())
         self.__settings.endGroup()
         return seperator
         
-    def getStores(self):
+    def get_stores(self):
         self.__settings.beginGroup("stores")
         storeKeys = self.__settings.childKeys()
         stores = []
-        for key in storeKeys:
-            stores.append(dict(key=key, path=unicode(self.__settings.value(key, "").toString())))
+        for id in storeKeys:
+            stores.append(dict(id=id, path=unicode(self.__settings.value(id, "").toString())))
         return stores
     
-    def renameStore(self, key, newName):
-        self.__settings.setValue(key, newName)
+    def rename_store(self, id, new_name):
+        self.__settings.setValue(id, new_name)
 
-    def removeStore(self, key):
-        self.__settings.remove(key)
+    def remove_store(self, id):
+        self.__settings.remove(id)
 
 
 ## end
