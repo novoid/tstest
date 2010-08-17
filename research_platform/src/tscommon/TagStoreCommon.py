@@ -81,16 +81,29 @@ class TagStoreTagHandler(object):
     Class for all required tag operations, like get_tags, get_latest_tags, get_most_popular_tags, ...
     '''
 
-    def __init__(self, tagFilePath):
+    def __init__(self, tagFilePath, storeKey=None):
         '''
-        Constructor
+        if a storeKey is provided -> a new storefile structure will be created
         '''
+        
+        if storeKey is not None:
+            ## TODO: create a new storefile ...
+            
+            self.createNewStoreFile(storeKey)
+        
         self.log = logging.getLogger("TagStoreLogger")
         self.tagFilePath = tagFilePath
+        
+        
+        ## TODO 
         ## read the tagfile as a config file
         self.tagParser = ConfigParser.SafeConfigParser()
         self.tagParser.read(self.tagFilePath)
-        
+    
+    def createNewStoreFileStructure(self, storKey):
+        ## TODO write structure    
+        pass
+    
     def get_all_tags(self):
         tags = []
         ## step through all sections except "recent"
@@ -99,7 +112,7 @@ class TagStoreTagHandler(object):
                 tags.append(element[0])
         return tags
         
-    def get_recent_tags(self):
+    def get_tags_of_recent_items(self, noOfItems):
         ## get all items of section "Recent"
         recentSection = self.tagParser.items(TagStoreConstants.TAG_SECTION_RECENT)
         tags = []
@@ -108,8 +121,10 @@ class TagStoreTagHandler(object):
         
         return tags
         
+    def get_recent_tags(self, noOfTags):
+        pass
     
-    def get_popular_tags(self):
+    def get_popular_tags(self, noOfTags):
         '''
         this method returns the n (n is defined in TagStoreConstants) most popular tags from the tagfile
         returns a list of TagCount objects which provide the tagname AND the count of 
@@ -135,20 +150,21 @@ class TagStoreTagHandler(object):
                             pos = tags.index(currentCountObject)
                             tags.insert(pos, tagCountObject)
                             ## just pop the last value, if the list is too long  
-                            if len(tags) > TagStoreConstants.NR_OF_POPULAR_TAGS:
+                            if len(tags) > noOfTags:
                                 tags.pop()
                             break
         return tags
     
-    def _exists_tag(self, tagName):
+    def exists_file(self, fileName):
         ''' returns the original tagname, if the tagname already exists in the current tagstore
         ignore case
         '''
+        ## TODO search just in section [files] 
         for section in self.tagParser.sections():
             for element in self.tagParser.items(section):
                 tag = element[0]
                 #if tagName.compare(tag, Qt.CaseInsensitive):
-                if tagName.lower() == tag.lower():
+                if fileName.lower() == tag.lower():
                     return tag
         return None
         
@@ -159,7 +175,7 @@ class TagStoreTagHandler(object):
             pass
         
         self.log.debug("handling new file ... %s" % fileName)
-        if self._exists_tag(tagName) is None:
+        if self.exists_file(tagName) is None:
             ## tag does not exist yet
             self.log.debug("tag *** %s *** does not exist yet" % tagName)
             self._write_new_tag(section, tagName)

@@ -25,7 +25,7 @@ class Test(unittest.TestCase):
         tagHandler.handle_new_file("new_testfile", "test", "descriptive")
         tagHandler.handle_new_file("new_testfile", "NEW_TAG", "descriptive")
         
-        tag = tagHandler._exists_tag("NEW_TAG")
+        tag = tagHandler.exists_file("NEW_TAG")
         
         ## configparser writes the variables in lower case
         ## so compare with "new_tag"
@@ -36,7 +36,7 @@ class Test(unittest.TestCase):
         
         tagHandler = self.get_fresh_taghandler()
         
-        tagList = tagHandler.get_popular_tags()
+        tagList = tagHandler.get_popular_tags(3)
         tagObject = tagList[0]
         
         ## the tag with the name "test" must be the most popular one
@@ -55,9 +55,9 @@ class Test(unittest.TestCase):
         return TagStoreTagHandler(Test.TAGFILE_NAME)
     
     def create_initial_tagfile(self):
-        ''' helper method to create an empty tagfile
+        """ helper method to create an empty tagfile
         for testing the taghandler
-        '''
+        """
         
         filename = Test.TAGFILE_NAME
         file = open(filename, "w")
