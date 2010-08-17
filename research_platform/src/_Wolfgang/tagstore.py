@@ -21,140 +21,177 @@ from tscore.configwrapper import ConfigWrapper
 from tscore.store import Store
 
 
-## path to the config file
+# path to the config file
 CONFIG_PATH = "settings/tagstore.cfg"
     
 class Tagstore():
 
     def __init__(self, parent=None):
+        """ 
+        initializes the configuration. This method is called every time the config file changes
+        """
 
         ## global settings/defaults (only used if reading config file failed or invalid!)
         self.STORE_CONFIG_DIR = ".tagstore"
-        self.STORE_CONFIG_EXT = "tgs"
+        self.STORE_CONFIG_FILE_NAME = "tgs"
         self.TAG_SEPERATOR = ", "
         self.STORES = []
         
         ## init configurations
-        self.configfile = None
-        self.__initConfigurations()
+        self.__config_file = None
+        self.__init_configurations()
         
         ## init UI
-        self.__taggingDialog = TaggingDialog()
-        self.__updateTagList()
+        self.__tagging_dialog = TaggingDialog()
+        self.__update_tag_list()
         
-        self.__taggingDialog.connect(self.__taggingDialog, QtCore.SIGNAL("tagTextEdited(QString)"), self.tagTextEdited)
-        self.__taggingDialog.connect(self.__taggingDialog, QtCore.SIGNAL("tagCompletionActivated(QString)"), self.tagCompletionActivated)
-        self.__taggingDialog.connect(self.__taggingDialog, QtCore.SIGNAL("tagPreferenceActivated(QString)"), self.tagPreferenceActivated)
-        self.__taggingDialog.connect(self.__taggingDialog, QtCore.SIGNAL("categoryTextEdited(QString)"), self.categoryTextEdited)
-        self.__taggingDialog.connect(self.__taggingDialog, QtCore.SIGNAL("categoryCompletionActivated(QString)"), self.categoryCompletionActivated)
-        self.__taggingDialog.connect(self.__taggingDialog, QtCore.SIGNAL("categoryPreferenceActivated(QString)"), self.categoryPreferenceActivated)
+        self.__tagging_dialog.connect(self.__tagging_dialog, QtCore.SIGNAL("tag_text_edited(QString)"), self.tag_text_edited)
+        self.__tagging_dialog.connect(self.__tagging_dialog, QtCore.SIGNAL("tag_completion_activated(QString)"), self.tag_completion_activated)
+        self.__tagging_dialog.connect(self.__tagging_dialog, QtCore.SIGNAL("tag_preference_activated(QString)"), self.tag_preference_activated)
+        self.__tagging_dialog.connect(self.__tagging_dialog, QtCore.SIGNAL("category_text_edited(QString)"), self.category_text_edited)
+        self.__tagging_dialog.connect(self.__tagging_dialog, QtCore.SIGNAL("category_completion_activated(QString)"), self.category_completion_activated)
+        self.__tagging_dialog.connect(self.__tagging_dialog, QtCore.SIGNAL("category_preference_activated(QString)"), self.category_preference_activated)
 
-        self.__taggingDialog.connect(self.__taggingDialog, QtCore.SIGNAL("confirmButtonPressed()"), self.confirmButtonPressed)
-        self.__taggingDialog.connect(self.__taggingDialog, QtCore.SIGNAL("cancelButtonPressed()"), self.cancelButtonPressed)
-        self.__taggingDialog.connect(self.__taggingDialog, QtCore.SIGNAL("cancelAllButtonPressed()"), self.cancelAllButtonPressed)
+        self.__tagging_dialog.connect(self.__tagging_dialog, QtCore.SIGNAL("confirm_button_pressed()"), self.confirm_button_pressed)
+        self.__tagging_dialog.connect(self.__tagging_dialog, QtCore.SIGNAL("cancel_button_pressed()"), self.cancel_button_pressed)
+        self.__tagging_dialog.connect(self.__tagging_dialog, QtCore.SIGNAL("cancel_all_button_pressed()"), self.cancel_all_button_pressed)
 
 #test getter/setter        
-        self.__taggingDialog.setStoreLabelText("store name")
-        self.__taggingDialog.setFileLabelText("current file")
-        self.__taggingDialog.show()
+        self.__tagging_dialog.set_store_label_text("store name")
+        self.__tagging_dialog.set_file_label_text("current file")
+        self.__tagging_dialog.show()
 #test end
 
-    def __initConfigurations(self):
+    def __init_configurations(self):
+        """
+        initializes the configuration. This method is called every time the config file changes
+        """
+    
         ## reload config file
-        self.configfile = ConfigWrapper(CONFIG_PATH)
-        self.configfile.connect(self.configfile, QtCore.SIGNAL("changed()"), self.__initConfigurations)
-        tagSeperator = self.configfile.getTagSeperator()
-        if tagSeperator.strip() != "":
-            self.TAG_SEPERATOR = tagSeperator
+        self.__config_file = ConfigWrapper(CONFIG_PATH)
+        self.__config_file.connect(self.__config_file, QtCore.SIGNAL("changed()"), self.__init_configurations)
+        tag_seperator = self.__config_file.get_tag_seperator()
+        if tag_seperator.strip() != "":
+            self.TAG_SEPERATOR = tag_seperator
             
-        configDir = self.configfile.getStoreConfigDirectory()
-        if configDir != "":
-            self.STORE_CONFIG_DIR = configDir
-        configExt = self.configfile.getStoreConfigExtention()
-        if configExt != "":
-            self.STORE_CONFIG_EXT = configExt
+        config_dir = self.__config_file.get_store_config_directory()
+        if config_dir != "":
+            self.STORE_CONFIG_DIR = config_dir
+        config_file_name = self.__config_file.get_store_configfile_name()
+        if config_file_name != "":
+            self.STORE_CONFIG_FILE_NAME = config_file_name
             
-        configStoreItems = self.configfile.getStores()
+        config_store_items = self.__config_file.get_stores()
         ## reload stores
         for store in self.STORES:
             store.dispose()
         self.STORES = []
-        for storeItem in configStoreItems:
-            store = Store(storeItem["key"],storeItem["path"], self.STORE_CONFIG_DIR, self.STORE_CONFIG_EXT)
-            store.connect(store, QtCore.SIGNAL("removed(PyQt_PyObject)"), self.storeRemoved)
-            store.connect(store, QtCore.SIGNAL("renamed(PyQt_PyObject, QString)"), self.storeRenamed)
+        for storeItem in config_store_items:
+            store = Store(storeItem["id"],storeItem["path"], self.STORE_CONFIG_DIR, self.STORE_CONFIG_FILE_NAME)
+            store.connect(store, QtCore.SIGNAL("removed(PyQt_PyObject)"), self.store_removed)
+            store.connect(store, QtCore.SIGNAL("renamed(PyQt_PyObject, QString)"), self.store_renamed)
             self.STORES.append(store)
         #TODO: raise an error if stores have the same name
 
-    def storeRemoved(self, store):
-        self.configfile.removeStore(store.getConfigKey())
-        ## __initConfiguration is called due to config file changes
+    def store_removed(self, store):
+        """
+        event handler of the stores remove event
+        """
+        self.__config_file.remove_store(store.get_id())
+        ## __init_configuration is called due to config file changes
         
-    def storeRenamed(self, store, newPath):
-        store.rename(newPath)
-        self.configfile.renameStore(store.getConfigKey(), newPath)
-        ## __initConfiguration is called due to config file changes
+    def store_renamed(self, store, new_path):
+        """
+        event handler of the stores rename event
+        """
+        store.rename(new_path)
+        self.__config_file.rename_store(store.get_id(), new_path)
+        ## __init_configuration is called due to config file changes
         
-    def tagTextEdited(self, text):
-        self.__updateTagList()
-        cursorLeftText = unicode(text)[:self.__taggingDialog.tagCursorPosition()]
-        lookupPrefix = cursorLeftText.split(self.TAG_SEPERATOR)[-1].strip()
-        self.__taggingDialog.setTagCompletionPrefix(lookupPrefix)
+    def tag_text_edited(self, text):
+        """
+        event handler of the text_changed event: this is triggered when typing text
+        """
+        self.__update_tag_list()
+        cursor_left_text = unicode(text)[:self.__tagging_dialog.get_tag_cursor_position()]
+        lookup_prefix = cursor_left_text.split(self.TAG_SEPERATOR)[-1].strip()
+        self.__tagging_dialog.set_tag_completion_prefix(lookup_prefix)
         
-    def tagCompletionActivated(self, text):
-        self.__updateTagList()
-        cursorPos = self.__taggingDialog.tagCursorPosition()
-        currentText = self.__taggingDialog.tagText()
-        cursorLeftText = unicode(currentText)[:cursorPos]
-        cursorRightText = unicode(currentText)[cursorPos:]
-        if cursorRightText.strip()[:len(self.TAG_SEPERATOR)] != self.TAG_SEPERATOR:
-            cursorRightText = self.TAG_SEPERATOR + cursorRightText
-        prefixLength = len(cursorLeftText.split(self.TAG_SEPERATOR)[-1].strip())
+    def tag_completion_activated(self, text):
+        """
+        event handler: triggered if a text was selected from the completer during typing
+        """
+        self.__update_tag_list()
+        cursor_pos = self.__tagging_dialog.get_tag_cursor_position()
+        current_text = self.__tagging_dialog.get_tag_text()
+        cursor_left_text = unicode(current_text)[:cursor_pos]
+        cursor_right_text = unicode(current_text)[cursor_pos:]
+        if cursor_right_text.strip()[:len(self.TAG_SEPERATOR)] != self.TAG_SEPERATOR:
+            cursor_right_text = self.TAG_SEPERATOR + cursor_right_text
+        prefix_length = len(cursor_left_text.split(self.TAG_SEPERATOR)[-1].strip())
 
-        self.__taggingDialog.setTagText(cursorLeftText[:cursorPos - prefixLength] + text + cursorRightText)
-        self.__taggingDialog.setTagCursorPosition(cursorPos - prefixLength + len(text) + len(self.TAG_SEPERATOR))   
+        self.__tagging_dialog.set_tag_text(cursor_left_text[:cursor_pos - prefix_length] + text + cursor_right_text)
+        self.__tagging_dialog.set_tag_cursor_position(cursor_pos - prefix_length + len(text) + len(self.TAG_SEPERATOR))   
         
-    def tagPreferenceActivated(self, text):
-        self.__updateTagList()
-        currentText = self.__taggingDialog.tagText()
-        if currentText.strip() == "":
-            self.__taggingDialog.setTagText(text + self.TAG_SEPERATOR)
-        elif currentText.split(self.TAG_SEPERATOR)[-1].strip() == "":
-            self.__taggingDialog.setTagText(currentText + text + self.TAG_SEPERATOR)
+    def tag_preference_activated(self, text):
+        """
+        event handler: triggered if a text was selected from the dropdown (right side)
+        """
+        self.__update_tag_list()
+        current_text = self.__tagging_dialog.get_tag_text()
+        if current_text.strip() == "":
+            self.__tagging_dialog.set_tag_text(text + self.TAG_SEPERATOR)
+        elif current_text.split(self.TAG_SEPERATOR)[-1].strip() == "":
+            self.__tagging_dialog.set_tag_text(current_text + text + self.TAG_SEPERATOR)
         else:
-            self.__taggingDialog.setTagText(currentText + self.TAG_SEPERATOR + text + self.TAG_SEPERATOR)
+            self.__tagging_dialog.set_tag_text(current_text + self.TAG_SEPERATOR + text + self.TAG_SEPERATOR)
         
-    def __updateTagList(self):
-        usedTags = self.__taggingDialog.tagText().split(self.TAG_SEPERATOR)
+    def __update_tag_list(self):
+        """
+        loads available items into the tag control 
+        """
+        usedTags = self.__tagging_dialog.get_tag_text().split(self.TAG_SEPERATOR)
         
         #zentales tagDictionary: einlesen der config, einlesen
-        self.__taggingDialog.setTagLookupList(['aa','abb','xaa b','cabb','daa','abb','abc'])
-        self.__taggingDialog.setTagPreferences(['f','g','h'])
+        self.__tagging_dialog.set_tag_lookup_list(['aa','abb','xaa b','cabb','daa','abb','abc'])
+        self.__tagging_dialog.set_tag_preferences(['f','g','h'])
         
         
-    def categoryTextEdited(self, text):
+    def category_text_edited(self, text):
+        """
+        """
         pass
         
-    def categoryCompletionActivated(self, text):
+    def category_completion_activated(self, text):
+        """
+        """
         pass
         
-    def categoryPreferenceActivated(self, text):
+    def category_preference_activated(self, text):
+        """
+        """
         pass
                                
-    def confirmButtonPressed(self):
+    def confirm_button_pressed(self):
+        """
+        """
         print "confirm"
  
-    def cancelButtonPressed(self):
+    def cancel_button_pressed(self):
+        """
+        """
         print "cancel"
         
-    def cancelAllButtonPressed(self):
+    def cancel_all_button_pressed(self):
+        """
+        """
         print "cancelAll"
         
         
 if __name__ == '__main__':  
   
     tagstore = QtGui.QApplication(sys.argv)
-    tagWidget = Tagstore()
+    tag_widget = Tagstore()
     sys.exit(tagstore.exec_())
 
 
