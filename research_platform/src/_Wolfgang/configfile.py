@@ -28,6 +28,7 @@ class ConfigFile(QtCore.QObject):
         self.__watcher.addPath(configfilePath)
         self.__watcher.connect(self.__watcher,QtCore.SIGNAL("fileChanged(QString)"), self.__fileChanged)
         self.__settings = QtCore.QSettings(configfilePath, QtCore.QSettings.IniFormat)
+        self.__settings.setValue("FileName.txt", "tag1, tAG, ASD")
         
     def __fileChanged(self):
         self.__settings.sync()
