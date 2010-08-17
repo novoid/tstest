@@ -29,17 +29,17 @@ class FileSystemWrapper():
     def __init__(self):
         self.file_system = FileSystem()
     
-    def pathExists(self, path):
+    def path_exists(self, path):
         return os.path.exists(path)
     
-    def find(self, inPath, searchPath):
-        for file in os.listdir(inPath):
-            if os.path.exists(inPath + "/" + file + "/" + searchPath):
-                return inPath + "/" + file
+    def find(self, in_path, search_path):
+        for file in os.listdir(in_path):
+            if os.path.exists(in_path + "/" + file + "/" + search_path):
+                return in_path + "/" + file
         return ""
 
-    def rename(self, oldName, newName):
-        os.rename(oldName, newName)
+    def rename(self, old_name, new_name):
+        os.rename(old_name, new_name)
 
         
 ## end
