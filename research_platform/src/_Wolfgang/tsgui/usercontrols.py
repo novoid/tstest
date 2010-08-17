@@ -19,79 +19,123 @@ from PyQt4 import QtCore, QtGui
 
 class LineEditCompleter(QtGui.QWidget):
 
-    __pyqtSignals__ = ("textEdited(QString)", 
-                       "completionActivated(QString)", 
-                       "preferenceActivated(QString)")
+    __pyqtSignals__ = ("text_edited(QString)", 
+                       "completion_activated(QString)", 
+                       "preference_activated(QString)")
 
     def __init__(self, parent=None):
+        """
+        Constructor
+        """
         QtGui.QWidget.__init__(self, parent)
         
-        self.__comboBox = QtGui.QComboBox(parent)
-        self.__comboBox.connect(self.__comboBox, QtCore.SIGNAL("activated(QString)"), self, QtCore.SIGNAL("preferenceActivated(QString)"))
-        self.__lineEdit = QtGui.QLineEdit(parent)
-        self.__lineEdit.setStyleSheet("QLineEdit {border: none}")
-        QtCore.QMetaObject.connectSlotsByName(parent)
+        self.__combobox = QtGui.QComboBox(parent)
+        self.__combobox.connect(self.__combobox, QtCore.SIGNAL("activated(QString)"), self, QtCore.SIGNAL("preference_activated(QString)"))
+        self.__lineedit = QtGui.QLineEdit(parent)
+        self.__lineedit.setStyleSheet("QLineEdit {border: none}")
         self.__completer = QtGui.QCompleter()
-        self.__completer.setWidget(self.__lineEdit)
+        self.__completer.setWidget(self.__lineedit)
         self.__completer.setCaseSensitivity(QtCore.Qt.CaseInsensitive)
-        self.__completer.connect(self.__completer, QtCore.SIGNAL("activated(QString)"), self, QtCore.SIGNAL("completionActivated(QString)"))
-        self.__lineEdit.connect(self.__lineEdit, QtCore.SIGNAL("textEdited(QString)"), self, QtCore.SIGNAL("textEdited(QString)"))
+        self.__completer.connect(self.__completer, QtCore.SIGNAL("activated(QString)"), self, QtCore.SIGNAL("completion_activated(QString)"))
+        self.__lineedit.connect(self.__lineedit, QtCore.SIGNAL("textEdited(QString)"), self, QtCore.SIGNAL("text_edited(QString)"))
         QtCore.QMetaObject.connectSlotsByName(parent)
     
-    def setGeometry(self, qRect):
-        self.__comboBox.setGeometry(qRect)
-        self.__lineEdit.setGeometry(QtCore.QRect(qRect.left()+1, qRect.top()+1, qRect.width()-20, qRect.height()-2))
+    def set_geometry(self, qRect):
+        """
+        sets the controls geometry property: position, height, width
+        """
+        self.__combobox.setGeometry(qRect)
+        self.__lineedit.setGeometry(QtCore.QRect(qRect.left()+1, qRect.top()+1, qRect.width()-20, qRect.height()-2))
     
     def show(self):
-        self.__comboBox.show()
-        self.__lineEdit.show()
+        """
+        sets the control visible
+        """
+        self.__combobox.show()
+        self.__lineedit.show()
 
     def hide(self):
-        self.__comboBox.hide()
-        self.__lineEdit.hide()
+        """
+        set the control invisible
+        """
+        self.__combobox.hide()
+        self.__lineedit.hide()
         
-    def setEnabled(self, enabled=True):
-        self.__comboBox.setEnabled(enabled)
-        self.__lineEdit.setEnabled(enabled)
+    def set_enabled(self, enabled=True):
+        """
+        enables/disabled the control
+        """
+        self.__combobox.setEnabled(enabled)
+        self.__lineedit.setEnabled(enabled)
 
-    def setFont(self, font):
-        self.__lineEdit.setFont(font)
-        self.__comboBox.setFont(font)
+    def set_font(self, font):
+        """
+        sets the controls font
+        """
+        self.__lineedit.setFont(font)
+        self.__combobox.setFont(font)
         self.__completer.popup().setFont(font)
         
-    def setPreferences(self, list):
-        self.__comboBox.clear()
-        self.__comboBox.addItems(QtCore.QStringList(list))
+    def set_preferences(self, list):
+        """
+        sets the controls dropdown (combobox) list
+        """
+        self.__combobox.clear()
+        self.__combobox.addItems(QtCore.QStringList(list))
 
-    def setLookupList(self, list):
+    def set_lookup_list(self, list):
+        """
+        sets the controls lookup list (completer)
+        """
         self.__completer.setModel(QtGui.QStringListModel(QtCore.QStringList(list)))
 
-    def setToolTip(self, string):
-        self.__comboBox.setToolTip(string)
-        self.__lineEdit.setToolTip(string)
+    def set_tool_tip(self, string):
+        """
+        sets the controls tooltip text
+        """
+        self.__combobox.setToolTip(string)
+        self.__lineedit.setToolTip(string)
         
-    def setCompletionPrefix(self, prefix):
+    def set_completion_prefix(self, prefix):
+        """
+        sets the prefix of the controls lookup functionality
+        """
         self.__completer.setCompletionPrefix(prefix)
         if prefix.strip() != "":
             ## avoid showing popup if prefix = ""
             self.__completer.complete()
         
-    def setFocus(self):
-        self.__lineEdit.setFocus()
+    def set_focus(self):
+        """
+        sets the control focused
+        """
+        self.__lineedit.setFocus()
         
-    def text(self):
-        return unicode(self.__lineEdit.text())
+    def get_text(self):
+        """
+        returns the controls text
+        """
+        return unicode(self.__lineedit.text())
 
-    def setText(self, string):
-        self.__lineEdit.setText(string)
-        self.__lineEdit.setFocus()
-        self.__lineEdit.setCursorPosition(len(string))
+    def set_text(self, string):
+        """
+        sets the controls text
+        """
+        self.__lineedit.setText(string)
+        self.__lineedit.setFocus()
+        self.__lineedit.setCursorPosition(len(string))
 
-    def cursorPosition(self):
-        return self.__lineEdit.cursorPosition()
+    def get_cursor_position(self):
+        """
+        returns the controls cursor position
+        """
+        return self.__lineedit.cursorPosition()
     
-    def setCursorPosition(self, position):
-        self.__lineEdit.setCursorPosition(position)
+    def set_cursor_position(self, position):
+        """
+        sets the controls cursor position
+        """
+        self.__lineedit.setCursorPosition(position)
 
 
 ## end
