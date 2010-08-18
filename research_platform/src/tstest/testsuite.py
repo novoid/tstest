@@ -20,7 +20,7 @@ from tscore.tagwrapper import TagWrapper
 
 class Test(unittest.TestCase):
 
-    TAGFILE_NAME = "../test/.TESTSUITE_TAGFILE"
+    TAGFILE_NAME = "../../test/.TESTSUITE_TAGFILE"
 
     def setUp(self):
         pass
