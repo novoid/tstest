@@ -20,6 +20,111 @@ from PyQt4 import QtCore, QtGui
 class LineEditCompleter(QtGui.QWidget):
 
     __pyqtSignals__ = ("text_edited(QString)", 
+                       "completion_activated(QString)")
+
+    def __init__(self, parent=None):
+        """
+        Constructor
+        """
+        QtGui.QWidget.__init__(self, parent)
+        
+        self.__lineedit = QtGui.QLineEdit(parent)
+        self.__completer = QtGui.QCompleter()
+        self.__completer.setWidget(self.__lineedit)
+        self.__completer.setCaseSensitivity(QtCore.Qt.CaseInsensitive)
+        self.__completer.connect(self.__completer, QtCore.SIGNAL("activated(QString)"), self, QtCore.SIGNAL("completion_activated(QString)"))
+        self.__lineedit.connect(self.__lineedit, QtCore.SIGNAL("textEdited(QString)"), self, QtCore.SIGNAL("text_edited(QString)"))
+        QtCore.QMetaObject.connectSlotsByName(parent)
+    
+    def set_geometry(self, q_rect):
+        """
+        sets the controls geometry property: position, height, width
+        """
+        self.__lineedit.setGeometry(q_rect)
+    
+    def show(self):
+        """
+        sets the control visible
+        """
+        self.__lineedit.show()
+
+    def hide(self):
+        """
+        set the control invisible
+        """
+        self.__lineedit.hide()
+        
+    def set_enabled(self, enabled=True):
+        """
+        enables/disabled the control
+        """
+        self.__lineedit.setEnabled(enabled)
+
+    def set_font(self, font):
+        """
+        sets the controls font
+        """
+        self.__lineedit.setFont(font)
+        self.__completer.popup().setFont(font)
+        
+    def set_lookup_list(self, list):
+        """
+        sets the controls lookup list (completer)
+        """
+        self.__completer.setModel(QtGui.QStringListModel(QtCore.QStringList(list)))
+
+    def set_tool_tip(self, string):
+        """
+        sets the controls tooltip text
+        """
+        self.__combobox.setToolTip(string)
+        self.__lineedit.setToolTip(string)
+        
+    def set_completion_prefix(self, prefix):
+        """
+        sets the prefix of the controls lookup functionality
+        """
+        self.__completer.setCompletionPrefix(prefix)
+        if prefix.strip() != "":
+            ## avoid showing popup if prefix = ""
+            self.__completer.complete()
+        
+    def set_focus(self):
+        """
+        sets the control focused
+        """
+        self.__lineedit.setFocus()
+        
+    def get_text(self):
+        """
+        returns the controls text
+        """
+        return unicode(self.__lineedit.text())
+
+    def set_text(self, string):
+        """
+        sets the controls text
+        """
+        self.__lineedit.setText(string)
+        self.__lineedit.setFocus()
+        self.__lineedit.setCursorPosition(len(string))
+
+    def get_cursor_position(self):
+        """
+        returns the controls cursor position
+        """
+        return self.__lineedit.cursorPosition()
+    
+    def set_cursor_position(self, position):
+        """
+        sets the controls cursor position
+        """
+        self.__lineedit.setCursorPosition(position)
+
+
+class ComboboxCompleter(QtGui.QWidget):
+
+    __pyqtSignals__ = ("text_edited(QString)", 
                        "completion_activated(QString)", 
                        "preference_activated(QString)")
 
@@ -40,12 +145,12 @@ class LineEditCompleter(QtGui.QWidget):
         self.__lineedit.connect(self.__lineedit, QtCore.SIGNAL("textEdited(QString)"), self, QtCore.SIGNAL("text_edited(QString)"))
         QtCore.QMetaObject.connectSlotsByName(parent)
     
-    def set_geometry(self, qRect):
+    def set_geometry(self, q_rect):
         """
         sets the controls geometry property: position, height, width
         """
-        self.__combobox.setGeometry(qRect)
-        self.__lineedit.setGeometry(QtCore.QRect(qRect.left()+1, qRect.top()+1, qRect.width()-20, qRect.height()-2))
+        self.__combobox.setGeometry(q_rect)
+        self.__lineedit.setGeometry(QtCore.QRect(q_rect.left()+1, q_rect.top()+1, q_rect.width()-20, q_rect.height()-2))
     
     def show(self):
         """

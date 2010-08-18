@@ -15,7 +15,7 @@
 ## if not, see <http://www.gnu.org/licenses/>.
 
 from PyQt4 import QtCore, QtGui
-from usercontrols import LineEditCompleter
+from usercontrols import LineEditCompleter, ComboboxCompleter
 
 
 class TaggingDialog(QtGui.QWidget):  
@@ -25,7 +25,6 @@ class TaggingDialog(QtGui.QWidget):
                        "tag_preference_activated(QString)",
                        "category_text_edited(QString)",
                        "category_completion_activated(QString)",
-                       "category_preference_activated(QString)",
                        "confirm_button_pressed()", 
                        "cancel_button_pressed()", 
                        "cancel_all_button_pressed()")
@@ -40,14 +39,14 @@ class TaggingDialog(QtGui.QWidget):
         self.setAcceptDrops(False)
         icon = QtGui.QIcon()
         # TODO use resource file
-        icon.addPixmap(QtGui.QPixmap("../resources/images/icon.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap("resources/images/icon.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.setWindowIcon(icon)
         self.setWindowFlags(QtCore.Qt.WindowTitleHint | QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowCloseButtonHint)
 
         self.__tagstore_image = QtGui.QLabel(self)
         self.__tagstore_image.setGeometry(QtCore.QRect(95, 3, 201, 95))
         # TODO use resource file
-        self.__tagstore_image.setStyleSheet("QLabel {background-image: url(../resources/images/logo.png)}")
+        self.__tagstore_image.setStyleSheet("QLabel {background-image: url(resources/images/logo.png)}")
                 
         self.__current_operation_label = QtGui.QLabel(self)
         self.__current_operation_label.setGeometry(QtCore.QRect(10, 80, 151, 16))
@@ -78,7 +77,7 @@ class TaggingDialog(QtGui.QWidget):
         self.__tag_max_label.setGeometry(QtCore.QRect(10, 180, 300, 15))
         self.__tag_max_label.setFont(font)
         
-        self.__tag_combobox = LineEditCompleter(self)
+        self.__tag_combobox = ComboboxCompleter(self)
         self.__tag_combobox.set_geometry(QtCore.QRect(10, 200, 279, 22))
         self.__tag_combobox.set_font(font)
         self.__tag_combobox.set_focus()
@@ -90,13 +89,12 @@ class TaggingDialog(QtGui.QWidget):
         self.__category_label.setGeometry(QtCore.QRect(10, 230, 300, 15))
         self.__category_label.setFont(font)
         
-        self.__category_combobox = LineEditCompleter(self)
-        self.__category_combobox.set_geometry(QtCore.QRect(10, 250, 279, 22))
-        self.__category_combobox.set_font(font)
-        self.__category_combobox.connect(self.__category_combobox, QtCore.SIGNAL("text_edited(QString)"), self, QtCore.SIGNAL("category_text_edited(QString)"))
-        self.__category_combobox.connect(self.__category_combobox, QtCore.SIGNAL("completion_activated(QString)"), self, QtCore.SIGNAL("category_completion_activated(QString)"))
-        self.__category_combobox.connect(self.__category_combobox, QtCore.SIGNAL("preference_activated(QString)"), self, QtCore.SIGNAL("category_preference_activated(QString)"))
-        self.__category_combobox.set_enabled(False)
+        self.__category_lineedit = LineEditCompleter(self)
+        self.__category_lineedit.set_geometry(QtCore.QRect(10, 250, 279, 22))
+        self.__category_lineedit.set_font(font)
+        self.__category_lineedit.connect(self.__category_lineedit, QtCore.SIGNAL("text_edited(QString)"), self, QtCore.SIGNAL("category_text_edited(QString)"))
+        self.__category_lineedit.connect(self.__category_lineedit, QtCore.SIGNAL("completion_activated(QString)"), self, QtCore.SIGNAL("category_completion_activated(QString)"))
+        #self.__category_lineedit.set_enabled(False)
         
         self.__horizontal_layout_widget = QtGui.QWidget(self)
         self.__horizontal_layout_widget.setGeometry(QtCore.QRect(0, 310, 299, 40))
@@ -199,41 +197,41 @@ class TaggingDialog(QtGui.QWidget):
         """
         self.__tag_combobox.set_cursor_position(position)
         
-    def set_category_preferences(self, itemList):
-        """
-        sets the dropdowns list items
-        """
-        self.__category_combobox.set_preferences(itemList)
-        
     def set_category_lookup_list(self, itemList):
         """
         sets the controls lookup list items
         """
-        self.__category_combobox.set_lookup_list(itemList)
+        self.__category_lineedit.set_lookup_list(itemList)
     
     def set_category_completion_prefix(self, prefix):
         """
         sets the prefix for lookup functionality of the control
         """
-        self.__category_combobox.set_completion_prefix(prefix)
+        self.__category_lineedit.set_completion_prefix(prefix)
 
+    def set_category_text(self, text):
+        """
+        sets the text of the controls lineEdit 
+        """
+        return self.__category_lineedit.set_text(text)
+    
     def get_category_text(self):
         """
         returns the controls lineEdit text
         """
-        return self.__category_combobox.get_text()
+        return self.__category_lineedit.get_text()
     
     def get_category_cursor_position(self):
         """
         returns the controls cursor position
         """
-        return self.__category_combobox.get_cursor_position()
+        return self.__category_lineedit.get_cursor_position()
     
     def set_category_cursor_position(self, position):
         """
         sets the controls cursor position
         """
-        self.__category_combobox.set_cursor_position(position)
+        self.__category_lineedit.set_cursor_position(position)
         
     def set_cancel_all_button_enabled(self, enabled=True):
         """

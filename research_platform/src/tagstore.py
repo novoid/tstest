@@ -22,7 +22,7 @@ from tscore.store import Store
 
 
 # path to the config file
-CONFIG_PATH = "../conf/tagstore.cfg"
+CONFIG_PATH = "../settings/tagstore.cfg"
     
 class Tagstore():
 
@@ -50,7 +50,6 @@ class Tagstore():
         self.__tagging_dialog.connect(self.__tagging_dialog, QtCore.SIGNAL("tag_preference_activated(QString)"), self.tag_preference_activated)
         self.__tagging_dialog.connect(self.__tagging_dialog, QtCore.SIGNAL("category_text_edited(QString)"), self.category_text_edited)
         self.__tagging_dialog.connect(self.__tagging_dialog, QtCore.SIGNAL("category_completion_activated(QString)"), self.category_completion_activated)
-        self.__tagging_dialog.connect(self.__tagging_dialog, QtCore.SIGNAL("category_preference_activated(QString)"), self.category_preference_activated)
 
         self.__tagging_dialog.connect(self.__tagging_dialog, QtCore.SIGNAL("confirm_button_pressed()"), self.confirm_button_pressed)
         self.__tagging_dialog.connect(self.__tagging_dialog, QtCore.SIGNAL("cancel_button_pressed()"), self.cancel_button_pressed)
@@ -150,28 +149,39 @@ class Tagstore():
         """
         loads available items into the tag control 
         """
-        usedTags = self.__tagging_dialog.get_tag_text().split(self.TAG_SEPERATOR)
+        used_tags = self.__tagging_dialog.get_tag_text().split(self.TAG_SEPERATOR)
         
         #zentales tagDictionary: einlesen der config, einlesen
         self.__tagging_dialog.set_tag_lookup_list(['aa','abb','xaa b','cabb','daa','abb','abc'])
         self.__tagging_dialog.set_tag_preferences(['f','g','h'])
+        self.__tagging_dialog.set_category_lookup_list(['aa','abb','xaa b','cabb','daa','abb','abc'])
         
         
     def category_text_edited(self, text):
         """
+        event handler of the text_changed event: this is triggered when typing text
         """
-        pass
+        self.__update_tag_list()
+        cursor_left_text = unicode(text)[:self.__tagging_dialog.get_category_cursor_position()]
+        lookup_prefix = cursor_left_text.split(self.TAG_SEPERATOR)[-1].strip()
+        self.__tagging_dialog.set_category_completion_prefix(lookup_prefix)
         
     def category_completion_activated(self, text):
         """
+        event handler: triggered if a text was selected from the completer during typing
         """
-        pass
+        self.__update_tag_list()
+        cursor_pos = self.__tagging_dialog.get_category_cursor_position()
+        current_text = self.__tagging_dialog.get_category_text()
+        cursor_left_text = unicode(current_text)[:cursor_pos]
+        cursor_right_text = unicode(current_text)[cursor_pos:]
+        if cursor_right_text.strip()[:len(self.TAG_SEPERATOR)] != self.TAG_SEPERATOR:
+            cursor_right_text = self.TAG_SEPERATOR + cursor_right_text
+        prefix_length = len(cursor_left_text.split(self.TAG_SEPERATOR)[-1].strip())
+
+        self.__tagging_dialog.set_category_text(cursor_left_text[:cursor_pos - prefix_length] + text + cursor_right_text)
+        self.__tagging_dialog.set_category_cursor_position(cursor_pos - prefix_length + len(text) + len(self.TAG_SEPERATOR))   
         
-    def category_preference_activated(self, text):
-        """
-        """
-        pass
-                               
     def confirm_button_pressed(self):
         """
         """
