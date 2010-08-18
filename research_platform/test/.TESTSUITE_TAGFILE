@@ -1,0 +1,8 @@
+[store]
+id=007
+
+[files]
+testfile.txt="test,fest,klest"
+masterthesis.tex="MT,TUG,tagstore"
+timesheet.csv="MT,TUG,controll"
+second_new_testfile="gnusmas,fest,DA,tagger"
