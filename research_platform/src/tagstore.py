@@ -22,7 +22,7 @@ from tscore.store import Store
 
 
 # path to the config file
-CONFIG_PATH = "settings/tagstore.cfg"
+CONFIG_PATH = "../conf/tagstore.cfg"
     
 class Tagstore():
 
