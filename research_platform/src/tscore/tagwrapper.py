@@ -14,6 +14,7 @@
 ## You should have received a copy of the GNU General Public License along with this program;
 ## if not, see <http://www.gnu.org/licenses/>.
 
+from datetime import date
 from PyQt4.QtCore import QVariant, QSettings, QString
 
 
@@ -26,6 +27,9 @@ class TagWrapper():
     GROUP_FILES_NAME = "files"
     GROUP_CATEGORIES_NAME = "categories"
     
+    KEY_TAGS = "tags"
+    KEY_TIMESTAMP = "timestamp"
+    KEY_CATEGORY = "category"
 
     def __init__(self, file_path, store_id = None):
         """
@@ -100,7 +104,18 @@ class TagWrapper():
         """
         returns all tags of a number of recently entered files
         """
-        pass
+        self.__tag_file_handler.beginGroup(TagWrapper.GROUP_FILES_NAME)
+#        children_list = self.__tag_file_handler.childKeys()
+        children_list = self.__tag_file_handler.childKeys()
+        
+        # do not allow 
+        if no_of_files > children_list.count():
+            no_of_files = children_list.count()
+        
+        for child_index in range(no_of_files):
+            print unicode(children_list[child_index])
+            #child_value = self.__tag_file_handler.value(child_index)
+        
     
     def get_popular_tags(self, no_of_tags):
         """
@@ -119,7 +134,13 @@ class TagWrapper():
         assumption: file_name and tag_list do not have to be checked
         for lower case upper case inconsistencies 
         """
-        
+        self.__tag_file_handler.beginGroup(TagWrapper.GROUP_FILES_NAME)
+        if self.__tag_file_handler.contains(file_name):
+            ## remove the key/value pair
+            ## to add it as new at thebottom of the files-group
+            self.__tag_file_handler.remove(file_name)
+            # manually synchronize to write the changes to the file
+            self.__tag_file_handler.sync()
         ## concat the tag list to a string representation
         tag_string = ""
         for tag in tag_list:
@@ -128,13 +149,20 @@ class TagWrapper():
             else:
                 tag_string = tag_string + "," + tag
 
-        self.__tag_file_handler.setValue(TagWrapper.GROUP_FILES_NAME+"/"+file_name, tag_string)
+        self.__tag_file_handler.setValue(file_name+"/tags", tag_string)
+        self.__tag_file_handler.setValue(file_name+"/timestamp", date.today())
+        self.__tag_file_handler.endGroup()    
     
     def rename_file(self, old_file_name, new_file_name):
         """
         renames an existing file
         """
-        pass    
+        self.__tag_file_handler.beginGroup(TagWrapper.GROUP_FILES_NAME)
+        if self.__tag_file_handler.contains(old_file_name):
+            old_val = self.__tag_file_handler.value(old_file_name)
+            self.__tag_file_handler.remove(old_file_name)
+            self.__tag_file_handler.setValue(new_file_name, old_val)
+        self.__tag_file_handler.endGroup()
     
     def remove_file(self, file_name):
         """
