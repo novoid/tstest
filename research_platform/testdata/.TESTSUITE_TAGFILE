@@ -1,6 +1,0 @@
-[descriptive]
-test = testfile.txt,anothertestfile.txt,thethirdtestfile,new_testfile
-guest = testfile.txt
-chest = testfile.txt,secondtestfile
-new_tag = new_testfile
-
