@@ -15,7 +15,7 @@
 ## if not, see <http://www.gnu.org/licenses/>.
 
 import unittest
-from _Wolfgang.tscore.tagwrapper import TagWrapper
+from tscore.tagwrapper import TagWrapper
 
 
 class Test(unittest.TestCase):
