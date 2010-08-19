@@ -2,7 +2,11 @@
 id=007
 
 [files]
-testfile.txt="test,fest,klest"
-masterthesis.tex="MT,TUG,tagstore"
-timesheet.csv="MT,TUG,controll"
-second_new_testfile="gnusmas,fest,DA,tagger"
+testfile.txt\tags="test,fest,klest"
+testfile.txt\timestamp=2010-08-19 19:17:10
+masterthesis.tex\tags="MT,TUG,tagstore"
+masterthesis.tex\timestamp=2010-08-19 18:14:50
+timesheet.csv\tags="MT,TUG,controll"
+timesheet.csv\timestamp=2010-08-19 18:14:55
+second_new_testfile\tags="gnusmas,fest,DA,tagger"
+second_new_testfile\timestamp=2010-08-19 19:17:10

@@ -35,26 +35,31 @@ class TagWrapper():
         """
         constructor
         """
+        if store_id is not None:
+            self.__create_file_structure(file_path, store_id)
         self.__settings = QSettings(file_path, QSettings.IniFormat)
-        
-        for file in self.__get_file_list():
-            print file["filename"]+": "+file["tags"]+": "+file["timestamp"]
+            
+        self.__tag_dict = {}
+        self.__create_tag_dict()
 
-        ## this code shows how to generate a timestamp, cast it to string ans back to time
-        ##x = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())   #time.gmtime()
-        ##print x
-        ##y = time.strptime(x, "%Y-%m-%d %H:%M:%S")    ##time object    ##string
-        ##print "new=" + time.strftime("%Y-%m-%d %H:%M:%S", y)
- 
-    def __get_file_list(self):
-        self.__settings.beginGroup("files")
-        files = self.__settings.childGroups()
+    def __get_date_sorted_file_list(self):
+        """
+        lookup all file elements and return a sorted by date list with dicts
+        """
         file_list = []
+
+        self.__settings.beginGroup(TagWrapper.GROUP_FILES_NAME)
+        files = self.__settings.childGroups()
+        print len(files)
         for file in files:
-            tags = unicode(self.__settings.value(file + "/" + TagWrapper.KEY_TAGS, "").toString())
-            timestamp = unicode(self.__settings.value(file + "/" + TagWrapper.KEY_TIMESTAMP, "").toString())
+            self.__settings.beginGroup(file)
+            tags = unicode(self.__settings.value(TagWrapper.KEY_TAGS).toString())
+            timestamp = unicode(self.__settings.value(TagWrapper.KEY_TIMESTAMP).toString())
             file_list.append(dict(filename=file, tags=tags, timestamp=timestamp))
-        return sorted(file_list, key=lambda k:k["timestamp"], reverse=True)
+            self.__settings.endGroup()
+        self.__settings.endGroup()
+        
+        return sorted(file_list, key=lambda k:k[TagWrapper.KEY_TIMESTAMP], reverse=True)
         
     def __create_file_structure(self, file_path, store_id):
         """
@@ -64,43 +69,47 @@ class TagWrapper():
         file.write("[store]\n")
         file.write("id=%s\n" % store_id)
         file.write("[files]\n")
-        file.write("testfile.txt=\"tag,tagger,dagger,TUG,TUG,DA\"\n")
-        file.write("diplomarbeit.tex=\"DA,TUG,tagstore\"\n")
-        file.write("[categories]\n")
         file.close()
                 
     def __create_tag_dict(self):
         """
         iterates through all files and creates a dictionary with tags + count
         """
-        self.__tag_file_handler.beginGroup(TagWrapper.GROUP_FILES_NAME)
-
         ## iterate all files and their tags .. with each new tag create a dict entry
         ## if the tag already exists -> increment the count         
         ## key = tagname value = count
-        for child in self.__tag_file_handler.childKeys():
-            child_value = self.__tag_file_handler.value(child)
-            tag_list_string = unicode(child_value.toString())
+        self.__settings.beginGroup(TagWrapper.GROUP_FILES_NAME)
+        for file in self.__settings.childGroups():
+            self.__settings.beginGroup(file)
+            tag_list_string = self.__settings.value(TagWrapper.KEY_TAGS).toString()
             for tag in tag_list_string.split(","):
                 if tag in self.__tag_dict:
                     self.__tag_dict[tag] += 1
                 else:
                     self.__tag_dict[tag] = 1
-        
-        self.__tag_file_handler.endGroup()
-        
+            self.__settings.endGroup()
+        self.__settings.endGroup()
+    def __get_filesgroup_childgroups(self):
+        """
+        return a list of all file-sub-groups of the group [files]
+        """
+        self.__settings.beginGroup("files")
+        files = self.__settings.childGroups()
+        self.__settings.endGroup()
+        return files
+    
     def set_file_path(self, file_path):
         """
         sets the internal path to the source file
         """
         ## TODO maybe initialize the whole new object?
-        self.__tag_file_handler = QSettings(file_path, QSettings.IniFormat)
+        self.__settings = QSettings(file_path, QSettings.IniFormat)
 
     def get_store_id(self):
         """
         returns the store id of the current file
         """
-        return unicode(self.__tag_file_handler.value(TagWrapper.GROUP_STORE_ID_NAME+"/"+TagWrapper.GROUP_STORE_ID_NAME, "0").toString())
+        return unicode(self.__settings.value(TagWrapper.GROUP_STORE_ID_NAME+"/"+TagWrapper.GROUP_STORE_ID_NAME, "0").toString())
     
     def get_all_tags(self):
         """
@@ -112,24 +121,35 @@ class TagWrapper():
         """
         returns a defined number of recently entered tags
         """
-        pass
+        tag_list = []
+        
+        file_list = self.__get_date_sorted_file_list()
+        for file in file_list:
+            tags = file[TagWrapper.KEY_TAGS]
+            for tag in tags.split(","):
+                ## if no of tags is reached - break the loop
+                if len(tag_list) < no_of_tags:
+                    tag_list.append(tag.strip())
+                else:
+                    break
+                
+        return tag_list
     
     def get_recent_files_tags(self, no_of_files):
         """
         returns all tags of a number of recently entered files
         """
-        self.__tag_file_handler.beginGroup(TagWrapper.GROUP_FILES_NAME)
-#        children_list = self.__tag_file_handler.childKeys()
-        children_list = self.__tag_file_handler.childKeys()
+        tag_list = []
         
-        # do not allow 
-        if no_of_files > children_list.count():
-            no_of_files = children_list.count()
+        file_list = self.__get_date_sorted_file_list()
         
-        for child_index in range(no_of_files):
-            print unicode(children_list[child_index])
-            #child_value = self.__tag_file_handler.value(child_index)
-        
+        ## TODO check for dupplicates!!!
+        for file in file_list[0:no_of_files]:
+            tags = file[TagWrapper.KEY_TAGS]
+            for tag in tags.split(","):
+                tag_list.append(tag.strip())
+                
+        return tag_list
     
     def get_popular_tags(self, no_of_tags):
         """
@@ -148,13 +168,6 @@ class TagWrapper():
         assumption: file_name and tag_list do not have to be checked
         for lower case upper case inconsistencies 
         """
-        self.__tag_file_handler.beginGroup(TagWrapper.GROUP_FILES_NAME)
-        if self.__tag_file_handler.contains(file_name):
-            ## remove the key/value pair
-            ## to add it as new at thebottom of the files-group
-            self.__tag_file_handler.remove(file_name)
-            # manually synchronize to write the changes to the file
-            self.__tag_file_handler.sync()
         ## concat the tag list to a string representation
         tag_string = ""
         for tag in tag_list:
@@ -163,20 +176,40 @@ class TagWrapper():
             else:
                 tag_string = tag_string + "," + tag
 
-        self.__tag_file_handler.setValue(file_name+"/tags", tag_string)
-        self.__tag_file_handler.setValue(file_name+"/timestamp", date.today())
-        self.__tag_file_handler.endGroup()    
+        ## this code shows how to generate a timestamp, cast it to string ans back to time
+        ##x = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())   #time.gmtime()
+        ##print x
+        ##y = time.strptime(x, "%Y-%m-%d %H:%M:%S")    ##time object    ##string
+        ##print "new=" + time.strftime("%Y-%m-%d %H:%M:%S", y)
+
+        self.__settings.beginGroup(TagWrapper.GROUP_FILES_NAME)
+        self.__settings.setValue(file_name+"/"+TagWrapper.KEY_TAGS, tag_string)
+        self.__settings.setValue(file_name+"/"+TagWrapper.KEY_TIMESTAMP, time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
+        self.__settings.endGroup()
     
     def rename_file(self, old_file_name, new_file_name):
         """
         renames an existing file
         """
-        self.__tag_file_handler.beginGroup(TagWrapper.GROUP_FILES_NAME)
-        if self.__tag_file_handler.contains(old_file_name):
-            old_val = self.__tag_file_handler.value(old_file_name)
-            self.__tag_file_handler.remove(old_file_name)
-            self.__tag_file_handler.setValue(new_file_name, old_val)
-        self.__tag_file_handler.endGroup()
+        self.__settings.beginGroup(TagWrapper.GROUP_FILES_NAME)
+        self.__settings.beginGroup(old_file_name)
+        
+        ## check if the current group has keys ...
+        if self.__settings.contains(TagWrapper.KEY_TAGS):
+            
+            old_tags = self.__settings.value(TagWrapper.KEY_TAGS)
+            old_timestamp = self.__settings.value(TagWrapper.KEY_TIMESTAMP)
+            
+            self.__settings.endGroup()
+            
+            self.__settings.remove(old_file_name)
+            self.__settings.setValue(new_file_name+"/"+TagWrapper.KEY_TAGS, old_tags)
+            self.__settings.setValue(new_file_name+"/"+TagWrapper.KEY_TIMESTAMP, old_timestamp)
+        else:
+            ## goup does not have entries ... may not exist
+            self.__settings.endGroup()
+        self.__settings.endGroup()
+        self.__settings.sync()
     
     def remove_file(self, file_name):
         """
@@ -188,7 +221,7 @@ class TagWrapper():
         """ 
         checks if a file is already existing in the section "files"
         """
-        return self.__tag_file_handler.contains(TagWrapper.GROUP_FILES_NAME+"/"+file_name)
+        return self.__settings.contains(TagWrapper.GROUP_FILES_NAME+"/"+file_name+"/"+TagWrapper.KEY_TAGS)
     
     def rename_tag(self, old_tag_name, new_tag_name):
         """
