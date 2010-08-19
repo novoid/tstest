@@ -54,7 +54,7 @@ class TagWrapper():
             tags = unicode(self.__settings.value(file + "/" + TagWrapper.KEY_TAGS, "").toString())
             timestamp = unicode(self.__settings.value(file + "/" + TagWrapper.KEY_TIMESTAMP, "").toString())
             file_list.append(dict(filename=file, tags=tags, timestamp=timestamp))
-        return file_list
+        return sorted(file_list, key=lambda k:k["timestamp"], reverse=True)
         
     def __create_file_structure(self, file_path, store_id):
         """
