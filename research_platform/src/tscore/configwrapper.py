@@ -54,6 +54,7 @@ class ConfigWrapper(QtCore.QObject):
     def get_stores(self):
         self.__settings.beginGroup("stores")
         storeKeys = self.__settings.childKeys()
+        self.__settings.endGroup()
         stores = []
         for id in storeKeys:
             stores.append(dict(id=id, path=unicode(self.__settings.value(id, "").toString())))

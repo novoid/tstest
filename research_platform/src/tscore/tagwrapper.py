@@ -14,7 +14,7 @@
 ## You should have received a copy of the GNU General Public License along with this program;
 ## if not, see <http://www.gnu.org/licenses/>.
 
-from datetime import date
+import time
 from PyQt4.QtCore import QVariant, QSettings, QString
 
 
@@ -31,17 +31,31 @@ class TagWrapper():
     KEY_TIMESTAMP = "timestamp"
     KEY_CATEGORY = "category"
 
-    def __init__(self, file_path, store_id = None):
+    def __init__(self, file_path, store_id=None):
         """
         constructor
         """
-        if store_id is not None:
-            self.__create_file_structure(file_path, store_id)
-        self.__tag_file_handler = QSettings(file_path, QSettings.IniFormat)
-            
-        self.__tag_dict = {}
-        self.__create_tag_dict()
-            
+        self.__settings = QSettings(file_path, QSettings.IniFormat)
+        
+        for file in self.__get_file_list():
+            print file["filename"]+": "+file["tags"]+": "+file["timestamp"]
+
+        ## this code shows how to generate a timestamp, cast it to string ans back to time
+        ##x = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())   #time.gmtime()
+        ##print x
+        ##y = time.strptime(x, "%Y-%m-%d %H:%M:%S")    ##time object    ##string
+        ##print "new=" + time.strftime("%Y-%m-%d %H:%M:%S", y)
+ 
+    def __get_file_list(self):
+        self.__settings.beginGroup("files")
+        files = self.__settings.childGroups()
+        file_list = []
+        for file in files:
+            tags = unicode(self.__settings.value(file + "/" + TagWrapper.KEY_TAGS, "").toString())
+            timestamp = unicode(self.__settings.value(file + "/" + TagWrapper.KEY_TIMESTAMP, "").toString())
+            file_list.append(dict(filename=file, tags=tags, timestamp=timestamp))
+        return file_list
+        
     def __create_file_structure(self, file_path, store_id):
         """
         creates the default file structure in a given file
