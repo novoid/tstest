@@ -19,8 +19,6 @@ from PyQt4 import QtCore, QtGui
 from tsgui.taggingdialog import TaggingDialog
 from tscore.configwrapper import ConfigWrapper
 from tscore.store import Store
-#test only
-from tscore.tagwrapper import TagWrapper
 
 
 # path to the config file
@@ -62,7 +60,6 @@ class Tagstore():
         self.__tagging_dialog.set_file_label_text("current file")
         self.__tagging_dialog.show()
         
-        tagfile = TagWrapper("../test/store1/.tagstore/store1.tgs")
 #test end
 
     def __init_configurations(self):
