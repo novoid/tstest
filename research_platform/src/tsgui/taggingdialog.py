@@ -39,14 +39,14 @@ class TaggingDialog(QtGui.QWidget):
         self.setAcceptDrops(False)
         icon = QtGui.QIcon()
         # TODO use resource file
-        icon.addPixmap(QtGui.QPixmap("resources/images/icon.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap("../resources/images/icon.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.setWindowIcon(icon)
         self.setWindowFlags(QtCore.Qt.WindowTitleHint | QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowCloseButtonHint)
 
         self.__tagstore_image = QtGui.QLabel(self)
         self.__tagstore_image.setGeometry(QtCore.QRect(95, 3, 201, 95))
         # TODO use resource file
-        self.__tagstore_image.setStyleSheet("QLabel {background-image: url(resources/images/logo.png)}")
+        self.__tagstore_image.setStyleSheet("QLabel {background-image: url(../resources/images/logo.png)}")
                 
         self.__current_operation_label = QtGui.QLabel(self)
         self.__current_operation_label.setGeometry(QtCore.QRect(10, 80, 151, 16))
