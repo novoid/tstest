@@ -52,7 +52,24 @@ class Test(unittest.TestCase):
         assert(tag_list[0] == "MT")
         assert(tag_list[1] == "TUG")
 
-    def test_tagwrapper_rename_file(self):
+    def test_tagwrapper_get_all_tags(self):
+        tag_wrapper = self.get_fresh_tagwrapper()
+        all_tags_list = tag_wrapper.get_all_tags()
+        ## the test-tagfile has got 7 different tags
+        assert(len(all_tags_list) == 7)
+        
+
+    def test_tagwrapper_remove_file_and_tags(self):
+        tag_wrapper = self.get_fresh_tagwrapper()
+        
+        tag_wrapper.remove_file("testfile.txt")
+        assert(not tag_wrapper.file_exists("testfile.txt"))
+        
+        tag_wrapper.remove_tag("TUG")
+        assert("TUG" not in tag_wrapper.get_all_tags())
+        
+        
+    def test_tagwrapper_rename_file_and_tag(self):
         tag_wrapper = self.get_fresh_tagwrapper()
         
         tag_wrapper.rename_file("testfile.txt", "ricewind")
@@ -61,17 +78,27 @@ class Test(unittest.TestCase):
         tag_wrapper.rename_file("ricewind", "mort")
         assert(tag_wrapper.file_exists("mort"))
         assert(not tag_wrapper.file_exists("ricewind"))
+        # TODO does not work after file renames ...
+        tag_wrapper.rename_tag("dagger", "sword")
+        assert("sword" in tag_wrapper.get_all_tags())
+        
+    def test_tagwrapper_rename_tag(self):
+        tag_wrapper = self.get_fresh_tagwrapper()
         
     def test_tagwrapper_recent(self):
         tag_wrapper = self.get_fresh_tagwrapper()
         
         tag_list = tag_wrapper.get_recent_files_tags(5)
-        
         assert(len(tag_list) == 7)
         
-        tag_list = tag_wrapper.get_recent_tags(5)
+        tag_list = tag_wrapper.get_recent_files_tags(1)
+        assert("tagstore" not in tag_list)
+        assert("TUG" in tag_list)
         
-        assert(len(tag_list) == 5)
+        tag_list = tag_wrapper.get_recent_tags(4)
+        
+        assert(len(tag_list) == 4)
+        assert("dagger" not in tag_list)
         
 
     def test_configreader(self):
@@ -98,11 +125,14 @@ class Test(unittest.TestCase):
         file.write("[files]\n")
 
         file.write("testfile.txt/tags=\"tag,tagger,dagger,MT\"\n")
-        file.write("testfile.txt/timestamp=\"2010-08-19 18:14:55\"\n")
+        file.write("testfile.txt/timestamp=\"2010-08-20 18:14:55\"\n")
+        
         file.write("masterthesis.tex/tags=\"MT,TUG,tagstore\"\n")
-        file.write("masterthesis.tex/timestamp=\"2010-08-19 18:14:50\"\n")
+        file.write("masterthesis.tex/timestamp=\"2010-08-21 18:14:50\"\n")
+        
         file.write("timesheet.csv/tags=\"MT,TUG,controll\"\n")
-        file.write("timesheet.csv/timestamp=\"2010-08-19 18:14:55\"\n")
+        file.write("timesheet.csv/timestamp=\"2010-08-22 18:14:55\"\n")
+        
         file.write("[categories]\n")
         file.close()
     
