@@ -29,14 +29,18 @@ class Test(unittest.TestCase):
         pass
 
 
+    def test_tagwrapper_file_exists(self):
+        tag_wrapper = self.get_fresh_tagwrapper()
+        assert(tag_wrapper.file_exists("testfile.txt"))
+        
     def test_tagwrapper_write_and_get(self):
         
         tag_wrapper = self.get_fresh_tagwrapper()
         ## write new files to the tagfile, use one existing file, and a new one
         tag_wrapper.set_file("testfile.txt", ["test", "fest", "klest"])
         tag_wrapper.set_file("second_new_testfile", ["gnusmas", "fest", "DA", "tagger"])
-        assert(tag_wrapper.exists_file("second_new_testfile"))
-        assert(not tag_wrapper.exists_file("second"))
+        assert(tag_wrapper.file_exists("second_new_testfile"))
+        assert(not tag_wrapper.file_exists("second"))
 
 
     def test_tagwrapper_popular(self):
@@ -50,14 +54,24 @@ class Test(unittest.TestCase):
 
     def test_tagwrapper_rename_file(self):
         tag_wrapper = self.get_fresh_tagwrapper()
-        tag_wrapper.rename_file("futukaka", "testfile.txt")
-        tag_wrapper.rename_file("testfile.txt", "futukaka")
+        
+        tag_wrapper.rename_file("testfile.txt", "ricewind")
+        assert(tag_wrapper.file_exists("ricewind"))
+        
+        tag_wrapper.rename_file("ricewind", "mort")
+        assert(tag_wrapper.file_exists("mort"))
+        assert(not tag_wrapper.file_exists("ricewind"))
         
     def test_tagwrapper_recent(self):
         tag_wrapper = self.get_fresh_tagwrapper()
         
-        tag_string = tag_wrapper.get_recent_files_tags(10)
-        print tag_string
+        tag_list = tag_wrapper.get_recent_files_tags(5)
+        
+        assert(len(tag_list) == 7)
+        
+        tag_list = tag_wrapper.get_recent_tags(5)
+        
+        assert(len(tag_list) == 5)
         
 
     def test_configreader(self):
@@ -89,9 +103,6 @@ class Test(unittest.TestCase):
         file.write("masterthesis.tex/timestamp=\"2010-08-19 18:14:50\"\n")
         file.write("timesheet.csv/tags=\"MT,TUG,controll\"\n")
         file.write("timesheet.csv/timestamp=\"2010-08-19 18:14:55\"\n")
-        #file.write("testfile.txt/tags=\"tag,tagger,dagger,MT\"\n")
-        #file.write("masterthesis.tex/tags=\"MT,TUG,tagstore\"\n")
-        #file.write("timesheet.csv/tags=\"MT,TUG,controll\"\n")
         file.write("[categories]\n")
         file.close()
     

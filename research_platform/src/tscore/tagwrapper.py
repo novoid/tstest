@@ -116,8 +116,8 @@ class TagWrapper():
         tags = set()
         files = self.__get_file_list()
         position = 0
-        while len(tags) < no_of_tags and files[position] is not None:
-            tags = tags.union(set(files[position]["tags"].split(self.TAG_SEPARATOR)))
+        while len(tags) < no_of_tags and position < len(files) and files[position] is not None:
+            tags = tags.union(set(files[position]["tags"]))
             position +=1
         return sorted(tags)[:no_of_tags]
 
@@ -128,8 +128,8 @@ class TagWrapper():
         tags = set()
         files = self.__get_file_list()
         position = 0
-        while position < no_of_files and files[position] is not None:
-            tags = tags.union(set(files[position]["tags"].split(self.TAG_SEPARATOR)))
+        while position < no_of_files and position < len(files) and files[position] is not None:
+            tags = tags.union(set(files[position]["tags"]))
             position +=1
         return sorted(tags)
 
