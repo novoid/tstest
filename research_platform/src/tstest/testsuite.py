@@ -71,19 +71,20 @@ class Test(unittest.TestCase):
         
     def test_tagwrapper_rename_file_and_tag(self):
         tag_wrapper = self.get_fresh_tagwrapper()
-        
+
         tag_wrapper.rename_file("testfile.txt", "ricewind")
         assert(tag_wrapper.file_exists("ricewind"))
         
         tag_wrapper.rename_file("ricewind", "mort")
         assert(tag_wrapper.file_exists("mort"))
         assert(not tag_wrapper.file_exists("ricewind"))
-        # TODO does not work after file renames ...
+
         tag_wrapper.rename_tag("dagger", "sword")
         assert("sword" in tag_wrapper.get_all_tags())
+        assert("dagger" not in tag_wrapper.get_all_tags())
         
-    def test_tagwrapper_rename_tag(self):
-        tag_wrapper = self.get_fresh_tagwrapper()
+    #def test_tagwrapper_rename_tag(self):
+    #    tag_wrapper = self.get_fresh_tagwrapper()
         
     def test_tagwrapper_recent(self):
         tag_wrapper = self.get_fresh_tagwrapper()
@@ -121,7 +122,7 @@ class Test(unittest.TestCase):
         id = "007"
         
         file.write("[store]\n")
-        file.write("id=%s\n" % id)
+        file.write("store_id=%s\n" % id)
         file.write("[files]\n")
 
         file.write("testfile.txt/tags=\"tag,tagger,dagger,MT\"\n")

@@ -178,7 +178,7 @@ class TagWrapper():
         """
         self.__settings.beginGroup(self .GROUP_FILES_NAME)
         self.__settings.beginGroup(old_file_name)            
-        tags = unicode(self.__settings.value(self.KEY_TAGS, "").toString())
+        tags = unicode(self.__settings.value(self.KEY_TAGS, "").toString()).split(self.TAG_SEPARATOR)
         timestamp = unicode(self.__settings.value(self.KEY_TIMESTAMP, "").toString())
         self.__settings.endGroup()
         self.__settings.remove(old_file_name)
