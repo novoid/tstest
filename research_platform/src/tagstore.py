@@ -33,8 +33,8 @@ class Tagstore():
 
         ## global settings/defaults (only used if reading config file failed or invalid!)
         self.STORE_CONFIG_DIR = ".tagstore"
-        self.STORE_CONFIG_FILE_NAME = "tgs"
-        self.TAG_SEPERATOR = ", "
+        self.STORE_CONFIG_FILE_NAME = "store.tgs"
+        self.TAG_SEPERATOR = ","
         self.STORES = []
         
         ## init configurations
@@ -84,14 +84,14 @@ class Tagstore():
         config_store_items = self.__config_file.get_stores()
         ## reload stores
         for store in self.STORES:
-            store.dispose()
+            store.stop_filesystem_monitoring()
         self.STORES = []
         for storeItem in config_store_items:
-            store = Store(storeItem["id"],storeItem["path"], self.STORE_CONFIG_DIR, self.STORE_CONFIG_FILE_NAME)
+            store = Store(storeItem["id"],storeItem["path"], self.STORE_CONFIG_DIR + "/" + self.STORE_CONFIG_FILE_NAME)
             store.connect(store, QtCore.SIGNAL("removed(PyQt_PyObject)"), self.store_removed)
             store.connect(store, QtCore.SIGNAL("renamed(PyQt_PyObject, QString)"), self.store_renamed)
             self.STORES.append(store)
-        #TODO: raise an error if stores have the same name
+        #TODO: handler for file: added/renamed/removed
 
     def store_removed(self, store):
         """
@@ -104,7 +104,6 @@ class Tagstore():
         """
         event handler of the stores rename event
         """
-        store.rename(new_path)
         self.__config_file.rename_store(store.get_id(), new_path)
         ## __init_configuration is called due to config file changes
         
@@ -126,12 +125,18 @@ class Tagstore():
         current_text = self.__tagging_dialog.get_tag_text()
         cursor_left_text = unicode(current_text)[:cursor_pos]
         cursor_right_text = unicode(current_text)[cursor_pos:]
-        if cursor_right_text.strip()[:len(self.TAG_SEPERATOR)] != self.TAG_SEPERATOR:
-            cursor_right_text = self.TAG_SEPERATOR + cursor_right_text
-        prefix_length = len(cursor_left_text.split(self.TAG_SEPERATOR)[-1].strip())
+        
+        if cursor_right_text.lstrip().startswith(self.TAG_SEPERATOR):
+            cursor_right_text = " " + cursor_right_text.lstrip()
+        else:
+            cursor_right_text = self.TAG_SEPERATOR + " " + cursor_right_text.lstrip()
+        prefix_length = len(cursor_left_text.split(self.TAG_SEPERATOR)[-1])
 
-        self.__tagging_dialog.set_tag_text(cursor_left_text[:cursor_pos - prefix_length] + text + cursor_right_text)
-        self.__tagging_dialog.set_tag_cursor_position(cursor_pos - prefix_length + len(text) + len(self.TAG_SEPERATOR))   
+        left_text = cursor_left_text[:cursor_pos - prefix_length]
+        if left_text != "":
+            left_text += " "#cursor_left_text = cursor_left_text[:cursor_pos - prefix_length] + " "
+        self.__tagging_dialog.set_tag_text(left_text + text + cursor_right_text)
+        self.__tagging_dialog.set_tag_cursor_position(len(left_text) + len(text) + len(self.TAG_SEPERATOR) + 1)   
         
     def tag_preference_activated(self, text):
         """
@@ -140,11 +145,11 @@ class Tagstore():
         self.__update_tag_list()
         current_text = self.__tagging_dialog.get_tag_text()
         if current_text.strip() == "":
-            self.__tagging_dialog.set_tag_text(text + self.TAG_SEPERATOR)
-        elif current_text.split(self.TAG_SEPERATOR)[-1].strip() == "":
-            self.__tagging_dialog.set_tag_text(current_text + text + self.TAG_SEPERATOR)
+            self.__tagging_dialog.set_tag_text(text + self.TAG_SEPERATOR + " ")
+        elif current_text.rstrip().endswith(self.TAG_SEPERATOR):
+            self.__tagging_dialog.set_tag_text(current_text.rstrip() + " " + text + self.TAG_SEPERATOR + " ")
         else:
-            self.__tagging_dialog.set_tag_text(current_text + self.TAG_SEPERATOR + text + self.TAG_SEPERATOR)
+            self.__tagging_dialog.set_tag_text(current_text.rstrip() + self.TAG_SEPERATOR + " " + text + self.TAG_SEPERATOR + " ")
         
     def __update_tag_list(self):
         """
@@ -156,7 +161,6 @@ class Tagstore():
         self.__tagging_dialog.set_tag_lookup_list(['aa','abb','xaa b','cabb','daa','abb','abc'])
         self.__tagging_dialog.set_tag_preferences(['f','g','h'])
         self.__tagging_dialog.set_category_lookup_list(['aa','abb','xaa b','cabb','daa','abb','abc'])
-        
         
     def category_text_edited(self, text):
         """
@@ -176,12 +180,18 @@ class Tagstore():
         current_text = self.__tagging_dialog.get_category_text()
         cursor_left_text = unicode(current_text)[:cursor_pos]
         cursor_right_text = unicode(current_text)[cursor_pos:]
-        if cursor_right_text.strip()[:len(self.TAG_SEPERATOR)] != self.TAG_SEPERATOR:
-            cursor_right_text = self.TAG_SEPERATOR + cursor_right_text
-        prefix_length = len(cursor_left_text.split(self.TAG_SEPERATOR)[-1].strip())
+        
+        if cursor_right_text.lstrip().startswith(self.TAG_SEPERATOR):
+            cursor_right_text = " " + cursor_right_text.lstrip()
+        else:
+            cursor_right_text = self.TAG_SEPERATOR + " " + cursor_right_text.lstrip()
+        prefix_length = len(cursor_left_text.split(self.TAG_SEPERATOR)[-1])
 
-        self.__tagging_dialog.set_category_text(cursor_left_text[:cursor_pos - prefix_length] + text + cursor_right_text)
-        self.__tagging_dialog.set_category_cursor_position(cursor_pos - prefix_length + len(text) + len(self.TAG_SEPERATOR))   
+        left_text = cursor_left_text[:cursor_pos - prefix_length]
+        if left_text != "":
+            left_text += " "#cursor_left_text = cursor_left_text[:cursor_pos - prefix_length] + " "
+        self.__tagging_dialog.set_category_text(left_text + text + cursor_right_text)
+        self.__tagging_dialog.set_category_cursor_position(len(left_text) + len(text) + len(self.TAG_SEPERATOR) + 1)   
         
     def confirm_button_pressed(self):
         """

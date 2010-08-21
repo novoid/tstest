@@ -35,36 +35,41 @@ class ConfigWrapper(QtCore.QObject):
         
     def get_store_config_directory(self):
         self.__settings.beginGroup("settings")
-        directory = unicode(self.__settings.value("store_config_directory", ".ts").toString())
+        directory = unicode(self.__settings.value("store_config_directory", "").toString())
         self.__settings.endGroup()
-        return directory
+        return directory.strip("/")
         
     def get_store_configfile_name(self):
         self.__settings.beginGroup("settings")
-        extention = unicode(self.__settings.value("store_config_extention", "tgs").toString())
+        config_file = unicode(self.__settings.value("store_config_filename", "").toString())
         self.__settings.endGroup()
-        return extention
+        return config_file.strip("/")
         
     def get_tag_seperator(self):
         self.__settings.beginGroup("settings")
-        seperator = unicode(self.__settings.value("tag_seperator", ", ").toString())
+        seperator = unicode(self.__settings.value("tag_seperator", "").toString())
         self.__settings.endGroup()
-        return seperator
+        return seperator.strip()
         
     def get_stores(self):
         self.__settings.beginGroup("stores")
-        storeKeys = self.__settings.childKeys()
-        self.__settings.endGroup()
+        store_ids = self.__settings.childKeys()
         stores = []
-        for id in storeKeys:
-            stores.append(dict(id=id, path=unicode(self.__settings.value(id, "").toString())))
+        for id in store_ids:
+            path = unicode(self.__settings.value(id, "").toString()).strip("/")
+            stores.append(dict(id=id, path=path))
+        self.__settings.endGroup()
         return stores
     
     def rename_store(self, id, new_name):
+        self.__settings.beginGroup("stores")
         self.__settings.setValue(id, new_name)
+        self.__settings.endGroup()
 
     def remove_store(self, id):
+        self.__settings.beginGroup("stores")
         self.__settings.remove(id)
+        self.__settings.endGroup()
 
 
 ## end

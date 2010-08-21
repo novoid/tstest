@@ -32,11 +32,13 @@ class FileSystemWrapper():
     def path_exists(self, path):
         return os.path.exists(path)
     
-    def find(self, in_path, search_path):
+    def find_files(self, in_path, search_path):
+        files = []
         for file in os.listdir(in_path):
-            if os.path.exists(in_path + "/" + file + "/" + search_path):
-                return in_path + "/" + file
-        return ""
+            path = in_path + "/" + file + "/" + search_path
+            if os.path.exists(path):
+                files.append(path)
+        return files
 
     def rename(self, old_name, new_name):
         os.rename(old_name, new_name)

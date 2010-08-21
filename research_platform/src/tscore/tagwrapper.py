@@ -20,7 +20,7 @@ from PyQt4.QtCore import QSettings
 
 class TagWrapper():
 
-    __pyqtSignals__ = ("changed()", )
+    __pyqtSignals__ = ("file_not_found()", )
     
     GROUP_STORE_NAME = "store"
     GROUP_FILES_NAME = "files"

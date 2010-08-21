@@ -16,6 +16,7 @@
 
 from PyQt4 import QtCore
 from tsos.filesystem import FileSystemWrapper
+from tscore.tagwrapper import TagWrapper
 
 class Store(QtCore.QObject):
 
@@ -25,7 +26,7 @@ class Store(QtCore.QObject):
                        "file_renamed(PyQt_PyObject, QString)",
                        "file_removed(PyQt_PyObject, QString)")
 
-    def __init__(self, id, path, config_path, config_file_name):
+    def __init__(self, id, path, config_file):
         """
         constructor
         """
@@ -36,17 +37,19 @@ class Store(QtCore.QObject):
         
         self.__id = unicode(id)
         self.__path = unicode(path)
-        self.__name = self.__path.strip("/").split("/")[-1]
-        self.__config_path = unicode(config_path)
-        self.__config_file_name = unicode(config_file_name)
-        self.__parent_path = self.__path.strip("/")[:len(self.__path)-len(self.__name)-1]
-        self.__tag_file = self.__config_path + "/" + self.__name + "." + self.__config_file_name
+        self.__name = self.__path.split("/")[-1]
+        self.__config_file = unicode(config_file)
+        self.__config_path = self.__path + "/" + self.__config_file
+        #TODO: create store directories if directory currently not exists (new store)
+        #TODO: create config directories and file if file currently not exists (new store)
+        #if not self.__file_system.path_exists(self.__config_path):
+        self.__config_wrapper = TagWrapper(self.__config_path)
+        
+        self.__parent_path = self.__path[:len(self.__path)-len(self.__name)-1]
         self.__watcher = QtCore.QFileSystemWatcher(self)
-        if self.__file_system.path_exists(self.__parent_path):
-            self.__watcher.addPath(self.__parent_path)
-        if self.__file_system.path_exists(self.__path):
-            self.__watcher.addPath(self.__path)
-        #TODO: error handling
+        self.__watcher.addPath(self.__parent_path)
+        self.__watcher.addPath(self.__path)
+        #TODO: error handling?
         self.__watcher.connect(self.__watcher,QtCore.SIGNAL("directoryChanged(QString)"), self.__directory_changed)
         
     def __directory_changed(self, path):
@@ -57,11 +60,17 @@ class Store(QtCore.QObject):
             if not self.__file_system.path_exists(self.__path):
                 ## store itself was changed: renamed, moved or deleted
                 self.__watcher.removePath(self.__parent_path)
-                renamed_path = self.__file_system.find(self.__parent_path, self.__tag_file)
-                if renamed_path == "":    ## removed
+                config_paths = self.__file_system.find_files(self.__parent_path, self.__config_file)
+                new_name = ""
+                for path in config_paths:
+                    reader = TagWrapper(path)
+                    if self.__id == reader.get_store_id():
+                        new_name = path.split("/")[-3]
+
+                if new_name == "":      ## removed
                     self.emit(QtCore.SIGNAL("removed(PyQt_PyObject)"), self)
-                else:                     ## renamed
-                    self.emit(QtCore.SIGNAL("renamed(PyQt_PyObject, QString)"), self, renamed_path)
+                else:                   ## renamed
+                    self.emit(QtCore.SIGNAL("renamed(PyQt_PyObject, QString)"), self, self.__parent_path + "/" + new_name)
         else:
             ## files or directories in the store directory have been changed
             self.__handle_file_changes(path)
@@ -86,17 +95,7 @@ class Store(QtCore.QObject):
         """
         return unicode(self.__id)
     
-    def rename(self, new_path):
-        """
-        renames the store and related files
-        """
-        self.__path = unicode(new_path)
-        old_tag_file = self.__path + "/" + self.__tag_file 
-        self.__name = self.__path.strip("/").split("/")[-1]
-        self.__tag_file = self.__config_path + "/" + self.__name + "." + self.__config_file_name
-        self.__file_system.rename(old_tag_file, self.__path + "/" + self.__tag_file)
-         
-    def dispose(self):
+    def stop_filesystem_monitoring(self):
         """
         removes current file system paths from the file system watcher
         """
