@@ -27,12 +27,22 @@ else:
 class FileSystemWrapper():
 
     def __init__(self):
+        """
+        constructor
+        """
         self.file_system = FileSystem()
     
     def path_exists(self, path):
+        """
+        returns True if given path exists, else False
+        """
         return os.path.exists(path)
     
     def find_files(self, in_path, search_path):
+        """
+        returns a list of files including the search_path from the directory in_path
+        caution: this method does not provide a hierarchical search- use os.walk() for this purpose
+        """
         files = []
         for file in os.listdir(in_path):
             path = in_path + "/" + file + "/" + search_path
@@ -40,8 +50,15 @@ class FileSystemWrapper():
                 files.append(path)
         return files
 
-    def rename(self, old_name, new_name):
-        os.rename(old_name, new_name)
-
+    def get_files(self, directory):
+        """
+        returns a list of files found in the given directory
+        """
+        files = []
+        for item in os.listdir(directory):
+            if os.path.isfile(directory + "/" + item):
+                files.append(unicode(item))
+        return files
+    
         
 ## end
