@@ -20,8 +20,6 @@ from PyQt4.QtCore import QSettings
 
 class TagWrapper():
 
-    __pyqtSignals__ = ("file_not_found()", )
-    
     GROUP_STORE_NAME = "store"
     GROUP_FILES_NAME = "files"
     GROUP_CATEGORIES_NAME = "categories"
@@ -86,6 +84,17 @@ class TagWrapper():
                     dictionary[tag] = 1
         self.__settings.endGroup()
         return dictionary
+
+    def get_files(self):
+        """
+        returns a list of all files stored in the config file
+        """
+        files = []
+        self.__settings.beginGroup(self.GROUP_FILES_NAME)
+        for file in self.__settings.childGroups():
+            files.append(unicode(file))
+        self.__settings.endGroup()
+        return files
 
     def set_file_path(self, file_path):
         """

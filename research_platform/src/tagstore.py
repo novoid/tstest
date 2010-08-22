@@ -81,18 +81,39 @@ class Tagstore():
         if config_file_name != "":
             self.STORE_CONFIG_FILE_NAME = config_file_name
             
+        ## get stores from config file         
         config_store_items = self.__config_file.get_stores()
-        ## reload stores
-        for store in self.STORES:
-            store.stop_filesystem_monitoring()
-        self.STORES = []
-        for storeItem in config_store_items:
-            store = Store(storeItem["id"],storeItem["path"], self.STORE_CONFIG_DIR + "/" + self.STORE_CONFIG_FILE_NAME)
-            store.connect(store, QtCore.SIGNAL("removed(PyQt_PyObject)"), self.store_removed)
-            store.connect(store, QtCore.SIGNAL("renamed(PyQt_PyObject, QString)"), self.store_renamed)
-            self.STORES.append(store)
-        #TODO: handler for file: added/renamed/removed
+        config_store_ids = self.__config_file.get_store_ids()
 
+        deleted_stores = []
+        for store in self.STORES:
+            id = store.get_id()
+            if id in config_store_ids:
+            ## update changed stores
+                store.set_path(self.__config_file.get_store_path(id), self.STORE_CONFIG_DIR + "/" + self.STORE_CONFIG_FILE_NAME)
+                config_store_ids.remove(id)             ## remove already updated items
+                #print "updated: " + id
+            else:
+            ## remove deleted stores
+                deleted_stores.append(store)
+                #print "remove: " + id
+        ## update deleted stores from global list after iterating through it
+        for store in deleted_stores:
+            self.STORES.remove(store)
+        
+        ## add new stores
+        for store_item in config_store_items:
+            if store_item["id"] in config_store_ids:    ## new
+                store = Store(store_item["id"],store_item["path"], self.STORE_CONFIG_DIR + "/" + self.STORE_CONFIG_FILE_NAME)
+                store.connect(store, QtCore.SIGNAL("removed(PyQt_PyObject)"), self.store_removed)
+                store.connect(store, QtCore.SIGNAL("renamed(PyQt_PyObject, QString)"), self.store_renamed)
+                store.connect(store, QtCore.SIGNAL("file_renamed(PyQt_PyObject, QString, QString)"), self.file_renamed)
+                store.connect(store, QtCore.SIGNAL("file_removed(PyQt_PyObject, QString)"), self.file_removed)
+                store.connect(store, QtCore.SIGNAL("pending_operations_changed(PyQt_PyObject)"), self.pending_file_operations)
+                ## handle offline changes
+                store.handle_offline_changes()
+                self.STORES.append(store)
+            
     def store_removed(self, store):
         """
         event handler of the stores remove event
@@ -106,6 +127,27 @@ class Tagstore():
         """
         self.__config_file.rename_store(store.get_id(), new_path)
         ## __init_configuration is called due to config file changes
+        
+    def file_renamed(self, store, old_file_name, new_file_name):
+        """
+        event handler for: file renamed
+        """
+        #print "file renamed: " + old_file_name + " -> " + new_file_name
+        store.rename_file(old_file_name, new_file_name)
+        
+    def file_removed(self, store, file_name):
+        """
+        event handler for: file renamed
+        """
+        #print "file removed: " + file_name
+        store.remove_file(file_name)
+        
+    def pending_file_operations(self, store):
+        """
+        event handler: handles all operations with user interaction
+        """
+        print "pending operation handler:"
+        print  store.get_pending_changes().files_to_string()
         
     def tag_text_edited(self, text):
         """
