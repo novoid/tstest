@@ -2,15 +2,9 @@
 store_id=1
 
 [files]
-file6.txt\tags="tag16,tag17,tag18"
-file6.txt\timestamp=2010-08-19 10:10:19
-file4.txt\tags="tag4,tag5,tag6,sicher nicht"
-file4.txt\timestamp=2010-08-19 10:11:19
-file3.txt\tags="tag7,tag8,tag9"
-file3.txt\timestamp=2010-08-19 10:13:19
-file2.txt\tags="tag4,tag5,tag6,sicher nicht"
-file2.txt\timestamp=2010-08-19 10:14:19
-File1.txt\tags="tag1,tag2,tag3"
-File1.txt\timestamp=2010-08-19 10:15:19
-file55.txt\tags="a,s,d,,,k,l"
-file55.txt\timestamp=2010-08-19 20:43:24
+a.txt\tags="tag7,tag8,tag9"
+a.txt\timestamp=2010-08-19 10:13:19
+b.txt\tags="tag7,tag8,tag9"
+b.txt\timestamp=2010-08-19 10:13:19
+x.txt\tags="tag7,tag8,tag9"
+x.txt\timestamp=2010-08-19 10:13:19
