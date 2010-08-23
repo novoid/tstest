@@ -16,7 +16,9 @@
 
 import unittest
 from tscore.tagwrapper import TagWrapper
-
+from tscore.enum import EFileEvent, EFileType
+from tscore.pendingchanges import PendingChanges
+from tscore.configwrapper import ConfigWrapper
 
 class Test(unittest.TestCase):
 
@@ -137,6 +139,51 @@ class Test(unittest.TestCase):
         file.write("[categories]\n")
         file.close()
     
+    def test_pending_changes_append_remove(self):
+        
+        test = PendingChanges()
+        test.register("new.txt", EFileType.FILE, EFileEvent.ADDED)
+        test.register("new2.txt", EFileType.DIRECTORY, EFileEvent.ADDED_OR_RENAMED)
+        test.register("new3.txt", EFileType.DIRECTORY, EFileEvent.ADDED_OR_RENAMED)
+        
+        assert("new.txt" == test.get_first()["file"])
+        assert("new.txt" == test.get_first(True)["file"])
+        assert("new2.txt" == test.get_first(True)["file"])
+        
+        test.register("new4.txt", EFileType.FILE, EFileEvent.ADDED)
+        test.remove("new2.txt")
+        test.remove("new3.txt")
+        assert("new4.txt" == test.get_first(True)["file"])
+        assert(None == test.get_first())
+        
+    def test_pending_changes_get_names(self):
+        test = PendingChanges()
+        test.register("new.txt", EFileType.FILE, EFileEvent.ADDED)
+        test.register("new2.txt", EFileType.DIRECTORY, EFileEvent.ADDED_OR_RENAMED)
+        test.register("new3.txt", EFileType.FILE, EFileEvent.REMOVED)
+        test.remove("new2.txt")
+        test.register("new4.txt", EFileType.FILE, EFileEvent.REMOVED)
+        test.register("new3.txt", EFileType.FILE, EFileEvent.ADDED_OR_RENAMED)
+        
+        assert(["new.txt","new3.txt", "new4.txt"] == test.get_names())
+        
+        assert("new.txt" == test.get_added_names()[0])
+        assert("new3.txt" == test.get_added_names()[1])
+        assert("new4.txt" == test.get_removed_names()[0])
+
+    def test_pending_changes_edit_item(self):
+        test = PendingChanges()
+        test.register("new.txt", EFileType.FILE, EFileEvent.ADDED)
+        test.register("new2.txt", EFileType.DIRECTORY, EFileEvent.ADDED_OR_RENAMED)
+        test.register("new3.txt", EFileType.FILE, EFileEvent.REMOVED)
+        
+        test.edit("new2.txt", "new4.txt")
+        assert(["new.txt","new4.txt", "new3.txt"] == test.get_names())
+
+    def test_configwrapper(self):
+        #test = ConfigWrapper()
+        pass
+
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

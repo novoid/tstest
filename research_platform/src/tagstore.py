@@ -35,6 +35,7 @@ class Tagstore():
         self.STORE_CONFIG_DIR = ".tagstore"
         self.STORE_CONFIG_FILE_NAME = "store.tgs"
         self.TAG_SEPERATOR = ","
+        self.MAX_TAGS = 3
         self.STORES = []
         
         ## init configurations
@@ -66,13 +67,13 @@ class Tagstore():
         """
         initializes the configuration. This method is called every time the config file changes
         """
-    
         ## reload config file
         self.__config_file = ConfigWrapper(CONFIG_PATH)
         self.__config_file.connect(self.__config_file, QtCore.SIGNAL("changed()"), self.__init_configurations)
         tag_seperator = self.__config_file.get_tag_seperator()
         if tag_seperator.strip() != "":
             self.TAG_SEPERATOR = tag_seperator
+        self.MAX_TAGS = self.__config_file.get_max_tags()
             
         config_dir = self.__config_file.get_store_config_directory()
         if config_dir != "":
@@ -92,11 +93,10 @@ class Tagstore():
             ## update changed stores
                 store.set_path(self.__config_file.get_store_path(id), self.STORE_CONFIG_DIR + "/" + self.STORE_CONFIG_FILE_NAME)
                 config_store_ids.remove(id)             ## remove already updated items
-                #print "updated: " + id
             else:
             ## remove deleted stores
                 deleted_stores.append(store)
-                #print "remove: " + id
+
         ## update deleted stores from global list after iterating through it
         for store in deleted_stores:
             self.STORES.remove(store)
@@ -146,8 +146,8 @@ class Tagstore():
         """
         event handler: handles all operations with user interaction
         """
-        print "pending operation handler:"
-        print  store.get_pending_changes().files_to_string()
+        print "pending operations in store: " + store.get_name()
+        print store.get_pending_changes().to_string()
         
     def tag_text_edited(self, text):
         """

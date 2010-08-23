@@ -35,5 +35,8 @@ EFileEvent = Enum(["ADDED",
                    "ADDED_OR_RENAMED",
                    "REMOVED_OR_RENAMED"])
 
+EFileType = Enum(["FILE",
+                  "DIRECTORY"])
+
 
 ## end

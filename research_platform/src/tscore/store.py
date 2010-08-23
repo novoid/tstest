@@ -18,7 +18,7 @@ from PyQt4 import QtCore
 from sets import Set
 from tsos.filesystem import FileSystemWrapper
 from tscore.tagwrapper import TagWrapper
-from tscore.enum import EFileEvent
+from tscore.enum import EFileType, EFileEvent
 from tscore.pendingchanges import PendingChanges
 
 class Store(QtCore.QObject):
@@ -100,10 +100,8 @@ class Store(QtCore.QObject):
                         new_name = path.split("/")[-3]
 
                 if new_name == "":      ## removed
-                    #print "removed: " + self.__id
                     self.emit(QtCore.SIGNAL("removed(PyQt_PyObject)"), self)
                 else:                   ## renamed
-                    #print "renamed: " + self.__id
                     self.emit(QtCore.SIGNAL("renamed(PyQt_PyObject, QString)"), self, self.__parent_path + "/" + new_name)
         else:
             ## files or directories in the store directory have been changed
@@ -111,40 +109,46 @@ class Store(QtCore.QObject):
             
     def __handle_file_changes(self, path):
         """
-        handles the stores file changes to find out if a file was added, renamed, removed
+        handles the stores file and dir changes to find out if a file/directory was added, renamed, removed
         """
         ## this method does not handle the renaming or deletion of the store directory itself (only childs)
         existing_files = Set(self.__file_system.get_files(path))
+        existing_dirs = Set(self.__file_system.get_directories(path))
         config_files = Set(self.__config_wrapper.get_files())
-        captured_added_files = Set(self.__pending_changes.get_added_files())
-        captured_removed_files = Set(self.__pending_changes.get_removed_files())
-        
+        captured_added_files = Set(self.__pending_changes.get_added_names())
+        captured_removed_files = Set(self.__pending_changes.get_removed_names())
+        #test
+        #print "added: " + ", ".join(list(captured_added_files))
+        #print "removed: " + ", ".join(list(captured_removed_files))
+        # test end
         data_files = (config_files | captured_added_files) - captured_removed_files 
-        added_files = list(existing_files - data_files)
-        removed_files = list(data_files - existing_files)
+        added = list((existing_files | existing_dirs) - data_files)
+        removed = list(data_files - (existing_files | existing_dirs))
     
-        if len(added_files) == 1 and len(removed_files) == 1:
-            self.__pending_changes.add_file(removed_files[0], EFileEvent.REMOVED_OR_RENAMED)
-            self.__pending_changes.add_file(added_files[0], EFileEvent.ADDED_OR_RENAMED)
-            self.emit(QtCore.SIGNAL("file_renamed(PyQt_PyObject, QString, QString)"), self, removed_files[0], added_files[0])
+        type = EFileType.FILE   
+        ##TODO replace this with either DIR or FILE depending on the items type
+        if len(added) == 1 and len(removed) == 1:
+            self.__pending_changes.register(removed[0], type, EFileEvent.REMOVED_OR_RENAMED)
+            self.__pending_changes.register(added[0], type, EFileEvent.ADDED_OR_RENAMED)
+            self.emit(QtCore.SIGNAL("file_renamed(PyQt_PyObject, QString, QString)"), self, removed[0], added[0])
         else:
-            if len(removed_files) > 0:
-                if len(added_files) == 0:
-                    for file in removed_files:
-                        self.__pending_changes.add_file(file, EFileEvent.REMOVED)
-                        self.emit(QtCore.SIGNAL("file_removed(PyQt_PyObject, QString)"), self, file)
+            if len(removed) > 0:
+                if len(added) == 0:
+                    for item in removed:
+                        self.__pending_changes.register(item, type, EFileEvent.REMOVED)
+                        self.emit(QtCore.SIGNAL("file_removed(PyQt_PyObject, QString)"), self, item)
                 else:
-                    for file in removed_files:
-                        self.__pending_changes.add_file(file, EFileEvent.REMOVED_OR_RENAMED)
+                    for item in removed:
+                        self.__pending_changes.register(item, type, EFileEvent.REMOVED_OR_RENAMED)
                         self.emit(QtCore.SIGNAL("pending_operations_changed(PyQt_PyObject)"), self)
-            if len(added_files) > 0:
-                if len(removed_files) == 0:
-                    for file in added_files:
-                        self.__pending_changes.add_file(file, EFileEvent.ADDED)
+            if len(added) > 0:
+                if len(removed) == 0:
+                    for item in added:
+                        self.__pending_changes.register(item, type, EFileEvent.ADDED)
                         self.emit(QtCore.SIGNAL("pending_operations_changed(PyQt_PyObject)"), self)
                 else:
-                    for file in added_files:
-                        self.__pending_changes.add_file(file, EFileEvent.ADDED_OR_RENAMED)
+                    for item in added:
+                        self.__pending_changes.register(item, type, EFileEvent.ADDED_OR_RENAMED)
                         self.emit(QtCore.SIGNAL("pending_operations_changed(PyQt_PyObject)"), self)                
         
     def get_name(self):
@@ -172,11 +176,10 @@ class Store(QtCore.QObject):
         #TODO: changing links: names and targets
         if self.__config_wrapper.file_exists(old_file_name):
             self.__config_wrapper.rename_file(old_file_name, new_file_name)
-            self.__pending_changes.remove_file(old_file_name)
-            self.__pending_changes.remove_file(new_file_name)
+            self.__pending_changes.remove(old_file_name)
+            self.__pending_changes.remove(new_file_name)
         else:
-            self.__pending_changes.remove_file(old_file_name)
-            self.__pending_changes.add_file(new_file_name, EFileEvent.ADDED)
+            self.__pending_changes.edit(old_file_name, new_file_name)
             self.emit(QtCore.SIGNAL("pending_operations_changed(PyQt_PyObject)"), self)
         
     def remove_file(self, file_name):
@@ -184,7 +187,7 @@ class Store(QtCore.QObject):
         removes a file: links and config settings 
         """
         #TODO: handle links: delete links and empty directories
-        self.__pending_changes.remove_file(file_name)
+        self.__pending_changes.remove(file_name)
         if self.__config_wrapper.file_exists(file_name):
             self.__config_wrapper.remove_file(file_name)
         else:

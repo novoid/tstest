@@ -31,6 +31,9 @@ class FileSystemWrapper():
         constructor
         """
         self.file_system = FileSystem()
+        self.__IGNORED_FILE_PREFIXES = ["~$"]
+        self.__IGNORED_DIR_PREFIXES = ["."]
+        self.__IGNORED_EXTENTIONS = [".lnk"]
     
     def path_exists(self, path):
         """
@@ -52,13 +55,36 @@ class FileSystemWrapper():
 
     def get_files(self, directory):
         """
-        returns a list of files found in the given directory
+        returns a list of files found in the given directory filtered by ignore- settings
         """
         files = []
+        ignored = []
         for item in os.listdir(directory):
             if os.path.isfile(directory + "/" + item):
-                files.append(unicode(item))
-        return files
+                files.append(item)
+                ## handle ignore-list
+                for ext in self.__IGNORED_EXTENTIONS:
+                    if item.endswith(ext):
+                        ignored.append(item)
+                for prefix in self.__IGNORED_FILE_PREFIXES:
+                    if item.startswith(prefix):
+                        ignored.append(item)
+        return list(set(files) - set(ignored))
     
-        
+    def get_directories(self, directory):
+        """
+        returns a list of files found in the given directory filtered by ignore- settings
+        """
+        files = []
+        ignored = []
+        for item in os.listdir(directory):
+            if os.path.isdir(directory + "/" + item):
+                files.append(item)
+                ## handle ignore list
+                for prefix in self.__IGNORED_DIR_PREFIXES:
+                    if item.startswith(prefix):
+                        ignored.append(item)
+        return list(set(files) - set(ignored))
+
+            
 ## end

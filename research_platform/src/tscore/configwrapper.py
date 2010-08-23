@@ -65,6 +65,15 @@ class ConfigWrapper(QtCore.QObject):
         seperator = unicode(self.__settings.value("tag_seperator", "").toString())
         self.__settings.endGroup()
         return seperator.strip()
+        
+    def get_max_tags(self):
+        """
+        returns the parameter: max_tags: the max allowed number of tags to enter 
+        """
+        self.__settings.beginGroup("settings")
+        number = unicode(self.__settings.value("max_tags", "3").toString())
+        self.__settings.endGroup()
+        return int(number.strip())
 
     def get_store_path(self, id):
         """

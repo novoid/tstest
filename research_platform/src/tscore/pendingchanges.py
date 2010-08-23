@@ -22,79 +22,102 @@ class PendingChanges:
         """
         constructor
         """
-        self.__changes = dict()
-        #TODO: implement a stack to handle changes in the correct order
-        
-#    def count(self):
-#        """
-#        returns the number of pending operations
-#        """
-#        return len(self.__changes.keys())
+        self.__queue = []
 
-#    def pop(self):
-#        """
-#        returns and removes the first! file and event
-#        """
-#        if self.count() > 0:
-#            file = self.__changes.keys()[0]
-#            event = self.__changes[file]
-#            del self.__changes[file]
-#            return dict(file=file, event=event)
-#        return None
-        
-    def files_to_string(self):
+    def length(self):
         """
-        returns a comma-separated list of pending files
+        returns the number of existing items
         """
-        return ", ".join(self.__changes.keys())
-        
-    def add_file(self, file_name, event_enum):
-        """
-        adds/registers file with event
-        """
-        self.__changes[unicode(file_name)] = event_enum
+        return len(self.__queue)
     
-    def remove_file(self, file_name):
+    def get_first(self, delete=False):
+        """
+        returns first item of the list
+        if parameter delete=True the item is deleted
+        """
+        if len(self.__queue) > 0:
+            item = self.__queue[0]
+            if delete:
+                self.__queue.remove(item)
+            return item
+        return None    
+        
+    def to_string(self):
+        """
+        returns a comma-separated list of pending files in correct order
+        """
+        return ", ".join(self.get_names())
+            
+    def register(self, file_name, type_enum, event_enum):
+        """
+        adds/registers file with type and event
+        overwrites items with the same file name if they exist
+        """
+        for item in self.__queue:
+            if item["file"] == file_name:
+                item["type"] = type_enum
+                item["event"] = event_enum
+                return
+        self.__queue.append(dict(file=unicode(file_name), type=type_enum, event=event_enum))
+    
+    def edit(self, old_file_name, new_file_name):#, new_type, new_event):
+        """
+        edits an existing file object: needed to keep the objects storage position during rename
+        """
+        self.remove(unicode(new_file_name))      ## delete file bevor rename
+        for item in self.__queue:
+            if item["file"] == old_file_name:
+                item["file"] = unicode(new_file_name)
+                #item["type"] = new_type
+                #item["event"] = new_event
+    
+    def remove(self, file_name):
         """
         removes file from instance
         """
-        del self.__changes[unicode(file_name)]
-    
-    def get_all_files(self):
+        for item in self.__queue:
+            if item["file"] == file_name:
+                self.__queue.remove(item)
+                return
+
+    def get_names(self):
         """
-        returns a list of all stored files
+        returns a list of all files currently stored
         """
-        return self.__changes.keys()
-    
-    def get_added_files(self):
+        items = []
+        for item in self.__queue:
+            items.append(item["file"])
+        return items
+        
+    def get_added_names(self):
         """
         returns a list of all added files: EFileEvent = ADDED or ADDED_OR_RENAMED
         """
-        files = []
-        for file_name in self.__changes.keys():
-            if self.__changes[file_name] == EFileEvent.ADDED or self.__changes[file_name] == EFileEvent.ADDED_OR_RENAMED:
-                files.append(unicode(file_name))
-        return files
+        items = []
+        for item in self.__queue:
+            if item["event"] == EFileEvent.ADDED or item["event"] == EFileEvent.ADDED_OR_RENAMED:
+                items.append(item["file"])
+        return items
     
-    def get_removed_files(self):
+    def get_removed_names(self):
         """
         returns a list of all removed files: EFileEvent = REMOVED or REMOVED_OR_RENAMED
         """
-        files = []
-        for file_name in self.__changes.keys():
-            if self.__changes[file_name] == EFileEvent.REMOVED or self.__changes[file_name] == EFileEvent.REMOVED_OR_RENAMED:
-                files.append(unicode(file_name))
-        return files
+        items = []
+        for item in self.__queue:
+            if item["event"] == EFileEvent.REMOVED or item["event"] == EFileEvent.REMOVED_OR_RENAMED:
+                items.append(item["file"])
+        return items
     
-    def get_files_by_event(self, event_enum):
+    def get_items_by_event(self, event_enum):
         """
         returns a list of files filtered by given event name
         """
-        files = []
-        for file_name in self.__changes.keys():
-            if self.__changes[file_name] == event_enum:
-                files.append(unicode(file_name))
-        return files
+        items = []
+        for item in self.__queue:
+            if item["event"] == event_enum:
+                items.append(item["file"])
+        return items
     
     
 ## end
