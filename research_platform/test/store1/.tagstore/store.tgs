@@ -2,9 +2,7 @@
 store_id=1
 
 [files]
-a.txt\tags="tag7,tag8,tag9"
-a.txt\timestamp=2010-08-19 10:13:19
 b.txt\tags="tag7,tag8,tag9"
 b.txt\timestamp=2010-08-19 10:13:19
-x.txt\tags="tag7,tag8,tag9"
-x.txt\timestamp=2010-08-19 10:13:19
+a.txt\tags="tag7,tag8,tag9"
+a.txt\timestamp=2010-08-19 10:13:19

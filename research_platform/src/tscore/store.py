@@ -193,18 +193,24 @@ class Store(QtCore.QObject):
         else:
             self.emit(QtCore.SIGNAL("pending_operations_changed(PyQt_PyObject)"), self)
         
-    def add_tags(self, file, tagList):
+    def add_tags(self, file_name, tag_list):
         """
+        adds tags to the given file, resets existing tags
         """
-        pass
+        #TODO: handle file system changes - removing/generating of tag hierarchy and links
+        self.__config_wrapper.set_tags(file_name, tag_list)
+        self.__pending_changes.remove(file_name)
         
-    def rename_tag(self, currentName, new_name):
+    def rename_tag(self, old_tag_name, new_tag_name):
         """
+        renames a tag inside the store 
         """
-        pass
+        #TODO: rename directories, update links
+        self.__config_wrapper.rename_tag(old_tag_name, new_tag_name)
         
     def delete_tags(self, tagList):
         """
+        delete tags inside the store
         """
         pass
         
