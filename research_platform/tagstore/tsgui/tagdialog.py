@@ -13,15 +13,7 @@ from tagcompleter import TagCompleterWidget
 
 class TagDialog(QtGui.QWidget):
     """
-    #__pyqtSignals__ = ("tag_text_edited(QString)",
-                   "tag_completion_activated(QString)",
-                   "tag_preference_activated(QString)",
-                   "category_text_edited(QString)",
-                   "category_completion_activated(QString)",
-                   "confirm_button_pressed()", 
-                   "cancel_button_pressed()", 
-                   "cancel_all_button_pressed()")
-                   
+    The main gui window for tagging files in several tagstores
     """
     __NO_OF_ITEMS_STRING = "untagged item(s)"
     
@@ -184,10 +176,11 @@ class TagDialog(QtGui.QWidget):
 
         self.connect(self.__tag_button, QtCore.SIGNAL("clicked()"), self.__tag_button_pressed)
         self.connect(self.__remove_button, QtCore.SIGNAL("clicked()"), self.__remove_button_pressed)
-        self.connect(self.__item_list_view, QtCore.SIGNAL("clicked(QModelIndex)"), self.__handle_tree_Clicked)
-        self.connect(self.__cancel_button, QtCore.SIGNAL("clicked()"), self, QtCore.SIGNAL("cancel_button_pressed()"))
+        self.connect(self.__item_list_view, QtCore.SIGNAL("clicked(QModelIndex)"), self.__handle_tree_clicked)
+        self.connect(self.__cancel_button, QtCore.SIGNAL("clicked()"), QtCore.SIGNAL("cancel_clicked()"))
+        #self.connect(self.__cancel_button, QtCore.SIGNAL("clicked()"), self.cancel)
 
-    def __handle_tree_Clicked(self, index):
+    def __handle_tree_clicked(self, index):
         self.__selected_index = index
         ## check if the selected item is a "store-item"
         if self.__get_selected_item().parent() is None:
@@ -309,9 +302,10 @@ class TagDialog(QtGui.QWidget):
         self.__item_list_view.model().clear()
     
 class TagDialogController(QtCore.QObject):
-    
-    __pyqtSignals__ = ("tag_item") 
-    
+    """
+    __pyqtSignals__ = ("tag_item",
+                       "handle_cancel") 
+    """
     def __init__(self):
         
         QtCore.QObject.__init__(self)
@@ -320,15 +314,9 @@ class TagDialogController(QtCore.QObject):
         
         self.__is_shown = False
         
-        #self.__tag_dialog.connect(self.__tag_dialog, QtCore.SIGNAL("tag_button_pressed"), QtCore.SIGNAL("tag_item"))
-        self.__tag_dialog.connect(self.__tag_dialog, QtCore.SIGNAL("tag_button_pressed"), self.dosmth)
+        self.connect(self.__tag_dialog, QtCore.SIGNAL("tag_button_pressed"), QtCore.SIGNAL("tag_item"))
+        self.connect(self.__tag_dialog, QtCore.SIGNAL("cancel_clicked()"), QtCore.SIGNAL("handle_cancel()"))
         
-    def dosmth(self, store, item, list):
-        print store.text()
-        print item.text()
-        print list
-        self.emit(QtCore.SIGNAL("tag_item"), store, item, list)
-    
     def add_pending_item(self, store_name, file_name):
         #self.__tag_dialog.set_store_label_text(store_name)
         self.__tag_dialog.add_item(store_name, file_name)

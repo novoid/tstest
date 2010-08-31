@@ -47,19 +47,8 @@ class Tagstore():
         self.__config_file = None
         self.__init_configurations()
         
-        #self.__update_tag_list()
-        
         self.__tagging_dialog_controller.connect(self.__tagging_dialog_controller, QtCore.SIGNAL("tag_item"), self.tag_item_action)
-        #self.__tagging_dialog_controller.connect(self.__tagging_dialog_controller, QtCore.SIGNAL("cancel_button_pressed()"), self.cancel_button_pressed)
-        #self.__tagging_dialog_controller.connect(self.__tagging_dialog_controller, QtCore.SIGNAL("cancel_all_button_pressed()"), self.cancel_all_button_pressed)
-
-#test getter/setter        
-        #self.__tagging_dialog_controller.set_store_label_text("store name")
-#        item_list = ["testfile.xml"]
- #       self.__tagging_dialog_controller.set_item_list(item_list)
-        #self.__tagging_dialog_controller.get_dialog().show()
-        
-#test end
+        self.__tagging_dialog_controller.connect(self.__tagging_dialog_controller, QtCore.SIGNAL("handle_cancel()"), self.handle_cancel)
 
     def __init_configurations(self):
         """
@@ -153,12 +142,14 @@ class Tagstore():
             self.__tagging_dialog_controller.add_pending_item(store.get_name(), item)
             
         # TODO remove ....
+        self.__tagging_dialog_controller.set_tag_list([])
         if store.get_name() == "store1":
-        # remove end
             self.__tagging_dialog_controller.set_tag_list(store.get_tags())
             self.__tagging_dialog_controller.set_recent_tags(store.get_recent_tags())
+        # remove end
             
         self.__tagging_dialog_controller.show_dialog()
+        
     def tag_text_edited(self, text):
         """
         event handler of the text_changed event: this is triggered when typing text
@@ -244,6 +235,9 @@ class Tagstore():
             left_text += " "#cursor_left_text = cursor_left_text[:cursor_pos - prefix_length] + " "
         self.__tagging_dialog_controller.set_category_text(left_text + text + cursor_right_text)
         self.__tagging_dialog_controller.set_category_cursor_position(len(left_text) + len(text) + len(self.TAG_SEPERATOR) + 1)   
+        
+    def handle_cancel(self):
+        self.__tagging_dialog_controller.hide_dialog()
         
     def tag_item_action(self, store_name, item_name, tag_list):
         """
