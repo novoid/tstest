@@ -1,0 +1,8 @@
+<RCC>
+  <qresource prefix="ts">
+    <file>images/logo.png</file>
+    <file>images/accept.png</file>
+    <file>images/delete.png</file>
+    <file>images/icon.png</file>
+  </qresource>
+</RCC>

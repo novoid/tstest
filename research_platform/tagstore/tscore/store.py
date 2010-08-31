@@ -111,6 +111,10 @@ class Store(QtCore.QObject):
         """
         handles the stores file and dir changes to find out if a file/directory was added, renamed, removed
         """
+        
+        ## TODO (CF@31.08.10): maybe provide also the item_name at pending_operations_changed ...  
+        ## outside of this class - it is just known, that the store has a change - the whole queue has to be handeled then  
+         
         ## this method does not handle the renaming or deletion of the store directory itself (only childs)
         existing_files = Set(self.__file_system.get_files(path))
         existing_dirs = Set(self.__file_system.get_directories(path))
@@ -193,7 +197,13 @@ class Store(QtCore.QObject):
         else:
             self.emit(QtCore.SIGNAL("pending_operations_changed(PyQt_PyObject)"), self)
         
-    def add_tags(self, file_name, tag_list):
+    def get_tags(self):
+        return self.__tag_wrapper.get_all_tags()
+    def get_recent_tags(self):
+        ## TODO: use application config value for # of tags
+        return self.__tag_wrapper.get_recent_tags(5)
+        
+    def add_item_with_tags(self, file_name, tag_list):
         """
         adds tags to the given file, resets existing tags
         """

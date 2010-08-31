@@ -38,12 +38,11 @@ class TagStoreDialog(QDialog):
 
         self.set_controller(controller)
 
-        self.tagLine = TagStoreLineEdit()
-        self.tagLine.selectAll()
         
         # initially use an empty list
         wList = ""
-
+        self.tagLine = TagStoreLineEdit()
+        self.tagLine.selectAll()
         self.completer = TagStoreCompleter(wList, self.tagLine);
         self.completer.setCaseSensitivity(Qt.CaseInsensitive)
         QObject.connect(self.tagLine, SIGNAL("text_changed(PyQt_PyObject, PyQt_PyObject)"), self.completer.update)

@@ -86,7 +86,7 @@ class ConfigWrapper(QtCore.QObject):
 
     def get_stores(self):
         """
-        returns a list of dictionaries including the store id and path
+        returns a list of store objects (directories) including the stores id and path
         """
         self.__settings.beginGroup("stores")
         store_ids = self.__settings.childKeys()
@@ -99,7 +99,7 @@ class ConfigWrapper(QtCore.QObject):
     
     def get_store_ids(self):
         """
-        returns a list of all store ids
+        returns a list of all stores ids
         """
         self.__settings.beginGroup("stores")
         store_ids = self.__settings.childKeys()

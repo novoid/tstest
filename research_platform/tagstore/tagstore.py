@@ -17,8 +17,10 @@
 import sys
 from PyQt4 import QtCore, QtGui
 from tsgui.taggingdialog import TaggingDialog
+from tsgui.tagdialog import TagDialogController
 from tscore.configwrapper import ConfigWrapper
 from tscore.store import Store
+from tscore.enum import EFileEvent
 
 
 # path to the config file
@@ -38,28 +40,24 @@ class Tagstore():
         self.MAX_TAGS = 3
         self.STORES = []
         
+        ## init UI
+        self.__tagging_dialog_controller = TagDialogController()
+        
         ## init configurations
         self.__config_file = None
         self.__init_configurations()
         
-        ## init UI
-        self.__tagging_dialog_controller = TaggingDialog()
-        self.__update_tag_list()
+        #self.__update_tag_list()
         
-        self.__tagging_dialog_controller.connect(self.__tagging_dialog_controller, QtCore.SIGNAL("tag_text_edited(QString)"), self.tag_text_edited)
-        self.__tagging_dialog_controller.connect(self.__tagging_dialog_controller, QtCore.SIGNAL("tag_completion_activated(QString)"), self.tag_completion_activated)
-        self.__tagging_dialog_controller.connect(self.__tagging_dialog_controller, QtCore.SIGNAL("tag_preference_activated(QString)"), self.tag_preference_activated)
-        self.__tagging_dialog_controller.connect(self.__tagging_dialog_controller, QtCore.SIGNAL("category_text_edited(QString)"), self.category_text_edited)
-        self.__tagging_dialog_controller.connect(self.__tagging_dialog_controller, QtCore.SIGNAL("category_completion_activated(QString)"), self.category_completion_activated)
-
-        self.__tagging_dialog_controller.connect(self.__tagging_dialog_controller, QtCore.SIGNAL("confirm_button_pressed()"), self.confirm_button_pressed)
-        self.__tagging_dialog_controller.connect(self.__tagging_dialog_controller, QtCore.SIGNAL("cancel_button_pressed()"), self.cancel_button_pressed)
-        self.__tagging_dialog_controller.connect(self.__tagging_dialog_controller, QtCore.SIGNAL("cancel_all_button_pressed()"), self.cancel_all_button_pressed)
+        self.__tagging_dialog_controller.connect(self.__tagging_dialog_controller, QtCore.SIGNAL("tag_item"), self.tag_item_action)
+        #self.__tagging_dialog_controller.connect(self.__tagging_dialog_controller, QtCore.SIGNAL("cancel_button_pressed()"), self.cancel_button_pressed)
+        #self.__tagging_dialog_controller.connect(self.__tagging_dialog_controller, QtCore.SIGNAL("cancel_all_button_pressed()"), self.cancel_all_button_pressed)
 
 #test getter/setter        
-        self.__tagging_dialog_controller.set_store_label_text("store name")
-        self.__tagging_dialog_controller.set_file_label_text("current file")
-        self.__tagging_dialog_controller.show()
+        #self.__tagging_dialog_controller.set_store_label_text("store name")
+#        item_list = ["testfile.xml"]
+ #       self.__tagging_dialog_controller.set_item_list(item_list)
+        #self.__tagging_dialog_controller.get_dialog().show()
         
 #test end
 
@@ -146,9 +144,21 @@ class Tagstore():
         """
         event handler: handles all operations with user interaction
         """
-        print "pending operations in store: " + store.get_name()
-        print store.get_pending_changes().to_string()
-        
+        self.__tagging_dialog_controller.clear_store_children(store.get_name())
+
+        added_list = store.get_pending_changes().get_items_by_event(EFileEvent.ADDED)
+        #added_list = store.get_pending_changes().get_added_names()
+        for item in added_list:
+            # TODO provide a taglist for each store ... 
+            self.__tagging_dialog_controller.add_pending_item(store.get_name(), item)
+            
+        # TODO remove ....
+        if store.get_name() == "store1":
+        # remove end
+            self.__tagging_dialog_controller.set_tag_list(store.get_tags())
+            self.__tagging_dialog_controller.set_recent_tags(store.get_recent_tags())
+            
+        self.__tagging_dialog_controller.show_dialog()
     def tag_text_edited(self, text):
         """
         event handler of the text_changed event: this is triggered when typing text
@@ -235,6 +245,21 @@ class Tagstore():
         self.__tagging_dialog_controller.set_category_text(left_text + text + cursor_right_text)
         self.__tagging_dialog_controller.set_category_cursor_position(len(left_text) + len(text) + len(self.TAG_SEPERATOR) + 1)   
         
+    def tag_item_action(self, store_name, item_name, tag_list):
+        """
+        write the tags for the given item to the store
+        """   
+        store = None
+        ## find the store where the item should be saved
+        for loop_store in self.STORES:
+            if store_name.text() == loop_store.get_name():
+                store = loop_store
+                break
+    
+        store.add_item_with_tags(item_name.text(), tag_list)
+        
+        ## TODO refresh the tag-list in the tag-dialog for auto completion
+    
     def confirm_button_pressed(self):
         """
         """
@@ -255,7 +280,8 @@ if __name__ == '__main__':
   
     tagstore = QtGui.QApplication(sys.argv)
     tag_widget = Tagstore()
-    sys.exit(tagstore.exec_())
+    tagstore.exec_()
+    #sys.exit(tagstore.exec_())
 
 
 ## end    

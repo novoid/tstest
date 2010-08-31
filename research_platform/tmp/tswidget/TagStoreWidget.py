@@ -92,4 +92,19 @@ class TagStoreCompleter(QCompleter):
     
     def set_taglist(self, tagList):
         self.tagList = set(tagList)
+        
+#class TagCompleterWidget(QLineEdit):
+    """
+    widget in lineEdit-style with integrated and modified qcompleter 
+    tagLine = TagStoreLineEdit()
+    tagLine.selectAll()
+    self.completer = TagStoreCompleter(wList, self.tagLine);
+    self.completer.setCaseSensitivity(Qt.CaseInsensitive)
+    
+    tagLine.setCompleter(completer)
+    
+    tagLine.connect(tagLine, SIGNAL("text_changed(PyQt_PyObject, PyQt_PyObject)"), self.completer.update)
+    QObject.connect(self.completer, SIGNAL("activated(QString)"), tagLine.complete_text)
+    """
+    
 ## end
