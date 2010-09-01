@@ -199,9 +199,14 @@ class Store(QtCore.QObject):
         
     def get_tags(self):
         return self.__tag_wrapper.get_all_tags()
+
     def get_recent_tags(self):
         ## TODO: use application config value for # of tags
         return self.__tag_wrapper.get_recent_tags(5)
+    
+    def get_popular_tags(self):
+        ## TODO: use application config value for # of tags
+        return self.__tag_wrapper.get_popular_tags(5)
         
     def add_item_with_tags(self, file_name, tag_list):
         """

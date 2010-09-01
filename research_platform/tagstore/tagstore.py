@@ -26,29 +26,25 @@ from tscore.enum import EFileEvent
 # path to the config file
 CONFIG_PATH = "../conf/tagstore.cfg"
     
-class Tagstore():
+class Tagstore(QtCore.QObject):
 
     def __init__(self, parent=None):
         """ 
         initializes the configuration. This method is called every time the config file changes
         """
-
+        QtCore.QObject.__init__(self)
         ## global settings/defaults (only used if reading config file failed or invalid!)
         self.STORE_CONFIG_DIR = ".tagstore"
         self.STORE_CONFIG_FILE_NAME = "store.tgs"
         self.TAG_SEPERATOR = ","
         self.MAX_TAGS = 3
         self.STORES = []
-        
-        ## init UI
-        self.__tagging_dialog_controller = TagDialogController()
+        ## dict for dialogs identified by their store id
+        self.DIALOGS = {}
         
         ## init configurations
         self.__config_file = None
         self.__init_configurations()
-        
-        self.__tagging_dialog_controller.connect(self.__tagging_dialog_controller, QtCore.SIGNAL("tag_item"), self.tag_item_action)
-        self.__tagging_dialog_controller.connect(self.__tagging_dialog_controller, QtCore.SIGNAL("handle_cancel()"), self.handle_cancel)
 
     def __init_configurations(self):
         """
@@ -92,6 +88,15 @@ class Tagstore():
         for store_item in config_store_items:
             if store_item["id"] in config_store_ids:    ## new
                 store = Store(store_item["id"],store_item["path"], self.STORE_CONFIG_DIR + "/" + self.STORE_CONFIG_FILE_NAME)
+                
+                ## create a dialogcontroller for each store ...
+                ## can be accessed by its ID later on
+                tmp_dialog = TagDialogController()
+                tmp_dialog.connect(tmp_dialog, QtCore.SIGNAL("tag_item"), self.tag_item_action)
+                tmp_dialog.connect(tmp_dialog, QtCore.SIGNAL("handle_cancel()"), self.handle_cancel)
+                #self.DIALOGS[store.get_id()] = tmp_dialog
+                self.DIALOGS[store.get_id()] = tmp_dialog
+
                 store.connect(store, QtCore.SIGNAL("removed(PyQt_PyObject)"), self.store_removed)
                 store.connect(store, QtCore.SIGNAL("renamed(PyQt_PyObject, QString)"), self.store_renamed)
                 store.connect(store, QtCore.SIGNAL("file_renamed(PyQt_PyObject, QString, QString)"), self.file_renamed)
@@ -133,111 +138,27 @@ class Tagstore():
         """
         event handler: handles all operations with user interaction
         """
-        self.__tagging_dialog_controller.clear_store_children(store.get_name())
-
+        
+        dialog_controller = self.DIALOGS[store.get_id()]
+        
+        dialog_controller.clear_store_children(store.get_name())
         added_list = store.get_pending_changes().get_items_by_event(EFileEvent.ADDED)
-        #added_list = store.get_pending_changes().get_added_names()
+
         for item in added_list:
-            # TODO provide a taglist for each store ... 
-            self.__tagging_dialog_controller.add_pending_item(store.get_name(), item)
+            dialog_controller.add_pending_item(store.get_name(), item)
             
-        # TODO remove ....
-        self.__tagging_dialog_controller.set_tag_list([])
-        if store.get_name() == "store1":
-            self.__tagging_dialog_controller.set_tag_list(store.get_tags())
-            self.__tagging_dialog_controller.set_recent_tags(store.get_recent_tags())
-        # remove end
-            
-        self.__tagging_dialog_controller.show_dialog()
-        
-    def tag_text_edited(self, text):
-        """
-        event handler of the text_changed event: this is triggered when typing text
-        """
-        self.__update_tag_list()
-        cursor_left_text = unicode(text)[:self.__tagging_dialog_controller.get_tag_cursor_position()]
-        lookup_prefix = cursor_left_text.split(self.TAG_SEPERATOR)[-1].strip()
-        self.__tagging_dialog_controller.set_tag_completion_prefix(lookup_prefix)
-        
-    def tag_completion_activated(self, text):
-        """
-        event handler: triggered if a text was selected from the completer during typing
-        """
-        self.__update_tag_list()
-        cursor_pos = self.__tagging_dialog_controller.get_tag_cursor_position()
-        current_text = self.__tagging_dialog_controller.get_tag_text()
-        cursor_left_text = unicode(current_text)[:cursor_pos]
-        cursor_right_text = unicode(current_text)[cursor_pos:]
-        
-        if cursor_right_text.lstrip().startswith(self.TAG_SEPERATOR):
-            cursor_right_text = " " + cursor_right_text.lstrip()
-        else:
-            cursor_right_text = self.TAG_SEPERATOR + " " + cursor_right_text.lstrip()
-        prefix_length = len(cursor_left_text.split(self.TAG_SEPERATOR)[-1])
-
-        left_text = cursor_left_text[:cursor_pos - prefix_length]
-        if left_text != "":
-            left_text += " "#cursor_left_text = cursor_left_text[:cursor_pos - prefix_length] + " "
-        self.__tagging_dialog_controller.set_tag_text(left_text + text + cursor_right_text)
-        self.__tagging_dialog_controller.set_tag_cursor_position(len(left_text) + len(text) + len(self.TAG_SEPERATOR) + 1)   
-        
-    def tag_preference_activated(self, text):
-        """
-        event handler: triggered if a text was selected from the dropdown (right side)
-        """
-        self.__update_tag_list()
-        current_text = self.__tagging_dialog_controller.get_tag_text()
-        if current_text.strip() == "":
-            self.__tagging_dialog_controller.set_tag_text(text + self.TAG_SEPERATOR + " ")
-        elif current_text.rstrip().endswith(self.TAG_SEPERATOR):
-            self.__tagging_dialog_controller.set_tag_text(current_text.rstrip() + " " + text + self.TAG_SEPERATOR + " ")
-        else:
-            self.__tagging_dialog_controller.set_tag_text(current_text.rstrip() + self.TAG_SEPERATOR + " " + text + self.TAG_SEPERATOR + " ")
-        
-    def __update_tag_list(self):
-        """
-        loads available items into the tag control 
-        """
-        used_tags = self.__tagging_dialog_controller.get_tag_text().split(self.TAG_SEPERATOR)
-        
-        #zentales tagDictionary: einlesen der config, einlesen
-        self.__tagging_dialog_controller.set_tag_lookup_list(['aa','abb','xaa b','cabb','daa','abb','abc'])
-        self.__tagging_dialog_controller.set_tag_preferences(['f','g','h'])
-        self.__tagging_dialog_controller.set_category_lookup_list(['aa','abb','xaa b','cabb','daa','abb','abc'])
-        
-    def category_text_edited(self, text):
-        """
-        event handler of the text_changed event: this is triggered when typing text
-        """
-        self.__update_tag_list()
-        cursor_left_text = unicode(text)[:self.__tagging_dialog_controller.get_category_cursor_position()]
-        lookup_prefix = cursor_left_text.split(self.TAG_SEPERATOR)[-1].strip()
-        self.__tagging_dialog_controller.set_category_completion_prefix(lookup_prefix)
-        
-    def category_completion_activated(self, text):
-        """
-        event handler: triggered if a text was selected from the completer during typing
-        """
-        self.__update_tag_list()
-        cursor_pos = self.__tagging_dialog_controller.get_category_cursor_position()
-        current_text = self.__tagging_dialog_controller.get_category_text()
-        cursor_left_text = unicode(current_text)[:cursor_pos]
-        cursor_right_text = unicode(current_text)[cursor_pos:]
-        
-        if cursor_right_text.lstrip().startswith(self.TAG_SEPERATOR):
-            cursor_right_text = " " + cursor_right_text.lstrip()
-        else:
-            cursor_right_text = self.TAG_SEPERATOR + " " + cursor_right_text.lstrip()
-        prefix_length = len(cursor_left_text.split(self.TAG_SEPERATOR)[-1])
-
-        left_text = cursor_left_text[:cursor_pos - prefix_length]
-        if left_text != "":
-            left_text += " "#cursor_left_text = cursor_left_text[:cursor_pos - prefix_length] + " "
-        self.__tagging_dialog_controller.set_category_text(left_text + text + cursor_right_text)
-        self.__tagging_dialog_controller.set_category_cursor_position(len(left_text) + len(text) + len(self.TAG_SEPERATOR) + 1)   
-        
+        dialog_controller.set_tag_list(store.get_tags())
+        dialog_controller.set_recent_tags(store.get_recent_tags())
+        dialog_controller.set_popular_tags(store.get_popular_tags())
+        dialog_controller.set_store_name(store.get_name())
+        dialog_controller.show_dialog()
+     
+    
     def handle_cancel(self):
-        self.__tagging_dialog_controller.hide_dialog()
+        dialog_controller = self.sender()
+        if dialog_controller is None or not isinstance(dialog_controller, TagDialogController):
+            return
+        dialog_controller.hide_dialog()
         
     def tag_item_action(self, store_name, item_name, tag_list):
         """
@@ -253,22 +174,93 @@ class Tagstore():
         store.add_item_with_tags(item_name.text(), tag_list)
         
         ## TODO refresh the tag-list in the tag-dialog for auto completion
-    
-    def confirm_button_pressed(self):
-        """
-        """
-        print "confirm"
- 
-    def cancel_button_pressed(self):
-        """
-        """
-        print "cancel"
-        
-    def cancel_all_button_pressed(self):
-        """
-        """
-        print "cancelAll"
-        
+
+    #------------------------------------------ def tag_text_edited(self, text):
+        #------------------------------------------------------------------- """
+        # event handler of the text_changed event: this is triggered when typing text
+        #------------------------------------------------------------------- """
+        #---------------------------------------------- self.__update_tag_list()
+        # cursor_left_text = unicode(text)[:self.__tagging_dialog_controller.get_tag_cursor_position()]
+        # lookup_prefix = cursor_left_text.split(self.TAG_SEPERATOR)[-1].strip()
+        # self.__tagging_dialog_controller.set_tag_completion_prefix(lookup_prefix)
+#------------------------------------------------------------------------------ 
+    #--------------------------------- def tag_completion_activated(self, text):
+        #------------------------------------------------------------------- """
+        # event handler: triggered if a text was selected from the completer during typing
+        #------------------------------------------------------------------- """
+        #---------------------------------------------- self.__update_tag_list()
+        # cursor_pos = self.__tagging_dialog_controller.get_tag_cursor_position()
+        #-------- current_text = self.__tagging_dialog_controller.get_tag_text()
+        #----------------- cursor_left_text = unicode(current_text)[:cursor_pos]
+        #---------------- cursor_right_text = unicode(current_text)[cursor_pos:]
+#------------------------------------------------------------------------------ 
+        #--------- if cursor_right_text.lstrip().startswith(self.TAG_SEPERATOR):
+            #-------------- cursor_right_text = " " + cursor_right_text.lstrip()
+        #----------------------------------------------------------------- else:
+            # cursor_right_text = self.TAG_SEPERATOR + " " + cursor_right_text.lstrip()
+        #--- prefix_length = len(cursor_left_text.split(self.TAG_SEPERATOR)[-1])
+#------------------------------------------------------------------------------ 
+        #------------- left_text = cursor_left_text[:cursor_pos - prefix_length]
+        #--------------------------------------------------- if left_text != "":
+            # left_text += " "#cursor_left_text = cursor_left_text[:cursor_pos - prefix_length] + " "
+        # self.__tagging_dialog_controller.set_tag_text(left_text + text + cursor_right_text)
+        # self.__tagging_dialog_controller.set_tag_cursor_position(len(left_text) + len(text) + len(self.TAG_SEPERATOR) + 1)
+#------------------------------------------------------------------------------ 
+    #--------------------------------- def tag_preference_activated(self, text):
+        #------------------------------------------------------------------- """
+        # event handler: triggered if a text was selected from the dropdown (right side)
+        #------------------------------------------------------------------- """
+        #---------------------------------------------- self.__update_tag_list()
+        #-------- current_text = self.__tagging_dialog_controller.get_tag_text()
+        #---------------------------------------- if current_text.strip() == "":
+            # self.__tagging_dialog_controller.set_tag_text(text + self.TAG_SEPERATOR + " ")
+        #-------------- elif current_text.rstrip().endswith(self.TAG_SEPERATOR):
+            # self.__tagging_dialog_controller.set_tag_text(current_text.rstrip() + " " + text + self.TAG_SEPERATOR + " ")
+        #----------------------------------------------------------------- else:
+            # self.__tagging_dialog_controller.set_tag_text(current_text.rstrip() + self.TAG_SEPERATOR + " " + text + self.TAG_SEPERATOR + " ")
+#------------------------------------------------------------------------------ 
+    #---------------------------------------------- def __update_tag_list(self):
+        #------------------------------------------------------------------- """
+        #---------------------------- loads available items into the tag control
+        #------------------------------------------------------------------- """
+        # used_tags = self.__tagging_dialog_controller.get_tag_text().split(self.TAG_SEPERATOR)
+#------------------------------------------------------------------------------ 
+        #---------------- #zentales tagDictionary: einlesen der config, einlesen
+        # self.__tagging_dialog_controller.set_tag_lookup_list(['aa','abb','xaa b','cabb','daa','abb','abc'])
+        #--- self.__tagging_dialog_controller.set_tag_preferences(['f','g','h'])
+        # self.__tagging_dialog_controller.set_category_lookup_list(['aa','abb','xaa b','cabb','daa','abb','abc'])
+#------------------------------------------------------------------------------ 
+    #------------------------------------- def category_text_edited(self, text):
+        #------------------------------------------------------------------- """
+        # event handler of the text_changed event: this is triggered when typing text
+        #------------------------------------------------------------------- """
+        #---------------------------------------------- self.__update_tag_list()
+        # cursor_left_text = unicode(text)[:self.__tagging_dialog_controller.get_category_cursor_position()]
+        # lookup_prefix = cursor_left_text.split(self.TAG_SEPERATOR)[-1].strip()
+        # self.__tagging_dialog_controller.set_category_completion_prefix(lookup_prefix)
+#------------------------------------------------------------------------------ 
+    #---------------------------- def category_completion_activated(self, text):
+        #------------------------------------------------------------------- """
+        # event handler: triggered if a text was selected from the completer during typing
+        #------------------------------------------------------------------- """
+        #---------------------------------------------- self.__update_tag_list()
+        # cursor_pos = self.__tagging_dialog_controller.get_category_cursor_position()
+        #--- current_text = self.__tagging_dialog_controller.get_category_text()
+        #----------------- cursor_left_text = unicode(current_text)[:cursor_pos]
+        #---------------- cursor_right_text = unicode(current_text)[cursor_pos:]
+#------------------------------------------------------------------------------ 
+        #--------- if cursor_right_text.lstrip().startswith(self.TAG_SEPERATOR):
+            #-------------- cursor_right_text = " " + cursor_right_text.lstrip()
+        #----------------------------------------------------------------- else:
+            # cursor_right_text = self.TAG_SEPERATOR + " " + cursor_right_text.lstrip()
+        #--- prefix_length = len(cursor_left_text.split(self.TAG_SEPERATOR)[-1])
+#------------------------------------------------------------------------------ 
+        #------------- left_text = cursor_left_text[:cursor_pos - prefix_length]
+        #--------------------------------------------------- if left_text != "":
+            # left_text += " "#cursor_left_text = cursor_left_text[:cursor_pos - prefix_length] + " "
+        # self.__tagging_dialog_controller.set_category_text(left_text + text + cursor_right_text)
+        # self.__tagging_dialog_controller.set_category_cursor_position(len(left_text) + len(text) + len(self.TAG_SEPERATOR) + 1)        
+
         
 if __name__ == '__main__':  
   

@@ -49,9 +49,9 @@ class TagDialog(QtGui.QWidget):
         model = QtGui.QStandardItemModel()
         self.__item_list_view.setModel(model)
         
-        self.__cancel_button = QtGui.QPushButton(self)
-        self.__cancel_button.setGeometry(QtCore.QRect(470, 320, 113, 32))
-        self.__cancel_button.setObjectName("__cancel_button")
+        self.__close_button = QtGui.QPushButton(self)
+        self.__close_button.setGeometry(QtCore.QRect(470, 320, 113, 32))
+        self.__close_button.setObjectName("__close_button")
         self.__right_frame = QtGui.QFrame(self)
         self.__right_frame.setGeometry(QtCore.QRect(240, 60, 341, 241))
         self.__right_frame.setFrameShape(QtGui.QFrame.StyledPanel)
@@ -155,9 +155,6 @@ class TagDialog(QtGui.QWidget):
         icon2.addPixmap(QtGui.QPixmap(":/ts/images/delete.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.__remove_button.setIcon(icon2)
         self.__remove_button.setObjectName("__remove_button")
-        self.no_of_items_label = QtGui.QLabel(self)
-        self.no_of_items_label.setGeometry(QtCore.QRect(110, 315, 121, 21))
-        self.no_of_items_label.setObjectName("no_of_items_label")
         self.label_2 = QtGui.QLabel(self)
         self.label_2.setGeometry(QtCore.QRect(20, 20, 201, 31))
         self.label_2.setScaledContents(False)
@@ -177,8 +174,8 @@ class TagDialog(QtGui.QWidget):
         self.connect(self.__tag_button, QtCore.SIGNAL("clicked()"), self.__tag_button_pressed)
         self.connect(self.__remove_button, QtCore.SIGNAL("clicked()"), self.__remove_button_pressed)
         self.connect(self.__item_list_view, QtCore.SIGNAL("clicked(QModelIndex)"), self.__handle_tree_clicked)
-        self.connect(self.__cancel_button, QtCore.SIGNAL("clicked()"), QtCore.SIGNAL("cancel_clicked()"))
-        #self.connect(self.__cancel_button, QtCore.SIGNAL("clicked()"), self.cancel)
+        self.connect(self.__close_button, QtCore.SIGNAL("clicked()"), QtCore.SIGNAL("cancel_clicked()"))
+        #self.connect(self.__close_button, QtCore.SIGNAL("clicked()"), self.cancel)
 
     def __handle_tree_clicked(self, index):
         self.__selected_index = index
@@ -224,7 +221,7 @@ class TagDialog(QtGui.QWidget):
         
     def retranslateUi(self):
         self.setWindowTitle(QtGui.QApplication.translate("TagDialog", "Tag-A-File - tagstore", None, QtGui.QApplication.UnicodeUTF8))
-        self.__cancel_button.setText(QtGui.QApplication.translate("TagDialog", "Cancel", None, QtGui.QApplication.UnicodeUTF8))
+        self.__close_button.setText(QtGui.QApplication.translate("TagDialog", "Close", None, QtGui.QApplication.UnicodeUTF8))
         self.__recent_label.setText(QtGui.QApplication.translate("TagDialog", "Recent:", None, QtGui.QApplication.UnicodeUTF8))
         self.__tag_button.setText(QtGui.QApplication.translate("TagDialog", "Tag It", None, QtGui.QApplication.UnicodeUTF8))
         self.__popular_label.setText(QtGui.QApplication.translate("TagDialog", "Most popular:", None, QtGui.QApplication.UnicodeUTF8))
@@ -236,7 +233,6 @@ class TagDialog(QtGui.QWidget):
         self.label_11.setText(QtGui.QApplication.translate("TagDialog", "label2", None, QtGui.QApplication.UnicodeUTF8))
         self.label_13.setText(QtGui.QApplication.translate("TagDialog", "label3", None, QtGui.QApplication.UnicodeUTF8))
         self.__remove_button.setToolTip(QtGui.QApplication.translate("TagDialog", "remove file from list", None, QtGui.QApplication.UnicodeUTF8))
-        self.no_of_items_label.setText(QtGui.QApplication.translate("TagDialog", self.__NO_OF_ITEMS_STRING, None, QtGui.QApplication.UnicodeUTF8))
         self.label_2.setText(QtGui.QApplication.translate("TagDialog", "All these items have not been tagged yet", None, QtGui.QApplication.UnicodeUTF8))
         self.store_label.setText(QtGui.QApplication.translate("TagDialog", "@ store1", None, QtGui.QApplication.UnicodeUTF8))
 
@@ -247,9 +243,11 @@ class TagDialog(QtGui.QWidget):
         model = QtGui.QStringListModel()
         model.setStringList(item_list)
         self.__item_list_view.setModel(model)
-        self.no_of_items_label.setText("%s %s" %(len(item_list), self.__NO_OF_ITEMS_STRING))
 
     def add_item(self, store_name, item_name):
+        """
+        add a new item to be tagged to the tree view
+        """
         model = self.__item_list_view.model()
         
         ## there should just be one result, but the method returns a list
@@ -274,8 +272,6 @@ class TagDialog(QtGui.QWidget):
         store_item.appendRow(new_item)
         
         self.__item_list_view.expandAll()
-        
-        #self.no_of_items_label.setText("%s %s" %(len(item_list), self.__NO_OF_ITEMS_STRING))
         
     def set_tag_list(self, tag_list):
         self.__tag_line_widget.set_tag_completion_list(tag_list)
@@ -351,6 +347,7 @@ class TagDialogController(QtCore.QObject):
 
     def set_recent_tags(self, tag_list):
         self.__tag_dialog.set_recent_tags(tag_list)
-    def get_dialog(self):
-        return self.__tag_dialog
+        
+    def set_store_name(self, store_name):
+        self.__tag_dialog.set_store_label_text(store_name)
 ## END
