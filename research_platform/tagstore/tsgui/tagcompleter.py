@@ -33,19 +33,19 @@ from PyQt4.QtCore import Qt, QObject, SIGNAL
 from PyQt4.QtGui import QLineEdit, QCompleter, QStringListModel, QWidget
 import logging
 
-class TagCompleterWidget(QWidget):
+class TagCompleterWidget(QObject):
     """
     widget in lineEdit-style with integrated qcompleter
     """ 
 #    def __init__(self, tag_completion_list, parent=None):
     def __init__(self, tag_list=None, parent=None, separator=", "):
         
-        QWidget.__init__(self, parent)
+        QWidget.__init__(self)
         
         self.__tag_separator = separator
         self.__tag_list = tag_list
         
-        self.__tag_line = QLineEdit(self)
+        self.__tag_line = QLineEdit(parent)
         
         self.__completer = QCompleter(self.__tag_list, self);    
         self.__completer.setCaseSensitivity(Qt.CaseInsensitive)
@@ -85,7 +85,7 @@ class TagCompleterWidget(QWidget):
         after_text = unicode(self.__tag_line.text())[cursor_pos:]
         prefix_len = len(before_text.split(self.__tag_separator)[-1].strip())
 
-        self.__tag_line.setText('%s%s, %s' % (before_text[:cursor_pos - prefix_len], text,
+        self.__tag_line.setText("%s%s, %s" % (before_text[:cursor_pos - prefix_len], text,
             after_text))
         self.__tag_line.setCursorPosition(cursor_pos - prefix_len + len(text) + 2)
 
@@ -111,5 +111,12 @@ class TagCompleterWidget(QWidget):
     def set_tag_completion_list(self, tag_list):
         self.__tag_list = tag_list
         self.__completer.setModel(QtGui.QStringListModel(QtCore.QStringList(tag_list)))
+        
+    def set_line_focus(self):
+        self.__tag_line.setFocus(Qt.OtherFocusReason)
+        
+    def set_size(self, qrect):
+        self.setGeometry(qrect)
+        self.__tag_line.setGeometry(qrect)
     
 ## end

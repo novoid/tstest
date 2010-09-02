@@ -1,3 +1,5 @@
+#!usr/bin/env python
+
 # -*- coding: utf-8 -*-
 
 ## this file is part of tagstore, an alternative way of storing and retrieving information
@@ -15,24 +17,29 @@
 ## if not, see <http://www.gnu.org/licenses/>.
 
 import sys
+import logging.handlers
 from PyQt4 import QtCore, QtGui
-from tsgui.taggingdialog import TaggingDialog
 from tsgui.tagdialog import TagDialogController
 from tscore.configwrapper import ConfigWrapper
 from tscore.store import Store
 from tscore.enum import EFileEvent
 
 
-# path to the config file
-CONFIG_PATH = "../conf/tagstore.cfg"
     
 class Tagstore(QtCore.QObject):
 
-    def __init__(self, parent=None):
+    # path to the config file
+    CONFIG_PATH = "../conf/tagstore.cfg"
+    LOGGER_NAME = "TagStoreLogger"
+    LOG_FILENAME = "tagstore.log"
+    
+    def __init__(self, parent=None, verbose=False, dryrun=False):
         """ 
         initializes the configuration. This method is called every time the config file changes
         """
         QtCore.QObject.__init__(self)
+        
+        self.DRY_RUN = dryrun        
         ## global settings/defaults (only used if reading config file failed or invalid!)
         self.STORE_CONFIG_DIR = ".tagstore"
         self.STORE_CONFIG_FILE_NAME = "store.tgs"
@@ -44,14 +51,52 @@ class Tagstore(QtCore.QObject):
         
         ## init configurations
         self.__config_file = None
+        self.__log = None
+        
+        self.LOG_LEVEL = logging.INFO
+        if verbose:
+            self.LOG_LEVEL = logging.DEBUG
+            
+        self.__init_logger(self.LOG_LEVEL)
+        
+        self.__log.info("starting tagstore watcher")
+        
         self.__init_configurations()
+
+    def __init_logger(self, level):
+        '''
+        create a logger object with appropriate settings
+        '''
+        # TODO create a class for doing this
+        LOG_FILENAME = Tagstore.LOG_FILENAME
+        self.__log = logging.getLogger(Tagstore.LOGGER_NAME)
+        self.__log.setLevel(logging.DEBUG)
+
+        #logging.basicConfig(level=logging.INFO)
+        formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+
+        ## create console handler and set level to debug
+        ch = logging.StreamHandler()
+        ch.setLevel(level)
+
+        ## add formatter to ch
+        ch.setFormatter(formatter)
+        
+        ## add ch to logger
+        self.__log.addHandler(ch)
+
+        # create filehandler
+        handler = logging.handlers.RotatingFileHandler(LOG_FILENAME, maxBytes=524288, backupCount=5)
+        handler.setFormatter(formatter)
+        self.__log.addHandler(handler)        
 
     def __init_configurations(self):
         """
         initializes the configuration. This method is called every time the config file changes
         """
+        self.__log.info("initialize configuration")
         ## reload config file
-        self.__config_file = ConfigWrapper(CONFIG_PATH)
+        self.__config_file = ConfigWrapper(self.CONFIG_PATH)
         self.__config_file.connect(self.__config_file, QtCore.SIGNAL("changed()"), self.__init_configurations)
         tag_seperator = self.__config_file.get_tag_seperator()
         if tag_seperator.strip() != "":
@@ -83,11 +128,13 @@ class Tagstore(QtCore.QObject):
         ## update deleted stores from global list after iterating through it
         for store in deleted_stores:
             self.STORES.remove(store)
+            self.__log.debug("removed store: %s", store.get_name())
         
         ## add new stores
         for store_item in config_store_items:
             if store_item["id"] in config_store_ids:    ## new
                 store = Store(store_item["id"],store_item["path"], self.STORE_CONFIG_DIR + "/" + self.STORE_CONFIG_FILE_NAME)
+                self.__log.debug("found store: %s", store.get_name())
                 
                 ## create a dialogcontroller for each store ...
                 ## can be accessed by its ID later on
@@ -138,6 +185,7 @@ class Tagstore(QtCore.QObject):
         """
         event handler: handles all operations with user interaction
         """
+        self.__log.info("new pending file operation added")
         
         dialog_controller = self.DIALOGS[store.get_id()]
         
@@ -147,10 +195,7 @@ class Tagstore(QtCore.QObject):
         for item in added_list:
             dialog_controller.add_pending_item(store.get_name(), item)
             
-        dialog_controller.set_tag_list(store.get_tags())
-        dialog_controller.set_recent_tags(store.get_recent_tags())
-        dialog_controller.set_popular_tags(store.get_popular_tags())
-        dialog_controller.set_store_name(store.get_name())
+        self.__set_tag_information_to_dialog(store)
         dialog_controller.show_dialog()
      
     
@@ -159,7 +204,19 @@ class Tagstore(QtCore.QObject):
         if dialog_controller is None or not isinstance(dialog_controller, TagDialogController):
             return
         dialog_controller.hide_dialog()
-        
+    
+    
+    def __set_tag_information_to_dialog(self, store):
+        """
+        convenience method for refreshing the tag data at the gui-dialog
+        """
+        self.__log.debug("refresh tag information on dialog")
+        dialog_controller = self.DIALOGS[store.get_id()]
+        dialog_controller.set_tag_list(store.get_tags())
+        dialog_controller.set_popular_tags(store.get_popular_tags())
+        dialog_controller.set_recent_tags(store.get_recent_tags())
+        dialog_controller.set_store_name(store.get_name())
+    
     def tag_item_action(self, store_name, item_name, tag_list):
         """
         write the tags for the given item to the store
@@ -170,9 +227,22 @@ class Tagstore(QtCore.QObject):
             if store_name.text() == loop_store.get_name():
                 store = loop_store
                 break
-    
+        ## 1. write the data to the store-file
         store.add_item_with_tags(item_name.text(), tag_list)
+        self.__log.debug("added item %s to store-file", item_name.text())
         
+        ## 2. refresh the tag information of the gui
+        self.__set_tag_information_to_dialog(store)
+        
+        ## 3. create the file-links and dir-hierarchy 
+        self.file_new(store, item_name, tag_list)
+        
+    def file_new(self, store, item_name, tag_list):
+        """
+        create all the necessary file links and tag-directories for this new item
+        """
+        self.__log.debug("store: %s -> create file system structure for item: %s" % (store.get_name(), item_name))
+    
         ## TODO refresh the tag-list in the tag-dialog for auto completion
 
     #------------------------------------------ def tag_text_edited(self, text):
@@ -261,11 +331,27 @@ class Tagstore(QtCore.QObject):
         # self.__tagging_dialog_controller.set_category_text(left_text + text + cursor_right_text)
         # self.__tagging_dialog_controller.set_category_cursor_position(len(left_text) + len(text) + len(self.TAG_SEPERATOR) + 1)        
 
+from optparse import OptionParser
         
 if __name__ == '__main__':  
   
+    ## initialize and configure the optionparser
+    opt_parser = OptionParser("tagstore.py [options]")
+    opt_parser.add_option("-v", "--verbose", dest="verbose", action="store_true", help="start programm with detailed output")
+    opt_parser.add_option("-d", "--dry-run", dest="dry_run", action="store_true", help="test-mode. actions are just written to ouput. no changes to filesystem made.")
+
+    (options, args) = opt_parser.parse_args()
+    
+    verbose_mode = False
+    dry_run = False
+    
+    if options.verbose:
+        verbose_mode = True
+    if options.dry_run:
+        dry_run = True
+    
     tagstore = QtGui.QApplication(sys.argv)
-    tag_widget = Tagstore()
+    tag_widget = Tagstore(verbose=verbose_mode, dryrun=dry_run)
     tagstore.exec_()
     #sys.exit(tagstore.exec_())
 

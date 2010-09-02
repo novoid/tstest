@@ -6,7 +6,7 @@
 #      by: PyQt4 UI code generator 4.7.4
 #
 # WARNING! All changes made in this file will be lost!
-
+import logging.handlers
 from PyQt4 import QtCore, QtGui
 import tsresources.resources
 from tagcompleter import TagCompleterWidget
@@ -21,12 +21,15 @@ class TagDialog(QtGui.QWidget):
         
         QtGui.QWidget.__init__(self, parent)
         
+        self.__log = logging.getLogger("TagStoreLogger")
+        
         ## flag to recognize the current visibility state 
         self.__is_shown = False
+        self.__selected_index = None
         
         self.setObjectName("TagDialog")
-        self.resize(594, 364)
-        self.setAcceptDrops(False)
+        self.setWindowModality(QtCore.Qt.WindowModal)
+        self.resize(567, 256)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -36,115 +39,54 @@ class TagDialog(QtGui.QWidget):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(":/ts/images/icon.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.setWindowIcon(icon)
-        #.setModal(True)
-        
-        #self.__item_list_view = QtGui.QListView(self)
-        self.__item_list_view = QtGui.QTreeView(self)
-        self.__item_list_view.setHeaderHidden(True)
-        self.__item_list_view.setGeometry(QtCore.QRect(20, 60, 211, 241))
-        self.__item_list_view.setObjectName("__item_list_view")
-        
-        self.__selected_index = None
-
-        model = QtGui.QStandardItemModel()
-        self.__item_list_view.setModel(model)
-        
+        #self.setModal(True)
+        self.__store_label = QtGui.QLabel(self)
+        self.__store_label.setGeometry(QtCore.QRect(241, 11, 331, 29))
+        font = QtGui.QFont()
+        font.setPointSize(25)
+        font.setWeight(75)
+        font.setBold(True)
+        self.__store_label.setFont(font)
+        self.__store_label.setObjectName("__store_label")
         self.__close_button = QtGui.QPushButton(self)
-        self.__close_button.setGeometry(QtCore.QRect(470, 320, 113, 32))
+        self.__close_button.setGeometry(QtCore.QRect(450, 210, 113, 32))
         self.__close_button.setObjectName("__close_button")
         self.__right_frame = QtGui.QFrame(self)
-        self.__right_frame.setGeometry(QtCore.QRect(240, 60, 341, 241))
+        self.__right_frame.setGeometry(QtCore.QRect(220, 60, 331, 141))
         self.__right_frame.setFrameShape(QtGui.QFrame.StyledPanel)
         self.__right_frame.setFrameShadow(QtGui.QFrame.Raised)
         self.__right_frame.setObjectName("__right_frame")
         self.__recent_label = QtGui.QLabel(self.__right_frame)
-        self.__recent_label.setGeometry(QtCore.QRect(20, 90, 91, 21))
+        self.__recent_label.setGeometry(QtCore.QRect(10, 40, 91, 21))
         self.__recent_label.setObjectName("__recent_label")
         self.__tag_button = QtGui.QPushButton(self.__right_frame)
-        
-        self.__tag_line_widget = TagCompleterWidget(parent=self.__right_frame)
-        self.__tag_line_widget.setGeometry(QtCore.QRect(100, 160, 231, 22))        
-        self.__tag_line_widget.set_enabled(False)
-        
-        self.__tag_button.setGeometry(QtCore.QRect(220, 190, 113, 32))
+        self.__tag_button.setGeometry(QtCore.QRect(250, 100, 61, 21))
         icon1 = QtGui.QIcon()
         icon1.addPixmap(QtGui.QPixmap(":/ts/images/accept.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.__tag_button.setIcon(icon1)
         self.__tag_button.setObjectName("__tag_button")
-
+        
+        self.__tag_line_widget = TagCompleterWidget(parent=self.__right_frame)
+        self.__tag_line = self.__tag_line_widget.get_tag_line()
+        #self.__tag_line_widget.set_size(QtCore.QRect(10, 100, 231, 22))
+        self.__tag_line.setGeometry(QtCore.QRect(10, 100, 231, 22))
+        self.__tag_line.setObjectName("__tag_line_widget")
+        self.__tag_line_widget.set_enabled(False)
         
         self.__popular_label = QtGui.QLabel(self.__right_frame)
-        self.__popular_label.setGeometry(QtCore.QRect(20, 40, 91, 21))
+        self.__popular_label.setGeometry(QtCore.QRect(10, 10, 91, 21))
         self.__popular_label.setObjectName("__popular_label")
         self.__tag_label = QtGui.QLabel(self.__right_frame)
-        self.__tag_label.setGeometry(QtCore.QRect(20, 160, 61, 21))
+        self.__tag_label.setGeometry(QtCore.QRect(10, 70, 61, 21))
         self.__tag_label.setObjectName("__tag_label")
-        self.__dummy_label_widget = QtGui.QWidget(self.__right_frame)
-        self.__dummy_label_widget.setGeometry(QtCore.QRect(115, 40, 211, 20))
-        self.__dummy_label_widget.setObjectName("__dummy_label_widget")
-        self.popular_horizontal_layout = QtGui.QHBoxLayout(self.__dummy_label_widget)
-        self.popular_horizontal_layout.setObjectName("popular_horizontal_layout")
-        self.label_8 = QtGui.QLabel(self.__dummy_label_widget)
-        font = QtGui.QFont()
-        font.setWeight(75)
-        font.setItalic(True)
-        font.setUnderline(False)
-        font.setBold(True)
-        self.label_8.setFont(font)
-        self.label_8.setObjectName("label_8")
-        self.popular_horizontal_layout.addWidget(self.label_8)
-        self.label_9 = QtGui.QLabel(self.__dummy_label_widget)
-        font = QtGui.QFont()
-        font.setWeight(75)
-        font.setItalic(True)
-        font.setUnderline(False)
-        font.setBold(True)
-        self.label_9.setFont(font)
-        self.label_9.setObjectName("label_9")
-        self.popular_horizontal_layout.addWidget(self.label_9)
-        self.label_10 = QtGui.QLabel(self.__dummy_label_widget)
-        font = QtGui.QFont()
-        font.setWeight(75)
-        font.setItalic(True)
-        font.setUnderline(False)
-        font.setBold(True)
-        self.label_10.setFont(font)
-        self.label_10.setObjectName("label_10")
-        self.popular_horizontal_layout.addWidget(self.label_10)
-        self.__dummy_latest_widget = QtGui.QWidget(self.__right_frame)
-        self.__dummy_latest_widget.setGeometry(QtCore.QRect(115, 90, 211, 20))
-        self.__dummy_latest_widget.setObjectName("__dummy_latest_widget")
-        self.latest_horizontal_layout = QtGui.QHBoxLayout(self.__dummy_latest_widget)
-        self.latest_horizontal_layout.setObjectName("latest_horizontal_layout")
-        self.recent_label_1 = QtGui.QLabel(self.__dummy_latest_widget)
-        font = QtGui.QFont()
-        font.setWeight(75)
-        font.setItalic(True)
-        font.setUnderline(False)
-        font.setBold(True)
-        self.recent_label_1.setFont(font)
-        self.recent_label_1.setObjectName("recent_label_1")
-        self.latest_horizontal_layout.addWidget(self.recent_label_1)
-        self.label_11 = QtGui.QLabel(self.__dummy_latest_widget)
-        font = QtGui.QFont()
-        font.setWeight(75)
-        font.setItalic(True)
-        font.setUnderline(False)
-        font.setBold(True)
-        self.label_11.setFont(font)
-        self.label_11.setObjectName("label_11")
-        self.latest_horizontal_layout.addWidget(self.label_11)
-        self.label_13 = QtGui.QLabel(self.__dummy_latest_widget)
-        font = QtGui.QFont()
-        font.setWeight(75)
-        font.setItalic(True)
-        font.setUnderline(False)
-        font.setBold(True)
-        self.label_13.setFont(font)
-        self.label_13.setObjectName("label_13")
-        self.latest_horizontal_layout.addWidget(self.label_13)
+        self.__popular_value_label = QtGui.QLabel(self.__right_frame)
+        self.__popular_value_label.setGeometry(QtCore.QRect(110, 13, 211, 16))
+        self.__popular_value_label.setObjectName("__popular_value_label")
+        self.__recent_value_label = QtGui.QLabel(self.__right_frame)
+        self.__recent_value_label.setGeometry(QtCore.QRect(110, 42, 211, 16))
+        self.__recent_value_label.setObjectName("__recent_value_label")
         self.__remove_button = QtGui.QPushButton(self)
-        self.__remove_button.setGeometry(QtCore.QRect(20, 310, 31, 32))
+        self.__remove_button.setGeometry(QtCore.QRect(10, 210, 31, 32))
         font = QtGui.QFont()
         font.setPointSize(13)
         font.setWeight(50)
@@ -155,25 +97,22 @@ class TagDialog(QtGui.QWidget):
         icon2.addPixmap(QtGui.QPixmap(":/ts/images/delete.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.__remove_button.setIcon(icon2)
         self.__remove_button.setObjectName("__remove_button")
-        self.label_2 = QtGui.QLabel(self)
-        self.label_2.setGeometry(QtCore.QRect(20, 20, 201, 31))
-        self.label_2.setScaledContents(False)
-        self.label_2.setWordWrap(True)
-        self.label_2.setObjectName("label_2")
-        self.store_label = QtGui.QLabel(self)
-        self.store_label.setGeometry(QtCore.QRect(241, 11, 331, 29));
-        font = QtGui.QFont()
-        font.setPointSize(25)
-        font.setWeight(75)
-        font.setBold(True)
-        self.store_label.setFont(font)
-        self.store_label.setObjectName("store_label")
-
+        self.__info_label = QtGui.QLabel(self)
+        self.__info_label.setGeometry(QtCore.QRect(20, 20, 201, 31))
+        self.__info_label.setScaledContents(False)
+        self.__info_label.setWordWrap(True)
+        self.__info_label.setObjectName("__info_label")
+        self.__item_list_view = QtGui.QTreeView(self)
+        self.__item_list_view.setGeometry(QtCore.QRect(10, 60, 201, 141))
+        self.__item_list_view.setObjectName("__item_list_view")
+        self.__item_list_view.setHeaderHidden(True)
+        self.__item_list_view.setModel(QtGui.QStandardItemModel())
         self.retranslateUi()
 
         self.connect(self.__tag_button, QtCore.SIGNAL("clicked()"), self.__tag_button_pressed)
         self.connect(self.__remove_button, QtCore.SIGNAL("clicked()"), self.__remove_button_pressed)
-        self.connect(self.__item_list_view, QtCore.SIGNAL("clicked(QModelIndex)"), self.__handle_tree_clicked)
+        #self.connect(self.__item_list_view.selectionModel(), QtCore.SIGNAL("selectionChanged(QModelIndex)"), self.__handle_tree_clicked)
+        self.connect(self.__item_list_view.selectionModel(), QtCore.SIGNAL("selectionChanged(QItemSelection, QItemSelection)"), self.__handle_tree_clicked)
         self.connect(self.__close_button, QtCore.SIGNAL("clicked()"), QtCore.SIGNAL("cancel_clicked()"))
         #self.connect(self.__close_button, QtCore.SIGNAL("clicked()"), self.cancel)
 
@@ -186,6 +125,19 @@ class TagDialog(QtGui.QWidget):
         item = self.__item_list_view.model().itemFromIndex(index)
         self.__tag_line_widget.set_enabled(True)
         print "click %s" % item.text()
+        
+    def __handle_tree_clicked(self, new_index, old_index):
+        index_list = new_index.indexes()
+        if index_list is not None and len(index_list) == 1:
+            self.__selected_index = index_list[0]
+        else:
+            pass
+        ## check if the selected item is a "store-item"
+        if self.__get_selected_item().parent() is None:
+            self.__tag_line_widget.set_enabled(False)
+            return
+        self.__tag_line_widget.set_enabled(True)
+        self.__log.debug("click %s" % self.__get_selected_item().text())
 
     def __get_selected_item(self):
         return self.__item_list_view.model().itemFromIndex(self.__selected_index)
@@ -198,8 +150,6 @@ class TagDialog(QtGui.QWidget):
             return
         item.parent().removeRow(item.row())
         self.__item_list_view.doItemsLayout()
-        # TODO is this good usability?
-        self.__item_list_view.clearSelection()
 
     def __remove_button_pressed(self):
         """
@@ -220,24 +170,20 @@ class TagDialog(QtGui.QWidget):
         self.__tag_line_widget.set_text("")
         
     def retranslateUi(self):
-        self.setWindowTitle(QtGui.QApplication.translate("TagDialog", "Tag-A-File - tagstore", None, QtGui.QApplication.UnicodeUTF8))
-        self.__close_button.setText(QtGui.QApplication.translate("TagDialog", "Close", None, QtGui.QApplication.UnicodeUTF8))
-        self.__recent_label.setText(QtGui.QApplication.translate("TagDialog", "Recent:", None, QtGui.QApplication.UnicodeUTF8))
-        self.__tag_button.setText(QtGui.QApplication.translate("TagDialog", "Tag It", None, QtGui.QApplication.UnicodeUTF8))
-        self.__popular_label.setText(QtGui.QApplication.translate("TagDialog", "Most popular:", None, QtGui.QApplication.UnicodeUTF8))
-        self.__tag_label.setText(QtGui.QApplication.translate("TagDialog", "Tags:", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_8.setText(QtGui.QApplication.translate("TagDialog", "label1", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_9.setText(QtGui.QApplication.translate("TagDialog", "label2", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_10.setText(QtGui.QApplication.translate("TagDialog", "label3", None, QtGui.QApplication.UnicodeUTF8))
-        self.recent_label_1.setText(QtGui.QApplication.translate("TagDialog", "label1", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_11.setText(QtGui.QApplication.translate("TagDialog", "label2", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_13.setText(QtGui.QApplication.translate("TagDialog", "label3", None, QtGui.QApplication.UnicodeUTF8))
-        self.__remove_button.setToolTip(QtGui.QApplication.translate("TagDialog", "remove file from list", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_2.setText(QtGui.QApplication.translate("TagDialog", "All these items have not been tagged yet", None, QtGui.QApplication.UnicodeUTF8))
-        self.store_label.setText(QtGui.QApplication.translate("TagDialog", "@ store1", None, QtGui.QApplication.UnicodeUTF8))
+        self.setWindowTitle(QtGui.QApplication.translate("Dialog", "Tag-A-File - tagstore", None, QtGui.QApplication.UnicodeUTF8))
+        self.__store_label.setText(QtGui.QApplication.translate("Dialog", "@ store1", None, QtGui.QApplication.UnicodeUTF8))
+        self.__close_button.setText(QtGui.QApplication.translate("Dialog", "Close", None, QtGui.QApplication.UnicodeUTF8))
+        self.__recent_label.setText(QtGui.QApplication.translate("Dialog", "Recent:", None, QtGui.QApplication.UnicodeUTF8))
+        self.__tag_button.setText(QtGui.QApplication.translate("Dialog", "Tag It", None, QtGui.QApplication.UnicodeUTF8))
+        self.__popular_label.setText(QtGui.QApplication.translate("Dialog", "Most popular:", None, QtGui.QApplication.UnicodeUTF8))
+        self.__tag_label.setText(QtGui.QApplication.translate("Dialog", "Tags:", None, QtGui.QApplication.UnicodeUTF8))
+        self.__popular_value_label.setText(QtGui.QApplication.translate("Dialog", "TextLabel", None, QtGui.QApplication.UnicodeUTF8))
+        self.__recent_value_label.setText(QtGui.QApplication.translate("Dialog", "TextLabel", None, QtGui.QApplication.UnicodeUTF8))
+        self.__remove_button.setToolTip(QtGui.QApplication.translate("Dialog", "remove file from list", None, QtGui.QApplication.UnicodeUTF8))
+        self.__info_label.setText(QtGui.QApplication.translate("Dialog", "All these items have not been tagged yet", None, QtGui.QApplication.UnicodeUTF8))
 
     def set_store_label_text(self, storename):
-        self.store_label.setText("@ " + storename)
+        self.__store_label.setText("@ " + storename)
         
     def set_item_list(self, item_list):
         model = QtGui.QStringListModel()
@@ -246,7 +192,7 @@ class TagDialog(QtGui.QWidget):
 
     def add_item(self, store_name, item_name):
         """
-        add a new item to be tagged to the tree view
+        add a new item to the tree view
         """
         model = self.__item_list_view.model()
         
@@ -262,28 +208,31 @@ class TagDialog(QtGui.QWidget):
             root_item.appendRow(new_store_item)
             ## put the new one on forst place - because it will be accessed on this position later on
             store_items.insert(0, new_store_item)
-        
-        ## now check if there is already such an item name in the treeview
-        #file_item = model.findItems(item_name)
-         
+
         store_item = store_items[0]
         new_item = QtGui.QStandardItem(item_name)
         new_item.setEditable(False)
+        
         store_item.appendRow(new_item)
         
+        ## select the new item automatically in the treeview
+        self.__item_list_view.selectionModel().select(new_item.index(), QtGui.QItemSelectionModel.ClearAndSelect)
+        self.__tag_line_widget.set_enabled(True)
+        self.__tag_line_widget.set_line_focus()
         self.__item_list_view.expandAll()
         
     def set_tag_list(self, tag_list):
         self.__tag_line_widget.set_tag_completion_list(tag_list)
         
     def set_popular_tags(self, tag_list):
-        pass
+        self.__popular_value_label.setText("")
+        for tag in tag_list:
+            self.__popular_value_label.setText(self.__popular_value_label.text() +" "+ tag)
 
     def set_recent_tags(self, tag_list):
+        self.__recent_value_label.setText("")
         for tag in tag_list:
-            label = QtGui.QLabel(self.__dummy_latest_widget)
-            label.setText("tag")
-            self.latest_horizontal_layout.addWidget(label)
+            self.__recent_value_label.setText(self.__recent_value_label.text() +" "+ tag)
     
     def clear_store_children(self, store_name):
         model = self.__item_list_view.model()
@@ -296,7 +245,7 @@ class TagDialog(QtGui.QWidget):
         
     def clear_tree_view(self):
         self.__item_list_view.model().clear()
-    
+
 class TagDialogController(QtCore.QObject):
     """
     __pyqtSignals__ = ("tag_item",
@@ -305,6 +254,8 @@ class TagDialogController(QtCore.QObject):
     def __init__(self):
         
         QtCore.QObject.__init__(self)
+        
+        self.__log = logging.getLogger("TagStoreLogger")
         
         self.__tag_dialog = TagDialog()
         
@@ -334,13 +285,14 @@ class TagDialogController(QtCore.QObject):
             return
         self.__is_shown = True
         self.__tag_dialog.show()
-        print "SHOW"
+        self.__log.debug("show tag-dialog")
         
     def hide_dialog(self):
         if not self.__is_shown:
             return
         self.__is_shown = False
         self.__tag_dialog.hide()
+        self.__log.debug("hide tag-dialog")
         
     def set_popular_tags(self, tag_list):
         self.__tag_dialog.set_popular_tags(tag_list)
