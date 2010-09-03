@@ -14,12 +14,31 @@
 ## You should have received a copy of the GNU General Public License along with this program;
 ## if not, see <http://www.gnu.org/licenses/>.
 
-import os
+
+import win32com.client
+
 
 class FileSystem():
 
     def __init__(self):
         pass
     
+    def create_link(self, target, name):
+        win_name = name.replace("/", "\\") + ".lnk"
+        win_target = target.replace("/", "\\")
         
+        print "name: " + win_name
+        print "target: " + win_target
+        shell = win32com.client.Dispatch("WScript.Shell")
+        shortcut = shell.CreateShortCut(win_name)
+        shortcut.Targetpath = win_target
+        shortcut.save()
+
+    #funktiont
+        #shell = win32com.client.Dispatch("WScript.Shell")
+        #shortcut = shell.CreateShortCut("C:\\tagstore\\testfolder\\test.xlsx.lnk")
+        #shortcut.Targetpath = "C:\\tagstore\\excel.xlsx"
+        #shortcut.save()
+
+
 ## end

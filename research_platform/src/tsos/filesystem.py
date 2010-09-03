@@ -86,5 +86,12 @@ class FileSystemWrapper():
                         ignored.append(item)
         return list(set(files) - set(ignored))
 
-            
+    def create_link(self, target, name):
+        if name.find(":/") == -1:
+            sname = name.replace(":", ":/")
+        if target.find(":/") == -1:
+            starget = target.replace(":", ":/")
+        self.file_system.create_link(starget, sname)
+
+
 ## end
