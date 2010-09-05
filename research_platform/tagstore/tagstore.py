@@ -236,14 +236,7 @@ class Tagstore(QtCore.QObject):
         
         ## 3. create the file-links and dir-hierarchy 
         self.file_new(store, item_name, tag_list)
-        
-    def file_new(self, store, item_name, tag_list):
-        """
-        create all the necessary file links and tag-directories for this new item
-        """
-        self.__log.debug("store: %s -> create file system structure for item: %s" % (store.get_name(), item_name))
-    
-        ## TODO refresh the tag-list in the tag-dialog for auto completion
+
 
     #------------------------------------------ def tag_text_edited(self, text):
         #------------------------------------------------------------------- """

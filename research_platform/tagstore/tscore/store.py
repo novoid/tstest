@@ -14,8 +14,9 @@
 ## You should have received a copy of the GNU General Public License along with this program;
 ## if not, see <http://www.gnu.org/licenses/>.
 
-from PyQt4 import QtCore
+import logging.handlers
 from sets import Set
+from PyQt4 import QtCore
 from tsos.filesystem import FileSystemWrapper
 from tscore.tagwrapper import TagWrapper
 from tscore.enum import EFileType, EFileEvent
@@ -34,6 +35,8 @@ class Store(QtCore.QObject):
         constructor
         """
         QtCore.QObject.__init__(self)
+
+        self.__log = logging.getLogger("TagStoreLogger")
 
         self.__file_system = FileSystemWrapper()
         self.__watcher = QtCore.QFileSystemWatcher(self)
@@ -207,12 +210,51 @@ class Store(QtCore.QObject):
     def get_popular_tags(self):
         ## TODO: use application config value for # of tags
         return self.__tag_wrapper.get_popular_tags(5)
+    
+    def __map_tags_to_filsystem(self, item_name, tag_list):
+        """
+        does all necessary steps vor creating new directories and links according to the tag list
+        """
+        self.__log.debug("store: %s -> create file system structure for item: %s" % (self.__name, item_name))
         
+        item_name = unicode(item_name)
+        
+        ## create the real directories at first
+        for tag in tag_list:
+            tag_path = self.__path + "/" + tag
+            if not self.__file_system.path_exists(tag_path):
+                self.__file_system.create_dir(tag_path)
+            else:
+                self.__log.debug("path: --- %s --- already exists. do nothing" % tag_path)
+            
+            ## TODO: check out how to find working relatice paths for links 
+            ##  put the link to the item into the dir
+            src_path = self.__path + "/" + item_name
+            link_name = tag_path + "/" + item_name
+            self.__file_system.create_link(src_path, link_name)
+        ## create the links between the dirs
+        for tag in tag_list:
+            tag_path = self.__path + "/" + tag
+            link_list = set(tag_list)
+            link_list.remove(tag)
+            for link in link_list:
+                ## e.g. tag is "foo" and link is "bar"
+                ## target: path_to_store/foo/bar
+                ## source: path_to_store/bar
+                target = tag_path + "/" + link
+                if not self.__file_system.path_exists(target):
+                    source = self.__path + "/" + link
+                    self.__file_system.create_link(source, target)
+                else:
+                    self.__log.debug("path: --- %s --- already exists. do nothing" % target)
+                
+    
     def add_item_with_tags(self, file_name, tag_list):
         """
         adds tags to the given file, resets existing tags
         """
-        #TODO: handle file system changes - removing/generating of tag hierarchy and links
+        
+        self.__map_tags_to_filsystem(file_name, tag_list)
         self.__tag_wrapper.set_tags(file_name, tag_list)
         self.__pending_changes.remove(file_name)
         

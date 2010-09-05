@@ -35,6 +35,8 @@ class Store(QtCore.QObject):
         """
         QtCore.QObject.__init__(self)
 
+        self.__log = logging.getLogger("TagStoreLogger")
+
         self.__file_system = FileSystemWrapper()
         self.__watcher = QtCore.QFileSystemWatcher(self)
         self.__watcher.connect(self.__watcher,QtCore.SIGNAL("directoryChanged(QString)"), self.__directory_changed)
@@ -192,12 +194,16 @@ class Store(QtCore.QObject):
             self.__tag_wrapper.remove_file(file_name)
         else:
             self.emit(QtCore.SIGNAL("pending_operations_changed(PyQt_PyObject)"), self)
+    
+
         
+    
     def add_tags(self, file_name, tag_list):
         """
         adds tags to the given file, resets existing tags
         """
         #TODO: handle file system changes - removing/generating of tag hierarchy and links
+        self.__create_dir_for_file(filname, tag_list)
         self.__tag_wrapper.set_tags(file_name, tag_list)
         self.__pending_changes.remove(file_name)
         

@@ -16,6 +16,7 @@
 
 import sys
 import os
+import logging.handlers
 if sys.platform[:3] == "win":
     from windows import FileSystem
 elif sys.platform == "darwin":
@@ -30,6 +31,9 @@ class FileSystemWrapper():
         """
         constructor
         """
+        
+        self.__log = logging.getLogger("TagStoreLogger")
+        
         self.file_system = FileSystem()
         self.__IGNORED_FILE_PREFIXES = ["~$"]
         self.__IGNORED_DIR_PREFIXES = ["."]
@@ -86,5 +90,25 @@ class FileSystemWrapper():
                         ignored.append(item)
         return list(set(files) - set(ignored))
 
-            
+    def create_dir(self, path_name):
+        """
+        create a directory with the given pathname at the filesystem
+        """
+        self.__log.debug("creating dir with the path: %s" % path_name)
+        ## os.mkdir supports unix AND linux systems
+        ## TODO: check if on windows, slash (http://www.wilsdomain.com/wp-content-photos/images/Slash-Saul-Hudson.jpg) has to be exchanged with backslash (\)
+        os.mkdir(path_name)
+
+    def create_link(self, source, target):
+        """
+        from python doc: "Create a symbolic link pointing to source named link_name." 
+        source -> the original file/dir
+        target -> the target of the link
+        """
+        self.__log.debug("creating link --- %s --- with the path: %s" % (target, source))
+        if target.find(":/") == -1:
+            sname = target.replace(":", ":/")
+        if source.find(":/") == -1:
+            ssource = source.replace(":", ":/")
+        self.file_system.create_link(ssource, sname)
 ## end

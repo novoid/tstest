@@ -14,12 +14,28 @@
 ## You should have received a copy of the GNU General Public License along with this program;
 ## if not, see <http://www.gnu.org/licenses/>.
 
-import os
+import win32com.client
+import logging.handlers
 
 class FileSystem():
 
     def __init__(self):
-        pass
+        self.__log = logging.getLogger("TagStoreLogger")
     
+    def create_link(self, source, name):
+        win_name = name.replace("/", "\\") + ".lnk"
+        win_source = source.replace("/", "\\")
         
+        self.__log.debug("name: " + win_name)
+        self.__log.debug("source: " + win_source)
+        shell = win32com.client.Dispatch("WScript.Shell")
+        shortcut = shell.CreateShortCut(win_name)
+        shortcut.Targetpath = win_source
+        shortcut.save()
+
+    #funktiont
+        #shell = win32com.client.Dispatch("WScript.Shell")
+        #shortcut = shell.CreateShortCut("C:\\tagstore\\testfolder\\test.xlsx.lnk")
+        #shortcut.Targetpath = "C:\\tagstore\\excel.xlsx"
+        #shortcut.save() 
 ## end

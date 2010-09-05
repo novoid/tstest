@@ -15,7 +15,8 @@
 ## if not, see <http://www.gnu.org/licenses/>.
 
 import time
-from PyQt4.QtCore import QSettings
+#from PyQt4.QtCore import QSettings
+import PyQt4.QtCore
 
 
 class TagWrapper():
