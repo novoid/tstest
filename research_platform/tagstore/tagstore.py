@@ -23,14 +23,13 @@ from tsgui.tagdialog import TagDialogController
 from tscore.configwrapper import ConfigWrapper
 from tscore.store import Store
 from tscore.enum import EFileEvent
-
+from tscore.tsconstants import TsConstants
 
     
 class Tagstore(QtCore.QObject):
 
     # path to the config file
     CONFIG_PATH = "../conf/tagstore.cfg"
-    LOGGER_NAME = "TagStoreLogger"
     LOG_FILENAME = "tagstore.log"
     
     def __init__(self, parent=None, verbose=False, dryrun=False):
@@ -41,10 +40,10 @@ class Tagstore(QtCore.QObject):
         
         self.DRY_RUN = dryrun        
         ## global settings/defaults (only used if reading config file failed or invalid!)
-        self.STORE_CONFIG_DIR = ".tagstore"
-        self.STORE_CONFIG_FILE_NAME = "store.tgs"
-        self.TAG_SEPERATOR = ","
-        self.MAX_TAGS = 3
+        self.STORE_CONFIG_DIR = TsConstants.STORE_CONFIG_DIR
+        self.STORE_CONFIG_FILE_NAME = TsConstants.STORE_CONFIG_FILENAME
+        self.TAG_SEPERATOR = TsConstants.DEFAULT_TAG_SEPARATOR
+        self.MAX_TAGS = TsConstants.DEFAULT_MAX_TAGS
         self.STORES = []
         ## dict for dialogs identified by their store id
         self.DIALOGS = {}
@@ -69,26 +68,25 @@ class Tagstore(QtCore.QObject):
         '''
         # TODO create a class for doing this
         LOG_FILENAME = Tagstore.LOG_FILENAME
-        self.__log = logging.getLogger(Tagstore.LOGGER_NAME)
+        self.__log = logging.getLogger(TsConstants.LOGGER_NAME)
         self.__log.setLevel(logging.DEBUG)
 
         #logging.basicConfig(level=logging.INFO)
         formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
 
-        ## create console handler and set level to debug
-        ch = logging.StreamHandler()
-        ch.setLevel(level)
-
-        ## add formatter to ch
-        ch.setFormatter(formatter)
-        
-        ## add ch to logger
-        self.__log.addHandler(ch)
+        ## create console handler and set level
+        console_handler = logging.StreamHandler()
+        console_handler.setLevel(level)
+        console_handler.setFormatter(formatter)
 
         # create filehandler
-        handler = logging.handlers.RotatingFileHandler(LOG_FILENAME, maxBytes=524288, backupCount=5)
-        handler.setFormatter(formatter)
-        self.__log.addHandler(handler)        
+        file_handler = logging.handlers.RotatingFileHandler(LOG_FILENAME, 
+            maxBytes=TsConstants.LOG_FILESIZE, backupCount=TsConstants.LOG_BACKUP_COUNT)
+        file_handler.setFormatter(formatter)
+
+        ## add handlers to logger
+        self.__log.addHandler(console_handler)
+        self.__log.addHandler(file_handler)        
 
     def __init_configurations(self):
         """
@@ -138,7 +136,7 @@ class Tagstore(QtCore.QObject):
                 
                 ## create a dialogcontroller for each store ...
                 ## can be accessed by its ID later on
-                tmp_dialog = TagDialogController()
+                tmp_dialog = TagDialogController(self.MAX_TAGS, self.TAG_SEPERATOR)
                 tmp_dialog.connect(tmp_dialog, QtCore.SIGNAL("tag_item"), self.tag_item_action)
                 tmp_dialog.connect(tmp_dialog, QtCore.SIGNAL("handle_cancel()"), self.handle_cancel)
                 #self.DIALOGS[store.get_id()] = tmp_dialog

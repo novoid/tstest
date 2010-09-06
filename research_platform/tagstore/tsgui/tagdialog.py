@@ -10,6 +10,7 @@ import logging.handlers
 from PyQt4 import QtCore, QtGui
 import tsresources.resources
 from tagcompleter import TagCompleterWidget
+from tscore.tsconstants import TsConstants
 
 class TagDialog(QtGui.QWidget):
     """
@@ -17,12 +18,14 @@ class TagDialog(QtGui.QWidget):
     """
     __NO_OF_ITEMS_STRING = "untagged item(s)"
     
-    def __init__(self, parent=None):
+    def __init__(self, max_tags, tag_separator, parent=None):
         
         QtGui.QWidget.__init__(self, parent)
         
         self.__log = logging.getLogger("TagStoreLogger")
         
+        self.__max_tags = max_tags
+        self.__tag_separator = tag_separator
         ## flag to recognize the current visibility state 
         self.__is_shown = False
         self.__selected_index = None
@@ -66,7 +69,7 @@ class TagDialog(QtGui.QWidget):
         self.__tag_button.setIcon(icon1)
         self.__tag_button.setObjectName("__tag_button")
         
-        self.__tag_line_widget = TagCompleterWidget(parent=self.__right_frame)
+        self.__tag_line_widget = TagCompleterWidget(self.__max_tags, separator=self.__tag_separator, parent=self.__right_frame)
         self.__tag_line = self.__tag_line_widget.get_tag_line()
         #self.__tag_line_widget.set_size(QtCore.QRect(10, 100, 231, 22))
         self.__tag_line.setGeometry(QtCore.QRect(10, 100, 231, 22))
@@ -77,7 +80,7 @@ class TagDialog(QtGui.QWidget):
         self.__popular_label.setGeometry(QtCore.QRect(10, 10, 91, 21))
         self.__popular_label.setObjectName("__popular_label")
         self.__tag_label = QtGui.QLabel(self.__right_frame)
-        self.__tag_label.setGeometry(QtCore.QRect(10, 70, 61, 21))
+        self.__tag_label.setGeometry(QtCore.QRect(10, 70, 200, 21))
         self.__tag_label.setObjectName("__tag_label")
         self.__popular_value_label = QtGui.QLabel(self.__right_frame)
         self.__popular_value_label.setGeometry(QtCore.QRect(110, 13, 211, 16))
@@ -124,7 +127,7 @@ class TagDialog(QtGui.QWidget):
             return
         item = self.__item_list_view.model().itemFromIndex(index)
         self.__tag_line_widget.set_enabled(True)
-        print "click %s" % item.text()
+        print "selected %s" % item.text()
         
     def __handle_tree_clicked(self, new_index, old_index):
         index_list = new_index.indexes()
@@ -137,7 +140,7 @@ class TagDialog(QtGui.QWidget):
             self.__tag_line_widget.set_enabled(False)
             return
         self.__tag_line_widget.set_enabled(True)
-        self.__log.debug("click %s" % self.__get_selected_item().text())
+        self.__log.debug("selected %s" % self.__get_selected_item().text())
 
     def __get_selected_item(self):
         return self.__item_list_view.model().itemFromIndex(self.__selected_index)
@@ -176,7 +179,8 @@ class TagDialog(QtGui.QWidget):
         self.__recent_label.setText(QtGui.QApplication.translate("Dialog", "Recent:", None, QtGui.QApplication.UnicodeUTF8))
         self.__tag_button.setText(QtGui.QApplication.translate("Dialog", "Tag It", None, QtGui.QApplication.UnicodeUTF8))
         self.__popular_label.setText(QtGui.QApplication.translate("Dialog", "Most popular:", None, QtGui.QApplication.UnicodeUTF8))
-        self.__tag_label.setText(QtGui.QApplication.translate("Dialog", "Tags:", None, QtGui.QApplication.UnicodeUTF8))
+        self.__tag_label.setText(QtGui.QApplication.translate("Dialog", "Tags (use '%s' between tags)" % self.__tag_separator, 
+            None, QtGui.QApplication.UnicodeUTF8))
         self.__popular_value_label.setText(QtGui.QApplication.translate("Dialog", "TextLabel", None, QtGui.QApplication.UnicodeUTF8))
         self.__recent_value_label.setText(QtGui.QApplication.translate("Dialog", "TextLabel", None, QtGui.QApplication.UnicodeUTF8))
         self.__remove_button.setToolTip(QtGui.QApplication.translate("Dialog", "remove file from list", None, QtGui.QApplication.UnicodeUTF8))
@@ -251,13 +255,15 @@ class TagDialogController(QtCore.QObject):
     __pyqtSignals__ = ("tag_item",
                        "handle_cancel") 
     """
-    def __init__(self):
+    def __init__(self, max_tags, tag_separator):
+        
+        self.__max_tags = max_tags
         
         QtCore.QObject.__init__(self)
         
         self.__log = logging.getLogger("TagStoreLogger")
-        
-        self.__tag_dialog = TagDialog()
+        self.__tag_separator = tag_separator
+        self.__tag_dialog = TagDialog(self.__max_tags, self.__tag_separator)
         
         self.__is_shown = False
         

@@ -37,22 +37,22 @@ class TagCompleterWidget(QObject):
     """
     widget in lineEdit-style with integrated qcompleter
     """ 
-#    def __init__(self, tag_completion_list, parent=None):
-    def __init__(self, tag_list=None, parent=None, separator=", "):
+    def __init__(self, max_tags, tag_list=None, parent=None, separator=", "):
         
         QWidget.__init__(self)
         
+        self.__max_tags = max_tags
         self.__tag_separator = separator
         self.__tag_list = tag_list
-        
-        self.__tag_line = QLineEdit(parent)
+        self.__parent = parent
+        self.__tag_line = QLineEdit(self.__parent)
         
         self.__completer = QCompleter(self.__tag_list, self);    
         self.__completer.setCaseSensitivity(Qt.CaseInsensitive)
         self.__completer.setWidget(self.__tag_line)
         
         
-        self.connect(self.__tag_line, SIGNAL("textEdited(QString)"), self.__text_changed)
+        self.connect(self.__tag_line, SIGNAL("textChanged(QString)"), self.__text_changed)
         self.connect(self.__completer, SIGNAL("activated(QString)"), self.__text_activated)
 
     def __text_changed(self, text):
@@ -62,10 +62,19 @@ class TagCompleterWidget(QObject):
         prefix = text.split(self.__tag_separator)[-1].strip()
         
         text_tags = []
-        for t in all_text.split(self.__tag_separator):
-            t1 = unicode(t).strip()
+        input_tags_list = all_text.split(self.__tag_separator)
+        
+        ## do not proceed if the max tag count is reached
+        if self.__max_tags == all_text.count(self.__tag_separator):
+            QtGui.QMessageBox.information(self.__parent, "Tag limit has been reached.", "No more tags can be provided for this item.")
+            max_index = text.rfind(self.__tag_separator)
+            self.__tag_line.setText(all_text[:max_index])
+            return
+        
+        for tag in input_tags_list:
+            t1 = unicode(tag).strip()
             if t1 != "":
-                text_tags.append(t)
+                text_tags.append(tag)
         text_tags = list(set(text_tags))
         self.__update_completer(text_tags, prefix)
     
@@ -82,11 +91,10 @@ class TagCompleterWidget(QObject):
     def __text_activated(self, text):
         cursor_pos = self.__tag_line.cursorPosition()
         before_text = unicode(self.__tag_line.text())[:cursor_pos]
-        after_text = unicode(self.__tag_line.text())[cursor_pos:]
+        #after_text = unicode(self.__tag_line.text())[cursor_pos:]
         prefix_len = len(before_text.split(self.__tag_separator)[-1].strip())
 
-        self.__tag_line.setText("%s%s, %s" % (before_text[:cursor_pos - prefix_len], text,
-            after_text))
+        self.__tag_line.setText("%s%s" % (before_text[:cursor_pos - prefix_len], text))
         self.__tag_line.setCursorPosition(cursor_pos - prefix_len + len(text) + 2)
 
     def get_tag_list(self):

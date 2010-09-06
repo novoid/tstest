@@ -77,7 +77,7 @@ class FileSystemWrapper():
     
     def get_directories(self, directory):
         """
-        returns a list of files found in the given directory filtered by ignore- settings
+        returns a list of dirs found in the given directory filtered by ignore- settings
         """
         files = []
         ignored = []
