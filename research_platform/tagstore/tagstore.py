@@ -231,10 +231,6 @@ class Tagstore(QtCore.QObject):
         
         ## 2. refresh the tag information of the gui
         self.__set_tag_information_to_dialog(store)
-        
-        ## 3. create the file-links and dir-hierarchy 
-        self.file_new(store, item_name, tag_list)
-
 
     #------------------------------------------ def tag_text_edited(self, text):
         #------------------------------------------------------------------- """
