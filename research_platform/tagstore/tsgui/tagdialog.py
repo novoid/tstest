@@ -28,6 +28,7 @@ class TagDialog(QtGui.QWidget):
         self.__tag_separator = tag_separator
         ## flag to recognize the current visibility state 
         self.__is_shown = False
+        self.__show_datestamp = False
         self.__selected_index = None
         
         self.setObjectName("TagDialog")
@@ -69,7 +70,8 @@ class TagDialog(QtGui.QWidget):
         self.__tag_button.setIcon(icon1)
         self.__tag_button.setObjectName("__tag_button")
         
-        self.__tag_line_widget = TagCompleterWidget(self.__max_tags, separator=self.__tag_separator, parent=self.__right_frame)
+        self.__tag_line_widget = TagCompleterWidget(self.__max_tags, separator=self.__tag_separator, 
+            parent=self.__right_frame, show_datestamp=self.__show_datestamp)
         self.__tag_line = self.__tag_line_widget.get_tag_line()
         #self.__tag_line_widget.set_size(QtCore.QRect(10, 100, 231, 22))
         self.__tag_line.setGeometry(QtCore.QRect(10, 100, 231, 22))
@@ -119,15 +121,15 @@ class TagDialog(QtGui.QWidget):
         self.connect(self.__close_button, QtCore.SIGNAL("clicked()"), QtCore.SIGNAL("cancel_clicked()"))
         #self.connect(self.__close_button, QtCore.SIGNAL("clicked()"), self.cancel)
 
-    def __handle_tree_clicked(self, index):
-        self.__selected_index = index
+    #def __handle_tree_clicked(self, index):
+        #self.__selected_index = index
         ## check if the selected item is a "store-item"
-        if self.__get_selected_item().parent() is None:
-            self.__tag_line_widget.set_enabled(False)
-            return
-        item = self.__item_list_view.model().itemFromIndex(index)
-        self.__tag_line_widget.set_enabled(True)
-        print "selected %s" % item.text()
+        #if self.__get_selected_item().parent() is None:
+        #    self.__tag_line_widget.set_enabled(False)
+        #    return
+        #item = self.__item_list_view.model().itemFromIndex(index)
+        #self.__tag_line_widget.set_enabled(True)
+        #print "selected %s" % item.text()
         
     def __handle_tree_clicked(self, new_index, old_index):
         index_list = new_index.indexes()
@@ -170,7 +172,7 @@ class TagDialog(QtGui.QWidget):
             return
         self.emit(QtCore.SIGNAL("tag_button_pressed"), self.__get_selected_store(), self.__get_selected_item(), self.__tag_line_widget.get_tag_list())
         self.__remove_item_from_list(self.__get_selected_item())
-        self.__tag_line_widget.set_text("")
+        self.__tag_line_widget.clear_line()
         
     def retranslateUi(self):
         self.setWindowTitle(QtGui.QApplication.translate("Dialog", "Tag-A-File - tagstore", None, QtGui.QApplication.UnicodeUTF8))
@@ -237,6 +239,9 @@ class TagDialog(QtGui.QWidget):
         self.__recent_value_label.setText("")
         for tag in tag_list:
             self.__recent_value_label.setText(self.__recent_value_label.text() +" "+ tag)
+
+    def clear_tag_line(self):
+        self.__tag_line_widget.clear_line()
     
     def clear_store_children(self, store_name):
         model = self.__item_list_view.model()
@@ -249,6 +254,13 @@ class TagDialog(QtGui.QWidget):
         
     def clear_tree_view(self):
         self.__item_list_view.model().clear()
+        
+    def show_datestamp(self, show):
+        self.__show_datestamp = show
+        self.__tag_line_widget.show_datestamp(show)
+        
+    def set_datestamp_format(self, format):
+        self.__tag_line_widget.set_datestamp_format(format)
 
 class TagDialogController(QtCore.QObject):
     """
@@ -277,6 +289,12 @@ class TagDialogController(QtCore.QObject):
     def set_tag_list(self, tag_list):
         self.__tag_dialog.set_tag_list(tag_list)    
 
+    def show_datestamp(self, show):
+        self.__tag_dialog.show_datestamp(show)
+
+    def set_datestamp_format(self, format):
+        self.__tag_dialog.set_datestamp_format(format)
+
     def clear_all_items(self):
         """
         remove all pending items from the tree_view
@@ -297,6 +315,7 @@ class TagDialogController(QtCore.QObject):
         if not self.__is_shown:
             return
         self.__is_shown = False
+        self.__tag_dialog.clear_tag_line()
         self.__tag_dialog.hide()
         self.__log.debug("hide tag-dialog")
         

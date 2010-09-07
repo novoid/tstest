@@ -15,7 +15,7 @@
 ## if not, see <http://www.gnu.org/licenses/>.
 
 from PyQt4 import QtCore
-
+from tscore.tsconstants import TsConstants
 
 class ConfigWrapper(QtCore.QObject):
 
@@ -43,36 +43,40 @@ class ConfigWrapper(QtCore.QObject):
         """
         returns the parameter: stores config directory name
         """
-        self.__settings.beginGroup("settings")
-        directory = unicode(self.__settings.value("store_config_directory", "").toString())
-        self.__settings.endGroup()
+        directory = self.__get_setting("store_config_directory")
         return directory.strip("/")
         
     def get_store_configfile_name(self):
         """
         returns the parameter: stores config file name
         """
-        self.__settings.beginGroup("settings")
-        config_file = unicode(self.__settings.value("store_config_filename", "").toString())
-        self.__settings.endGroup()
+        config_file = self.__get_setting("store_config_filename")
         return config_file.strip("/")
         
     def get_tag_seperator(self):
         """
         returns the parameter: tag separator for user interface 
         """
+        return self.__get_setting(TsConstants.SETTING_TAG_SEPARATOR)
+
+    def get_show_datestamp(self):
+        return self.__get_setting(TsConstants.SETTING_AUTO_DATESTAMP)
+    
+    def get_datestamp_format(self):
+        return self.__get_setting(TsConstants.SETTING_DATESTAMP_FORMAT)
+    
+    def __get_setting(self, setting_name):
         self.__settings.beginGroup("settings")
-        seperator = unicode(self.__settings.value("tag_seperator", "").toString())
+        value = unicode(self.__settings.value(setting_name, "").toString())
         self.__settings.endGroup()
-        return seperator.strip()
+        return value.strip()
+    
         
     def get_max_tags(self):
         """
         returns the parameter: max_tags: the max allowed number of tags to enter 
         """
-        self.__settings.beginGroup("settings")
-        number = unicode(self.__settings.value("max_tags", "3").toString())
-        self.__settings.endGroup()
+        number = self.__get_setting("max_tags")
         return int(number.strip())
 
     def get_store_path(self, id):

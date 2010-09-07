@@ -137,6 +137,10 @@ class Tagstore(QtCore.QObject):
                 ## create a dialogcontroller for each store ...
                 ## can be accessed by its ID later on
                 tmp_dialog = TagDialogController(self.MAX_TAGS, self.TAG_SEPERATOR)
+                if self.__config_file.get_show_datestamp() == "on":
+                    tmp_dialog.show_datestamp(True)
+                    format = self.__config_file.get_datestamp_format()
+                    tmp_dialog.set_datestamp_format(format)
                 tmp_dialog.connect(tmp_dialog, QtCore.SIGNAL("tag_item"), self.tag_item_action)
                 tmp_dialog.connect(tmp_dialog, QtCore.SIGNAL("handle_cancel()"), self.handle_cancel)
                 #self.DIALOGS[store.get_id()] = tmp_dialog

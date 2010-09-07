@@ -29,6 +29,12 @@ class TsConstants(object):
     STORE_CONFIG_DIR = ".tagstore"
     STORE_CONFIG_FILENAME = "store.tgs"
     
+    SETTING_AUTO_DATESTAMP = "automatic_datestamp"
+    SETTING_TAG_SEPARATOR = "tag_separator"
+    SETTING_DATESTAMP_FORMAT = "datestamp_format"
+    
+    DATESTAMP_FORMAT = "%Y%m%d"
+    
     DEFAULT_MAX_TAGS = "3"
     DEFAULT_TAG_SEPARATOR = ","
     
