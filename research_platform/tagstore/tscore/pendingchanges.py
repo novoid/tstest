@@ -15,6 +15,7 @@
 ## if not, see <http://www.gnu.org/licenses/>.
 
 
+import time
 from tscore.enum import EFileEvent
 
 class PendingChanges:
@@ -50,15 +51,17 @@ class PendingChanges:
             
     def register(self, file_name, type_enum, event_enum):
         """
-        adds/registers file with type and event
+        adds/registers file with type, timestamp and event
         overwrites items with the same file name if they exist
         """
+        timestamp = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
         for item in self.__queue:
             if item["file"] == file_name:
                 item["type"] = type_enum
+                #item["timestamp"] = timestamp
                 item["event"] = event_enum
                 return
-        self.__queue.append(dict(file=unicode(file_name), type=type_enum, event=event_enum))
+        self.__queue.append(dict(file=unicode(file_name), type=type_enum, timestamp=timestamp, event=event_enum))
     
     def edit(self, old_file_name, new_file_name):#, new_type, new_event):
         """

@@ -53,6 +53,22 @@ class ConfigWrapper(QtCore.QObject):
         config_file = self.__get_setting("store_config_filename")
         return config_file.strip("/")
         
+    def get_store_storage_dirs(self):
+        """
+        returns all possible storage directory names depending on supported languages
+        these are the names of the stores sub-directory to store items
+        """
+        #TODO: implementation
+        return ""
+    
+    def get_store_navigation_dirs(self):
+        """
+        returns all possible navigation directory names depending on supported languages
+        these are the names of the stores sub-directory where the tagstores link-structure is built
+        """
+        #TODO: implementation
+        return ""        
+        
     def get_tag_seperator(self):
         """
         returns the parameter: tag separator for user interface 
@@ -71,6 +87,19 @@ class ConfigWrapper(QtCore.QObject):
         self.__settings.endGroup()
         return value.strip()
     
+    def get_num_recent_tags(self):
+        """
+        returns the number of recent tags shown to the user
+        """
+        number = self.__get_setting("num_recent_tags")
+        return int(number.strip())
+        
+    def get_num_popular_tags(self):
+        """
+        returns the number of popular tags shown to the user
+        """
+        number = self.__get_setting("num_popular_tags")
+        return int(number.strip())
         
     def get_max_tags(self):
         """

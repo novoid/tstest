@@ -28,6 +28,8 @@ class TsConstants(object):
     
     STORE_CONFIG_DIR = ".tagstore"
     STORE_CONFIG_FILENAME = "store.tgs"
+    STORE_POSSIBLE_STORAGE_DIRS = "storage,Ablage"
+    STORE_POSSIBLE_NAVIGATION_DIRS = "navigation,Navigation"
     
     SETTING_AUTO_DATESTAMP = "automatic_datestamp"
     SETTING_TAG_SEPARATOR = "tag_separator"
@@ -35,7 +37,9 @@ class TsConstants(object):
     
     DATESTAMP_FORMAT = "%Y%m%d"
     
-    DEFAULT_MAX_TAGS = "3"
+    DEFAULT_RECENT_TAGS = 5
+    DEFAULT_POPULAR_TAGS = 5
+    DEFAULT_MAX_TAGS = 3
     DEFAULT_TAG_SEPARATOR = ","
     
     

@@ -21,7 +21,7 @@ class FileSystem():
     def __init__(self):
         pass
     
-    def create_link(self, source, name):
-        os.symlink(source, name)
+    def create_link(self, source, link_name):
+        os.symlink(source, link_name)
         
 ## end

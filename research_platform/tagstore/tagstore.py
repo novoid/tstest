@@ -24,6 +24,7 @@ from tscore.configwrapper import ConfigWrapper
 from tscore.store import Store
 from tscore.enum import EFileEvent
 from tscore.tsconstants import TsConstants
+from optparse import OptionParser
 
     
 class Tagstore(QtCore.QObject):
@@ -37,12 +38,19 @@ class Tagstore(QtCore.QObject):
         initializes the configuration. This method is called every time the config file changes
         """
         QtCore.QObject.__init__(self)
+        #test
+        self.change_language("de")
         
         self.DRY_RUN = dryrun        
         ## global settings/defaults (only used if reading config file failed or invalid!)
         self.STORE_CONFIG_DIR = TsConstants.STORE_CONFIG_DIR
         self.STORE_CONFIG_FILE_NAME = TsConstants.STORE_CONFIG_FILENAME
+        self.STORE_STORAGE_DIRS = TsConstants.STORE_POSSIBLE_STORAGE_DIRS
+        self.STORE_NAVIGATION_DIRS = TsConstants.STORE_POSSIBLE_NAVIGATION_DIRS
         self.TAG_SEPERATOR = TsConstants.DEFAULT_TAG_SEPARATOR
+
+        self.NUM_RECENT_TAGS = TsConstants.DEFAULT_RECENT_TAGS
+        self.NUM_POPULAR_TAGS = TsConstants.DEFAULT_POPULAR_TAGS
         self.MAX_TAGS = TsConstants.DEFAULT_MAX_TAGS
         self.STORES = []
         ## dict for dialogs identified by their store id
@@ -99,6 +107,9 @@ class Tagstore(QtCore.QObject):
         tag_seperator = self.__config_file.get_tag_seperator()
         if tag_seperator.strip() != "":
             self.TAG_SEPERATOR = tag_seperator
+        
+        self.NUM_RECENT_TAGS = self.__config_file.get_num_recent_tags()
+        self.NUM_POPULAR_TAGS = self.__config_file.get_num_popular_tags()
         self.MAX_TAGS = self.__config_file.get_max_tags()
             
         config_dir = self.__config_file.get_store_config_directory()
@@ -107,6 +118,13 @@ class Tagstore(QtCore.QObject):
         config_file_name = self.__config_file.get_store_configfile_name()
         if config_file_name != "":
             self.STORE_CONFIG_FILE_NAME = config_file_name
+        storage_dirs = self.__config_file.get_store_storage_dirs()
+        if storage_dirs != "":
+            self.STORE_STORAGE_DIRS = storage_dirs
+        navigation_dirs = self.__config_file.get_store_navigation_dirs()
+        if navigation_dirs != "":
+            self.STORE_NAVIGATION_DIRS = navigation_dirs
+        
             
         ## get stores from config file         
         config_store_items = self.__config_file.get_stores()
@@ -131,7 +149,7 @@ class Tagstore(QtCore.QObject):
         ## add new stores
         for store_item in config_store_items:
             if store_item["id"] in config_store_ids:    ## new
-                store = Store(store_item["id"],store_item["path"], self.STORE_CONFIG_DIR + "/" + self.STORE_CONFIG_FILE_NAME)
+                store = Store(store_item["id"],store_item["path"], self.STORE_CONFIG_DIR + "/" + self.STORE_CONFIG_FILE_NAME, self.STORE_STORAGE_DIRS.split(","), self.STORE_NAVIGATION_DIRS.split(","))
                 self.__log.debug("found store: %s", store.get_name())
                 
                 ## create a dialogcontroller for each store ...
@@ -187,6 +205,8 @@ class Tagstore(QtCore.QObject):
         """
         event handler: handles all operations with user interaction
         """
+        print "store: " + store.get_id() + ", items: " + store.get_pending_changes().to_string()
+        
         self.__log.info("new pending file operation added")
         
         dialog_controller = self.DIALOGS[store.get_id()]
@@ -200,13 +220,11 @@ class Tagstore(QtCore.QObject):
         self.__set_tag_information_to_dialog(store)
         dialog_controller.show_dialog()
      
-    
     def handle_cancel(self):
         dialog_controller = self.sender()
         if dialog_controller is None or not isinstance(dialog_controller, TagDialogController):
             return
         dialog_controller.hide_dialog()
-    
     
     def __set_tag_information_to_dialog(self, store):
         """
@@ -215,8 +233,8 @@ class Tagstore(QtCore.QObject):
         self.__log.debug("refresh tag information on dialog")
         dialog_controller = self.DIALOGS[store.get_id()]
         dialog_controller.set_tag_list(store.get_tags())
-        dialog_controller.set_popular_tags(store.get_popular_tags())
-        dialog_controller.set_recent_tags(store.get_recent_tags())
+        dialog_controller.set_popular_tags(store.get_popular_tags(self.NUM_POPULAR_TAGS))
+        dialog_controller.set_recent_tags(store.get_recent_tags(self.NUM_RECENT_TAGS))
         dialog_controller.set_store_name(store.get_name())
     
     def tag_item_action(self, store_name, item_name, tag_list):
@@ -235,6 +253,18 @@ class Tagstore(QtCore.QObject):
         
         ## 2. refresh the tag information of the gui
         self.__set_tag_information_to_dialog(store)
+
+    def change_language(self, locale):
+        """
+        changes the current application language
+        """
+        #TODO: to achieve this, QApplication has to to be added to the constructor
+        #event handling failed in __main__ (for me) WW
+        translator = QtCore.QTranslator()
+        language = unicode(locale)
+        if translator.load("ts_" + language + ".qm", "tsresources/"):
+            self.emit(QtCore.SIGNAL("language_changed(PyQt_PyObject)"), translator)
+            #self.__log.debug("changed localization to: %", str(language))
 
     #------------------------------------------ def tag_text_edited(self, text):
         #------------------------------------------------------------------- """
@@ -322,7 +352,6 @@ class Tagstore(QtCore.QObject):
         # self.__tagging_dialog_controller.set_category_text(left_text + text + cursor_right_text)
         # self.__tagging_dialog_controller.set_category_cursor_position(len(left_text) + len(text) + len(self.TAG_SEPERATOR) + 1)        
 
-from optparse import OptionParser
         
 if __name__ == '__main__':  
   
@@ -342,9 +371,20 @@ if __name__ == '__main__':
         dry_run = True
     
     tagstore = QtGui.QApplication(sys.argv)
+    tagstore.setOrganizationDomain("www.tagstore.org")
+
+    ## initialize system language
+    locale = unicode(QtCore.QLocale.system().name())
+    translator = QtCore.QTranslator()
+    if translator.load("ts_" + locale + ".qm", "tsresources/"):
+#        print "3"
+        tagstore.installTranslator(translator)
+#    elif translator.load("ts_" + locale[0:2] + ".qm", "tsresources/"):
+#        print "4"
+#        tagstore.installTranslator(translator)
+    
     tag_widget = Tagstore(verbose=verbose_mode, dryrun=dry_run)
     tagstore.exec_()
     #sys.exit(tagstore.exec_())
-
-
+    
 ## end    

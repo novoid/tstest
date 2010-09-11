@@ -167,13 +167,11 @@ class TagWrapper():
         self.__settings.endGroup()
         self.__settings.endGroup()
 
-    def set_tags(self, file_name, tag_list):
+    def __set_tags(self, file_name, tag_list):
         """
-        resets the files tag list
-        if the file does not exist it is created
+        resets the files tag list without updating its timestamp
+        this method is called during renaming/deleting tags to avoid changing the recent tags
         """
-        # TODO @WOLFGANG: what is this method for?
-        # set_file does create a new one or overrwrite an existing one
         if not self.file_exists(file_name):
             self.set_file(file_name, tag_list)
         else:
@@ -225,7 +223,7 @@ class TagWrapper():
             if old_tag_name in tags:
                 tags.remove(old_tag_name)
                 tags.append(new_tag_name)
-                self.set_tags(file["filename"], tags)
+                self.__set_tags(file["filename"], tags)
 
     def remove_tag(self, tag_name):
         """
@@ -236,7 +234,7 @@ class TagWrapper():
             tags = file["tags"]
             if tag_name in tags:
                 tags.remove(tag_name)
-                self.set_tags(file["filename"], tags)
+                self.__set_tags(file["filename"], tags)
                 
 
 ## end

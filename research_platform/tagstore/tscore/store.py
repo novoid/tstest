@@ -30,7 +30,7 @@ class Store(QtCore.QObject):
                        "file_removed(PyQt_PyObject, QString)",
                        "pending_operations_changed(PyQt_PyObject)")
 
-    def __init__(self, id, path, config_file):
+    def __init__(self, id, path, config_file, storage_dir_list, navigation_dir_list):
         """
         constructor
         """
@@ -47,10 +47,37 @@ class Store(QtCore.QObject):
         self.__id = unicode(id)
         self.__path = unicode(path)
         self.__config_file = unicode(config_file)
+        self.__storage_dir_name = None
+        self.__navigation_dir_name = None
         self.__parent_path = None
         self.__name = None
         self.__config_path = None
+        self.__watcher_path = None
+        self.__navigation_path = None
+        
+        ## set directories names -> can not be changed at runtime
+        for dir in storage_dir_list:
+            if self.__file_system.path_exists(self.__path + "/" + dir):
+                self.__storage_dir_name = unicode(dir)
+        for dir in navigation_dir_list:
+            if self.__file_system.path_exists(self.__path + "/" + dir):
+                self.__navigation_dir_name = unicode(dir)
+        
         self.__init_store()
+        #test_ localization
+        #print "storage: " + self.__storage_dir_name
+        #print "navigation: " + self.__navigation_dir_name
+        
+        #storage = self.trUtf8("storage")
+        #navigation = self.trUtf8("navigation")
+        #print "storage= "+storage
+        #print "navigation= "+navigation
+        
+        #for dir in storage_dir_list:
+        #    print "storage: " + dir
+        #for dir in navigation_dir_list:
+        #    print "navigation: " + dir
+        #test end
 
     def __init_store(self):
         """
@@ -59,20 +86,22 @@ class Store(QtCore.QObject):
         self.__name = self.__path.split("/")[-1]
         self.__parent_path = self.__path[:len(self.__path)-len(self.__name)-1]
         self.__config_path = self.__path + "/" + self.__config_file
+        self.__watcher_path = self.__path + "/" + self.__storage_dir_name
+        self.__navigation_path = self.__path + "/" + self.__navigation_dir_name
         #TODO: create store directories if directory currently not exists (new store)
         #TODO: create config directories and file if file currently not exists (new store)
         #if not self.__file_system.path_exists(self.__config_path):
         self.__tag_wrapper = TagWrapper(self.__config_path)
         
         self.__watcher.addPath(self.__parent_path)
-        self.__watcher.addPath(self.__path)
+        self.__watcher.addPath(self.__watcher_path)
         #TODO: error handling?
         
     def handle_offline_changes(self):
         """
         called after store and event-handler are created to handle (offline) modifications
         """
-        self.__handle_file_changes(self.__path)
+        self.__handle_file_changes(self.__watcher_path)
 
     def set_path(self, path, config_file=None):
         """
@@ -81,7 +110,7 @@ class Store(QtCore.QObject):
         if self.__path == unicode(path) and (config_file is None or self.__config_file == unicode(config_file)):
             exit
         ## update changes
-        self.__watcher.removePaths([self.__parent_path, self.__path])
+        self.__watcher.removePaths([self.__parent_path, self.__watcher_path])
         self.__path = unicode(path)
         if config_file is not None:
             self.__config_file = unicode(config_file)
@@ -89,7 +118,8 @@ class Store(QtCore.QObject):
         
     def __directory_changed(self, path):
         """
-        handles directory changes of the stores directory and its parent directory and finds out if the store itself was renamed/removed
+        handles directory changes of the stores directory and its parent directory 
+        and finds out if the store itself was renamed/removed
         """
         if path == self.__parent_path:
             if not self.__file_system.path_exists(self.__path):
@@ -108,15 +138,12 @@ class Store(QtCore.QObject):
                     self.emit(QtCore.SIGNAL("renamed(PyQt_PyObject, QString)"), self, self.__parent_path + "/" + new_name)
         else:
             ## files or directories in the store directory have been changed
-            self.__handle_file_changes(path)
+            self.__handle_file_changes(self.__watcher_path)
             
     def __handle_file_changes(self, path):
         """
         handles the stores file and dir changes to find out if a file/directory was added, renamed, removed
         """
-        
-        ## TODO (CF@31.08.10): maybe provide also the item_name at pending_operations_changed ...  
-        ## outside of this class - it is just known, that the store has a change - the whole queue has to be handeled then  
          
         ## this method does not handle the renaming or deletion of the store directory itself (only childs)
         existing_files = Set(self.__file_system.get_files(path))
@@ -133,6 +160,8 @@ class Store(QtCore.QObject):
         removed = list(data_files - (existing_files | existing_dirs))
     
         type = EFileType.FILE   
+        #if self.__file_system.is_directory():
+        #    type = EFileType.
         ##TODO replace this with either DIR or FILE depending on the items type
         if len(added) == 1 and len(removed) == 1:
             self.__pending_changes.register(removed[0], type, EFileEvent.REMOVED_OR_RENAMED)
@@ -201,15 +230,22 @@ class Store(QtCore.QObject):
             self.emit(QtCore.SIGNAL("pending_operations_changed(PyQt_PyObject)"), self)
         
     def get_tags(self):
+        """
+        returns a list of all tags
+        """
         return self.__tag_wrapper.get_all_tags()
 
-    def get_recent_tags(self):
-        ## TODO: use application config value for # of tags
-        return self.__tag_wrapper.get_recent_tags(5)
+    def get_recent_tags(self, number):
+        """
+        returns a given number of recently entered tags
+        """
+        return self.__tag_wrapper.get_recent_tags(number)
     
-    def get_popular_tags(self):
-        ## TODO: use application config value for # of tags
-        return self.__tag_wrapper.get_popular_tags(5)
+    def get_popular_tags(self, number):
+        """
+        returns a given number of the most popular tags
+        """
+        return self.__tag_wrapper.get_popular_tags(number)
     
     def __map_tags_to_filsystem(self, item_name, tag_list):
         """
@@ -221,7 +257,7 @@ class Store(QtCore.QObject):
         
         ## create the real directories at first
         for tag in tag_list:
-            tag_path = self.__path + "/" + tag
+            tag_path = self.__navigation_path + "/" + tag
             if not self.__file_system.path_exists(tag_path):
                 self.__file_system.create_dir(tag_path)
             else:
@@ -229,12 +265,12 @@ class Store(QtCore.QObject):
             
             ## TODO: check out how to find working relatice paths for links 
             ##  put the link to the item into the dir
-            src_path = self.__path + "/" + item_name
+            src_path = self.__watcher_path + "/" + item_name
             link_name = tag_path + "/" + item_name
             self.__file_system.create_link(src_path, link_name)
         ## create the links between the dirs
         for tag in tag_list:
-            tag_path = self.__path + "/" + tag
+            tag_path = self.__path + "/" + self.__navigation_dir_name  + "/" + tag
             link_list = set(tag_list)
             link_list.remove(tag)
             for link in link_list:
@@ -247,15 +283,15 @@ class Store(QtCore.QObject):
                     self.__file_system.create_link(source, target)
                 else:
                     self.__log.debug("path: --- %s --- already exists. do nothing" % target)
-                
+        #TODO: Change paths?
     
     def add_item_with_tags(self, file_name, tag_list):
         """
         adds tags to the given file, resets existing tags
         """
-        
-        self.__map_tags_to_filsystem(file_name, tag_list)
-        self.__tag_wrapper.set_tags(file_name, tag_list)
+        #TODO: test this functionality due to path changes
+        #self.__map_tags_to_filsystem(file_name, tag_list)
+        self.__tag_wrapper.set_file(file_name, tag_list)
         self.__pending_changes.remove(file_name)
         
     def rename_tag(self, old_tag_name, new_tag_name):
@@ -265,14 +301,18 @@ class Store(QtCore.QObject):
         #TODO: rename directories, update links
         self.__tag_wrapper.rename_tag(old_tag_name, new_tag_name)
         
-    def delete_tags(self, tagList):
+    def delete_tags(self, tag_list):
         """
         delete tags inside the store
         """
+        for tag_name in tag_list:
+            self.__tag_wrapper.remove_tag(tag_name)
+        #TODO: directory & link changes
         pass
         
-    def get_dictionary(self):
+    def get_vocabulary_list(self):
         """
+        returns a predefined list of allowed strings to be used for categorizing
         """
         pass
         

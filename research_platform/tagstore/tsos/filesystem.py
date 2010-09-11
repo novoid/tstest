@@ -90,25 +90,33 @@ class FileSystemWrapper():
                         ignored.append(item)
         return list(set(files) - set(ignored))
 
+    def is_directory(self, path):
+        """
+        returns True if the given path points to a directory
+        """
+        return os.path.isdir(path)
+    
     def create_dir(self, path_name):
         """
-        create a directory with the given pathname at the filesystem
+        creates a directory with the given pathname at the filesystem
         """
         self.__log.debug("creating dir with the path: %s" % path_name)
         ## os.mkdir supports unix AND linux systems
         ## TODO: check if on windows, slash (http://www.wilsdomain.com/wp-content-photos/images/Slash-Saul-Hudson.jpg) has to be exchanged with backslash (\)
         os.mkdir(path_name)
 
-    def create_link(self, source, target):
+    def create_link(self, source, link_name):
         """
-        from python doc: "Create a symbolic link pointing to source named link_name." 
+        creates a symbolic link on Linux and Mac, a .lnk link at Windows file systems
+        pointing to source, named link_name." 
         source -> the original file/dir
-        target -> the target of the link
+        link_name -> the name of the link
         """
-        self.__log.debug("creating link --- %s --- with the path: %s" % (target, source))
-        if target.find(":/") == -1:
-            sname = target.replace(":", ":/")
+        self.__log.debug("creating link --- %s --- with the path: %s" % (link_name, source))
+        if link_name.find(":/") == -1:
+            sname = link_name.replace(":", ":/")
         if source.find(":/") == -1:
             ssource = source.replace(":", ":/")
         self.file_system.create_link(ssource, sname)
+        
 ## end
