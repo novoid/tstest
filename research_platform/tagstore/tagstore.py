@@ -371,20 +371,18 @@ if __name__ == '__main__':
         dry_run = True
     
     tagstore = QtGui.QApplication(sys.argv)
+    tagstore.setApplicationName("tagstore")
     tagstore.setOrganizationDomain("www.tagstore.org")
 
     ## initialize system language
     locale = unicode(QtCore.QLocale.system().name())
     translator = QtCore.QTranslator()
     if translator.load("ts_" + locale + ".qm", "tsresources/"):
-#        print "3"
         tagstore.installTranslator(translator)
-#    elif translator.load("ts_" + locale[0:2] + ".qm", "tsresources/"):
-#        print "4"
-#        tagstore.installTranslator(translator)
     
     tag_widget = Tagstore(verbose=verbose_mode, dryrun=dry_run)
     tagstore.exec_()
     #sys.exit(tagstore.exec_())
+    
     
 ## end    

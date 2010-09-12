@@ -19,8 +19,9 @@ from sets import Set
 from PyQt4 import QtCore
 from tsos.filesystem import FileSystemWrapper
 from tscore.tagwrapper import TagWrapper
-from tscore.enum import EFileType, EFileEvent
+from tscore.enums import EFileType, EFileEvent
 from tscore.pendingchanges import PendingChanges
+from tscore.exceptions import StoreInitError, StoreTaggingError
 
 class Store(QtCore.QObject):
 
@@ -47,38 +48,37 @@ class Store(QtCore.QObject):
         self.__id = unicode(id)
         self.__path = unicode(path)
         self.__config_file = unicode(config_file)
-        self.__storage_dir_name = None
-        self.__navigation_dir_name = None
+        self.__storage_dir_name = self.trUtf8("storage")
+        self.__navigation_dir_name = self.trUtf8("navigation")
         self.__parent_path = None
         self.__name = None
         self.__config_path = None
         self.__watcher_path = None
         self.__navigation_path = None
+
+        ## throw exception if store directory does not exist
+        if not self.__file_system.path_exists(self.__path):
+            raise StoreInitError , self.trUtf8("The specified store directory does not exist!")
         
-        ## set directories names -> can not be changed at runtime
-        for dir in storage_dir_list:
-            if self.__file_system.path_exists(self.__path + "/" + dir):
-                self.__storage_dir_name = unicode(dir)
-        for dir in navigation_dir_list:
-            if self.__file_system.path_exists(self.__path + "/" + dir):
-                self.__navigation_dir_name = unicode(dir)
+        ## look for store/navigation directories names (all languages) if they do not exist
+        if not self.__file_system.path_exists(self.__path + "/" + self.__storage_dir_name):
+            for dir in storage_dir_list:
+                if self.__file_system.path_exists(self.__path + "/" + dir):
+                    self.__storage_dir_name = unicode(dir)
+        if not self.__file_system.path_exists(self.__path + "/" + self.__navigation_dir_name):
+            for dir in navigation_dir_list:
+                if self.__file_system.path_exists(self.__path + "/" + dir):
+                    self.__navigation_dir_name = unicode(dir)
+        
+        ## built stores directories and config file if they currently not exist (new store)
+        self.__file_system.create_dir(self.__path + "/" + self.__storage_dir_name)
+        self.__file_system.create_dir(self.__path + "/" + self.__navigation_dir_name)
+        self.__file_system.create_dir(self.__path + "/" + self.__config_file.split("/")[0])
+        if not self.__file_system.path_exists(self.__path + "/" + self.__config_file):
+            self.__file_system.create_file(self.__path + "/" + self.__config_file)
         
         self.__init_store()
-        #test_ localization
-        #print "storage: " + self.__storage_dir_name
-        #print "navigation: " + self.__navigation_dir_name
         
-        #storage = self.trUtf8("storage")
-        #navigation = self.trUtf8("navigation")
-        #print "storage= "+storage
-        #print "navigation= "+navigation
-        
-        #for dir in storage_dir_list:
-        #    print "storage: " + dir
-        #for dir in navigation_dir_list:
-        #    print "navigation: " + dir
-        #test end
-
     def __init_store(self):
         """
         initializes the store paths, config reader, file system watcher without instantiation of a now object
@@ -88,14 +88,10 @@ class Store(QtCore.QObject):
         self.__config_path = self.__path + "/" + self.__config_file
         self.__watcher_path = self.__path + "/" + self.__storage_dir_name
         self.__navigation_path = self.__path + "/" + self.__navigation_dir_name
-        #TODO: create store directories if directory currently not exists (new store)
-        #TODO: create config directories and file if file currently not exists (new store)
-        #if not self.__file_system.path_exists(self.__config_path):
         self.__tag_wrapper = TagWrapper(self.__config_path)
         
         self.__watcher.addPath(self.__parent_path)
         self.__watcher.addPath(self.__watcher_path)
-        #TODO: error handling?
         
     def handle_offline_changes(self):
         """
@@ -289,9 +285,11 @@ class Store(QtCore.QObject):
         """
         adds tags to the given file, resets existing tags
         """
+        ## irgnore duplicated tags
+        tags = list(set(tag_list))
         #TODO: test this functionality due to path changes
         #self.__map_tags_to_filsystem(file_name, tag_list)
-        self.__tag_wrapper.set_file(file_name, tag_list)
+        self.__tag_wrapper.set_file(file_name, tags)
         self.__pending_changes.remove(file_name)
         
     def rename_tag(self, old_tag_name, new_tag_name):

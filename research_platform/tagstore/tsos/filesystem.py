@@ -100,10 +100,9 @@ class FileSystemWrapper():
         """
         creates a directory with the given pathname at the filesystem
         """
-        self.__log.debug("creating dir with the path: %s" % path_name)
-        ## os.mkdir supports unix AND linux systems
-        ## TODO: check if on windows, slash (http://www.wilsdomain.com/wp-content-photos/images/Slash-Saul-Hudson.jpg) has to be exchanged with backslash (\)
-        os.mkdir(path_name)
+        if not self.path_exists(path_name):
+            self.__log.debug("creating dir with the path: %s" % path_name)
+            os.mkdir(path_name)
 
     def create_link(self, source, link_name):
         """
@@ -118,5 +117,10 @@ class FileSystemWrapper():
         if source.find(":/") == -1:
             ssource = source.replace(":", ":/")
         self.file_system.create_link(ssource, sname)
+        
+    def create_file(self, file_path):
+        file = open(file_path, "w")
+        file.close()
+        
         
 ## end
