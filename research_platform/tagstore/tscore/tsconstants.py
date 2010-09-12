@@ -31,6 +31,7 @@ class TsConstants(object):
     STORE_POSSIBLE_STORAGE_DIRS = "storage,Ablage"
     STORE_POSSIBLE_NAVIGATION_DIRS = "navigation,Navigation"
     
+    SETTING_SUPPORTED_LANGUAGES = "supported_languages"
     SETTING_AUTO_DATESTAMP = "automatic_datestamp"
     SETTING_TAG_SEPARATOR = "tag_separator"
     SETTING_DATESTAMP_FORMAT = "datestamp_format"
@@ -41,7 +42,7 @@ class TsConstants(object):
     DEFAULT_POPULAR_TAGS = 5
     DEFAULT_MAX_TAGS = 3
     DEFAULT_TAG_SEPARATOR = ","
-    
+    DEFAULT_SUPPORTED_LANGUAGES = ["en", "de"]
     
     def __init__(self):
         pass

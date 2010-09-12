@@ -53,35 +53,36 @@ class ConfigWrapper(QtCore.QObject):
         config_file = self.__get_setting("store_config_filename")
         return config_file.strip("/")
         
-    def get_store_storage_dirs(self):
-        """
-        returns all possible storage directory names depending on supported languages
-        these are the names of the stores sub-directory to store items
-        """
-        #TODO: implementation
-        return ""
-    
-    def get_store_navigation_dirs(self):
-        """
-        returns all possible navigation directory names depending on supported languages
-        these are the names of the stores sub-directory where the tagstores link-structure is built
-        """
-        #TODO: implementation
-        return ""        
-        
     def get_tag_seperator(self):
         """
         returns the parameter: tag separator for user interface 
         """
-        return self.__get_setting(TsConstants.SETTING_TAG_SEPARATOR)
+        return self.__get_setting("tag_separator")
+
+    def get_supported_languages(self):
+        """
+        returns a list of all supported languages
+        """
+        lang_string = self.__get_setting(TsConstants.SETTING_SUPPORTED_LANGUAGES)
+        return lang_string.split(",")
 
     def get_show_datestamp(self):
+        """
+        returns "on" or "off" in case date-stamps are requested
+        """
+        #TODO: @chris: maybe you should change the return value to boolean
         return self.__get_setting(TsConstants.SETTING_AUTO_DATESTAMP)
     
     def get_datestamp_format(self):
+        """
+        returns the ISO timestamp format that should be used for tagging
+        """
         return self.__get_setting(TsConstants.SETTING_DATESTAMP_FORMAT)
     
     def __get_setting(self, setting_name):
+        """
+        helper method to switch directly to the settings group of the config file
+        """
         self.__settings.beginGroup("settings")
         value = unicode(self.__settings.value(setting_name, "").toString())
         self.__settings.endGroup()

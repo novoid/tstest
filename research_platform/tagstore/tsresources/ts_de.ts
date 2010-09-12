@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="1.1" language="de_AT">
+<!DOCTYPE TS>
+<TS version="2.0" language="de_AT">
 <context>
     <name>Dialog</name>
     <message>
@@ -51,14 +52,37 @@
 <context>
     <name>Store</name>
     <message>
-        <location filename="../tscore/store.py" line="56"/>
+        <location filename="../tscore/store.py" line="51"/>
         <source>storage</source>
         <translation>Ablage</translation>
     </message>
     <message>
-        <location filename="../tscore/store.py" line="57"/>
+        <location filename="../tscore/store.py" line="52"/>
         <source>navigation</source>
         <translation>Navigation</translation>
+    </message>
+    <message>
+        <location filename="../tscore/store.py" line="61"/>
+        <source>The specified store directory does not exist!</source>
+        <translation>Das angegebene Store- Verzeichnis existiert nicht!</translation>
+    </message>
+</context>
+<context>
+    <name>Tagstore</name>
+    <message>
+        <location filename="../tagstore.py" line="135"/>
+        <source>storage</source>
+        <translation>Ablage</translation>
+    </message>
+    <message>
+        <location filename="../tagstore.py" line="136"/>
+        <source>navigation</source>
+        <translation>Navigation</translation>
+    </message>
+    <message>
+        <location filename="../tagstore.py" line="291"/>
+        <source>en</source>
+        <translation>de</translation>
     </message>
 </context>
 </TS>

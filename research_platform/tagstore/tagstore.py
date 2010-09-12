@@ -37,11 +37,18 @@ class Tagstore(QtCore.QObject):
         """ 
         initializes the configuration. This method is called every time the config file changes
         """
+
         QtCore.QObject.__init__(self)
-        #test
-        self.change_language("de")
         
         self.DRY_RUN = dryrun        
+        ## initialize localization
+        locale = unicode(QtCore.QLocale.system().name())[0:2]
+        self.__translator = QtCore.QTranslator()
+        if self.__translator.load("ts_" + locale + ".qm", "tsresources/"):
+            tagstore.installTranslator(self.__translator)
+        self.CURRENT_LANGUAGE = self.trUtf8("en")
+        self.SUPPORTED_LANGUAGES = TsConstants.DEFAULT_SUPPORTED_LANGUAGES
+        
         ## global settings/defaults (only used if reading config file failed or invalid!)
         self.STORE_CONFIG_DIR = TsConstants.STORE_CONFIG_DIR
         self.STORE_CONFIG_FILE_NAME = TsConstants.STORE_CONFIG_FILENAME
@@ -65,11 +72,10 @@ class Tagstore(QtCore.QObject):
             self.LOG_LEVEL = logging.DEBUG
             
         self.__init_logger(self.LOG_LEVEL)
-        
         self.__log.info("starting tagstore watcher")
         
         self.__init_configurations()
-
+        
     def __init_logger(self, level):
         '''
         create a logger object with appropriate settings
@@ -87,7 +93,7 @@ class Tagstore(QtCore.QObject):
         console_handler.setLevel(level)
         console_handler.setFormatter(formatter)
 
-        # create filehandler
+        ## create filehandler
         file_handler = logging.handlers.RotatingFileHandler(LOG_FILENAME, 
             maxBytes=TsConstants.LOG_FILESIZE, backupCount=TsConstants.LOG_BACKUP_COUNT)
         file_handler.setFormatter(formatter)
@@ -118,14 +124,18 @@ class Tagstore(QtCore.QObject):
         config_file_name = self.__config_file.get_store_configfile_name()
         if config_file_name != "":
             self.STORE_CONFIG_FILE_NAME = config_file_name
-        storage_dirs = self.__config_file.get_store_storage_dirs()
-        if storage_dirs != "":
-            self.STORE_STORAGE_DIRS = storage_dirs
-        navigation_dirs = self.__config_file.get_store_navigation_dirs()
-        if navigation_dirs != "":
-            self.STORE_NAVIGATION_DIRS = navigation_dirs
         
-            
+        self.SUPPORTED_LANGUAGES = self.__config_file.get_supported_languages()
+        current_language = self.CURRENT_LANGUAGE
+        self.STORE_STORAGE_DIRS = []
+        self.STORE_NAVIGATION_DIRS = [] 
+        for lang in self.SUPPORTED_LANGUAGES:
+            self.change_language(lang)
+            self.STORE_STORAGE_DIRS.append(self.trUtf8("storage")) 
+            self.STORE_NAVIGATION_DIRS.append(self.trUtf8("navigation")) 
+        ## reset language
+        self.change_language(current_language)
+
         ## get stores from config file         
         config_store_items = self.__config_file.get_stores()
         config_store_ids = self.__config_file.get_store_ids()
@@ -149,7 +159,7 @@ class Tagstore(QtCore.QObject):
         ## add new stores
         for store_item in config_store_items:
             if store_item["id"] in config_store_ids:    ## new
-                store = Store(store_item["id"],store_item["path"], self.STORE_CONFIG_DIR + "/" + self.STORE_CONFIG_FILE_NAME, self.STORE_STORAGE_DIRS.split(","), self.STORE_NAVIGATION_DIRS.split(","))
+                store = Store(store_item["id"],store_item["path"], self.STORE_CONFIG_DIR + "/" + self.STORE_CONFIG_FILE_NAME, self.STORE_STORAGE_DIRS, self.STORE_NAVIGATION_DIRS)
                 self.__log.debug("found store: %s", store.get_name())
                 
                 ## create a dialogcontroller for each store ...
@@ -257,14 +267,22 @@ class Tagstore(QtCore.QObject):
     def change_language(self, locale):
         """
         changes the current application language
+        please notice: this method is used to find all available storage/navigation directory names
+        this is why it should not be extended to call any UI update methods directly
         """
-        #TODO: to achieve this, QApplication has to to be added to the constructor
-        #event handling failed in __main__ (for me) WW
-        translator = QtCore.QTranslator()
+        
+        ## delete current translation to switch to default strings
+        tagstore.removeTranslator(self.__translator)
+
+        ## load new translation file        
+        self.__translator = QtCore.QTranslator()
         language = unicode(locale)
-        if translator.load("ts_" + language + ".qm", "tsresources/"):
-            self.emit(QtCore.SIGNAL("language_changed(PyQt_PyObject)"), translator)
-            #self.__log.debug("changed localization to: %", str(language))
+        if self.__translator.load("ts_" + language + ".qm", "tsresources/"):
+            tagstore.installTranslator(self.__translator)
+            
+        ## update current language
+        self.CURRENT_LANGUAGE = self.trUtf8("en")
+
 
     #------------------------------------------ def tag_text_edited(self, text):
         #------------------------------------------------------------------- """
@@ -373,12 +391,7 @@ if __name__ == '__main__':
     tagstore = QtGui.QApplication(sys.argv)
     tagstore.setApplicationName("tagstore")
     tagstore.setOrganizationDomain("www.tagstore.org")
-
-    ## initialize system language
-    locale = unicode(QtCore.QLocale.system().name())
-    translator = QtCore.QTranslator()
-    if translator.load("ts_" + locale + ".qm", "tsresources/"):
-        tagstore.installTranslator(translator)
+    tagstore.UnicodeUTF8
     
     tag_widget = Tagstore(verbose=verbose_mode, dryrun=dry_run)
     tagstore.exec_()
