@@ -36,6 +36,7 @@ class TsConstants(object):
     SETTING_AUTO_DATESTAMP = "automatic_datestamp"
     SETTING_TAG_SEPARATOR = "tag_separator"
     SETTING_DATESTAMP_FORMAT = "datestamp_format"
+    SETTING_SHOW_CATEGORY_LINE = "show_category_line"
     
     DATESTAMP_FORMAT = "%Y%m%d"
     

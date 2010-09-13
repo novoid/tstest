@@ -256,14 +256,14 @@ class Store(QtCore.QObject):
         ## scalability test
         ## start = time.clock()
 
-        self.__built_store_navigation(file_name, tags, self.__navigation_path)
+        self.__build_store_navigation(file_name, tags, self.__navigation_path)
         self.__tag_wrapper.set_file(file_name, tags)
         self.__pending_changes.remove(file_name)
 
         ## scalability test
         ## print "number of tags: " + str(len(tags)) + ", time: " + str(time.clock()-start)
         
-    def __built_store_navigation(self, link_name, tag_list, current_path):
+    def __build_store_navigation(self, link_name, tag_list, current_path):
         """
         builds the whole directory and link-structure (navigation path) inside a stores filesystem
         """
@@ -277,7 +277,9 @@ class Store(QtCore.QObject):
             self.__file_system.create_link(link_source, current_path + "/" + tag + "/" + link_name)
             recursive_list = [] + tag_list
             recursive_list.remove(tag)
-            self.__built_store_navigation(link_name, recursive_list, current_path + "/" + tag)
+            # TODO @wolfgang: why not creatink just links in tag_dir to other tag_dirs
+            # TODO too much directories are the result of this method
+            self.__build_store_navigation(link_name, recursive_list, current_path + "/" + tag)
     
     def rename_tag(self, old_tag_name, new_tag_name):
         """

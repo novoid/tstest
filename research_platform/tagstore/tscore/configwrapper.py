@@ -68,16 +68,27 @@ class ConfigWrapper(QtCore.QObject):
 
     def get_show_datestamp(self):
         """
-        returns "on" or "off" in case date-stamps are requested
+        returns "True" or "False" in case date-stamps are requested
         """
-        #TODO: @chris: maybe you should change the return value to boolean
-        return self.__get_setting(TsConstants.SETTING_AUTO_DATESTAMP)
+        if self.__get_setting(TsConstants.SETTING_AUTO_DATESTAMP) == "true":
+            return True
+        else:    
+            return False
     
     def get_datestamp_format(self):
         """
         returns the ISO timestamp format that should be used for tagging
         """
         return self.__get_setting(TsConstants.SETTING_DATESTAMP_FORMAT)
+
+    def get_show_category_line(self):
+        """
+        returns True if the category line should be enabled in the tag dialog
+        """
+        if self.__get_setting(TsConstants.SETTING_SHOW_CATEGORY_LINE) == "true":
+            return True
+        else:    
+            return False
     
     def __get_setting(self, setting_name):
         """
