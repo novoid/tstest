@@ -14,6 +14,7 @@
 ## You should have received a copy of the GNU General Public License along with this program;
 ## if not, see <http://www.gnu.org/licenses/>.
 
+import time #for performance test only
 import logging.handlers
 from sets import Set
 from PyQt4 import QtCore
@@ -57,6 +58,8 @@ class Store(QtCore.QObject):
         self.__navigation_path = None
 
         ## throw exception if store directory does not exist
+        if self.__path.find(":/") == -1:
+            self.__path = self.__path.replace(":", ":/")
         if not self.__file_system.path_exists(self.__path):
             raise StoreInitError , self.trUtf8("The specified store directory does not exist!")
         
@@ -243,56 +246,39 @@ class Store(QtCore.QObject):
         returns a given number of the most popular tags
         """
         return self.__tag_wrapper.get_popular_tags(number)
-    
-    def __map_tags_to_filsystem(self, item_name, tag_list):
-        """
-        does all necessary steps vor creating new directories and links according to the tag list
-        """
-        self.__log.debug("store: %s -> create file system structure for item: %s" % (self.__name, item_name))
         
-        item_name = unicode(item_name)
-        
-        ## create the real directories at first
-        for tag in tag_list:
-            tag_path = self.__navigation_path + "/" + tag
-            if not self.__file_system.path_exists(tag_path):
-                self.__file_system.create_dir(tag_path)
-            else:
-                self.__log.debug("path: --- %s --- already exists. do nothing" % tag_path)
-            
-            ## TODO: check out how to find working relatice paths for links 
-            ##  put the link to the item into the dir
-            src_path = self.__watcher_path + "/" + item_name
-            link_name = tag_path + "/" + item_name
-            self.__file_system.create_link(src_path, link_name)
-        ## create the links between the dirs
-        for tag in tag_list:
-            tag_path = self.__path + "/" + self.__navigation_dir_name  + "/" + tag
-            link_list = set(tag_list)
-            link_list.remove(tag)
-            for link in link_list:
-                ## e.g. tag is "foo" and link is "bar"
-                ## target: path_to_store/foo/bar
-                ## source: path_to_store/bar
-                target = tag_path + "/" + link
-                if not self.__file_system.path_exists(target):
-                    source = self.__path + "/" + link
-                    self.__file_system.create_link(source, target)
-                else:
-                    self.__log.debug("path: --- %s --- already exists. do nothing" % target)
-        #TODO: Change paths?
-    
     def add_item_with_tags(self, file_name, tag_list):
         """
         adds tags to the given file, resets existing tags
         """
-        ## irgnore duplicated tags
+        ## ignore multiple tags
         tags = list(set(tag_list))
-        #TODO: test this functionality due to path changes
-        #self.__map_tags_to_filsystem(file_name, tag_list)
+        ## scalability test
+        ## start = time.clock()
+
+        self.__built_store_navigation(file_name, tags, self.__navigation_path)
         self.__tag_wrapper.set_file(file_name, tags)
         self.__pending_changes.remove(file_name)
+
+        ## scalability test
+        ## print "number of tags: " + str(len(tags)) + ", time: " + str(time.clock()-start)
         
+    def __built_store_navigation(self, link_name, tag_list, current_path):
+        """
+        builds the whole directory and link-structure (navigation path) inside a stores filesystem
+        """
+        ## recursive break- condition
+        if tag_list == []:
+            return
+        ## create directories and links + recursive calls
+        link_source = self.__watcher_path + "/" + link_name
+        for tag in tag_list:
+            self.__file_system.create_dir(current_path + "/" + tag)
+            self.__file_system.create_link(link_source, current_path + "/" + tag + "/" + link_name)
+            recursive_list = [] + tag_list
+            recursive_list.remove(tag)
+            self.__built_store_navigation(link_name, recursive_list, current_path + "/" + tag)
+    
     def rename_tag(self, old_tag_name, new_tag_name):
         """
         renames a tag inside the store 

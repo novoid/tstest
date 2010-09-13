@@ -58,21 +58,19 @@ class PendingChanges:
         for item in self.__queue:
             if item["file"] == file_name:
                 item["type"] = type_enum
-                #item["timestamp"] = timestamp
                 item["event"] = event_enum
                 return
         self.__queue.append(dict(file=unicode(file_name), type=type_enum, timestamp=timestamp, event=event_enum))
     
-    def edit(self, old_file_name, new_file_name):#, new_type, new_event):
+    def edit(self, old_file_name, new_file_name):
         """
         edits an existing file object: needed to keep the objects storage position during rename
         """
-        self.remove(unicode(new_file_name))      ## delete file bevor rename
+        ## delete file before rename
+        self.remove(unicode(new_file_name))      
         for item in self.__queue:
             if item["file"] == old_file_name:
                 item["file"] = unicode(new_file_name)
-                #item["type"] = new_type
-                #item["event"] = new_event
     
     def remove(self, file_name):
         """

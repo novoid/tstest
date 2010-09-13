@@ -104,19 +104,21 @@ class FileSystemWrapper():
             self.__log.debug("creating dir with the path: %s" % path_name)
             os.mkdir(path_name)
 
-    def create_link(self, source, link_name):
+    def create_link(self, source, link_path):
         """
         creates a symbolic link on Linux and Mac, a .lnk link at Windows file systems
         pointing to source, named link_name." 
         source -> the original file/dir
-        link_name -> the name of the link
+        link_path -> the path to the link
         """
-        self.__log.debug("creating link --- %s --- with the path: %s" % (link_name, source))
-        if link_name.find(":/") == -1:
-            sname = link_name.replace(":", ":/")
+        source = unicode(source)
+        link_path = unicode(link_path)
+        self.__log.debug("creating link --- %s --- with the path: %s" % (link_path, source))
         if source.find(":/") == -1:
-            ssource = source.replace(":", ":/")
-        self.file_system.create_link(ssource, sname)
+            source = source.replace(":", ":/")
+        if link_path.find(":/") == -1:
+            link_path = link_path.replace(":", ":/")
+        self.file_system.create_link(source, link_path)
         
     def create_file(self, file_path):
         file = open(file_path, "w")
