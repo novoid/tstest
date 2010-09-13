@@ -22,6 +22,14 @@ class FileSystem():
         pass
     
     def create_link(self, source, link_name):
-        os.symlink(source, link_name)
+        ## create relative link from given source paths
+        prefix = "/".join(source.split("/")[0:-2])
+        rel_source = source.lstrip(prefix)
+        steps_back  = len(link_name.lstrip(prefix).split("/"))
+        for step in range(1, steps_back):
+            rel_source = "../" + rel_source
+
+        ## create relative symlink
+        os.symlink(rel_source, link_name)
         
 ## end

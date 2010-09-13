@@ -126,7 +126,7 @@ class ConfigWrapper(QtCore.QObject):
         store_ids = self.__settings.childKeys()
         stores = []
         for id in store_ids:
-            path = unicode(self.__settings.value(id, "").toString()).strip("/")
+            path = unicode(self.__settings.value(id, "").toString()).rstrip("/")
             stores.append(dict(id=unicode(id), path=path))
         self.__settings.endGroup()
         return stores

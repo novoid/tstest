@@ -274,7 +274,7 @@ class Store(QtCore.QObject):
         link_source = self.__watcher_path + "/" + link_name
         for tag in tag_list:
             self.__file_system.create_dir(current_path + "/" + tag)
-            #self.__file_system.create_link(link_source, current_path + "/" + tag + "/" + link_name)
+            self.__file_system.create_link(link_source, current_path + "/" + tag + "/" + link_name)
             recursive_list = [] + tag_list
             recursive_list.remove(tag)
             self.__built_store_navigation(link_name, recursive_list, current_path + "/" + tag)
