@@ -31,7 +31,6 @@ class Tagstore(QtCore.QObject):
 
     # path to the config file
     CONFIG_PATH = "../conf/tagstore.cfg"
-    LOG_FILENAME = "tagstore.log"
     
     def __init__(self, parent=None, verbose=False, dryrun=False):
         """ 
@@ -81,7 +80,7 @@ class Tagstore(QtCore.QObject):
         create a logger object with appropriate settings
         '''
         # TODO create a class for doing this
-        LOG_FILENAME = Tagstore.LOG_FILENAME
+        LOG_FILENAME = TsConstants.LOG_FILENAME
         self.__log = logging.getLogger(TsConstants.LOGGER_NAME)
         self.__log.setLevel(logging.DEBUG)
 

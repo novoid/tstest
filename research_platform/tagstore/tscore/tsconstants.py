@@ -22,6 +22,7 @@ class TsConstants(object):
     """
     
     LOGGER_NAME = "TagStoreLogger"
+    LOG_FILENAME = "tagstore.log"
     LOG_BACKUP_COUNT = 5
     LOG_FILESIZE = 524288
     
