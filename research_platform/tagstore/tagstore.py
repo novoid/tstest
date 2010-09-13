@@ -22,7 +22,7 @@ from PyQt4 import QtCore, QtGui
 from tsgui.tagdialog import TagDialogController
 from tscore.configwrapper import ConfigWrapper
 from tscore.store import Store
-from tscore.enum import EFileEvent
+from tscore.enums import EFileEvent
 from tscore.tsconstants import TsConstants
 from optparse import OptionParser
 

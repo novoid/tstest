@@ -16,7 +16,7 @@
 
 
 import time
-from tscore.enum import EFileEvent
+from tscore.enums import EFileEvent
 
 class PendingChanges:
     def __init__(self):

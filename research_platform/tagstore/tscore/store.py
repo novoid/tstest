@@ -147,42 +147,43 @@ class Store(QtCore.QObject):
         config_files = Set(self.__tag_wrapper.get_files())
         captured_added_files = Set(self.__pending_changes.get_added_names())
         captured_removed_files = Set(self.__pending_changes.get_removed_names())
-        #test
-        #print "added: " + ", ".join(list(captured_added_files))
-        #print "removed: " + ", ".join(list(captured_removed_files))
-        # test end
+
         data_files = (config_files | captured_added_files) - captured_removed_files 
         added = list((existing_files | existing_dirs) - data_files)
         removed = list(data_files - (existing_files | existing_dirs))
     
-        type = EFileType.FILE   
-        #if self.__file_system.is_directory():
-        #    type = EFileType.
-        ##TODO replace this with either DIR or FILE depending on the items type
         if len(added) == 1 and len(removed) == 1:
-            self.__pending_changes.register(removed[0], type, EFileEvent.REMOVED_OR_RENAMED)
-            self.__pending_changes.register(added[0], type, EFileEvent.ADDED_OR_RENAMED)
+            self.__pending_changes.register(removed[0], self.__get_type(removed[0]), EFileEvent.REMOVED_OR_RENAMED)
+            self.__pending_changes.register(added[0], self.__get_type(added[0]), EFileEvent.ADDED_OR_RENAMED)
             self.emit(QtCore.SIGNAL("file_renamed(PyQt_PyObject, QString, QString)"), self, removed[0], added[0])
         else:
             if len(removed) > 0:
                 if len(added) == 0:
                     for item in removed:
-                        self.__pending_changes.register(item, type, EFileEvent.REMOVED)
+                        self.__pending_changes.register(item, self.__get_type(item), EFileEvent.REMOVED)
                         self.emit(QtCore.SIGNAL("file_removed(PyQt_PyObject, QString)"), self, item)
                 else:
                     for item in removed:
-                        self.__pending_changes.register(item, type, EFileEvent.REMOVED_OR_RENAMED)
+                        self.__pending_changes.register(item, self.__get_type(item), EFileEvent.REMOVED_OR_RENAMED)
                         self.emit(QtCore.SIGNAL("pending_operations_changed(PyQt_PyObject)"), self)
             if len(added) > 0:
                 if len(removed) == 0:
                     for item in added:
-                        self.__pending_changes.register(item, type, EFileEvent.ADDED)
+                        self.__pending_changes.register(item, self.__get_type(item), EFileEvent.ADDED)
                         self.emit(QtCore.SIGNAL("pending_operations_changed(PyQt_PyObject)"), self)
                 else:
                     for item in added:
-                        self.__pending_changes.register(item, type, EFileEvent.ADDED_OR_RENAMED)
+                        self.__pending_changes.register(item, self.__get_type(item), EFileEvent.ADDED_OR_RENAMED)
                         self.emit(QtCore.SIGNAL("pending_operations_changed(PyQt_PyObject)"), self)                
         
+    def __get_type(self, item):
+        """
+        returns the items type to be stored in pending_changes
+        """
+        if self.__file_system.is_directory(self.__watcher_path + "/" + item):
+            return EFileType.DIRECTORY
+        return EFileType.FILE
+    
     def get_name(self):
         """
         returns the stores name
