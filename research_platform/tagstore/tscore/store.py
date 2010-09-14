@@ -253,7 +253,7 @@ class Store(QtCore.QObject):
         """
         ## throw error if inodes run short
         if self.__file_system.inode_shortage(self.__config_path):
-            raise Error, self.trUtf8("Number of inodes < 10%! Tagging has not been carried out!")
+            raise Exception, self.trUtf8("Number of free inodes < 10%! Tagging has not been carried out!")
         ## ignore multiple tags
         tags = list(set(tag_list))
         print "taglist: " + ", ".join(tags)

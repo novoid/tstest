@@ -22,6 +22,9 @@ class FileSystem():
         pass
     
     def create_link(self, source, link_name):
+        """
+        creates a symbolic link with given link_name using a relative path to the source
+        """
         ## create relative link from given source paths
         prefix_length = len(source.split("/")[0:-2])
         rel_source = "/".join(source.split("/")[prefix_length:])
@@ -31,5 +34,18 @@ class FileSystem():
 
         ## create relative symlink
         os.symlink(rel_source, link_name)
+
+    def inode_shortage(self, file_path):
+        """
+        returns True, if the free number of inodes (non-root) < 10% of all available
+        """
+        info = os.statvfs(file_path)
+        max = int(info.f_files)
+        free = int(info.f_ffree)
         
+        if free*10 >= max:
+            return False
+        return True
+        
+              
 ## end
