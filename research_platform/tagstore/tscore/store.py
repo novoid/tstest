@@ -254,14 +254,14 @@ class Store(QtCore.QObject):
         ## ignore multiple tags
         tags = list(set(tag_list))
         ## scalability test
-        ## start = time.clock()
+        start = time.clock()
 
         self.__build_store_navigation(file_name, tags, self.__navigation_path)
         self.__tag_wrapper.set_file(file_name, tags)
         self.__pending_changes.remove(file_name)
 
         ## scalability test
-        ## print "number of tags: " + str(len(tags)) + ", time: " + str(time.clock()-start)
+        print "number of tags: " + str(len(tags)) + ", time: " + str(time.clock()-start)
         
     def __build_store_navigation(self, link_name, tag_list, current_path):
         """
