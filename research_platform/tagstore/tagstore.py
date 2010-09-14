@@ -163,11 +163,13 @@ class Tagstore(QtCore.QObject):
                 
                 ## create a dialogcontroller for each store ...
                 ## can be accessed by its ID later on
-                tmp_dialog = TagDialogController(self.MAX_TAGS, self.TAG_SEPERATOR)
-                if self.__config_file.get_show_datestamp() == "on":
+                tmp_dialog = TagDialogController(store.get_name, self.MAX_TAGS, self.TAG_SEPERATOR)
+                if self.__config_file.get_show_datestamp():
                     tmp_dialog.show_datestamp(True)
                     format = self.__config_file.get_datestamp_format()
                     tmp_dialog.set_datestamp_format(format)
+                tmp_dialog.show_category_line(self.__config_file.get_show_category_line())
+                
                 tmp_dialog.connect(tmp_dialog, QtCore.SIGNAL("tag_item"), self.tag_item_action)
                 tmp_dialog.connect(tmp_dialog, QtCore.SIGNAL("handle_cancel()"), self.handle_cancel)
                 #self.DIALOGS[store.get_id()] = tmp_dialog
@@ -220,11 +222,19 @@ class Tagstore(QtCore.QObject):
         
         dialog_controller = self.DIALOGS[store.get_id()]
         
-        dialog_controller.clear_store_children(store.get_name())
-        added_list = store.get_pending_changes().get_items_by_event(EFileEvent.ADDED)
-
+        #dialog_controller.clear_store_children(store.get_name())
+        dialog_controller.clear_all_items()
+        
+        added_list = set(store.get_pending_changes().get_items_by_event(EFileEvent.ADDED))
+        added_renamed_list = set(store.get_pending_changes().get_items_by_event(EFileEvent.ADDED_OR_RENAMED))
+        
+        whole_list = added_list | added_renamed_list
+        
+        if whole_list is None or len(whole_list) == 0:
+            return
+        
         for item in added_list:
-            dialog_controller.add_pending_item(store.get_name(), item)
+            dialog_controller.add_pending_item(item)
             
         self.__set_tag_information_to_dialog(store)
         dialog_controller.show_dialog()
@@ -242,8 +252,17 @@ class Tagstore(QtCore.QObject):
         self.__log.debug("refresh tag information on dialog")
         dialog_controller = self.DIALOGS[store.get_id()]
         dialog_controller.set_tag_list(store.get_tags())
-        dialog_controller.set_popular_tags(store.get_popular_tags(self.NUM_POPULAR_TAGS))
-        dialog_controller.set_recent_tags(store.get_recent_tags(self.NUM_RECENT_TAGS))
+        
+        tag_set = set(store.get_popular_tags(self.NUM_POPULAR_TAGS))
+        tag_set = tag_set | set(store.get_recent_tags(self.NUM_RECENT_TAGS))
+        
+        ## make a list out of the set, to enable indexing, as not all tags cannot be used
+        tag_list = list(tag_set)
+        if len(tag_list) > self.NUM_POPULAR_TAGS:
+            tag_list = tag_list[:self.NUM_POPULAR_TAGS]
+        dialog_controller.set_popular_tags(tag_list)
+        ## TODO: implement categories ...
+        #dialog_controller.set_popular_categories()
         dialog_controller.set_store_name(store.get_name())
     
     def tag_item_action(self, store_name, item_name, tag_list):
@@ -253,12 +272,12 @@ class Tagstore(QtCore.QObject):
         store = None
         ## find the store where the item should be saved
         for loop_store in self.STORES:
-            if store_name.text() == loop_store.get_name():
+            if store_name == loop_store.get_name():
                 store = loop_store
                 break
         ## 1. write the data to the store-file
-        store.add_item_with_tags(item_name.text(), tag_list)
-        self.__log.debug("added item %s to store-file", item_name.text())
+        store.add_item_with_tags(item_name, tag_list)
+        self.__log.debug("added item %s to store-file", item_name)
         
         ## 2. refresh the tag information of the gui
         self.__set_tag_information_to_dialog(store)

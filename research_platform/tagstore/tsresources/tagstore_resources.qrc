@@ -7,5 +7,6 @@
     <file>images/accept.png</file>
     <file>images/delete.png</file>
     <file>images/icon.png</file>
+    <file>images/help.png</file>
   </qresource>
 </RCC>

@@ -83,6 +83,13 @@ class TagCompleterWidget(QObject):
         self.__tag_line.clear()
         if self.__show_datestamp:
             self.__handle_datestamp()
+    
+    def select_line(self):
+        """
+        select the tagline ... 
+        """
+        self.__tag_line.selectAll()
+        self.__tag_line.setFocus(QtCore.Qt.OtherFocusReason)
 
     def __text_changed(self, text):
         all_text = unicode(text)
@@ -133,8 +140,11 @@ class TagCompleterWidget(QObject):
     def get_tag_list(self):
         tag_string = unicode(self.__tag_line.text())
         result = set([])
-        for tag in tag_string.split(self.__tag_separator):
-            result.add(tag.strip())
+        tag_list = tag_string.split(self.__tag_separator)
+        for tag in tag_list:
+            strip_tag = tag.strip()
+            if strip_tag != "":
+                result.add(strip_tag)
         return result
     
     def get_tag_line(self):
@@ -152,12 +162,15 @@ class TagCompleterWidget(QObject):
     def set_tag_completion_list(self, tag_list):
         self.__tag_list = tag_list
         self.__completer.setModel(QtGui.QStringListModel(QtCore.QStringList(tag_list)))
-        
-    def set_line_focus(self):
-        self.__tag_line.setFocus(Qt.OtherFocusReason)
-        
-    def set_size(self, qrect):
-        self.setGeometry(qrect)
-        self.__tag_line.setGeometry(qrect)
+
+    def is_empty(self):
+        if self.__tag_line.text() == "":
+            return True
+        else:
+            return False
+
+    #def set_size(self, qrect):
+    #    self.setGeometry(qrect)
+    #    self.__tag_line.setGeometry(qrect)
     
 ## end
