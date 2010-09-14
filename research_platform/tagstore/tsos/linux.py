@@ -23,9 +23,9 @@ class FileSystem():
     
     def create_link(self, source, link_name):
         ## create relative link from given source paths
-        prefix = "/".join(source.split("/")[0:-2])
-        rel_source = source.lstrip(prefix)
-        steps_back  = len(link_name.lstrip(prefix).split("/"))
+        prefix_length = len(source.split("/")[0:-2])
+        rel_source = "/".join(source.split("/")[prefix_length:])
+        steps_back  = len(link_name.split("/")) - prefix_length
         for step in range(1, steps_back):
             rel_source = "../" + rel_source
 
