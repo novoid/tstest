@@ -61,7 +61,7 @@ class Store(QtCore.QObject):
         if self.__path.find(":/") == -1:
             self.__path = self.__path.replace(":", ":/")
         if not self.__file_system.path_exists(self.__path):
-            raise StoreInitError , self.trUtf8("The specified store directory does not exist!")
+            raise StoreInitError, self.trUtf8("The specified store directory does not exist!")
         
         ## look for store/navigation directories names (all languages) if they do not exist
         if not self.__file_system.path_exists(self.__path + "/" + self.__storage_dir_name):
@@ -251,8 +251,12 @@ class Store(QtCore.QObject):
         """
         adds tags to the given file, resets existing tags
         """
+        ## throw error if inodes run short
+        if self.__file_system.inode_shortage(self.__config_path):
+            raise Error, self.trUtf8("Number of inodes < 10%! Tagging has not been carried out!")
         ## ignore multiple tags
         tags = list(set(tag_list))
+        print "taglist: " + ", ".join(tags)
         ## scalability test
         start = time.clock()
 
@@ -277,8 +281,6 @@ class Store(QtCore.QObject):
             self.__file_system.create_link(link_source, current_path + "/" + tag + "/" + link_name)
             recursive_list = [] + tag_list
             recursive_list.remove(tag)
-            # TODO @wolfgang: why not creatink just links in tag_dir to other tag_dirs
-            # TODO too much directories are the result of this method
             self.__build_store_navigation(link_name, recursive_list, current_path + "/" + tag)
     
     def rename_tag(self, old_tag_name, new_tag_name):

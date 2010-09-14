@@ -121,8 +121,35 @@ class FileSystemWrapper():
         self.file_system.create_link(source, link_path)
         
     def create_file(self, file_path):
+        """
+        creates a file at the file system
+        """
         file = open(file_path, "w")
         file.close()
+        
+    def inode_shortage(self, file_path):
+        """
+        returns True, if the free number of inodes (non-root) < 10% of all available
+        """
+        return False
+        #st=os.stat(file_path)
+        #print "file size", "=>",st[stat.ST_SIZE]
+        #print "inode number", "=>",st[stat.ST_INO]
+        #print "device inode resides on", "=>",st[stat.ST_DEV]
+        #print "number of links to this inode", "=>",st[stat.ST_NLINK]
+        
+#        fd = os.open(file_path, os.O_RDWR|os.O_CREAT )
+#        info = os.fstatvfs(fd)
+        info = os.statvfs(file_path)    #try this instead of opening file
+        max = info.f_files
+        free = info.f_ffree
+#        os.close(fd)
+        print max
+        print free
+        
+#        if free*10 > max:
+#            return False
+#        return True
         
         
 ## end

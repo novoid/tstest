@@ -216,7 +216,8 @@ class Tagstore(QtCore.QObject):
         """
         event handler: handles all operations with user interaction
         """
-        print "store: " + store.get_id() + ", items: " + store.get_pending_changes().to_string()
+        #TODO @chris: encoding problem?
+        #print "store: " + store.get_id() + ", items: " + store.get_pending_changes().to_string()
         
         self.__log.info("new pending file operation added")
         
