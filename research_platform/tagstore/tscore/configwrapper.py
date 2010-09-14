@@ -104,6 +104,8 @@ class ConfigWrapper(QtCore.QObject):
         returns the number of recent tags shown to the user
         """
         number = self.__get_setting("num_recent_tags")
+        if number == "":
+            return 0
         return int(number.strip())
         
     def get_num_popular_tags(self):
@@ -111,6 +113,8 @@ class ConfigWrapper(QtCore.QObject):
         returns the number of popular tags shown to the user
         """
         number = self.__get_setting("num_popular_tags")
+        if number == "":
+            return 0
         return int(number.strip())
         
     def get_max_tags(self):
@@ -118,6 +122,8 @@ class ConfigWrapper(QtCore.QObject):
         returns the parameter: max_tags: the max allowed number of tags to enter 
         """
         number = self.__get_setting("max_tags")
+        if number == "":
+            return 0
         return int(number.strip())
 
     def get_store_path(self, id):
