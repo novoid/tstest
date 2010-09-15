@@ -25,6 +25,7 @@ from tscore.store import Store
 from tscore.enums import EFileEvent
 from tscore.tsconstants import TsConstants
 from optparse import OptionParser
+from tscore.exceptions import StoreTaggingError
 
     
 class Tagstore(QtCore.QObject):
@@ -269,19 +270,28 @@ class Tagstore(QtCore.QObject):
     def tag_item_action(self, store_name, item_name, tag_list):
         """
         write the tags for the given item to the store
-        """   
+        """
+        
         store = None
-        ## find the store where the item should be saved
+        ## find the store where the item should be saved    
         for loop_store in self.STORES:
             if store_name == loop_store.get_name():
                 store = loop_store
                 break
-        ## 1. write the data to the store-file
-        store.add_item_with_tags(item_name, tag_list)
-        self.__log.debug("added item %s to store-file", item_name)
+        dialog_controller = self.DIALOGS[store.get_id()]
+        try:
+            ## 1. write the data to the store-file
+            store.add_item_with_tags(item_name, tag_list)
+            self.__log.debug("added item %s to store-file", item_name)
+        except Exception:
+            #TODO: provide a more specific error msg
+            dialog_controller.show_message("An error occurred while tagging")
+        else:
+            ## 2 remove the item in the gui
+            dialog_controller.remove_item(item_name)
+            ## 3. refresh the tag information of the gui
+            self.__set_tag_information_to_dialog(store)
         
-        ## 2. refresh the tag information of the gui
-        self.__set_tag_information_to_dialog(store)
 
     def change_language(self, locale):
         """
