@@ -115,6 +115,7 @@ class TagDialog(QtGui.QDialog):
         self.connect(self.__help_button, QtCore.SIGNAL("clicked()"), QtCore.SIGNAL("help_clicked()"))
         self.connect(self.__property_button, QtCore.SIGNAL("clicked()"), QtCore.SIGNAL("property_clicked()"))
         self.connect(self.__tag_button, QtCore.SIGNAL("clicked()"), self.__tag_button_pressed)
+        self.connect(self.__tag_line_widget, QtCore.SIGNAL("tag_limit_reached"), self.__handle_tag_limit_reached)
         """
         """
         
@@ -126,6 +127,9 @@ class TagDialog(QtGui.QDialog):
     
     def closeEvent(self, event):
         pass
+        
+    def __handle_tag_limit_reached(self):
+        self.show_tooltip("Tag limit reached. No more tags can be provided for this item.")
         
     def __handle_tagline_enter(self):
         ## switch to the category_line if it is enabled

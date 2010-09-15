@@ -102,7 +102,8 @@ class TagCompleterWidget(QObject):
 
         ## do not proceed if the max tag count is reached
         if len(tag_set) > self.__max_tags:
-            QtGui.QMessageBox.information(self.__parent, "Tag limit has been reached.", "No more tags can be provided for this item.")
+            self.emit(QtCore.SIGNAL("tag_limit_reached"))
+            #QtGui.QMessageBox.information(self.__parent, "No more tags can be provided for this item.")
             max_index = text.rfind(self.__tag_separator)
             self.__tag_line.setText(all_text[:max_index])
             return
