@@ -265,7 +265,8 @@ class Tagstore(QtCore.QObject):
         dialog_controller.set_popular_tags(tag_list)
         ## TODO: implement categories ...
         #dialog_controller.set_popular_categories()
-        dialog_controller.set_store_name(store.get_name())
+        if len(self.DIALOGS) > 1:
+            dialog_controller.set_store_name(store.get_name())
     
     def tag_item_action(self, store_name, item_name, tag_list):
         """

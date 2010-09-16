@@ -153,7 +153,7 @@ class TagWrapper():
             return_list.append(item[0])
         return return_list
 
-    def set_file(self, file_name, tag_list, timestamp=time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())):
+    def set_file(self, file_name, tag_list, category_list=None, timestamp=time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())):
         """
         adds a file and its tags to the config file
         or overrides the tags of an existing file
@@ -164,6 +164,8 @@ class TagWrapper():
         self.__settings.beginGroup(file_name)
         self.__settings.setValue(self.KEY_TAGS, self.TAG_SEPARATOR.join(tag_list))
         self.__settings.setValue(self.KEY_TIMESTAMP, timestamp)
+        if category_list is not None:
+            self.__settings.setValue(self.KEY_CATEGORY, self.TAG_SEPARATOR.join(category_list))
         self.__settings.endGroup()
         self.__settings.endGroup()
 
