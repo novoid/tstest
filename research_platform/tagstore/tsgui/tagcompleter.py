@@ -173,5 +173,83 @@ class TagCompleterWidget(QObject):
     #def set_size(self, qrect):
     #    self.setGeometry(qrect)
     #    self.__tag_line.setGeometry(qrect)
+
+class TsListWidget(QtGui.QListWidget):
     
+    def __init__(self, parent=None):
+        super(TsListWidget, self).__init__(parent)
+        
+    def keyPressEvent(self, event):
+        ## throw a custom signal, when enter (on the keypad) or return has been hit
+        
+        key = event.key()
+        
+        if key == QtCore.Qt.Key_Return or key == QtCore.Qt.Key_Enter:
+            self.emit(QtCore.SIGNAL("return_pressed"))
+        ## pass the signal to the normal parent chain
+        QtGui.QListWidget.keyPressEvent(self, event)
+
+class ComboboxCompleter(QtGui.QWidget):
+
+    __pyqtSignals__ = ("text_edited(QString)", 
+                       "completion_activated(QString)", 
+                       "preference_activated(QString)")
+
+    def __init__(self, parent=None):
+        """
+        Constructor
+        """
+        QtGui.QWidget.__init__(self, parent)
+        
+        self.__combobox = QtGui.QComboBox(parent)
+        self.__combobox.connect(self.__combobox, QtCore.SIGNAL("activated(QString)"), self, QtCore.SIGNAL("preference_activated(QString)"))
+        self.__lineedit = QtGui.QLineEdit(parent)
+        self.__lineedit.setStyleSheet("QLineEdit {border: none}")
+        self.__completer = QtGui.QCompleter()
+        self.__completer.setWidget(self.__lineedit)
+        self.__completer.setCaseSensitivity(QtCore.Qt.CaseInsensitive)
+        self.__completer.connect(self.__completer, QtCore.SIGNAL("activated(QString)"), self, QtCore.SIGNAL("completion_activated(QString)"))
+        self.__lineedit.connect(self.__lineedit, QtCore.SIGNAL("textEdited(QString)"), self, QtCore.SIGNAL("text_edited(QString)"))
+        QtCore.QMetaObject.connectSlotsByName(parent)
+    
+    def set_geometry(self, q_rect):
+        """
+        sets the controls geometry property: position, height, width
+        """
+        self.__combobox.setGeometry(q_rect)
+        self.__lineedit.setGeometry(QtCore.QRect(q_rect.left()+1, q_rect.top()+1, q_rect.width()-20, q_rect.height()-2))
+    
+    def show(self):
+        """
+        sets the control visible
+        """
+        self.__combobox.show()
+        self.__lineedit.show()
+
+    def hide(self):
+        """
+        set the control invisible
+        """
+        self.__combobox.hide()
+        self.__lineedit.hide()
+        
+    def set_enabled(self, enabled=True):
+        """
+        enables/disabled the control
+        """
+        self.__combobox.setEnabled(enabled)
+        self.__lineedit.setEnabled(enabled)
+        
+    def set_preferences(self, list):
+        """
+        sets the controls dropdown (combobox) list
+        """
+        self.__combobox.clear()
+        self.__combobox.addItems(QtCore.QStringList(list))
+
+    def set_lookup_list(self, list):
+        """
+        sets the controls lookup list (completer)
+        """
+        self.__completer.setModel(QtGui.QStringListModel(QtCore.QStringList(list)))
 ## end

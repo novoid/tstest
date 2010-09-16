@@ -16,7 +16,7 @@
 import logging
 from PyQt4 import QtCore, QtGui
 import tsresources.resources
-from tagcompleter import TagCompleterWidget
+from tagcompleter import TagCompleterWidget, TsListWidget
 from tscore.tsconstants import TsConstants
 
 class TagDialog(QtGui.QDialog):
@@ -95,10 +95,12 @@ class TagDialog(QtGui.QDialog):
 #        self.__category_line.setGeometry(QtCore.QRect(20, 150, 381, 21))
 #        self.__category_line.setObjectName("__category_line")
 
-        self.__category_line = QtGui.QListWidget(self.__centralwidget)
+        #self.__category_line = QtGui.QListWidget(self.__centralwidget)
+        self.__category_line = TsListWidget(self.__centralwidget)
         self.__category_line.setGeometry(QtCore.QRect(20, 150, 381, 61))
         self.__category_line.setObjectName("__category_line")
-        self.__category_line.setSelectionMode(QtGui.QAbstractItemView.MultiSelection)
+        self.__category_line.setSelectionMode(QtGui.QAbstractItemView.ExtendedSelection)
+        
         #self.__category_label = QtGui.QLabel(self.__centralwidget)
         #self.__category_label.setGeometry(QtCore.QRect(23, 174, 371, 16))
         #self.__category_label.setObjectName("__category_label")
@@ -114,13 +116,13 @@ class TagDialog(QtGui.QDialog):
         self.__set_taborder()
         #self.connect(self, QtCore.SIGNAL("returnPressed()"), self.__handle_enter) 
         self.connect(self.__tag_line, QtCore.SIGNAL("returnPressed()"), self.__handle_tagline_enter) 
-        self.connect(self.__category_line, QtCore.SIGNAL("returnPressed()"), self.__handle_categoryline_enter) 
         self.connect(self.__item_list_view, QtCore.SIGNAL("currentRowChanged(int)"), self.__handle_selection_changed)
         self.connect(self.__close_button, QtCore.SIGNAL("clicked()"), QtCore.SIGNAL("cancel_clicked()"))
         self.connect(self.__help_button, QtCore.SIGNAL("clicked()"), QtCore.SIGNAL("help_clicked()"))
         self.connect(self.__property_button, QtCore.SIGNAL("clicked()"), QtCore.SIGNAL("property_clicked()"))
         self.connect(self.__tag_button, QtCore.SIGNAL("clicked()"), self.__tag_button_pressed)
         self.connect(self.__tag_line_widget, QtCore.SIGNAL("tag_limit_reached"), self.__handle_tag_limit_reached)
+        self.connect(self.__category_line, QtCore.SIGNAL("return_pressed"), self.__handle_categoryline_enter) 
         """
         """
         
@@ -139,7 +141,7 @@ class TagDialog(QtGui.QDialog):
     def __handle_tagline_enter(self):
         ## switch to the category_line if it is enabled
         if self.__show_categories:
-            self.__category_line.selectAll()
+            #    self.__category_line.selectAll()
             self.__category_line.setFocus(QtCore.Qt.OtherFocusReason)
         else:
             ## start the default tagging procedure
@@ -307,7 +309,8 @@ class TagDialog(QtGui.QDialog):
 
     def clear_tag_line(self):
         self.__tag_line_widget.clear_line()
-        self.__tag_line_widget.set_text("write your tags here")
+        if not self.__show_datestamp:
+            self.__tag_line_widget.set_text("write your tags here")
         
     def clear_item_view(self):
         self.__item_list_view.clear()
@@ -355,6 +358,8 @@ class TagDialog(QtGui.QDialog):
         the list to be used as item categories
         """
 #        self.__category_list = category_list
+        self.__category_line.clear()
+        
         for category in category_list:
             QtGui.QListWidgetItem(category, self.__category_line)
         
@@ -391,7 +396,7 @@ class TagDialogController(QtCore.QObject):
         
         self.__is_shown = False
         
-        self.connect(self.__tag_dialog, QtCore.SIGNAL("tag_button_pressed"), self.check_tag_item)
+        self.connect(self.__tag_dialog, QtCore.SIGNAL("tag_button_pressed"), self.tag_item)
         self.connect(self.__tag_dialog, QtCore.SIGNAL("no_items_left"), self.__handle_no_items)
         self.connect(self.__tag_dialog, QtCore.SIGNAL("cancel_clicked()"), QtCore.SIGNAL("handle_cancel()"))
         self.connect(self.__tag_dialog, QtCore.SIGNAL("help_clicked()"), self.__help_clicked)
@@ -409,7 +414,7 @@ class TagDialogController(QtCore.QObject):
         """
         self.hide_dialog()
     
-    def check_tag_item(self, item, tag_list):
+    def tag_item(self, item, tag_list):
         """
         pre-check if all necessary data is available for storing tags to an item 
         """
