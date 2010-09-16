@@ -105,9 +105,16 @@ class TagDialog(QtGui.QDialog):
         #self.__category_label.setGeometry(QtCore.QRect(23, 174, 371, 16))
         #self.__category_label.setObjectName("__category_label")
         
+        #self.__tag_label = QtGui.QLabel(self.__centralwidget)
+        self.__tag_layout = QtGui.QHBoxLayout()
+        self.__tag_layout.setGeometry(QtCore.QRect(23, 113, 371, 16))
+        
         self.__tag_label = QtGui.QLabel(self.__centralwidget)
+#        self.__tag_label = QtGui.QWidget()
+#        self.__tag_label.setLayout(self.__tag_layout)
         self.__tag_label.setGeometry(QtCore.QRect(23, 113, 371, 16))
         self.__tag_label.setObjectName("__tag_label")
+        
 
         self.show_category_line(self.__show_categories)
         self.select_tag_line()
@@ -182,7 +189,7 @@ class TagDialog(QtGui.QDialog):
         #self.__category_line.setText(QtGui.QApplication.translate("tagstore", "categorize ...", None, QtGui.QApplication.UnicodeUTF8))
         #self.__category_label.setText(QtGui.QApplication.translate("tagstore", "dummy no values yet", None, QtGui.QApplication.UnicodeUTF8))
         self.__help_button.setToolTip(QtGui.QApplication.translate("tagstore", "Help", None, QtGui.QApplication.UnicodeUTF8))
-        self.__tag_label.setText(QtGui.QApplication.translate("tagstore", "", None, QtGui.QApplication.UnicodeUTF8))
+        #self.__tag_label.setText(QtGui.QApplication.translate("tagstore", "", None, QtGui.QApplication.UnicodeUTF8))
         self.__property_button.setToolTip(QtGui.QApplication.translate("tagstore", "Set application properties", None, QtGui.QApplication.UnicodeUTF8))
         self.__property_button.setText(QtGui.QApplication.translate("tagstore", "Preferences ...", None, QtGui.QApplication.UnicodeUTF8))
         self.__close_button.setToolTip(QtGui.QApplication.translate("tagstore", "Close the dialog", None, QtGui.QApplication.UnicodeUTF8))
@@ -297,9 +304,13 @@ class TagDialog(QtGui.QDialog):
         self.__tag_line_widget.set_tag_completion_list(tag_list)
         
     def set_popular_tags(self, tag_list):
-        self.__tag_label.setText("")
+        tag_counter = 0
         for tag in tag_list:
-            self.__tag_label.setText(self.__tag_label.text() +" "+ tag)
+            if tag_counter == 0:
+                self.__tag_label.setText(tag)
+                tag_counter = tag_counter + 1
+            else:
+                self.__tag_label.setText("%s%s %s" % (self.__tag_label.text(), self.__tag_separator, tag))
 
     def set_popular_categories(self, cat_list):
         #self.__category_label.setText("")

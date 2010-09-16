@@ -204,14 +204,14 @@ class Tagstore(QtCore.QObject):
         """
         event handler for: file renamed
         """
-        #print "file renamed: " + old_file_name + " -> " + new_file_name
+        self.__log.debug("..........file renamed %s, %s" % (old_file_name, new_file_name))
         store.rename_file(old_file_name, new_file_name)
         
     def file_removed(self, store, file_name):
         """
         event handler for: file renamed
         """
-        #print "file removed: " + file_name
+        self.__log.debug("...........file removed %s" % file_name)
         store.remove_file(file_name)
         
     def pending_file_operations(self, store):
