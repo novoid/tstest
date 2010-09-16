@@ -170,6 +170,7 @@ class Tagstore(QtCore.QObject):
                     format = self.__config_file.get_datestamp_format()
                     tmp_dialog.set_datestamp_format(format)
                 tmp_dialog.show_category_line(self.__config_file.get_show_category_line())
+                tmp_dialog.set_category_mandatory(self.__config_file.get_category_mandatory())
                 
                 tmp_dialog.connect(tmp_dialog, QtCore.SIGNAL("tag_item"), self.tag_item_action)
                 tmp_dialog.connect(tmp_dialog, QtCore.SIGNAL("handle_cancel()"), self.handle_cancel)
@@ -254,6 +255,7 @@ class Tagstore(QtCore.QObject):
         self.__log.debug("refresh tag information on dialog")
         dialog_controller = self.DIALOGS[store.get_id()]
         dialog_controller.set_tag_list(store.get_tags())
+        dialog_controller.set_category_list(store.get_category_list())
         
         tag_set = set(store.get_popular_tags(self.NUM_POPULAR_TAGS))
         tag_set = tag_set | set(store.get_recent_tags(self.NUM_RECENT_TAGS))
@@ -268,7 +270,7 @@ class Tagstore(QtCore.QObject):
         if len(self.DIALOGS) > 1:
             dialog_controller.set_store_name(store.get_name())
     
-    def tag_item_action(self, store_name, item_name, tag_list):
+    def tag_item_action(self, store_name, item_name, tag_list, category_list):
         """
         write the tags for the given item to the store
         """
@@ -282,11 +284,12 @@ class Tagstore(QtCore.QObject):
         dialog_controller = self.DIALOGS[store.get_id()]
         try:
             ## 1. write the data to the store-file
-            store.add_item_with_tags(item_name, tag_list)
+            store.add_item_with_tags(item_name, tag_list, category_list)
             self.__log.debug("added item %s to store-file", item_name)
-        except Exception:
+        except (Exception), e:
             #TODO: provide a more specific error msg
             dialog_controller.show_message("An error occurred while tagging")
+            raise e
         else:
             ## 2 remove the item in the gui
             dialog_controller.remove_item(item_name)

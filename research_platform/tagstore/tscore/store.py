@@ -247,7 +247,7 @@ class Store(QtCore.QObject):
         """
         return self.__tag_wrapper.get_popular_tags(number)
         
-    def add_item_with_tags(self, file_name, tag_list):
+    def add_item_with_tags(self, file_name, tag_list, category_list):
         """
         adds tags to the given file, resets existing tags
         """
@@ -260,8 +260,9 @@ class Store(QtCore.QObject):
         ## scalability test
         start = time.clock()
 
+        # TODO: maybe use try-ecxept for this block to ensure, all three steps are done
         self.__build_store_navigation(file_name, tags, self.__navigation_path)
-        self.__tag_wrapper.set_file(file_name, tags)
+        self.__tag_wrapper.set_file(file_name, tags, category_list)
         self.__pending_changes.remove(file_name)
 
         ## scalability test
@@ -299,11 +300,11 @@ class Store(QtCore.QObject):
         #TODO: directory & link changes
         pass
         
-    def get_vocabulary_list(self):
+    def get_category_list(self):
         """
         returns a predefined list of allowed strings to be used for categorizing
         """
-        pass
+        return ["category1", "category2", "category3", "category4",]
         
 
 ## end

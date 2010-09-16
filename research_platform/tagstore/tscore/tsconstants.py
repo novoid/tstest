@@ -37,8 +37,9 @@ class TsConstants(object):
     SETTING_TAG_SEPARATOR = "tag_separator"
     SETTING_DATESTAMP_FORMAT = "datestamp_format"
     SETTING_SHOW_CATEGORY_LINE = "show_category_line"
+    SETTING_CATEGORY_MANDATORY = "category_mandatory"
     
-    DATESTAMP_FORMAT = "%Y%m%d"
+    DATESTAMP_FORMAT = "%Y-%m-%d"
     
     DEFAULT_RECENT_TAGS = 5
     DEFAULT_POPULAR_TAGS = 5

@@ -89,6 +89,15 @@ class ConfigWrapper(QtCore.QObject):
             return True
         else:    
             return False
+
+    def get_category_mandatory(self):
+        """
+        returns True if the category line should be enabled in the tag dialog
+        """
+        if self.__get_setting(TsConstants.SETTING_CATEGORY_MANDATORY) == "true":
+            return True
+        else:    
+            return False
     
     def __get_setting(self, setting_name):
         """

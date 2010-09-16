@@ -40,6 +40,7 @@ class TagDialog(QtGui.QDialog):
         self.__is_shown = False
         self.__show_datestamp = False
         self.__show_categories = False
+        self.__category_mandatory = False
         self.__selected_item = None
         
         self.setObjectName("TagDialog")
@@ -90,17 +91,21 @@ class TagDialog(QtGui.QDialog):
         self.__tag_line.setObjectName("__tag_line_widget")
         #self.__tag_line_widget.set_enabled(False)
         
-        self.__category_line = QtGui.QLineEdit(self.__centralwidget)
-        self.__category_line.setGeometry(QtCore.QRect(20, 150, 381, 21))
+#        self.__category_line = QtGui.QLineEdit(self.__centralwidget)
+#        self.__category_line.setGeometry(QtCore.QRect(20, 150, 381, 21))
+#        self.__category_line.setObjectName("__category_line")
+
+        self.__category_line = QtGui.QListWidget(self.__centralwidget)
+        self.__category_line.setGeometry(QtCore.QRect(20, 150, 381, 61))
         self.__category_line.setObjectName("__category_line")
-        
+        self.__category_line.setSelectionMode(QtGui.QAbstractItemView.MultiSelection)
+        #self.__category_label = QtGui.QLabel(self.__centralwidget)
+        #self.__category_label.setGeometry(QtCore.QRect(23, 174, 371, 16))
+        #self.__category_label.setObjectName("__category_label")
         
         self.__tag_label = QtGui.QLabel(self.__centralwidget)
         self.__tag_label.setGeometry(QtCore.QRect(23, 113, 371, 16))
         self.__tag_label.setObjectName("__tag_label")
-        self.__category_label = QtGui.QLabel(self.__centralwidget)
-        self.__category_label.setGeometry(QtCore.QRect(23, 174, 371, 16))
-        self.__category_label.setObjectName("__category_label")
 
         self.show_category_line(self.__show_categories)
         self.select_tag_line()
@@ -172,13 +177,12 @@ class TagDialog(QtGui.QDialog):
     def retranslateUi(self):
         self.setWindowTitle(QtGui.QApplication.translate("tagstore", self.APP_NAME, None, QtGui.QApplication.UnicodeUTF8))
         self.__tag_line.setText(QtGui.QApplication.translate("tagstore", "write your tags here", None, QtGui.QApplication.UnicodeUTF8))
-        self.__category_line.setText(QtGui.QApplication.translate("tagstore", "categorize ...", None, QtGui.QApplication.UnicodeUTF8))
+        #self.__category_line.setText(QtGui.QApplication.translate("tagstore", "categorize ...", None, QtGui.QApplication.UnicodeUTF8))
+        #self.__category_label.setText(QtGui.QApplication.translate("tagstore", "dummy no values yet", None, QtGui.QApplication.UnicodeUTF8))
         self.__help_button.setToolTip(QtGui.QApplication.translate("tagstore", "Help", None, QtGui.QApplication.UnicodeUTF8))
-        #self.__help_button.setText(QtGui.QApplication.translate("tagstore", "", None, QtGui.QApplication.UnicodeUTF8))
         self.__tag_label.setText(QtGui.QApplication.translate("tagstore", "", None, QtGui.QApplication.UnicodeUTF8))
-        self.__category_label.setText(QtGui.QApplication.translate("tagstore", "dummy no values yet", None, QtGui.QApplication.UnicodeUTF8))
         self.__property_button.setToolTip(QtGui.QApplication.translate("tagstore", "Set application properties", None, QtGui.QApplication.UnicodeUTF8))
-        self.__property_button.setText(QtGui.QApplication.translate("tagstore", "Properties ...", None, QtGui.QApplication.UnicodeUTF8))
+        self.__property_button.setText(QtGui.QApplication.translate("tagstore", "Preferences ...", None, QtGui.QApplication.UnicodeUTF8))
         self.__close_button.setToolTip(QtGui.QApplication.translate("tagstore", "Close the dialog", None, QtGui.QApplication.UnicodeUTF8))
         self.__close_button.setText(QtGui.QApplication.translate("tagstore", "Close", None, QtGui.QApplication.UnicodeUTF8))
         self.__tag_button.setToolTip(QtGui.QApplication.translate("tagstore", "Tag the selected item", None, QtGui.QApplication.UnicodeUTF8))
@@ -245,7 +249,6 @@ class TagDialog(QtGui.QDialog):
         + resize the dialog 
         """
         self.__show_categories = enable
-        
         # TODO: find a way to remove the category widgets at runtime
         # can be done with using "layout" objects. -> means NO absolute positioning
         # absolute positioning is not a good solution
@@ -258,11 +261,11 @@ class TagDialog(QtGui.QDialog):
             self.__close_button.setGeometry(QtCore.QRect(368, 217, 113, 32))
             
             self.__category_line.show()
-            self.__category_label.show()
+            #self.__category_label.show()
         else:
             self.resize(489, 195)
             self.__category_line.hide()
-            self.__category_label.hide()
+            #self.__category_label.hide()
             
             self.__tag_button.setGeometry(QtCore.QRect(419, 85, 60, 40))
             self.__help_button.setGeometry(QtCore.QRect(20, 150, 25, 23))
@@ -270,7 +273,10 @@ class TagDialog(QtGui.QDialog):
             self.__close_button.setGeometry(QtCore.QRect(368, 146, 113, 32))
             
         self.__set_taborder()
-            
+    
+    def set_category_mandatory(self, mandatory):
+        self.__category_mandatory = mandatory
+     
     def set_item_list(self, item_list):
         self.__item_list_view.addItems(item_list)
 
@@ -294,9 +300,10 @@ class TagDialog(QtGui.QDialog):
             self.__tag_label.setText(self.__tag_label.text() +" "+ tag)
 
     def set_popular_categories(self, cat_list):
-        self.__category_label.setText("")
+        #self.__category_label.setText("")
         for tag in cat_list:
-            self.__category_label.setText(self.__category_label.text() +" "+ tag)
+            #self.__category_label.setText(self.__category_label.text() +" "+ tag)
+            pass
 
     def clear_tag_line(self):
         self.__tag_line_widget.clear_line()
@@ -334,14 +341,35 @@ class TagDialog(QtGui.QDialog):
         
         ## use a timer to automatically remove the tooltip
         #timer = QtCore.QTimer()
-        #timer.connect(timer, QtCore.SIGNAL("timeout()"), QtCore.SLOT("hide_tooltip"))
-        #timer.start(4)
+        #timer.connect(timer, QtCore.SIGNAL("timeout()"), self.hide_tooltip)
+        #timer.start(4000)
 
     def hide_tooltip(self):
         """
         if a tooltip is shown - use this method to remove the message
         """
         QtGui.QWhatsThis.hideText()
+        
+    def set_available_categories(self, category_list):
+        """
+        the list to be used as item categories
+        """
+#        self.__category_list = category_list
+        for category in category_list:
+            QtGui.QListWidgetItem(category, self.__category_line)
+        
+    def get_category_list(self):
+        """
+        returns a string list with the user-selected categories
+        """
+        cat_list = self.__category_line.selectedItems()
+        cat_str_list = []
+        for cat in cat_list:
+            cat_str_list.append(str(cat.text()))
+        return cat_str_list
+    
+    def is_category_mandatory(self):
+        return self.__category_mandatory
 
 class TagDialogController(QtCore.QObject):
     """
@@ -392,8 +420,15 @@ class TagDialogController(QtCore.QObject):
             self.__tag_dialog.show_tooltip("Please select an Item, to which the tags should be added")
             return
         
+        category_list = self.__tag_dialog.get_category_list()
+        category_mandatory = self.__tag_dialog.is_category_mandatory()
+        
+        if category_mandatory and (category_list is None or len(category_list) == 0):
+            self.__tag_dialog.show_tooltip("Please select at least one category")
+            return
+            
         self.__item_to_remove = item
-        self.emit(QtCore.SIGNAL("tag_item"), self.__store_name, item.text(), tag_list)
+        self.emit(QtCore.SIGNAL("tag_item"), self.__store_name, item.text(), tag_list, category_list)
         
     def remove_item(self, item_name):
         
@@ -412,6 +447,9 @@ class TagDialogController(QtCore.QObject):
     def set_tag_list(self, tag_list):
         self.__tag_dialog.set_tag_list(tag_list)    
 
+    def set_category_list(self, category_list):
+        self.__tag_dialog.set_available_categories(category_list)    
+
     def show_datestamp(self, show):
         self.__tag_dialog.show_datestamp(show)
 
@@ -420,6 +458,9 @@ class TagDialogController(QtCore.QObject):
         if True - show the category line and popular categories
         """
         self.__tag_dialog.show_category_line(show)
+    
+    def set_category_mandatory(self, mandatory):
+        self.__tag_dialog.set_category_mandatory(mandatory)
 
     def set_datestamp_format(self, format):
         self.__tag_dialog.set_datestamp_format(format)
