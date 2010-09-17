@@ -112,7 +112,7 @@ class FileSystemWrapper():
             self.__log.debug("deleting dir with the path: %s" % path_name)
             for item in os.listdir(path_name):
                 if os.path.isdir(path_name + "/" + item):
-                    self.delete_dir(path)
+                    self.delete_dir(path_name)
                 else:
                     os.remove(path_name + "/" + item)
             os.rmdir(path_name)

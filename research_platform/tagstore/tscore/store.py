@@ -333,7 +333,7 @@ class Store(QtCore.QObject):
         self.delete_tags([old_tag_name])
         for file in files:
             file["tags"].remove(old_tag_name)
-            self.add_item_with_tags(file[filename], file["tags"].append(new_tag_name))
+            self.add_item_with_tags(file["filename"], file["tags"].append(new_tag_name))
         
     def delete_tags(self, tag_list):
         """
