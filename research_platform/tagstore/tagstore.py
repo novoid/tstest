@@ -219,7 +219,6 @@ class Tagstore(QtCore.QObject):
         event handler: handles all operations with user interaction
         """
         #TODO @chris: encoding problem?
-        #print "store: " + store.get_id() + ", items: " + store.get_pending_changes().to_string()
         
         self.__log.info("new pending file operation added")
         
@@ -235,6 +234,7 @@ class Tagstore(QtCore.QObject):
         
         if whole_list is None or len(whole_list) == 0:
             return
+        self.__log.debug("store: %s, item: %s " % (store.get_id(), store.get_pending_changes().to_string()))
         
         for item in added_list:
             dialog_controller.add_pending_item(item)

@@ -230,6 +230,7 @@ class TagDialog(QtGui.QDialog):
         elif count == 0:
             ## no items left
             self.__set_selected_item(None)
+            self.emit(QtCore.SIGNAL("no_items_left"))
         elif row_to_remove >= count:
             ## the last item has been removed - select the "new" last item
             self.__set_selected_item(self.__item_list_view.item(count-1))
