@@ -31,7 +31,6 @@ class FileSystemWrapper():
         """
         constructor
         """
-        
         self.__log = logging.getLogger("TagStoreLogger")
         
         self.file_system = FileSystem()
