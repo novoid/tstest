@@ -35,7 +35,7 @@ class FileSystemWrapper():
         self.__log = logging.getLogger("TagStoreLogger")
         
         self.file_system = FileSystem()
-        self.__IGNORED_FILE_PREFIXES = ["~$"]
+        self.__IGNORED_FILE_PREFIXES = ["~$", "."]
         self.__IGNORED_DIR_PREFIXES = ["."]
         self.__IGNORED_EXTENTIONS = [".lnk"]
     
@@ -104,6 +104,19 @@ class FileSystemWrapper():
             self.__log.debug("creating dir with the path: %s" % path_name)
             os.mkdir(path_name)
 
+    def delete_dir(self, path_name):
+        """
+        deletes a given directory and its content
+        """
+        if self.path_exists(path_name):
+            self.__log.debug("deleting dir with the path: %s" % path_name)
+            for item in os.listdir(path_name):
+                if os.path.isdir(path_name + "/" + item):
+                    self.delete_dir(path)
+                else:
+                    os.remove(path_name + "/" + item)
+            os.rmdir(path_name)
+        
     def create_link(self, source, link_path):
         """
         creates a symbolic link on Linux and Mac, a .lnk link at Windows file systems
@@ -126,6 +139,19 @@ class FileSystemWrapper():
         """
         file = open(file_path, "w")
         file.close()
+        
+    def remove_file(self, file_path):
+        """
+        removes a file from filesystem
+        """
+        if self.path_exists(file_path):
+            os.remove(file_path)
+        
+    def remove_link(self, file_path):
+        """
+        removes a given link from file system and also the folder if it's empty
+        """
+        self.file_system.remove_link(file_path)
         
     def inode_shortage(self, file_path):
         """

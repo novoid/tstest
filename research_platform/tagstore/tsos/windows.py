@@ -15,6 +15,7 @@
 ## if not, see <http://www.gnu.org/licenses/>.
 
 import win32com.client
+import os
 
 class FileSystem():
 
@@ -22,6 +23,9 @@ class FileSystem():
         self.__shell = win32com.client.Dispatch("WScript.Shell")
     
     def create_link(self, source, link_name):
+        """
+        creates a symbolic link with given link_name using a relative path to the source
+        """
         name = link_name.replace("/", "\\") + ".lnk"
         source = source.replace("/", "\\")
         
@@ -29,12 +33,18 @@ class FileSystem():
         shortcut.Targetpath = source
         shortcut.save()
 
-    #funktiont
-        #shell = win32com.client.Dispatch("WScript.Shell")
-        #shortcut = shell.CreateShortCut("C:\\tagstore\\testfolder\\test.xlsx.lnk")
-        #shortcut.Targetpath = "C:\\tagstore\\excel.xlsx"
-        #shortcut.save() 
-
+    def remove_link(self, link):
+        """
+        removes a windows .lnk link from file system and empty folders as well
+        """
+        file_path = str(link.replace("/", "\\") + ".lnk")
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        ## delete folder if empty
+        parent_path = "\\".join(file_path.split("\\")[:-1])
+        if len(os.listdir(parent_path)) == 0: #empty
+            os.rmdir(parent_path)        
+        
     def inode_shortage(self, file_path):
         """
         returns True (on Linux), if the free number of inodes (non-root) < 10% of all available

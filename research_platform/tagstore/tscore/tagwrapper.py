@@ -31,26 +31,26 @@ class TagWrapper():
 
     TAG_SEPARATOR = ","
     
-    def __init__(self, file_path, store_id=None):
+    def __init__(self, file_path):#, store_id=None):
         """
         constructor
         """
-        if store_id is not None:
-            self.__create_file_structure(file_path, store_id)
+        #if store_id is not None:
+        #    self.__create_file_structure(file_path, store_id)
         self.__settings = QSettings(file_path, QSettings.IniFormat)
  
-    def __create_file_structure(self, file_path, store_id):
-        """
-        creates the default file structure in a given file
-        """
-        file = open(file_path, "w")
-        file.write("[store]\n")
-        file.write("store_id=%s\n" % store_id)
-        file.write("\n")
-        file.write("[files]\n")
-        file.write("\n")
-        file.write("[categories]\n")
-        file.close()
+#    def __create_file_structure(self, file_path, store_id):
+#        """
+#        creates the default file structure in a given file
+#        """
+#        file = open(file_path, "w")
+#        file.write("[store]\n")
+#        file.write("store_id=%s\n" % store_id)
+#        file.write("\n")
+#        file.write("[files]\n")
+#        file.write("\n")
+#        file.write("[categories]\n")
+#        file.close()
                 
     def __get_file_list(self):
         """
@@ -66,6 +66,17 @@ class TagWrapper():
             self.__settings.endGroup()
         self.__settings.endGroup()
         return sorted(file_list, key=lambda k:k[self.KEY_TIMESTAMP], reverse=True)
+        
+    def get_files_with_tag(self, tag):
+        """
+        returns a list of file dictionaries including filename, tags, timestamp
+        """
+        file_list = self.__get_file_list()
+        filtered_list = []
+        for file in file_list:
+            if tag in file["tags"]:
+                filtered_list.append(file)
+        return filtered_list
         
     def __get_tag_dictionary(self):
         """
@@ -85,6 +96,17 @@ class TagWrapper():
         self.__settings.endGroup()
         return dictionary
 
+    def get_file_tags(self, file_name):
+        """
+        returns the tag list of a given file
+        """
+        self.__settings.beginGroup(self .GROUP_FILES_NAME)
+        self.__settings.beginGroup(file_name)
+        tags = unicode(self.__settings.value(self.KEY_TAGS, "").toString()).split(self.TAG_SEPARATOR)
+        self.__settings.endGroup()        
+        self.__settings.endGroup()    
+        return tags    
+    
     def get_files(self):
         """
         returns a list of all files stored in the config file
@@ -102,9 +124,18 @@ class TagWrapper():
         """
         self.__settings = QSettings(file_path, QSettings.IniFormat)
 
+    def set_store_id(self, id):
+        """
+        writes the stores id to the configuration file
+        """
+        self.__settings.beginGroup(self.GROUP_STORE_NAME)
+        self.__settings.setValue("store_id", id)
+        self.__settings.endGroup()
+        return id
+    
     def get_store_id(self):
         """
-        returns the store id of the current file
+        returns the store id of the current file to identify the store during rename
         """
         self.__settings.beginGroup(self.GROUP_STORE_NAME)
         id = unicode(self.__settings.value(self.KEY_STORE_ID, "").toString())
@@ -113,7 +144,7 @@ class TagWrapper():
     
     def get_all_tags(self):
         """
-        returns all tags of the current store sorted by name asc
+        returns a list of all tags of the current store sorted by name asc
         """
         dictionary = self.__get_tag_dictionary()
         return sorted(dictionary.keys())
@@ -183,18 +214,18 @@ class TagWrapper():
             self.__settings.endGroup()
             self.__settings.endGroup()
 
-    def rename_file(self, old_file_name, new_file_name):
-        """
-        renames an existing file
-        """
-        self.__settings.beginGroup(self .GROUP_FILES_NAME)
-        self.__settings.beginGroup(old_file_name)            
-        tags = unicode(self.__settings.value(self.KEY_TAGS, "").toString()).split(self.TAG_SEPARATOR)
-        timestamp = unicode(self.__settings.value(self.KEY_TIMESTAMP, "").toString())
-        self.__settings.endGroup()
-        self.__settings.remove(old_file_name)
-        self.__settings.endGroup()
-        self.set_file(new_file_name, tags, timestamp)
+#    def rename_file(self, old_file_name, new_file_name):
+#        """
+#        renames an existing file
+#        """
+#        self.__settings.beginGroup(self .GROUP_FILES_NAME)
+#        self.__settings.beginGroup(old_file_name)            
+#        tags = unicode(self.__settings.value(self.KEY_TAGS, "").toString()).split(self.TAG_SEPARATOR)
+#        timestamp = unicode(self.__settings.value(self.KEY_TIMESTAMP, "").toString())
+#        self.__settings.endGroup()
+#        self.__settings.remove(old_file_name)
+#        self.__settings.endGroup()
+#        self.set_file(new_file_name, tags, timestamp)
         
     def remove_file(self, file_name):
         """
@@ -215,17 +246,17 @@ class TagWrapper():
             return True
         return False
     
-    def rename_tag(self, old_tag_name, new_tag_name):
-        """
-        renames all tags in the store
-        """
-        files = self.__get_file_list()
-        for file in files:
-            tags = file["tags"]
-            if old_tag_name in tags:
-                tags.remove(old_tag_name)
-                tags.append(new_tag_name)
-                self.__set_tags(file["filename"], tags)
+#    def rename_tag(self, old_tag_name, new_tag_name):
+#        """
+#        renames all tags in the store
+#        """
+#        files = self.__get_file_list()
+#        for file in files:
+#            tags = file["tags"]
+#            if old_tag_name in tags:
+#                tags.remove(old_tag_name)
+#                tags.append(new_tag_name)
+#                self.__set_tags(file["filename"], tags)
 
     def remove_tag(self, tag_name):
         """

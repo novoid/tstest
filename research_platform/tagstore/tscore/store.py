@@ -79,6 +79,8 @@ class Store(QtCore.QObject):
         self.__file_system.create_dir(self.__path + "/" + self.__config_file.split("/")[0])
         if not self.__file_system.path_exists(self.__path + "/" + self.__config_file):
             self.__file_system.create_file(self.__path + "/" + self.__config_file)
+            ## built internal file structure
+            self.__tag_wrapper = TagWrapper(self.__path + "/" + self.__config_file, self.__id)
         
         self.__init_store()
         
@@ -92,6 +94,8 @@ class Store(QtCore.QObject):
         self.__watcher_path = self.__path + "/" + self.__storage_dir_name
         self.__navigation_path = self.__path + "/" + self.__navigation_dir_name
         self.__tag_wrapper = TagWrapper(self.__config_path)
+        ## update store id to avoid inconsistency
+        self.__tag_wrapper.set_store_id(self.__id)
         
         self.__watcher.addPath(self.__parent_path)
         self.__watcher.addPath(self.__watcher_path)
@@ -209,9 +213,11 @@ class Store(QtCore.QObject):
         """
         renames an existing file: links and config settings 
         """
-        #TODO: changing links: names and targets
         if self.__tag_wrapper.file_exists(old_file_name):
-            self.__tag_wrapper.rename_file(old_file_name, new_file_name)
+            tag_list = self.__tag_wrapper.get_file_tags(old_file_name)
+            self.remove_file(old_file_name)
+            self.add_item_with_tags(new_file_name, tag_list)
+
             self.__pending_changes.remove(old_file_name)
             self.__pending_changes.remove(new_file_name)
         else:
@@ -222,13 +228,24 @@ class Store(QtCore.QObject):
         """
         removes a file: links and config settings 
         """
-        #TODO: handle links: delete links and empty directories
         self.__pending_changes.remove(file_name)
         if self.__tag_wrapper.file_exists(file_name):
+            tag_list = self.__tag_wrapper.get_file_tags(file_name)
+            self.__delete_links(file_name, tag_list, self.__navigation_path)
             self.__tag_wrapper.remove_file(file_name)
         else:
             self.emit(QtCore.SIGNAL("pending_operations_changed(PyQt_PyObject)"), self)
         
+    def __delete_links(self, file_name, tag_list, current_path):
+        """
+        deletes all links to the given file
+        """
+        for tag in tag_list:
+            recursive_list = [] + tag_list
+            recursive_list.remove(tag)
+            self.__delete_links(file_name, recursive_list, current_path + "/" + tag)
+            self.__file_system.remove_link(current_path + "/" + tag + "/" + file_name)
+    
     def get_tags(self):
         """
         returns a list of all tags
@@ -246,36 +263,59 @@ class Store(QtCore.QObject):
         returns a given number of the most popular tags
         """
         return self.__tag_wrapper.get_popular_tags(number)
-        
-    def add_item_with_tags(self, file_name, tag_list, category_list):
+
+    def __name_in_conflict(self, file_name, tag_list, category_list):
+        """
+        checks for conflicts and returns the result as boolean
+        """
+        #TODO: add functionality for categorizing tags
+        #TODO: extend functionality: have a look at #18 (Wiki)
+        existing_files = self.__tag_wrapper.get_files()
+        existing_tags = self.__tag_wrapper.get_all_tags()
+        if file_name in existing_tags:
+            return True
+        for tag in tag_list:
+            if tag in existing_files:
+                return True
+        return False
+         
+    def add_item_with_tags(self, file_name, tag_list, category_list=None):
         """
         adds tags to the given file, resets existing tags
         """
+        #TODO: add/edit functionality for categorizing tags
+        #TODO: if file_name already in config, delete missing tags and recreate whole link structure
+        #existing tags will not be recreated in windows-> linux, osx???
+        
         ## throw error if inodes run short
         if self.__file_system.inode_shortage(self.__config_path):
             raise Exception, self.trUtf8("Number of free inodes < 10%! Tagging has not been carried out!")
+        ## throw error if item-names and tag-names (new and existing) are in conflict
+        if self.__name_in_conflict(file_name, tag_list, category_list):
+            raise Exception, self.trUtf8("Entered item or tag names are in conflict with existing denotation")
         ## ignore multiple tags
         tags = list(set(tag_list))
-        print "taglist: " + ", ".join(tags)
-        ## scalability test
-        start = time.clock()
-
-        # TODO: maybe use try-ecxept for this block to ensure, all three steps are done
-        self.__build_store_navigation(file_name, tags, self.__navigation_path)
-        self.__tag_wrapper.set_file(file_name, tags, category_list)
-        self.__pending_changes.remove(file_name)
+        #categories = list(set(category_list))
 
         ## scalability test
-        print "number of tags: " + str(len(tags)) + ", time: " + str(time.clock()-start)
+        ##start = time.clock()
+        try:
+            self.__build_store_navigation(file_name, tags, self.__navigation_path)
+            #self.__build_store_navigation(file_name, categories, self.__navigation_path)
+        except:
+            raise Exception, self.trUtf8("An error occurred during building the navigation paths and links!")
+        try:
+            self.__tag_wrapper.set_file(file_name, tags)
+            self.__pending_changes.remove(file_name)
+        except:
+            raise Exception, self.trUtf8("An error occurred during saving file and tags to configuration file!")
+        ## scalability test
+        ##print "number of tags: " + str(len(tags)) + ", time: " + str(time.clock()-start)
         
     def __build_store_navigation(self, link_name, tag_list, current_path):
         """
         builds the whole directory and link-structure (navigation path) inside a stores filesystem
         """
-        ## recursive break- condition
-        if tag_list == []:
-            return
-        ## create directories and links + recursive calls
         link_source = self.__watcher_path + "/" + link_name
         for tag in tag_list:
             self.__file_system.create_dir(current_path + "/" + tag)
@@ -288,22 +328,44 @@ class Store(QtCore.QObject):
         """
         renames a tag inside the store 
         """
-        #TODO: rename directories, update links
-        self.__tag_wrapper.rename_tag(old_tag_name, new_tag_name)
+        ##get all affected files per tag
+        files = self.__tag_wrapper.get_files_with_tag(old_tag_name)
+        self.delete_tags([old_tag_name])
+        for file in files:
+            file["tags"].remove(old_tag_name)
+            self.add_item_with_tags(file[filename], file["tags"].append(new_tag_name))
         
     def delete_tags(self, tag_list):
         """
         delete tags inside the store
         """
         for tag_name in tag_list:
+            ##get all affected files per tag
+            files = self.__tag_wrapper.get_files_with_tag(tag_name)
+            for file in files:
+                self.__delete_tag_folders(tag_name, file["tags"].split(","), self.__navigation_path)
+            ##remove tag from config file
             self.__tag_wrapper.remove_tag(tag_name)
-        #TODO: directory & link changes
-        pass
+        #TODO: error if file has no tags anymore.. delete file in config?
+        #..so it has to be get retagged?
+        
+    def __delete_tag_folders(self, affected_tag, tag_list, current_path):
+        """
+        recursive function to delete the tag directories within the navigation structure
+        """
+        self.__file_system.delete_dir(current_path + "/" + affected_tag)
+        diff_list = [] + tag_list
+        diff_list.remove(affected_tag)
+        for tag in diff_list:
+            recursive_list = [] + tag_list
+            recursive_list.remove(tag)
+            self.__delete_tag_folders(affected_tag, recursive_list, current_path + "/" + tag)
         
     def get_category_list(self):
         """
-        returns a predefined list of allowed strings to be used for categorizing
+        returns a predefined list of allowed strings (controlled vocabulary) to be used for categorizing
         """
+        #TODO: read predefined categorizing tags and return them to the UI
         return ["category1", "category2", "category3", "category4",]
         
 

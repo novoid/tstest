@@ -35,6 +35,17 @@ class FileSystem():
         ## create relative symlink
         os.symlink(rel_source, link_name)
 
+    def remove_link(self, link):
+        """
+        removes a windows .lnk link from file system and empty folders as well
+        """
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        ## delete folder if empty
+        parent_path = "/".join(file_path.split("/")[:-1])
+        if len(os.listdir(parent_path)) == 0: #empty
+            os.rmdir(parent_path)        
+        
     def inode_shortage(self, file_path):
         """
         returns True, if the free number of inodes (non-root) < 10% of all available
