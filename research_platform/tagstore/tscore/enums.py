@@ -27,7 +27,9 @@ class Enum:
         if not self.__data.has_key(attribute):
             raise AttributeError
         return self.__data[attribute]
-            
+
+    def get_enum(self, attribute):
+        return self.__getattr__(attribute)
         
 EFileEvent = Enum(["ADDED",
                    "RENAMED",
@@ -37,6 +39,14 @@ EFileEvent = Enum(["ADDED",
 
 EFileType = Enum(["FILE",
                   "DIRECTORY"])
+
+ECategorySetting = Enum(["DISABLED",
+                  "ENABLED",
+                  "ENABLED_ONLY_PERSONAL"])
+
+EDateStampFormat = Enum(["DISABLED",
+                  "MONTH",
+                  "DAY"])
 
 
 ## end

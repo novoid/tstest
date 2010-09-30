@@ -26,20 +26,30 @@ class TsConstants(object):
     LOG_BACKUP_COUNT = 5
     LOG_FILESIZE = 524288
     
-    
+    CONFIG_PATH = "../conf/tagstore.cfg"
     STORE_CONFIG_DIR = ".tagstore"
-    STORE_CONFIG_FILENAME = "store.tgs"
+    STORE_TAGS_FILENAME = "store.tgs"
+    STORE_CONFIG_FILENAME = "store.cfg"
     STORE_POSSIBLE_STORAGE_DIRS = "storage,Ablage"
     STORE_POSSIBLE_NAVIGATION_DIRS = "navigation,Navigation"
+    STORE_TRASHBIN_NAME = "trash"
     
     SETTING_SUPPORTED_LANGUAGES = "supported_languages"
     SETTING_AUTO_DATESTAMP = "automatic_datestamp"
     SETTING_TAG_SEPARATOR = "tag_separator"
-    SETTING_DATESTAMP_FORMAT = "datestamp_format"
-    SETTING_SHOW_CATEGORY_LINE = "show_category_line"
-    SETTING_CATEGORY_MANDATORY = "category_mandatory"
     
-    DATESTAMP_FORMAT = "%Y-%m-%d"
+    SETTING_DATESTAMP_FORMAT = "datestamp_format"
+    
+    SETTING_CATEGORY_MANDATORY = "category_mandatory"
+    SETTING_SHOW_CATEGORY_LINE = "show_category_line"
+    ## this constant is NOT used at the config file - it is a "gui setting name"
+    SETTING_CATEGORY_VOCABULARY = "category_vocabulary"
+    
+    
+    SETTING_EXPIRY_PREFIX = "expiry_prefix"
+    
+    DATESTAMP_FORMAT_DAY = "%Y-%m-%d"
+    DATESTAMP_FORMAT_MONTH = "%Y-%m"
     
     DEFAULT_RECENT_TAGS = 5
     DEFAULT_POPULAR_TAGS = 5

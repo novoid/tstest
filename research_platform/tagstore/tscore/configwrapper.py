@@ -16,10 +16,11 @@
 
 from PyQt4 import QtCore
 from tscore.tsconstants import TsConstants
+from tscore.enums import EDateStampFormat, ECategorySetting
 
 class ConfigWrapper(QtCore.QObject):
 
-    __pyqtSignals__ = ("changed()", )
+    __pyqtSignals__ = ("changed()")
 
     def __init__(self, config_file_path):
         """
@@ -46,6 +47,13 @@ class ConfigWrapper(QtCore.QObject):
         directory = self.__get_setting("store_config_directory")
         return directory.strip("/")
         
+    def get_store_tagsfile_name(self):
+        """
+        returns the parameter: stores config file name
+        """
+        config_file = self.__get_setting("store_tags_filename")
+        return config_file.strip("/")
+
     def get_store_configfile_name(self):
         """
         returns the parameter: stores config file name
@@ -66,6 +74,16 @@ class ConfigWrapper(QtCore.QObject):
         lang_string = self.__get_setting(TsConstants.SETTING_SUPPORTED_LANGUAGES)
         return lang_string.split(",")
 
+    def set_expiry_prefix(self, setting_value):
+        self.__put_setting(TsConstants.SETTING_EXPIRY_PREFIX, setting_value)
+        
+    def get_expiry_prefix(self):
+        """
+        returns the prefix to be used for marking the expiration dates of items
+        """
+        return self.__get_setting(TsConstants.SETTING_EXPIRY_PREFIX)
+        
+        
     def get_show_datestamp(self):
         """
         returns "True" or "False" in case date-stamps are requested
@@ -77,18 +95,29 @@ class ConfigWrapper(QtCore.QObject):
     
     def get_datestamp_format(self):
         """
-        returns the ISO timestamp format that should be used for tagging
+        returns the timestamp setting that should be used for tagging
         """
-        return self.__get_setting(TsConstants.SETTING_DATESTAMP_FORMAT)
+        setting_value = self.__get_setting(TsConstants.SETTING_DATESTAMP_FORMAT)        
+        if setting_value == "":
+            return 0
+        return int(setting_value.strip())
+    
+    def set_datestamp_format(self, setting_value):
+        self.__put_setting(TsConstants.SETTING_DATESTAMP_FORMAT, setting_value)
 
+    ## TODO: REMOVE ME - not needed anymore
     def get_show_category_line(self):
         """
         returns True if the category line should be enabled in the tag dialog
         """
-        if self.__get_setting(TsConstants.SETTING_SHOW_CATEGORY_LINE) == "true":
-            return True
-        else:    
-            return False
+        
+        setting_value = self.__get_setting(TsConstants.SETTING_SHOW_CATEGORY_LINE)
+        if setting_value == "":
+            return 0
+        return int(setting_value.strip())
+
+    def set_show_category_line(self, setting_value):
+        self.__put_setting(TsConstants.SETTING_SHOW_CATEGORY_LINE, setting_value)
 
     def get_category_mandatory(self):
         """
@@ -99,6 +128,14 @@ class ConfigWrapper(QtCore.QObject):
         else:    
             return False
     
+    def __put_setting(self, setting_name, setting_value):
+        """
+        writes a new value to a specified setting
+        """
+        self.__settings.beginGroup("settings")
+        value = self.__settings.setValue(setting_name, setting_value)
+        self.__settings.endGroup()
+        
     def __get_setting(self, setting_name):
         """
         helper method to switch directly to the settings group of the config file

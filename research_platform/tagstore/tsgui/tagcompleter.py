@@ -40,7 +40,7 @@ class TagCompleterWidget(QObject):
     """ 
     def __init__(self, max_tags, tag_list=None, parent=None, separator=",", show_datestamp=False):
         
-        QWidget.__init__(self)
+        QWidget.__init__(self, parent)
         
         self.__max_tags = max_tags
         self.__tag_separator = separator
@@ -48,7 +48,7 @@ class TagCompleterWidget(QObject):
         self.__parent = parent
         self.__tag_line = QLineEdit(self.__parent)
         self.__show_datestamp = show_datestamp
-        self.__datestamp_format = TsConstants.DATESTAMP_FORMAT
+        self.__datestamp_format = TsConstants.DATESTAMP_FORMAT_DAY
         
         self.__completer = QCompleter(self.__tag_list, self);    
         self.__completer.setCaseSensitivity(Qt.CaseInsensitive)
@@ -103,7 +103,6 @@ class TagCompleterWidget(QObject):
         ## do not proceed if the max tag count is reached
         if len(tag_set) > self.__max_tags:
             self.emit(QtCore.SIGNAL("tag_limit_reached"))
-            #QtGui.QMessageBox.information(self.__parent, "No more tags can be provided for this item.")
             max_index = text.rfind(self.__tag_separator)
             self.__tag_line.setText(all_text[:max_index])
             return

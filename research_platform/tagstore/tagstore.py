@@ -22,7 +22,7 @@ from PyQt4 import QtCore, QtGui
 from tsgui.tagdialog import TagDialogController
 from tscore.configwrapper import ConfigWrapper
 from tscore.store import Store
-from tscore.enums import EFileEvent
+from tscore.enums import EFileEvent, EDateStampFormat
 from tscore.tsconstants import TsConstants
 from optparse import OptionParser
 from tscore.exceptions import StoreTaggingError
@@ -30,9 +30,6 @@ from tscore.exceptions import StoreTaggingError
     
 class Tagstore(QtCore.QObject):
 
-    # path to the config file
-    CONFIG_PATH = "../conf/tagstore.cfg"
-    
     def __init__(self, parent=None, verbose=False, dryrun=False):
         """ 
         initializes the configuration. This method is called every time the config file changes
@@ -108,7 +105,7 @@ class Tagstore(QtCore.QObject):
         """
         self.__log.info("initialize configuration")
         ## reload config file
-        self.__config_file = ConfigWrapper(self.CONFIG_PATH)
+        self.__config_file = ConfigWrapper(TsConstants.CONFIG_PATH)
         self.__config_file.connect(self.__config_file, QtCore.SIGNAL("changed()"), self.__init_configurations)
         tag_seperator = self.__config_file.get_tag_seperator()
         if tag_seperator.strip() != "":
@@ -121,7 +118,7 @@ class Tagstore(QtCore.QObject):
         config_dir = self.__config_file.get_store_config_directory()
         if config_dir != "":
             self.STORE_CONFIG_DIR = config_dir
-        config_file_name = self.__config_file.get_store_configfile_name()
+        config_file_name = self.__config_file.get_store_tagsfile_name()
         if config_file_name != "":
             self.STORE_CONFIG_FILE_NAME = config_file_name
         
@@ -165,10 +162,19 @@ class Tagstore(QtCore.QObject):
                 ## create a dialogcontroller for each store ...
                 ## can be accessed by its ID later on
                 tmp_dialog = TagDialogController(store.get_name, self.MAX_TAGS, self.TAG_SEPERATOR)
-                if self.__config_file.get_show_datestamp():
+                format_setting = self.__config_file.get_datestamp_format()
+
+                ##check if auto datestamp is enabled
+                if format_setting != EDateStampFormat.DISABLED:
                     tmp_dialog.show_datestamp(True)
-                    format = self.__config_file.get_datestamp_format()
+                    ## set the format
+                    format = None
+                    if format_setting == EDateStampFormat.DAY:
+                        format = TsConstants.DATESTAMP_FORMAT_DAY
+                    elif format_setting == EDateStampFormat.MONTH:
+                        format = TsConstants.DATESTAMP_FORMAT_MONTH
                     tmp_dialog.set_datestamp_format(format)
+                        
                 tmp_dialog.show_category_line(self.__config_file.get_show_category_line())
                 tmp_dialog.set_category_mandatory(self.__config_file.get_category_mandatory())
                 
