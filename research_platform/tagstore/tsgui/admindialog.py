@@ -89,6 +89,24 @@ class BasePreferenceView(QtGui.QWidget):
         
     def get_main_layout(self):
         return self.__main_layout
+    
+    def show_tooltip(self, message, parent=None):
+        """
+        show a tooltip
+        """
+        
+        if parent is None:
+            parent = self
+        
+        tip_position = parent.pos()
+        
+        height = parent.height()/2
+        width = parent.width()/2
+
+        tip_position.setX(tip_position.x()+width)
+        tip_position.setY(tip_position.y()+height)
+        
+        QtGui.QWhatsThis.showText(tip_position, message, parent)
         
 class BasePreferenceController(QtCore.QObject):
 
@@ -278,7 +296,9 @@ class StoreAdminView(BasePreferenceView):
         
         for store_path in store_path_list:
             self.__store_list_view.addItem(QtGui.QListWidgetItem(store_path))
-            
+    
+    def get_selected_store(self):
+        return self.__selected_store
         
     def add_store_path(self, store_path):
         """
@@ -302,20 +322,42 @@ class StoreAdminController(BasePreferenceController):
         self.connect(self.get_view(), QtCore.SIGNAL("delete_store()"), self.__delete_store)
         
     def __handle_new_store(self):
-        dir = QtGui.QFileDialog.getExistingDirectory(self.get_view())
-        ##TODO check if new store name is a duplicate
+        
+        home_path = os.path.expanduser("~")
+        
+        dir = QtGui.QFileDialog.getExistingDirectory(self.get_view(), self.trUtf8("Select a directory for the new tagstore"), home_path)
         ##TODO create new store framework (folders, files)
         ##TODO write new store to config
-        print dir
+        
+        ## check if new store name is a duplicate
+        store_name = dir.split("/").takeLast()
+        if store_name in self.__store_list:
+            self.get_view().show_tooltip(self.trUtf8("A store with this name already exists. Please choose another store"))
+            return 
+        
+        self.emit(QtCore.SIGNAL("new"), dir)
     
     def __rebuild_store(self):
-        pass
+        
+        selection = QtGui.QMessageBox.information(self.get_view(), self.trUtf8("Rebuild Store"), 
+                    self.trUtf8("Do you really want to rebuild the selected store? Please be aware, that this may take a long time"),
+                    QtGui.QMessageBox.Yes, QtGui.QMessageBox.Cancel)
+        if selection == QtGui.QMessageBox.Yes:
+            self.emit(QtCore.SIGNAL("rebuild"), self.get_view().get_selected_store())
 
     def __delete_store(self):
-        pass
+        selection = QtGui.QMessageBox.information(self.get_view(), self.trUtf8("Delete Store"), 
+                        self.trUtf8("Do you really want to delete the selected store? Be aware, " \
+                        "that the following directory and all of its contents will be deleted: \n %s" % self.get_view().get_selected_store().text()),
+                        QtGui.QMessageBox.Yes, QtGui.QMessageBox.Cancel)
+        if selection == QtGui.QMessageBox.Yes:
+            self.emit(QtCore.SIGNAL("delete"), self.get_view().get_selected_store().text())
     
     def __rename_store(self):
-        pass
+        store_name = self.get_view().get_selected_store().text()
+        result = QtGui.QInputDialog.getText(self.get_view(), self.trUtf8("Rename a tagstore"), self.trUtf8("new name:"), text=store_name)
+        if result is not None and result != "":
+            self.emit(QtCore.SIGNAL("rename"), store_name)
     
     def _create_view(self):
         return StoreAdminView(None)
@@ -552,7 +594,7 @@ class ExpiryAdminView(BasePreferenceView):
         BasePreferenceView.__init__(self)
         self.set_description(self.trUtf8("Define a prefix for giving files an expiry date."))
         
-        self.__prefix = "exp"
+        self.__prefix = ""
         
         self.__radio_layout = QtGui.QVBoxLayout()
 
@@ -640,7 +682,11 @@ class ExpiryAdminController(BasePreferenceController):
             if setting["SETTING_NAME"] == TsConstants.SETTING_EXPIRY_PREFIX:
                 ## just write the prefix if it is enabled
                 if self.get_view().is_expiry_enabled():
-                    setting["SETTING_VALUE"] = self.get_view().get_prefix()          
+                    prefix = self.get_view().get_prefix()
+                    if prefix is None or prefix == "":
+                        self.get_view().show_tooltip(self.trUtf8("Please provide a prefix, when this setting is enabled"))
+                        return
+                    setting["SETTING_VALUE"] = prefix        
         
 class StorePreferencesController(QtCore.QObject):
     
@@ -686,6 +732,10 @@ class StorePreferencesController(QtCore.QObject):
         ## this setting comes from the main config
         self.__controller_expiry_admin.add_setting(TsConstants.SETTING_EXPIRY_PREFIX, self.__config_wrapper.get_expiry_prefix())
 
+        self.connect(self.__controller_store_admin, QtCore.SIGNAL("new"), self.__handle_new_store)
+        self.connect(self.__controller_store_admin, QtCore.SIGNAL("rebuild"), self.__handle_rebuild)
+        self.connect(self.__controller_store_admin, QtCore.SIGNAL("rename"), self.__handle_rename)
+        self.connect(self.__controller_store_admin, QtCore.SIGNAL("delete"), self.__handle_delete)
 
         #TODO: use real vocabulary data ...
         voc_list = [["cat", "blood", "shut"], ["screwdriver", "orange", "lorre", "BH"]]
@@ -711,6 +761,19 @@ class StorePreferencesController(QtCore.QObject):
             
         self.connect(self.__dialog, QtCore.SIGNAL("apply_clicked()"), self.__handle_apply)
         self.connect(self.__dialog, QtCore.SIGNAL("cancel_clicked()"), self.__handle_cancel)
+
+    
+    def __handle_new_store(self, path):
+        pass
+    
+    def __handle_rebuild(self, name):
+        pass
+    
+    def __handle_rename(self, name):
+        pass
+    
+    def __handle_delete(self, name):
+        pass
 
     def __get_config_for_store(self, store_path):
         """
