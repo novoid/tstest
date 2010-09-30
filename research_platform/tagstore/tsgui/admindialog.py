@@ -264,7 +264,7 @@ class StoreAdminView(BasePreferenceView):
         self.add_widget(self.__btn_panel)
         
         if store_list is not None:
-            self.set_store_paths(store_list)
+            self.set_store_names(store_list)
         
         self.__enable_buttons(False)
         
@@ -288,23 +288,22 @@ class StoreAdminView(BasePreferenceView):
         self.__btn_delete.setEnabled(enable)
         self.__btn_rename.setEnabled(enable)
     
-    def set_store_paths(self, store_names):
+    def set_store_names(self, store_names):
         """
         set the store paths to be shown in the list view
         """
-        store_path_list = store_names
         
-        for store_path in store_path_list:
-            self.__store_list_view.addItem(QtGui.QListWidgetItem(store_path))
+        for store_name in store_names:
+            self.__store_list_view.addItem(QtGui.QListWidgetItem(store_name))
     
     def get_selected_store(self):
         return self.__selected_store
         
-    def add_store_path(self, store_path):
+    def add_store_name(self, store_name):
         """
         add a new store path to be shown in the list view
         """
-        self.__store_list_view.addItem(QtGui.QListWidgetItem(store_path))
+        self.__store_list_view.addItem(QtGui.QListWidgetItem(store_name))
         
 class StoreAdminController(BasePreferenceController):
     
@@ -314,7 +313,7 @@ class StoreAdminController(BasePreferenceController):
         BasePreferenceController.__init__(self)
         
         self.__store_list = store_list
-        self.get_view().set_store_paths(store_list)
+        self.get_view().set_store_names(store_list.keys())
         
         self.connect(self.get_view(), QtCore.SIGNAL("create_new_store()"), self.__handle_new_store)
         self.connect(self.get_view(), QtCore.SIGNAL("rebuild_store()"), self.__rebuild_store)
@@ -331,7 +330,7 @@ class StoreAdminController(BasePreferenceController):
         
         ## check if new store name is a duplicate
         store_name = dir.split("/").takeLast()
-        if store_name in self.__store_list:
+        if store_name in self.__store_list.keys():
             self.get_view().show_tooltip(self.trUtf8("A store with this name already exists. Please choose another store"))
             return 
         
@@ -340,7 +339,7 @@ class StoreAdminController(BasePreferenceController):
     def __rebuild_store(self):
         
         selection = QtGui.QMessageBox.information(self.get_view(), self.trUtf8("Rebuild Store"), 
-                    self.trUtf8("Do you really want to rebuild the selected store? Please be aware, that this may take a long time"),
+                    self.trUtf8("Do you really want to rebuild the selected store? Please be aware, that this may take some minutes"),
                     QtGui.QMessageBox.Yes, QtGui.QMessageBox.Cancel)
         if selection == QtGui.QMessageBox.Yes:
             self.emit(QtCore.SIGNAL("rebuild"), self.get_view().get_selected_store())
@@ -348,7 +347,7 @@ class StoreAdminController(BasePreferenceController):
     def __delete_store(self):
         selection = QtGui.QMessageBox.information(self.get_view(), self.trUtf8("Delete Store"), 
                         self.trUtf8("Do you really want to delete the selected store? Be aware, " \
-                        "that the following directory and all of its contents will be deleted: \n %s" % self.get_view().get_selected_store().text()),
+                        "that the following directory and all of its contents will be deleted: \n %s" % self.__store_list[str(self.get_view().get_selected_store().text())]),
                         QtGui.QMessageBox.Yes, QtGui.QMessageBox.Cancel)
         if selection == QtGui.QMessageBox.Yes:
             self.emit(QtCore.SIGNAL("delete"), self.get_view().get_selected_store().text())
@@ -705,10 +704,12 @@ class StorePreferencesController(QtCore.QObject):
       
         self.__store_config_dict = {}
         self.__store_names = []
+        self.__store_dict = {}
         
         if self._store_list is not None:
             for store in self._store_list:
                 self.__store_names.append(store["path"].split("/").pop())
+                self.__store_dict[store["path"].split("/").pop()] = store["path"]
         
         ## a list with all controllers used at the preference view
         self.__preference_controller_list = []
@@ -717,7 +718,7 @@ class StorePreferencesController(QtCore.QObject):
         self.__dialog = StorePreferencesView(parent=parent)
         
         ## initialize the controllers for each preference tab
-        self.__controller_store_admin = StoreAdminController(self.__store_names)
+        self.__controller_store_admin = StoreAdminController(self.__store_dict)
         self.__register_controller(self.__controller_store_admin, self.trUtf8("Store Management"))
         
         self.__controller_datestamp = DatestampAdminController(self.__store_names)
@@ -745,9 +746,6 @@ class StorePreferencesController(QtCore.QObject):
             store_path = store["path"]
             store_name = store_path.split("/").pop()
             config_path = "%s/%s/%s" % (store_path, TsConstants.STORE_CONFIG_DIR, TsConstants.STORE_CONFIG_FILENAME)
-            current_dir = os.getcwd()
-            print "current dir: %s" % current_dir
-            print "config path: %s" % config_path
             
             config = ConfigWrapper(config_path)
             self.__store_config_dict[store_name] = config
