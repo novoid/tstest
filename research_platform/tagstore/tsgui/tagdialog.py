@@ -16,8 +16,9 @@
 import logging
 from PyQt4 import QtCore, QtGui
 import tsresources.resources
-from tagcompleter import TagCompleterWidget, TsListWidget
+from tagcompleter import TagCompleterWidget
 from tscore.tsconstants import TsConstants
+from admindialog import StorePreferencesController
 
 class TagDialog(QtGui.QDialog):
 
@@ -82,6 +83,14 @@ class TagDialog(QtGui.QDialog):
         self.__item_list_view.setObjectName("__item_list_view")
         self.__item_list_view.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
         
+        self.__cat_line_widget = TagCompleterWidget(self.__max_tags, separator=self.__tag_separator, 
+            parent=self)
+        self.__category_line = self.__cat_line_widget.get_tag_line()
+        
+        line_size = QtCore.QRect(20, 150, 381, 21)
+        self.__category_line.setGeometry(line_size)
+        self.__category_line.setObjectName("__category_line")
+
         self.__tag_line_widget = TagCompleterWidget(self.__max_tags, separator=self.__tag_separator, 
             parent=self, show_datestamp=self.__show_datestamp)
         self.__tag_line = self.__tag_line_widget.get_tag_line()
@@ -89,21 +98,11 @@ class TagDialog(QtGui.QDialog):
         line_size = QtCore.QRect(20, 90, 381, 21)
         self.__tag_line.setGeometry(line_size)
         self.__tag_line.setObjectName("__tag_line_widget")
-        #self.__tag_line_widget.set_enabled(False)
-        
-#        self.__category_line = QtGui.QLineEdit(self.__centralwidget)
-#        self.__category_line.setGeometry(QtCore.QRect(20, 150, 381, 21))
-#        self.__category_line.setObjectName("__category_line")
 
-        #self.__category_line = QtGui.QListWidget(self.__centralwidget)
-        self.__category_line = TsListWidget(self.__centralwidget)
-        self.__category_line.setGeometry(QtCore.QRect(20, 150, 381, 61))
-        self.__category_line.setObjectName("__category_line")
-        self.__category_line.setSelectionMode(QtGui.QAbstractItemView.ExtendedSelection)
         
-        #self.__category_label = QtGui.QLabel(self.__centralwidget)
-        #self.__category_label.setGeometry(QtCore.QRect(23, 174, 371, 16))
-        #self.__category_label.setObjectName("__category_label")
+        self.__category_label = QtGui.QLabel(self.__centralwidget)
+        self.__category_label.setGeometry(QtCore.QRect(23, 174, 401, 16))
+        self.__category_label.setObjectName("__category_label")
         
         #self.__tag_label = QtGui.QLabel(self.__centralwidget)
         self.__tag_layout = QtGui.QHBoxLayout()
@@ -122,6 +121,7 @@ class TagDialog(QtGui.QDialog):
         self.retranslateUi()
         self.__set_taborder()
         #self.connect(self, QtCore.SIGNAL("returnPressed()"), self.__handle_enter) 
+        self.connect(self.__category_line, QtCore.SIGNAL("returnPressed()"), self.__handle_categoryline_enter) 
         self.connect(self.__tag_line, QtCore.SIGNAL("returnPressed()"), self.__handle_tagline_enter) 
         self.connect(self.__item_list_view, QtCore.SIGNAL("currentRowChanged(int)"), self.__handle_selection_changed)
         self.connect(self.__close_button, QtCore.SIGNAL("clicked()"), QtCore.SIGNAL("cancel_clicked()"))
@@ -129,7 +129,6 @@ class TagDialog(QtGui.QDialog):
         self.connect(self.__property_button, QtCore.SIGNAL("clicked()"), QtCore.SIGNAL("property_clicked()"))
         self.connect(self.__tag_button, QtCore.SIGNAL("clicked()"), self.__tag_button_pressed)
         self.connect(self.__tag_line_widget, QtCore.SIGNAL("tag_limit_reached"), self.__handle_tag_limit_reached)
-        self.connect(self.__category_line, QtCore.SIGNAL("return_pressed"), self.__handle_categoryline_enter) 
         """
         """
         
@@ -137,7 +136,13 @@ class TagDialog(QtGui.QDialog):
         """
         dummy re-implementation to avoid random signal sending
         """
-        pass
+        key = event.key()
+        
+        if key == QtCore.Qt.Key_Return or key == QtCore.Qt.Key_Enter:
+            
+            self.__log.debug("tag_dialog: RETURN PRESSED")
+        ## pass the signal to the normal parent chain
+        #pass
     
     def closeEvent(self, event):
         pass
@@ -148,7 +153,7 @@ class TagDialog(QtGui.QDialog):
     def __handle_tagline_enter(self):
         ## switch to the category_line if it is enabled
         if self.__show_categories:
-            #    self.__category_line.selectAll()
+            self.__category_line.selectAll()
             self.__category_line.setFocus(QtCore.Qt.OtherFocusReason)
         else:
             ## start the default tagging procedure
@@ -159,6 +164,12 @@ class TagDialog(QtGui.QDialog):
         check if the tagline is not empty
         then emit the "tag" signal
         """
+        
+        sender = self.sender()
+        
+        if sender is None or not isinstance(self.__category_line, QtGui.QLineEdit):
+            return
+        
         if not self.__tag_line_widget.is_empty():
             self.__handle_tag_action()
         else:
@@ -271,11 +282,11 @@ class TagDialog(QtGui.QDialog):
             self.__close_button.setGeometry(QtCore.QRect(368, 217, 113, 32))
             
             self.__category_line.show()
-            #self.__category_label.show()
+            self.__category_label.show()
         else:
             self.resize(489, 195)
             self.__category_line.hide()
-            #self.__category_label.hide()
+            self.__category_label.hide()
             
             self.__tag_button.setGeometry(QtCore.QRect(419, 85, 60, 40))
             self.__help_button.setGeometry(QtCore.QRect(20, 150, 25, 23))
@@ -370,20 +381,22 @@ class TagDialog(QtGui.QDialog):
         the list to be used as item categories
         """
 #        self.__category_list = category_list
-        self.__category_line.clear()
-        
-        for category in category_list:
-            QtGui.QListWidgetItem(category, self.__category_line)
+        self.__cat_line_widget.clear_line()
+        self.__cat_line_widget.set_tag_completion_list(category_list)
+        #for category in category_list:
+        #    QtGui.QListWidgetItem(category, self.__category_line)
         
     def get_category_list(self):
         """
         returns a string list with the user-selected categories
         """
-        cat_list = self.__category_line.selectedItems()
-        cat_str_list = []
-        for cat in cat_list:
-            cat_str_list.append(str(cat.text()))
-        return cat_str_list
+        return self.__cat_line_widget.get_tag_list()
+        
+        #cat_list = self.__category_line.selectedItems()
+        #cat_str_list = []
+        #for cat in cat_list:
+        #    cat_str_list.append(str(cat.text()))
+        #return cat_str_list
     
     def is_category_mandatory(self):
         return self.__category_mandatory
@@ -418,6 +431,10 @@ class TagDialogController(QtCore.QObject):
         self.__tag_dialog.show_tooltip("HELP HELP HEl....")
 
     def __property_clicked(self):
+        
+        admin_controller = StorePreferencesController("", parent=self.__tag_dialog)
+        admin_controller.show_dialog()
+        
         self.__tag_dialog.show_tooltip("this button should open the property dialog for the current store")
         
     def __handle_no_items(self):
