@@ -2,7 +2,33 @@
 store_id=1
 
 [files]
-Neues%20Textdokument.txt\tags="this,tag"
-Neues%20Textdokument.txt\timestamp=2010-09-11 23:17:45
-neu.xlsx\tags="super,neu,nue"
-neu.xlsx\timestamp=2010-09-11 23:17:45
+test_1\tags=tester
+test_1\timestamp=2010-09-14 10:00:40
+x.txt\tags=tester
+x.txt\timestamp=2010-09-14 10:00:40
+secondSelection\tags=tester
+secondSelection\timestamp=2010-09-14 10:00:40
+formatting\tags="formatter_dir,TUG"
+formatting\timestamp=2010-09-14 10:00:40
+12.txt\tags=write your tags here
+12.txt\timestamp=2010-09-14 10:24:23
+a.txt\tags=write your tags here
+a.txt\timestamp=2010-09-14 10:24:23
+22.txt\tags=write your tags here
+22.txt\timestamp=2010-09-14 10:24:23
+b.txt\tags=write your tags here
+b.txt\timestamp=2010-09-14 10:24:23
+as.txt\tags=write your tags here
+as.txt\timestamp=2010-09-14 10:24:23
+c.txt\tags=write your tags here
+c.txt\timestamp=2010-09-14 10:24:23
+smth\tags=write your tags here
+smth\timestamp=2010-09-14 10:24:23
+quit\tags=write your tags here
+quit\timestamp=2010-09-14 10:24:23
+c%20-%20Kopie.txt\tags=write your tags here
+c%20-%20Kopie.txt\timestamp=2010-09-14 10:27:54
+store1File\tags=write your tags here
+store1File\timestamp=2010-09-14 10:27:54
+debugTest\tags=write your tags here
+debugTest\timestamp=2010-09-14 10:27:54

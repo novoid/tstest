@@ -2,11 +2,9 @@
 store_id=2
 
 [files]
-Neues%20Textdokument.txt\tags="super sache,neu"
-Neues%20Textdokument.txt\timestamp=2010-09-11 23:17:45
-Neues%20Textdokument%20-%20Kopie.txt\tags="schau,ma,mal"
-Neues%20Textdokument%20-%20Kopie.txt\timestamp=2010-09-11 23:17:45
 222.txt\tags="machen wir,store2"
 222.txt\timestamp=2010-09-11 23:17:45
-Microsoft%20Word-Dokument%20%28neu%29.docx\tags=store2
-Microsoft%20Word-Dokument%20%28neu%29.docx\timestamp=2010-09-11 23:17:45
+neu.txt\tags="neu,scheu"
+neu.txt\timestamp=2010-09-14 10:00:40
+c.txt\tags="neu,scheu"
+c.txt\timestamp=2010-09-14 10:00:40
