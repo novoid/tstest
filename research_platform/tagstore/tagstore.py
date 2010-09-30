@@ -161,7 +161,7 @@ class Tagstore(QtCore.QObject):
                 
                 ## create a dialogcontroller for each store ...
                 ## can be accessed by its ID later on
-                tmp_dialog = TagDialogController(store.get_name, self.MAX_TAGS, self.TAG_SEPERATOR)
+                tmp_dialog = TagDialogController(store.get_name(), self.MAX_TAGS, self.TAG_SEPERATOR)
                 format_setting = self.__config_file.get_datestamp_format()
 
                 ##check if auto datestamp is enabled
