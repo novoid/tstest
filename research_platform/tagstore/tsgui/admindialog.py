@@ -330,7 +330,10 @@ class StoreAdminController(BasePreferenceController):
 
         ##TODO create new store framework (folders, files)
         ##TODO write new store to config
-        
+
+        ## prepare path for a split("/")        
+        if dir.endsWith("/"):
+            dir = dir.remove(dir.length()-1, 1)
         ## check if new store name is a duplicate
         store_name = dir.split("/").takeLast()
         if store_name in self.__store_list.keys():
