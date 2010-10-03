@@ -324,7 +324,10 @@ class StoreAdminController(BasePreferenceController):
         
         home_path = os.path.expanduser("~")
         
-        dir = QtGui.QFileDialog.getExistingDirectory(self.get_view(), self.trUtf8("Select a directory for the new tagstore"), home_path)
+        dir = QtGui.QFileDialog.getExistingDirectory(self.get_view(), 
+                    self.trUtf8("Select a directory for the new tagstore"), 
+                    home_path)
+
         ##TODO create new store framework (folders, files)
         ##TODO write new store to config
         
