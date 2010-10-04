@@ -246,30 +246,23 @@ class StoreAdminView(BasePreferenceView):
         self.__selected_store = None
         
         self.__store_list_view = QtGui.QListWidget()
-        self.__btn_new_store = QtGui.QPushButton(self.trUtf8("New Tagstore"))
-
-        new_grid = QtGui.QGridLayout()
-        new_grid.addWidget(self.__btn_new_store, 1, 1)
-        new_grid.addItem(QtGui.QSpacerItem(330, 20), 1, 2)
-        new_panel = QtGui.QWidget()
-        new_panel.setLayout(new_grid)
         
+        self.__central_widget = QtGui.QWidget()
+        self.__central_layout = QtGui.QGridLayout()
+        self.__central_widget.setLayout(self.__central_layout)
+        
+        self.__btn_new_store = QtGui.QPushButton(self.trUtf8("New Tagstore"))
         self.__btn_build_new = QtGui.QPushButton(self.trUtf8("Rebuild ..."))
         self.__btn_rename = QtGui.QPushButton(self.trUtf8("Rename ..."))
         self.__btn_delete = QtGui.QPushButton(self.trUtf8("Delete ..."))
+
+        self.__central_layout.addWidget(self.__btn_new_store, 0, 0, 1, 1)
+        self.__central_layout.addWidget(self.__store_list_view, 1, 0, 1, 3)
+        self.__central_layout.addWidget(self.__btn_build_new, 2, 0, 1, 1)
+        self.__central_layout.addWidget(self.__btn_rename, 2, 1, 1, 1)
+        self.__central_layout.addWidget(self.__btn_delete, 2, 2, 1, 1)
         
-        self.__btn_layout = QtGui.QHBoxLayout()        
-        self.__btn_panel = QtGui.QWidget()
-        self.__btn_panel.setLayout(self.__btn_layout)
-        
-        self.__btn_layout.addWidget(self.__btn_build_new)
-        self.__btn_layout.addWidget(self.__btn_rename)
-        self.__btn_layout.addWidget(self.__btn_delete)
-        
-        #self.add_widget(self.__btn_new_store)
-        self.add_widget(new_panel)
-        self.add_widget(self.__store_list_view)
-        self.add_widget(self.__btn_panel)
+        self.add_widget(self.__central_widget)
         
         if store_list is not None:
             self.set_store_names(store_list)

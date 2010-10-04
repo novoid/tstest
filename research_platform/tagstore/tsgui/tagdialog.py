@@ -57,7 +57,6 @@ class TagDialog(QtGui.QDialog):
         
         self.__mainlayout = QtGui.QGridLayout()
         self.__mainwidget = QtGui.QWidget()
-        self.__mainwidget.setGeometry(QtCore.QRect(9, 9, 501, 343))
         self.__mainwidget.setLayout(self.__mainlayout)
         self.__baseLayout.addWidget(self.__mainwidget)
         
@@ -391,12 +390,14 @@ class TagDialog(QtGui.QDialog):
         self.__show_categories = enable
         
         if enable:
+            self.resize(481, 334)
             self.__category_line.setVisible(True)
             self.__pop_category_widget.setVisible(True)
             self.__category_error_label.setVisible(True)
             self.__mainlayout.removeWidget(self.__tag_button)
             self.__mainlayout.addWidget(self.__tag_button, 2, 3, 4, 1)
         else:
+            self.resize(481, 268)
             self.__category_line.setVisible(False)
             self.__pop_category_widget.setVisible(False)
             self.__category_error_label.setVisible(False)
