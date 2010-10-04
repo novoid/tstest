@@ -19,6 +19,7 @@ import tsresources.resources
 from tagcompleter import TagCompleterWidget
 from tscore.tsconstants import TsConstants
 from admindialog import StorePreferencesController
+from administration import Administration
 
 class TagDialog(QtGui.QDialog):
 
@@ -379,7 +380,7 @@ class TagDialog(QtGui.QDialog):
             self.setWindowTitle("%s - %s" % (self.APP_NAME, storename))
         else:
             self.setWindowTitle(self.APP_NAME)
-             
+           
         
     def show_category_line(self, enable):
         """
@@ -558,16 +559,11 @@ class TagDialogController(QtCore.QObject):
         self.connect(self.__tag_dialog, QtCore.SIGNAL("no_items_left"), self.__handle_no_items)
         self.connect(self.__tag_dialog, QtCore.SIGNAL("cancel_clicked()"), QtCore.SIGNAL("handle_cancel()"))
         self.connect(self.__tag_dialog, QtCore.SIGNAL("help_clicked()"), self.__help_clicked)
-        self.connect(self.__tag_dialog, QtCore.SIGNAL("property_clicked()"), self.__property_clicked)
+        self.connect(self.__tag_dialog, QtCore.SIGNAL("property_clicked()"), QtCore.SIGNAL("open_store_admin_dialog()"))
     
     def __help_clicked(self):
         self.__tag_dialog.show_tooltip("HELP HELP HEl....")
 
-    def __property_clicked(self):
-        
-        admin_controller = StorePreferencesController("", parent=self.__tag_dialog)
-        admin_controller.show_dialog()
-        
     def __handle_no_items(self):
         """
         use this method to handle the case, there are not items left to tag
@@ -601,6 +597,8 @@ class TagDialogController(QtCore.QObject):
             self.__tag_dialog.remove_item_from_list(self.__item_to_remove)
             self.__item_to_remove = None
             self.__tag_dialog.select_tag_line()
+    def get_view(self):
+        return self.__tag_dialog
     
     def show_message(self, message):
         self.__tag_dialog.show_tooltip(message)    

@@ -18,14 +18,15 @@
 
 import sys
 import logging.handlers
+from optparse import OptionParser
 from PyQt4 import QtCore, QtGui
 from tsgui.tagdialog import TagDialogController
 from tscore.configwrapper import ConfigWrapper
 from tscore.store import Store
 from tscore.enums import EFileEvent, EDateStampFormat
 from tscore.tsconstants import TsConstants
-from optparse import OptionParser
 from tscore.exceptions import StoreTaggingError
+from tsgui.admindialog import StorePreferencesController
 
     
 class Tagstore(QtCore.QObject):
@@ -180,6 +181,7 @@ class Tagstore(QtCore.QObject):
                 
                 tmp_dialog.connect(tmp_dialog, QtCore.SIGNAL("tag_item"), self.tag_item_action)
                 tmp_dialog.connect(tmp_dialog, QtCore.SIGNAL("handle_cancel()"), self.handle_cancel)
+                tmp_dialog.connect(tmp_dialog, QtCore.SIGNAL("open_store_admin_dialog()"), self.show_admin_dialog)
                 #self.DIALOGS[store.get_id()] = tmp_dialog
                 self.DIALOGS[store.get_id()] = tmp_dialog
 
@@ -191,7 +193,13 @@ class Tagstore(QtCore.QObject):
                 ## handle offline changes
                 store.handle_offline_changes()
                 self.STORES.append(store)
-            
+    
+    def show_admin_dialog(self):
+        controller = StorePreferencesController(parent=self.sender().get_view())
+        controller.set_main_config(self.__config_file)
+        controller.set_store_list(self.__config_file.get_stores())
+        controller.show_dialog()
+    
     def store_removed(self, store):
         """
         event handler of the stores remove event

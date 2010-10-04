@@ -696,33 +696,37 @@ class ExpiryAdminController(BasePreferenceController):
         
 class StorePreferencesController(QtCore.QObject):
     
-    def __init__(self, config_path, parent=None):
+    def __init__(self, parent=None):
         """
         controller for the store-preferences dialog
         """
         #QtCore.QObject.__init__(self)
         super(StorePreferencesController, self).__init__(parent)
         #TODO: @CF: config wrapper should be passed from administration.py later on, same with store configs
-        
-        self.__config_wrapper = ConfigWrapper(TsConstants.CONFIG_PATH)
-        self._store_list = self.__config_wrapper.get_stores()
-      
         self.__log = logging.getLogger("TagStoreLogger")
       
         self.__store_config_dict = {}
         self.__store_names = []
         self.__store_dict = {}
-        
-        if self._store_list is not None:
-            for store in self._store_list:
-                self.__store_names.append(store["path"].split("/").pop())
-                self.__store_dict[store["path"].split("/").pop()] = store["path"]
+        self._store_list = None
         
         ## a list with all controllers used at the preference view
         self.__preference_controller_list = []
         
         ## the main preferences window 
         self.__dialog = StorePreferencesView(parent=parent)
+            
+        self.connect(self.__dialog, QtCore.SIGNAL("apply_clicked()"), self.__handle_apply)
+        self.connect(self.__dialog, QtCore.SIGNAL("cancel_clicked()"), self.__handle_cancel)
+    def set_main_config(self, main_config):
+        self.__main_config = main_config
+
+    def set_store_list(self, store_list):
+        if store_list is not None:
+            self._store_list = store_list
+            for store in self._store_list:
+                self.__store_names.append(store["path"].split("/").pop())
+                self.__store_dict[store["path"].split("/").pop()] = store["path"]
         
         ## initialize the controllers for each preference tab
         self.__controller_store_admin = StoreAdminController(self.__store_dict)
@@ -736,20 +740,12 @@ class StorePreferencesController(QtCore.QObject):
         
         self.__controller_vocabulary = VocabularyAdminController(self.__store_names)
         self.__register_controller(self.__controller_vocabulary, self.trUtf8("Categories"))
-        
-        ## this setting comes from the main config
-        self.__controller_expiry_admin.add_setting(TsConstants.SETTING_EXPIRY_PREFIX, self.__config_wrapper.get_expiry_prefix())
-
-        self.connect(self.__controller_store_admin, QtCore.SIGNAL("new"), self.__handle_new_store)
-        self.connect(self.__controller_store_admin, QtCore.SIGNAL("rebuild"), self.__handle_rebuild)
-        self.connect(self.__controller_store_admin, QtCore.SIGNAL("rename"), self.__handle_rename)
-        self.connect(self.__controller_store_admin, QtCore.SIGNAL("delete"), self.__handle_delete)
 
         #TODO: use real vocabulary data ...
         voc_list = [["cat", "blood", "shut"], ["screwdriver", "orange", "lorre", "BH"]]
         voc_list_counter = 0
         ## create a list with one config wrapper for each store
-        for store in self._store_list:
+        for store in store_list:
             store_path = store["path"]
             store_name = store_path.split("/").pop()
             config_path = "%s/%s/%s" % (store_path, TsConstants.STORE_CONFIG_DIR, TsConstants.STORE_CONFIG_FILENAME)
@@ -763,10 +759,14 @@ class StorePreferencesController(QtCore.QObject):
             voc_list_counter = voc_list_counter+1
             
             self.__controller_datestamp.add_setting(TsConstants.SETTING_DATESTAMP_FORMAT, config.get_datestamp_format(), store_name)
-            
-        self.connect(self.__dialog, QtCore.SIGNAL("apply_clicked()"), self.__handle_apply)
-        self.connect(self.__dialog, QtCore.SIGNAL("cancel_clicked()"), self.__handle_cancel)
 
+        self.connect(self.__controller_store_admin, QtCore.SIGNAL("new"), self.__handle_new_store)
+        self.connect(self.__controller_store_admin, QtCore.SIGNAL("rebuild"), self.__handle_rebuild)
+        self.connect(self.__controller_store_admin, QtCore.SIGNAL("rename"), self.__handle_rename)
+        self.connect(self.__controller_store_admin, QtCore.SIGNAL("delete"), self.__handle_delete)
+
+        ## this setting comes from the main config
+        self.__controller_expiry_admin.add_setting(TsConstants.SETTING_EXPIRY_PREFIX, self.__main_config.get_expiry_prefix())
     
     def __handle_new_store(self, path):
         pass
@@ -816,7 +816,7 @@ class StorePreferencesController(QtCore.QObject):
                 else:
                     ## this is a general setting  
                     if property["SETTING_NAME"] == TsConstants.SETTING_EXPIRY_PREFIX:
-                        self.__config_wrapper.set_expiry_prefix(property["SETTING_VALUE"])
+                        self.__main_config.set_expiry_prefix(property["SETTING_VALUE"])
                 self.__log.info("%s, setting: %s, value: %s" % (property["STORE_NAME"], 
                                 property["SETTING_NAME"], property["SETTING_VALUE"]))
             
