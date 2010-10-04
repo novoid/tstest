@@ -44,16 +44,91 @@ class TagDialog(QtGui.QDialog):
         self.__category_mandatory = False
         self.__selected_item = None
         
+        self.__info_palette = None
+
         self.setObjectName("TagDialog")
         self.setWindowModality(QtCore.Qt.WindowModal)
+        self.__baseLayout = QtGui.QHBoxLayout()
+        self.__baseLayout.setContentsMargins(3, 3, 3, 3)
+        self.setLayout(self.__baseLayout)
+        
+        self.__mainlayout = QtGui.QGridLayout()
+        self.__mainwidget = QtGui.QWidget()
+        self.__mainwidget.setGeometry(QtCore.QRect(9, 9, 501, 343))
+        self.__mainwidget.setLayout(self.__mainlayout)
+        self.__baseLayout.addWidget(self.__mainwidget)
+        
+        self.__help_button = QtGui.QToolButton()
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(":/ts/images/help.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.__help_button.setIcon(icon)
+        
+        self.__property_button = QtGui.QPushButton()
+        self.__tag_button = QtGui.QPushButton()
+        self.__close_button = QtGui.QPushButton()
+        self.__item_list_view = QtGui.QListWidget()
+        
+        self.__cat_line_widget = TagCompleterWidget(self.__max_tags, separator=self.__tag_separator, 
+            parent=self)
+        
+        self.__category_line = self.__cat_line_widget.get_tag_line()
+        
+        self.__tag_line_widget = TagCompleterWidget(self.__max_tags, separator=self.__tag_separator, 
+            parent=self, show_datestamp=self.__show_datestamp)
+        
+        self.__tag_line = self.__tag_line_widget.get_tag_line()
+        
+        #self.__tag_label = QtGui.QLabel()
+        self.__pop_tag_layout = QtGui.QHBoxLayout()
+        self.__pop_tag_layout.setContentsMargins(0, 0, 0, 0)
+        self.__pop_tag_widget = QtGui.QWidget()
+        self.__pop_tag_widget.setLayout(self.__pop_tag_layout)
         
         
+        self.__tag_error_label = QtGui.QLabel()
+        #self.__tag_error_label.setVisible(False)
+        self.__tag_error_label.setPalette(self.get_red_palette())
+        
+#        self.__category_label = QtGui.QLabel()
+        self.__pop_category_layout = QtGui.QHBoxLayout()
+        self.__pop_category_layout.setContentsMargins(0, 0, 0, 0)
+        self.__pop_category_widget = QtGui.QWidget()
+        self.__pop_category_widget.setLayout(self.__pop_category_layout)
+        
+        self.__category_error_label = QtGui.QLabel()
+        #self.__category_error_label.setVisible(False)
+        self.__category_error_label.setPalette(self.get_red_palette())
+        
+        self.__item_error_label = QtGui.QLabel()
+        #self.__item_error_label.setVisible(False)
+        self.__item_error_label.setPalette(self.get_red_palette())
+        
+        self.__mainlayout.addWidget(self.__item_list_view, 0, 0, 1, 4)
+        self.__mainlayout.addWidget(self.__item_error_label, 1, 0, 1, 4)
+        
+        self.__mainlayout.addWidget(self.__tag_line, 2, 0, 1, 3)
+        self.__mainlayout.addWidget(self.__tag_button, 2, 3, 4, 1)
+        self.__mainlayout.addWidget(self.__tag_error_label, 3, 0, 1, 3)
+#        self.__mainlayout.addWidget(self.__tag_label, 4, 0, 1, 3)
+        self.__mainlayout.addWidget(self.__pop_tag_widget, 4, 0, 1, 3)
+        
+        self.__mainlayout.addWidget(self.__category_line, 5, 0, 1, 3)
+        self.__mainlayout.addWidget(self.__category_error_label, 6, 0, 1, 3)
+        self.__mainlayout.addWidget(self.__pop_category_widget, 7, 0, 1, 3)
+
+        self.__mainlayout.addWidget(self.__help_button, 8, 0, 1, 1)
+        self.__mainlayout.addWidget(self.__property_button, 8, 1, 1, 1)
+        self.__mainlayout.addItem(QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding), 8, 2, 1, 1)
+        self.__mainlayout.addWidget(self.__close_button, 8, 3, 1, 1)
+        
+        self.setGeometry(self.__mainwidget.geometry())
         # TODO: fix resizing ... 
         #sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
         #sizePolicy.setHorizontalStretch(0)
         #sizePolicy.setVerticalStretch(0)
         #sizePolicy.setHeightForWidth(self.sizePolicy().hasHeightForWidth())
         #self.setSizePolicy(sizePolicy)
+        """
         self.setContextMenuPolicy(QtCore.Qt.NoContextMenu)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(":/ts/images/icon.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -113,7 +188,7 @@ class TagDialog(QtGui.QDialog):
 #        self.__tag_label.setLayout(self.__tag_layout)
         self.__tag_label.setGeometry(QtCore.QRect(23, 113, 371, 16))
         self.__tag_label.setObjectName("__tag_label")
-        
+        """
 
         self.show_category_line(self.__show_categories)
         self.select_tag_line()
@@ -131,7 +206,29 @@ class TagDialog(QtGui.QDialog):
         self.connect(self.__tag_line_widget, QtCore.SIGNAL("tag_limit_reached"), self.__handle_tag_limit_reached)
         """
         """
+    
+    def get_red_palette(self):
+        """
+        create a palette with red font, to be used on the info-labels 
+        """
+        if self.__info_palette is None:
+            brush = QtGui.QBrush(QtGui.QColor(255, 0, 0, 255));
+            #brush.setStyle(QtGui.QBrush.SolidPattern);
+            self.__info_palette = QtGui.QPalette()
+            self.__info_palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.WindowText, brush);
+            self.__info_palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.WindowText, brush);
         
+        return self.__info_palette
+    
+    def set_item_info(self, info_text):
+        self.__item_error_label.setText(info_text)
+        
+    def set_tag_info(self, info_text):
+        self.__tag_error_label.setText(info_text)
+        
+    def set_category_info(self, info_text):
+        self.__category_error_label.setText(info_text)
+    
     def keyPressEvent(self, event):
         """
         dummy re-implementation to avoid random signal sending
@@ -142,13 +239,12 @@ class TagDialog(QtGui.QDialog):
             
             self.__log.debug("tag_dialog: RETURN PRESSED")
         ## pass the signal to the normal parent chain
-        #pass
     
     def closeEvent(self, event):
         pass
         
     def __handle_tag_limit_reached(self):
-        self.show_tooltip("Tag limit reached. No more tags can be provided for this item.")
+        self.set_tag_info(self.trUtf8("Tag limit reached. No more tags can be provided for this item."))
         
     def __handle_tagline_enter(self):
         ## switch to the category_line if it is enabled
@@ -173,11 +269,10 @@ class TagDialog(QtGui.QDialog):
         if not self.__tag_line_widget.is_empty():
             self.__handle_tag_action()
         else:
-            self.show_tooltip("Please type at least one tag in the tag-line")
+            self.set_tag_info(self.trUtf8("Please type at least one tag in the tag-line"))
     
     def __tag_button_pressed(self):
         self.__handle_tag_action()
-        
     
     def __set_taborder(self):
         if self.__show_categories:
@@ -226,6 +321,21 @@ class TagDialog(QtGui.QDialog):
             item.setSelected(True)
             self.__log.debug("set_selected_item: %s" % self.__selected_item.text())
         
+    def __handle_tag_label_clicked(self, clicked_text):
+        current_text = self.__tag_line.text()
+        if current_text == "":
+            self.__tag_line.setText(clicked_text)
+        else:
+            self.__tag_line.setText("%s%s %s" % (current_text, self.__tag_separator, clicked_text))
+        print clicked_text
+
+    def __handle_category_label_clicked(self, clicked_text):
+        current_text = self.__tag_line.text()
+        if current_text == "":
+            self.__category_line.setText(clicked_text)
+        else:
+            self.__category_line.setText("%s%s %s" % (current_text, self.__tag_separator, clicked_text))
+        print clicked_text
 
     def remove_item_from_list(self, item):
         if item is None:
@@ -270,29 +380,19 @@ class TagDialog(QtGui.QDialog):
         + resize the dialog 
         """
         self.__show_categories = enable
-        # TODO: find a way to remove the category widgets at runtime
-        # can be done with using "layout" objects. -> means NO absolute positioning
-        # absolute positioning is not a good solution
         
         if enable:
-            self.resize(489, 272)
-            self.__tag_button.setGeometry(QtCore.QRect(419, 104, 60, 60))
-            self.__help_button.setGeometry(QtCore.QRect(20, 220, 25, 23))
-            self.__property_button.setGeometry(QtCore.QRect(48, 217, 113, 32))
-            self.__close_button.setGeometry(QtCore.QRect(368, 217, 113, 32))
-            
-            self.__category_line.show()
-            self.__category_label.show()
+            self.__category_line.setVisible(True)
+            self.__pop_category_widget.setVisible(True)
+            self.__category_error_label.setVisible(True)
+            self.__mainlayout.removeWidget(self.__tag_button)
+            self.__mainlayout.addWidget(self.__tag_button, 2, 3, 4, 1)
         else:
-            self.resize(489, 195)
-            self.__category_line.hide()
-            self.__category_label.hide()
-            
-            self.__tag_button.setGeometry(QtCore.QRect(419, 85, 60, 40))
-            self.__help_button.setGeometry(QtCore.QRect(20, 150, 25, 23))
-            self.__property_button.setGeometry(QtCore.QRect(48, 146, 113, 32))
-            self.__close_button.setGeometry(QtCore.QRect(368, 146, 113, 32))
-            
+            self.__category_line.setVisible(False)
+            self.__pop_category_widget.setVisible(False)
+            self.__category_error_label.setVisible(False)
+            self.__mainlayout.removeWidget(self.__tag_button)
+            self.__mainlayout.addWidget(self.__tag_button, 2, 3, 1, 1)
         self.__set_taborder()
     
     def set_category_mandatory(self, mandatory):
@@ -316,19 +416,25 @@ class TagDialog(QtGui.QDialog):
         self.__tag_line_widget.set_tag_completion_list(tag_list)
         
     def set_popular_tags(self, tag_list):
-        tag_counter = 0
+        
         for tag in tag_list:
-            if tag_counter == 0:
-                self.__tag_label.setText(tag)
-                tag_counter = tag_counter + 1
-            else:
-                self.__tag_label.setText("%s%s %s" % (self.__tag_label.text(), self.__tag_separator, tag))
+            tmp_label = QtGui.QLabel("<a href='%s'>%s</a>" % (tag, tag))
+            tmp_label.setTextInteractionFlags(QtCore.Qt.LinksAccessibleByMouse|
+                                              QtCore.Qt.LinksAccessibleByKeyboard|
+                                              QtCore.Qt.TextSelectableByMouse)
+
+            self.connect(tmp_label, QtCore.SIGNAL("linkActivated(QString)"), self.__handle_tag_label_clicked)
+            self.__pop_tag_layout.addWidget(tmp_label)
 
     def set_popular_categories(self, cat_list):
-        #self.__category_label.setText("")
-        for tag in cat_list:
-            #self.__category_label.setText(self.__category_label.text() +" "+ tag)
-            pass
+        for cat in cat_list:
+            tmp_label = QtGui.QLabel("<a href='%s'>%s</a>" % (cat, cat))
+            tmp_label.setTextInteractionFlags(QtCore.Qt.LinksAccessibleByMouse|
+                                              QtCore.Qt.LinksAccessibleByKeyboard|
+                                              QtCore.Qt.TextSelectableByMouse)
+
+            self.connect(tmp_label, QtCore.SIGNAL("linkActivated(QString)"), self.__handle_category_label_clicked)
+            self.__pop_category_layout.addWidget(tmp_label)
 
     def clear_tag_line(self):
         self.__tag_line_widget.clear_line()
@@ -435,8 +541,6 @@ class TagDialogController(QtCore.QObject):
         admin_controller = StorePreferencesController("", parent=self.__tag_dialog)
         admin_controller.show_dialog()
         
-        self.__tag_dialog.show_tooltip("this button should open the property dialog for the current store")
-        
     def __handle_no_items(self):
         """
         use this method to handle the case, there are not items left to tag
@@ -448,17 +552,17 @@ class TagDialogController(QtCore.QObject):
         pre-check if all necessary data is available for storing tags to an item 
         """
         if tag_list is None or len(tag_list) == 0:
-            self.__tag_dialog.show_tooltip("Please enter at least one tag for the selected item")
+            self.__tag_dialog.set_tag_info(self.trUtf8("Please enter at least one tag for the selected item"))
             return
         if item is None:
-            self.__tag_dialog.show_tooltip("Please select an Item, to which the tags should be added")
+            self.__tag_dialog.set_item_info(self.trUtf8("Please select an Item, to which the tags should be added"))
             return
         
         category_list = self.__tag_dialog.get_category_list()
         category_mandatory = self.__tag_dialog.is_category_mandatory()
         
         if category_mandatory and (category_list is None or len(category_list) == 0):
-            self.__tag_dialog.show_tooltip("Please select at least one category")
+            self.__tag_dialog.set_category_info(self.trUtf8("Please select at least one category"))
             return
             
         self.__item_to_remove = item
