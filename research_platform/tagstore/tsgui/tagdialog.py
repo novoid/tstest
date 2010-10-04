@@ -45,6 +45,9 @@ class TagDialog(QtGui.QDialog):
         self.__selected_item = None
         
         self.__info_palette = None
+        ## a list to hold all tag labels - that they can be accessed and removed later on
+        self.__tag_label_list = []
+        self.__category_label_list = []
 
         self.setObjectName("TagDialog")
         self.setWindowModality(QtCore.Qt.WindowModal)
@@ -225,7 +228,14 @@ class TagDialog(QtGui.QDialog):
         
     def set_tag_info(self, info_text):
         self.__tag_error_label.setText(info_text)
-        
+        ## use a timer to automatically remove the info
+        timer = QtCore.QTimer()
+        timer.connect(timer, QtCore.SIGNAL("timeout()"), self.hide_tag_info)
+        timer.start(4000)
+    
+    def hide_tag_info(self):
+        self.__tag_error_label.setText("")
+    
     def set_category_info(self, info_text):
         self.__category_error_label.setText(info_text)
     
@@ -261,15 +271,16 @@ class TagDialog(QtGui.QDialog):
         then emit the "tag" signal
         """
         
-        sender = self.sender()
+        ##TODO - re-implement the enter-handling
+        #sender = self.sender()
         
-        if sender is None or not isinstance(self.__category_line, QtGui.QLineEdit):
-            return
+        #if sender is None or not isinstance(self.__category_line, QtGui.QLineEdit):
+        #    return
         
-        if not self.__tag_line_widget.is_empty():
-            self.__handle_tag_action()
-        else:
-            self.set_tag_info(self.trUtf8("Please type at least one tag in the tag-line"))
+        #if not self.__tag_line_widget.is_empty():
+        #    self.__handle_tag_action()
+        #else:
+        #    self.set_tag_info(self.trUtf8("Please type at least one tag in the tag-line"))
     
     def __tag_button_pressed(self):
         self.__handle_tag_action()
@@ -293,9 +304,7 @@ class TagDialog(QtGui.QDialog):
         self.setWindowTitle(QtGui.QApplication.translate("tagstore", self.APP_NAME, None, QtGui.QApplication.UnicodeUTF8))
         self.__tag_line.setText(QtGui.QApplication.translate("tagstore", "write your tags here", None, QtGui.QApplication.UnicodeUTF8))
         #self.__category_line.setText(QtGui.QApplication.translate("tagstore", "categorize ...", None, QtGui.QApplication.UnicodeUTF8))
-        #self.__category_label.setText(QtGui.QApplication.translate("tagstore", "dummy no values yet", None, QtGui.QApplication.UnicodeUTF8))
         self.__help_button.setToolTip(QtGui.QApplication.translate("tagstore", "Help", None, QtGui.QApplication.UnicodeUTF8))
-        #self.__tag_label.setText(QtGui.QApplication.translate("tagstore", "", None, QtGui.QApplication.UnicodeUTF8))
         self.__property_button.setToolTip(QtGui.QApplication.translate("tagstore", "Set application properties", None, QtGui.QApplication.UnicodeUTF8))
         self.__property_button.setText(QtGui.QApplication.translate("tagstore", "Preferences ...", None, QtGui.QApplication.UnicodeUTF8))
         self.__close_button.setToolTip(QtGui.QApplication.translate("tagstore", "Close the dialog", None, QtGui.QApplication.UnicodeUTF8))
@@ -417,6 +426,13 @@ class TagDialog(QtGui.QDialog):
         
     def set_popular_tags(self, tag_list):
         
+        ## remove all existing labels
+        for label in self.__tag_label_list:
+            self.__pop_tag_layout.removeWidget(label)
+            label.destroy()
+        ## clear the label list
+        self.__tag_label_list = []
+        
         for tag in tag_list:
             tmp_label = QtGui.QLabel("<a href='%s'>%s</a>" % (tag, tag))
             tmp_label.setTextInteractionFlags(QtCore.Qt.LinksAccessibleByMouse|
@@ -425,8 +441,17 @@ class TagDialog(QtGui.QDialog):
 
             self.connect(tmp_label, QtCore.SIGNAL("linkActivated(QString)"), self.__handle_tag_label_clicked)
             self.__pop_tag_layout.addWidget(tmp_label)
+            ## fill the new label list
+            self.__tag_label_list.append(tmp_label)
 
     def set_popular_categories(self, cat_list):
+        ## remove all existing labels
+        for label in self.__category_label_list:
+            self.__pop_category_layout.removeWidget(label)
+            label.destroy()
+        ## clear the label list
+        self.__category_label_list = []
+        
         for cat in cat_list:
             tmp_label = QtGui.QLabel("<a href='%s'>%s</a>" % (cat, cat))
             tmp_label.setTextInteractionFlags(QtCore.Qt.LinksAccessibleByMouse|
@@ -435,6 +460,7 @@ class TagDialog(QtGui.QDialog):
 
             self.connect(tmp_label, QtCore.SIGNAL("linkActivated(QString)"), self.__handle_category_label_clicked)
             self.__pop_category_layout.addWidget(tmp_label)
+            self.__category_label_list.append(tmp_label)
 
     def clear_tag_line(self):
         self.__tag_line_widget.clear_line()

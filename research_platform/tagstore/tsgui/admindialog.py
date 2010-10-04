@@ -247,6 +247,13 @@ class StoreAdminView(BasePreferenceView):
         
         self.__store_list_view = QtGui.QListWidget()
         self.__btn_new_store = QtGui.QPushButton(self.trUtf8("New Tagstore"))
+
+        new_grid = QtGui.QGridLayout()
+        new_grid.addWidget(self.__btn_new_store, 1, 1)
+        new_grid.addItem(QtGui.QSpacerItem(330, 20), 1, 2)
+        new_panel = QtGui.QWidget()
+        new_panel.setLayout(new_grid)
+        
         self.__btn_build_new = QtGui.QPushButton(self.trUtf8("Rebuild ..."))
         self.__btn_rename = QtGui.QPushButton(self.trUtf8("Rename ..."))
         self.__btn_delete = QtGui.QPushButton(self.trUtf8("Delete ..."))
@@ -259,7 +266,8 @@ class StoreAdminView(BasePreferenceView):
         self.__btn_layout.addWidget(self.__btn_rename)
         self.__btn_layout.addWidget(self.__btn_delete)
         
-        self.add_widget(self.__btn_new_store)
+        #self.add_widget(self.__btn_new_store)
+        self.add_widget(new_panel)
         self.add_widget(self.__store_list_view)
         self.add_widget(self.__btn_panel)
         
@@ -795,6 +803,9 @@ class StorePreferencesController(QtCore.QObject):
 
     def __handle_apply(self):
         ##iterate the controllers 
+        self.__log.info("**** CONFIG CHANGES ****")
+        self.__log.info("writing to the config files:")
+        self.__log.info("**** **** **** **** ****")
         for controller in self.__preference_controller_list:
             ## iterate the properties of the controller
             for property in controller.get_settings():
@@ -808,12 +819,13 @@ class StorePreferencesController(QtCore.QObject):
                         store_config.set_show_category_line(property["SETTING_VALUE"])
                     elif property["SETTING_NAME"] == TsConstants.SETTING_CATEGORY_VOCABULARY:
                         ##TODO - write to the vocabulary file
-                        self.__log.debug("write this to the vocaulary file: %s"  % property["SETTING_VALUE"])
+                        pass
                 else:
                     ## this is a general setting  
                     if property["SETTING_NAME"] == TsConstants.SETTING_EXPIRY_PREFIX:
                         self.__config_wrapper.set_expiry_prefix(property["SETTING_VALUE"])
-                self.__log.info(property)
+                self.__log.info("%s, setting: %s, value: %s" % (property["STORE_NAME"], 
+                                property["SETTING_NAME"], property["SETTING_VALUE"]))
             
     def __handle_cancel(self):
         self.__dialog.close()
