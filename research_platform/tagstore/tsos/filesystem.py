@@ -38,6 +38,12 @@ class FileSystemWrapper():
         self.__IGNORED_DIR_PREFIXES = ["."]
         self.__IGNORED_EXTENTIONS = [".lnk"]
     
+    def get_os(self):
+        """
+        returns the systems os as enumerable EOS
+        """
+        return self.file_system.get_type()
+        
     def path_exists(self, path):
         """
         returns True if given path exists, else False
@@ -50,6 +56,8 @@ class FileSystemWrapper():
         caution: this method does not provide a hierarchical search- use os.walk() for this purpose
         """
         files = []
+        if not os.path.exists(in_path):
+            return files
         for file in os.listdir(in_path):
             path = in_path + "/" + file + "/" + search_path
             if os.path.exists(path):
@@ -103,6 +111,18 @@ class FileSystemWrapper():
             self.__log.debug("creating dir with the path: %s" % path_name)
             os.mkdir(path_name)
 
+    def delete_dir_content(self, path_name):
+        """
+        deletes the directories content without deleting the root folder as well
+        """
+        if self.path_exists(path_name):
+            self.__log.debug("deleting dir content with the path: %s" % path_name)
+            for item in os.listdir(path_name):
+                if os.path.isdir(path_name + "/" + item):
+                    self.delete_dir(path_name)
+                else:
+                    os.remove(path_name + "/" + item)
+        
     def delete_dir(self, path_name):
         """
         deletes a given directory and its content

@@ -16,15 +16,19 @@
 
 import win32com.client
 import os
+from tscore.enums import EOS
 
 class FileSystem():
 
     def __init__(self):
         self.__shell = win32com.client.Dispatch("WScript.Shell")
     
+    def get_type(self):
+        return EOS.Windows
+    
     def create_link(self, source, link_name):
         """
-        creates a symbolic link with given link_name using a relative path to the source
+        creates a .lnk link with given link_name using an absolute path to the source
         """
         name = link_name.replace("/", "\\") + ".lnk"
         source = source.replace("/", "\\")

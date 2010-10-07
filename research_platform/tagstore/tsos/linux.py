@@ -15,11 +15,15 @@
 ## if not, see <http://www.gnu.org/licenses/>.
 
 import os
+from tscore.enums import EOS
 
 class FileSystem():
 
     def __init__(self):
         pass
+    
+    def get_type(self):
+        return EOS.Linux
     
     def create_link(self, source, link_name):
         """
