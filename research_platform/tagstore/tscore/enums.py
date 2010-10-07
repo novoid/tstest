@@ -48,5 +48,9 @@ EDateStampFormat = Enum(["DISABLED",
                   "MONTH",
                   "DAY"])
 
+EOS = Enum(["Linux",
+            "OSX",
+            "Windows"])
+
 
 ## end
