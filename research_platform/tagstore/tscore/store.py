@@ -20,7 +20,7 @@ from sets import Set
 from PyQt4 import QtCore
 from tsos.filesystem import FileSystemWrapper
 from tscore.tagwrapper import TagWrapper
-from tscore.enums import EFileType, EFileEvent
+from tscore.enums import EFileType, EFileEvent, EOS
 from tscore.pendingchanges import PendingChanges
 from tscore.exceptions import StoreInitError, StoreTaggingError
 
@@ -51,15 +51,25 @@ class Store(QtCore.QObject):
         self.__config_file = unicode(config_file)
         self.__storage_dir_name = self.trUtf8("storage")
         self.__navigation_dir_name = self.trUtf8("navigation")
-        self.__parent_path = None
-        self.__name = None
-        self.__config_path = None
-        self.__watcher_path = None
-        self.__navigation_path = None
+        #self.__parent_path = None
+        #self.__name = None
+        #self.__config_path = None
+        #self.__watcher_path = None
+        #self.__navigation_path = None
+        #self.__config_path = self.__path + "/" + self.__config_file
+        #self.__watcher_path = self.__path + "/" + self.__storage_dir_name
+        #self.__navigation_path = self.__path + "/" + self.__navigation_dir_name
+        #self.__tag_wrapper = TagWrapper(self.__config_path)
 
         ## throw exception if store directory does not exist
         if self.__path.find(":/") == -1:
             self.__path = self.__path.replace(":", ":/")
+        self.__name = unicode(self.__path.split("/")[-1])
+        self.__parent_path = unicode(self.__path[:len(self.__path)-len(self.__name)-1])
+        if not self.__file_system.path_exists(self.__path):
+            ## look for renamed or removed store folder
+            self.__handle_renamed_removed_store()
+        print "path="+self.__path
         if not self.__file_system.path_exists(self.__path):
             raise StoreInitError, self.trUtf8("The specified store directory does not exist!")
         
@@ -79,7 +89,7 @@ class Store(QtCore.QObject):
         self.__file_system.create_dir(self.__path + "/" + self.__config_file.split("/")[0])
         if not self.__file_system.path_exists(self.__path + "/" + self.__config_file):
             self.__file_system.create_file(self.__path + "/" + self.__config_file)
-            ## built internal file structure
+            ## write store id to config file
             self.__tag_wrapper = TagWrapper(self.__path + "/" + self.__config_file, self.__id)
         
         self.__init_store()
@@ -119,6 +129,35 @@ class Store(QtCore.QObject):
             self.__config_file = unicode(config_file)
         self.__init_store()
         
+    def __handle_renamed_removed_store(self):
+        """
+        searches the parents directory for renamed or removed stores
+        """
+        #print self.__parent_path
+        #print self.__config_file
+        #print ".."
+        config_paths = self.__file_system.find_files(self.__parent_path, self.__config_file)
+        #print "config paths: " + ",".join(config_paths)
+        new_name = ""
+        for path in config_paths:
+            reader = TagWrapper(path)
+            #print "found: " + path
+            if self.__id == reader.get_store_id():
+                new_name = path.split("/")[-3]
+
+        if new_name == "":      ## removed
+            ## delete navigation directors
+            #self.remove()
+            self.emit(QtCore.SIGNAL("removed(PyQt_PyObject)"), self)
+        else:                   ## renamed
+            self.__path = self.__parent_path + "/" + new_name
+            self.__navigation_path = self.__path + "/" + self.__navigation_dir_name
+            ## update all links in windows: absolute links only
+            if self.__file_system.get_os() == EOS.Windows:
+                print "rebuild"
+                #self.rebuild()
+            self.emit(QtCore.SIGNAL("renamed(PyQt_PyObject, QString)"), self, self.__parent_path + "/" + new_name)
+    
     def __directory_changed(self, path):
         """
         handles directory changes of the stores directory and its parent directory 
@@ -128,17 +167,7 @@ class Store(QtCore.QObject):
             if not self.__file_system.path_exists(self.__path):
                 ## store itself was changed: renamed, moved or deleted
                 self.__watcher.removePath(self.__parent_path)
-                config_paths = self.__file_system.find_files(self.__parent_path, self.__config_file)
-                new_name = ""
-                for path in config_paths:
-                    reader = TagWrapper(path)
-                    if self.__id == reader.get_store_id():
-                        new_name = path.split("/")[-3]
-
-                if new_name == "":      ## removed
-                    self.emit(QtCore.SIGNAL("removed(PyQt_PyObject)"), self)
-                else:                   ## renamed
-                    self.emit(QtCore.SIGNAL("renamed(PyQt_PyObject, QString)"), self, self.__parent_path + "/" + new_name)
+                self.__handle_renamed_removed_store()
         else:
             ## files or directories in the store directory have been changed
             self.__handle_file_changes(self.__watcher_path)
@@ -147,7 +176,7 @@ class Store(QtCore.QObject):
         """
         handles the stores file and dir changes to find out if a file/directory was added, renamed, removed
         """
-         
+        
         ## this method does not handle the renaming or deletion of the store directory itself (only childs)
         existing_files = Set(self.__file_system.get_files(path))
         existing_dirs = Set(self.__file_system.get_directories(path))
@@ -208,6 +237,22 @@ class Store(QtCore.QObject):
         returns the stores unhandled changes 
         """
         return self.__pending_changes
+    
+    def remove(self):
+        """
+        removes all directories and links in the stores navigation path
+        """
+        self.__file_system.delete_dir_content(self.__navigation_path)
+    
+    def rebuild(self):
+        """
+        removes and rebuilds all links in the navigation path
+        """
+        self.remove()
+        for file in self.__tag_wrapper.get_files():
+            tag_list = self.__tag_wrapper.get_file_tags(file)
+            self.add_item_with_tags(file, tag_list)
+        pass
     
     def rename_file(self, old_file_name, new_file_name):
         """
@@ -346,8 +391,6 @@ class Store(QtCore.QObject):
                 self.__delete_tag_folders(tag_name, file["tags"].split(","), self.__navigation_path)
             ##remove tag from config file
             self.__tag_wrapper.remove_tag(tag_name)
-        #TODO: error if file has no tags anymore.. delete file in config?
-        #..so it has to be get retagged?
         
     def __delete_tag_folders(self, affected_tag, tag_list, current_path):
         """

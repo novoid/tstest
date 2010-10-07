@@ -267,7 +267,10 @@ class TagWrapper():
             tags = file["tags"]
             if tag_name in tags:
                 tags.remove(tag_name)
-                self.__set_tags(file["filename"], tags)
-                
+                if len(tags) >= 1:
+                    self.__set_tags(file["filename"], tags)
+                else:
+                    #delete file entry if there is no tag left
+                    self.remove_file(file["filename"])
 
 ## end
