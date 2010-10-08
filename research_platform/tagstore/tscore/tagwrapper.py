@@ -38,7 +38,7 @@ class TagWrapper():
         #if store_id is not None:
         #    self.__create_file_structure(file_path, store_id)
         self.__settings = QSettings(file_path, QSettings.IniFormat)
- 
+        self.__path = file_path
 #    def __create_file_structure(self, file_path, store_id):
 #        """
 #        creates the default file structure in a given file
@@ -51,7 +51,21 @@ class TagWrapper():
 #        file.write("\n")
 #        file.write("[categories]\n")
 #        file.close()
-                
+    
+    @staticmethod
+    def create_tags_file(file_path):
+        """
+        create a new tags file structure in the given file
+        this  method has to be used in a static way
+        the file must be opened with write permission
+        """
+        file = open(file_path, "w")
+        
+        file.write("[store]\n")
+        file.write("[files]\n")
+        
+        file.close()
+          
     def __get_file_list(self):
         """
         returns a list of file dictionaries sorted by timestamp descending

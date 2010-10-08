@@ -32,6 +32,49 @@ class ConfigWrapper(QtCore.QObject):
         self.__watcher.addPath(config_file_path)
         self.__watcher.connect(self.__watcher,QtCore.SIGNAL("fileChanged(QString)"), self.__file_changed)
         self.__settings = QtCore.QSettings(config_file_path, QtCore.QSettings.IniFormat)
+    
+    @staticmethod
+    def create_store_config_file(file_path):
+        """
+        create a new tags file structure in the given file
+        this  method has to be used in a static way
+        the file must be opened with write permission
+        """
+        file = open(file_path, "w")
+        
+        file.write("[settings]\n")
+        file.write("datestamp_format=1\n")
+        file.write("show_category_line=1\n")
+        file.write("category_mandatory=true\n")
+        
+        file.close()
+
+    @staticmethod
+    def create_app_config_file(file_path):
+        """
+        create a new application config file structure in the given file
+        this  method has to be used in a static way
+        the file must be opened with write permission
+        """
+        file = open(file_path, "w")
+        
+        file.write("[settings]\n")
+        file.write("store_config_directory=%s\n" % TsConstants.STORE_CONFIG_DIR)
+        file.write("store_config_filename=%s\n" % TsConstants.STORE_CONFIG_FILENAME)
+        file.write("store_tags_filename=%s\n" % TsConstants.STORE_TAGS_FILENAME)
+        file.write("tag_separator=\"%s\"\n" % TsConstants.DEFAULT_TAG_SEPARATOR)
+        file.write("supported_languages=\"en,de\"\n")
+        file.write("datestamp_format=0\n")
+        file.write("show_category_line=1\n")
+        file.write("category_mandatory=false\n")
+        file.write("current_language=de\n")
+        file.write("expiry_prefix=expiration\n")
+        file.write("max_tags=5\n")
+        file.write("num_popular_tags=5\n")
+        file.write("num_recent_tags=5\n")
+        file.write("[stores]\n")
+        
+        file.close()
         
     def __file_changed(self):
         """
@@ -108,7 +151,7 @@ class ConfigWrapper(QtCore.QObject):
     ## TODO: REMOVE ME - not needed anymore
     def get_show_category_line(self):
         """
-        returns True if the category line should be enabled in the tag dialog
+        returns the enum code if the category line should be enabled in the tag dialog
         """
         
         setting_value = self.__get_setting(TsConstants.SETTING_SHOW_CATEGORY_LINE)

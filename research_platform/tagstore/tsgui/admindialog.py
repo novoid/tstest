@@ -349,7 +349,7 @@ class StoreAdminController(BasePreferenceController):
                     self.trUtf8("Do you really want to rebuild the selected store? Please be aware, that this may take some minutes"),
                     QtGui.QMessageBox.Yes, QtGui.QMessageBox.Cancel)
         if selection == QtGui.QMessageBox.Yes:
-            self.emit(QtCore.SIGNAL("rebuild"), self.get_view().get_selected_store())
+            self.emit(QtCore.SIGNAL("rebuild"), self.get_view().get_selected_store().text())
 
     def __delete_store(self):
         selection = QtGui.QMessageBox.information(self.get_view(), self.trUtf8("Delete Store"), 
@@ -361,9 +361,9 @@ class StoreAdminController(BasePreferenceController):
     
     def __rename_store(self):
         store_name = self.get_view().get_selected_store().text()
-        result = QtGui.QInputDialog.getText(self.get_view(), self.trUtf8("Rename a tagstore"), self.trUtf8("new name:"), text=store_name)
-        if result is not None and result != "":
-            self.emit(QtCore.SIGNAL("rename"), store_name)
+        new_store_name = QtGui.QInputDialog.getText(self.get_view(), self.trUtf8("Rename a tagstore"), self.trUtf8("new name:"), text=store_name)
+        if new_store_name is not None and new_store_name != "":
+            self.emit(QtCore.SIGNAL("rename"), store_name, new_store_name)
     
     def _create_view(self):
         return StoreAdminView(None)
@@ -760,7 +760,8 @@ class StorePreferencesController(QtCore.QObject):
             
             self.__controller_datestamp.add_setting(TsConstants.SETTING_DATESTAMP_FORMAT, config.get_datestamp_format(), store_name)
 
-        self.connect(self.__controller_store_admin, QtCore.SIGNAL("new"), self.__handle_new_store)
+#        self.connect(self.__controller_store_admin, QtCore.SIGNAL("new"), self.__handle_new_store)
+        self.connect(self.__controller_store_admin, QtCore.SIGNAL("new"), QtCore.SIGNAL("create_new_store"))
         self.connect(self.__controller_store_admin, QtCore.SIGNAL("rebuild"), self.__handle_rebuild)
         self.connect(self.__controller_store_admin, QtCore.SIGNAL("rename"), self.__handle_rename)
         self.connect(self.__controller_store_admin, QtCore.SIGNAL("delete"), self.__handle_delete)
@@ -769,15 +770,17 @@ class StorePreferencesController(QtCore.QObject):
         self.__controller_expiry_admin.add_setting(TsConstants.SETTING_EXPIRY_PREFIX, self.__main_config.get_expiry_prefix())
     
     def __handle_new_store(self, path):
+        self.emit(QtCore.SIGNAL("create_new_store"), path)
         pass
     
-    def __handle_rebuild(self, name):
+    def __handle_rebuild(self, store_name):
+        # TODO: 
         pass
     
-    def __handle_rename(self, name):
+    def __handle_rename(self, store_name):
         pass
     
-    def __handle_delete(self, name):
+    def __handle_delete(self, store_name, new_store_name):
         pass
 
     def __get_config_for_store(self, store_path):
@@ -805,7 +808,7 @@ class StorePreferencesController(QtCore.QObject):
                 ## write the properties into the config file
                 if property["STORE_NAME"] is not None:
                     ## this is a store specific setting
-                    store_config = self.__store_config_dict[property["STORE_NAME"]]
+                    store_config = self.__get_store_config_by_name[property["STORE_NAME"]]
                     if property["SETTING_NAME"] == TsConstants.SETTING_DATESTAMP_FORMAT:
                         store_config.set_datestamp_format(property["SETTING_VALUE"])
                     elif property["SETTING_NAME"] == TsConstants.SETTING_SHOW_CATEGORY_LINE:
@@ -819,7 +822,12 @@ class StorePreferencesController(QtCore.QObject):
                         self.__main_config.set_expiry_prefix(property["SETTING_VALUE"])
                 self.__log.info("%s, setting: %s, value: %s" % (property["STORE_NAME"], 
                                 property["SETTING_NAME"], property["SETTING_VALUE"]))
-            
+    
+    def __get_store_config_by_name(self, store_name):
+        if store_name is not None and store_name != "":
+            return self.__store_config_dict[store_name]
+        return None
+     
     def __handle_cancel(self):
         self.__dialog.close()
     

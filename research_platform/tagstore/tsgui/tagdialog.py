@@ -18,6 +18,7 @@ from PyQt4 import QtCore, QtGui
 import tsresources.resources
 from tagcompleter import TagCompleterWidget
 from tscore.tsconstants import TsConstants
+from tscore.enums import ECategorySetting
 from admindialog import StorePreferencesController
 from administration import Administration
 
@@ -43,6 +44,13 @@ class TagDialog(QtGui.QDialog):
         self.__show_datestamp = False
         self.__show_categories = False
         self.__category_mandatory = False
+        
+        ## state-flags for indicating, if an error is currently being displayed
+        self.__info_no_item_selected_shown = False
+        self.__info_no_tag_shown = False
+        self.__info_no_category_shown = False
+        self.__info_tag_limit_shown = False
+        
         self.__selected_item = None
         
         self.__info_palette = None
@@ -89,7 +97,6 @@ class TagDialog(QtGui.QDialog):
         
         
         self.__tag_error_label = QtGui.QLabel()
-        #self.__tag_error_label.setVisible(False)
         self.__tag_error_label.setPalette(self.get_red_palette())
         
 #        self.__category_label = QtGui.QLabel()
@@ -99,13 +106,15 @@ class TagDialog(QtGui.QDialog):
         self.__pop_category_widget.setLayout(self.__pop_category_layout)
         
         self.__category_error_label = QtGui.QLabel()
-        #self.__category_error_label.setVisible(False)
         self.__category_error_label.setPalette(self.get_red_palette())
         
         self.__item_error_label = QtGui.QLabel()
-        #self.__item_error_label.setVisible(False)
         self.__item_error_label.setPalette(self.get_red_palette())
         
+        #self.__tag_error_label.setVisible(False)
+        #self.__category_error_label.setVisible(False)
+        #self.__item_error_label.setVisible(False)
+
         self.__mainlayout.addWidget(self.__item_list_view, 0, 0, 1, 4)
         self.__mainlayout.addWidget(self.__item_error_label, 1, 0, 1, 4)
         
@@ -207,8 +216,17 @@ class TagDialog(QtGui.QDialog):
         self.connect(self.__property_button, QtCore.SIGNAL("clicked()"), QtCore.SIGNAL("property_clicked()"))
         self.connect(self.__tag_button, QtCore.SIGNAL("clicked()"), self.__tag_button_pressed)
         self.connect(self.__tag_line_widget, QtCore.SIGNAL("tag_limit_reached"), self.__handle_tag_limit_reached)
+        self.connect(self.__tag_line_widget, QtCore.SIGNAL("line_empty"), self.__handle_tag_line_empty)
+        self.connect(self.__cat_line_widget, QtCore.SIGNAL("line_empty"), self.__handle_category_line_empty)
         """
         """
+    def __handle_tag_line_empty(self, empty):
+        if not empty:
+            self.remove_no_tag_entered_info()
+    
+    def __handle_category_line_empty(self, empty):
+        if not empty:
+            self.remove_category_info()
     
     def get_red_palette(self):
         """
@@ -223,30 +241,77 @@ class TagDialog(QtGui.QDialog):
         
         return self.__info_palette
     
+    def __reset_all_info_states(self, state=False):
+        """
+        reset all info states
+        """
+        self.__info_no_category_shown = state
+        self.__info_no_tag_shown = state
+        self.__info_no_item_selected_shown = state
+        self.__info_tag_limit_shown = state
+    
     def set_item_info(self, info_text):
         self.__item_error_label.setText(info_text)
+        self.__item_error_label.setVisible(True)
+        self.__info_no_item_selected_shown = True
         
-    def set_tag_info(self, info_text):
+    def remove_item_info(self):
+        self.__item_error_label.setText("")
+        self.__item_error_label.setVisible(False)
+        self.__info_no_item_selected_shown = False
+        
+    def set_max_tags_reached_info(self, info_text):
         self.__tag_error_label.setText(info_text)
-        ## use a timer to automatically remove the info
-        timer = QtCore.QTimer()
-        timer.connect(timer, QtCore.SIGNAL("timeout()"), self.hide_tag_info)
-        timer.start(4000)
-    
-    def hide_tag_info(self):
+        #self.__tag_error_label.setVisible(True)
+        self.__info_tag_limit_shown = True
+        
+    def remove_max_tags_reached_info(self):
         self.__tag_error_label.setText("")
+        #self.__tag_error_label.setVisible(False)
+        self.__info_tag_limit_shown = False
+        
+    def set_no_tag_entered_info(self, info_text):
+        self.__tag_error_label.setText(info_text)
+        #self.__tag_error_label.setVisible(True)
+        self.__tag_line_widget.set_check_not_empty(True)
+        self.__info_no_tag_shown = True
+        
+    def remove_no_tag_entered_info(self):
+        self.__tag_error_label.setText("")
+        #self.__tag_error_label.setVisible(False)
+        self.__tag_line_widget.set_check_not_empty(False)
+        self.__info_no_tag_shown = False
     
-    def set_category_info(self, info_text):
+    def set_no_category_entered_info(self, info_text):
         self.__category_error_label.setText(info_text)
+        #self.__category_error_label.setVisible(True)
+        self.__cat_line_widget.set_check_not_empty(True)
+        self.__info_no_category_shown = True
+    def remove_no_category_entered_info(self):
+        self.__category_error_label.setText("")
+        #self.__category_error_label.setVisible(False)
+        self.__cat_line_widget.set_check_not_empty(False)
+        self.__info_no_category_shown = False
+        
+    def set_not_suitable_categories_entered(self, info_text):
+        self.__category_error_label.setText(info_text)
+        #self.__categor7y_error_label.setVisible(True)
+    
+    def remove_not_suitable_categories_entered(self):
+        self.__category_error_label.setText("")
+        #self.__category_error_label.setVisible(False)
+        
+        
+    def remove_category_info(self):
+        self.__category_error_label.setText("")
+        #self.__info_no_tag_shown = False
     
     def keyPressEvent(self, event):
         """
         dummy re-implementation to avoid random signal sending
         """
         key = event.key()
-        
         if key == QtCore.Qt.Key_Return or key == QtCore.Qt.Key_Enter:
-            
             self.__log.debug("tag_dialog: RETURN PRESSED")
         ## pass the signal to the normal parent chain
     
@@ -254,7 +319,7 @@ class TagDialog(QtGui.QDialog):
         pass
         
     def __handle_tag_limit_reached(self):
-        self.set_tag_info(self.trUtf8("Tag limit reached. No more tags can be provided for this item."))
+        self.set_max_tags_reached_info(self.trUtf8("Tag limit reached. No more tags can be provided for this item."))
         
     def __handle_tagline_enter(self):
         ## switch to the category_line if it is enabled
@@ -280,7 +345,7 @@ class TagDialog(QtGui.QDialog):
         #if not self.__tag_line_widget.is_empty():
         #    self.__handle_tag_action()
         #else:
-        #    self.set_tag_info(self.trUtf8("Please type at least one tag in the tag-line"))
+        #    self.set_no_tag_entered_info(self.trUtf8("Please type at least one tag in the tag-line"))
     
     def __tag_button_pressed(self):
         self.__handle_tag_action()
@@ -367,6 +432,15 @@ class TagDialog(QtGui.QDialog):
         else:
             ## set the new selected item manually
             self.__set_selected_item(self.__item_list_view.item(row_to_remove))
+            
+    def remove_all_infos(self):
+        """
+        remove all info-labels and their according states
+        """
+        self.remove_category_info()
+        self.remove_item_info()
+        self.remove_no_tag_entered_info()
+        self.remove_max_tags_reached_info()
 
     def __handle_tag_action(self):
         self.emit(QtCore.SIGNAL("tag_button_pressed"), self.__get_selected_item(), self.__tag_line_widget.get_tag_list())
@@ -382,15 +456,16 @@ class TagDialog(QtGui.QDialog):
             self.setWindowTitle(self.APP_NAME)
            
         
-    def show_category_line(self, enable):
+    def show_category_line(self, setting):
         """
-        if True - add a category_line and a popular_categories_label
-        if False - remove them
+        if ENABLED | ENABLED_ONLY_PERSONAL - add a category_line and a popular_categories_label
+        if DISABLED - remove them
         + resize the dialog 
         """
-        self.__show_categories = enable
+        self.__show_categories = setting
         
-        if enable:
+        
+        if setting != ECategorySetting.DISABLED:
             self.resize(481, 334)
             self.__category_line.setVisible(True)
             self.__pop_category_widget.setVisible(True)
@@ -525,15 +600,15 @@ class TagDialog(QtGui.QDialog):
         returns a string list with the user-selected categories
         """
         return self.__cat_line_widget.get_tag_list()
-        
-        #cat_list = self.__category_line.selectedItems()
-        #cat_str_list = []
-        #for cat in cat_list:
-        #    cat_str_list.append(str(cat.text()))
-        #return cat_str_list
+    
+    def get_category_completion_list(self):
+        return self.__cat_line_widget.get_tag_completion_list()
     
     def is_category_mandatory(self):
         return self.__category_mandatory
+    
+    def is_category_enabled(self):
+        return self.__show_categories
 
 class TagDialogController(QtCore.QObject):
     """
@@ -575,7 +650,7 @@ class TagDialogController(QtCore.QObject):
         pre-check if all necessary data is available for storing tags to an item 
         """
         if tag_list is None or len(tag_list) == 0:
-            self.__tag_dialog.set_tag_info(self.trUtf8("Please enter at least one tag for the selected item"))
+            self.__tag_dialog.set_no_tag_entered_info(self.trUtf8("Please enter at least one tag for the selected item"))
             return
         if item is None:
             self.__tag_dialog.set_item_info(self.trUtf8("Please select an Item, to which the tags should be added"))
@@ -583,20 +658,35 @@ class TagDialogController(QtCore.QObject):
         
         category_list = self.__tag_dialog.get_category_list()
         category_mandatory = self.__tag_dialog.is_category_mandatory()
+        category_setting = self.__tag_dialog.is_category_enabled()
         
-        if category_mandatory and (category_list is None or len(category_list) == 0):
-            self.__tag_dialog.set_category_info(self.trUtf8("Please select at least one category"))
+        ## just check this, if the category line is enabled
+        if (category_setting == ECategorySetting.ENABLED or category_setting == ECategorySetting.ENABLED) and category_mandatory and (category_list is None or len(category_list) == 0):
+            self.__tag_dialog.set_no_category_entered_info(self.trUtf8("Please select at least one category"))
+            return
+        
+        ## just predefined categories are allowed - check this
+        if category_setting == ECategorySetting.ENABLED_ONLY_PERSONAL:
+            completion_set = set(self.__tag_dialog.get_category_completion_list())
+            #TODO: maybe just take the intersection
+            if not category_list.issubset(completion_set):
+                self.__tag_dialog.set_not_suitable_categories_entered(
+                        self.trUtf8("Please use just the suggested categories"))
             return
             
         self.__item_to_remove = item
         self.emit(QtCore.SIGNAL("tag_item"), self.__store_name, item.text(), tag_list, category_list)
         
     def remove_item(self, item_name):
-        
+        """
+        should be called after a successful tag-operation at the store
+        """
         if item_name == self.__item_to_remove.text():
             self.__tag_dialog.remove_item_from_list(self.__item_to_remove)
+            self.__tag_dialog.remove_all_infos()
             self.__item_to_remove = None
             self.__tag_dialog.select_tag_line()
+            
     def get_view(self):
         return self.__tag_dialog
     

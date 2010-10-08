@@ -23,6 +23,7 @@ from tscore.tagwrapper import TagWrapper
 from tscore.enums import EFileType, EFileEvent, EOS
 from tscore.pendingchanges import PendingChanges
 from tscore.exceptions import StoreInitError, StoreTaggingError
+from tscore.configwrapper import ConfigWrapper
 
 class Store(QtCore.QObject):
 
@@ -32,7 +33,7 @@ class Store(QtCore.QObject):
                        "file_removed(PyQt_PyObject, QString)",
                        "pending_operations_changed(PyQt_PyObject)")
 
-    def __init__(self, id, path, config_file, storage_dir_list, navigation_dir_list):
+    def __init__(self, id, path, config_file_name, tags_file, storage_dir_list, navigation_dir_list):
         """
         constructor
         """
@@ -44,11 +45,13 @@ class Store(QtCore.QObject):
         self.__watcher = QtCore.QFileSystemWatcher(self)
         self.__watcher.connect(self.__watcher,QtCore.SIGNAL("directoryChanged(QString)"), self.__directory_changed)
         self.__tag_wrapper = None
+        self.__store_config_wrapper = None
         self.__pending_changes = PendingChanges()
         
         self.__id = unicode(id)
         self.__path = unicode(path)
-        self.__config_file = unicode(config_file)
+        self.__config_file_name = unicode(config_file_name)
+        self.__tags_file_name = unicode(tags_file)
         self.__storage_dir_name = self.trUtf8("storage")
         self.__navigation_dir_name = self.trUtf8("navigation")
         #self.__parent_path = None
@@ -56,7 +59,7 @@ class Store(QtCore.QObject):
         #self.__config_path = None
         #self.__watcher_path = None
         #self.__navigation_path = None
-        #self.__config_path = self.__path + "/" + self.__config_file
+        #self.__config_path = self.__path + "/" + self.__config_file_name
         #self.__watcher_path = self.__path + "/" + self.__storage_dir_name
         #self.__navigation_path = self.__path + "/" + self.__navigation_dir_name
         #self.__tag_wrapper = TagWrapper(self.__config_path)
@@ -69,7 +72,6 @@ class Store(QtCore.QObject):
         if not self.__file_system.path_exists(self.__path):
             ## look for renamed or removed store folder
             self.__handle_renamed_removed_store()
-        print "path="+self.__path
         if not self.__file_system.path_exists(self.__path):
             raise StoreInitError, self.trUtf8("The specified store directory does not exist!")
         
@@ -86,26 +88,32 @@ class Store(QtCore.QObject):
         ## built stores directories and config file if they currently not exist (new store)
         self.__file_system.create_dir(self.__path + "/" + self.__storage_dir_name)
         self.__file_system.create_dir(self.__path + "/" + self.__navigation_dir_name)
-        self.__file_system.create_dir(self.__path + "/" + self.__config_file.split("/")[0])
-        if not self.__file_system.path_exists(self.__path + "/" + self.__config_file):
-            self.__file_system.create_file(self.__path + "/" + self.__config_file)
+        self.__file_system.create_dir(self.__path + "/" + self.__config_file_name.split("/")[0])
+        if not self.__file_system.path_exists(self.__path + "/" + self.__config_file_name):
+            ConfigWrapper.create_store_config_file(self.__path + "/" + self.__config_file_name)
+            TagWrapper.create_tags_file(self.__path + "/" + self.__tags_file_name)
             ## write store id to config file
-            self.__tag_wrapper = TagWrapper(self.__path + "/" + self.__config_file, self.__id)
+            self.__tag_wrapper = TagWrapper(self.__path + "/" + self.__tags_file_name)
+            self.__tag_wrapper.set_store_id(self.__id)
         
         self.__init_store()
         
     def __init_store(self):
         """
-        initializes the store paths, config reader, file system watcher without instantiation of a now object
+        initializes the store paths, config reader, file system watcher without instantiation of a new object
         """
         self.__name = self.__path.split("/")[-1]
         self.__parent_path = self.__path[:len(self.__path)-len(self.__name)-1]
-        self.__config_path = self.__path + "/" + self.__config_file
+        self.__tags_file_path = self.__path + "/" + self.__tags_file_name
+        self.__config_path = self.__path + "/" + self.__config_file_name
         self.__watcher_path = self.__path + "/" + self.__storage_dir_name
         self.__navigation_path = self.__path + "/" + self.__navigation_dir_name
-        self.__tag_wrapper = TagWrapper(self.__config_path)
+        
+        self.__tag_wrapper = TagWrapper(self.__tags_file_path)
         ## update store id to avoid inconsistency
         self.__tag_wrapper.set_store_id(self.__id)
+        
+        self.__store_config_wrapper = ConfigWrapper(self.__config_path)
         
         self.__watcher.addPath(self.__parent_path)
         self.__watcher.addPath(self.__watcher_path)
@@ -116,17 +124,19 @@ class Store(QtCore.QObject):
         """
         self.__handle_file_changes(self.__watcher_path)
 
-    def set_path(self, path, config_file=None):
+    def set_path(self, path, config_file=None, tags_file=None):
         """
         resets the stores path and config path (called if application config changes)
         """
-        if self.__path == unicode(path) and (config_file is None or self.__config_file == unicode(config_file)):
+        if self.__path == unicode(path) and (config_file is None or self.__config_file_name == unicode(config_file)):
             exit
         ## update changes
         self.__watcher.removePaths([self.__parent_path, self.__watcher_path])
         self.__path = unicode(path)
         if config_file is not None:
-            self.__config_file = unicode(config_file)
+            self.__config_file_name = unicode(config_file)
+        if tags_file is not None:
+            self.__tags_file_name = unicode(tags_file)
         self.__init_store()
         
     def __handle_renamed_removed_store(self):
@@ -134,9 +144,9 @@ class Store(QtCore.QObject):
         searches the parents directory for renamed or removed stores
         """
         #print self.__parent_path
-        #print self.__config_file
+        #print self.__config_file_name
         #print ".."
-        config_paths = self.__file_system.find_files(self.__parent_path, self.__config_file)
+        config_paths = self.__file_system.find_files(self.__parent_path, self.__config_file_name)
         #print "config paths: " + ",".join(config_paths)
         new_name = ""
         for path in config_paths:
@@ -309,6 +319,15 @@ class Store(QtCore.QObject):
         """
         return self.__tag_wrapper.get_popular_tags(number)
 
+    def get_show_category_line(self):
+        return self.__store_config_wrapper.get_show_category_line()
+    
+    def get_datestamp_format(self):
+        return self.__store_config_wrapper.get_datestamp_format()
+    
+    def get_category_mandatory(self):
+        return self.__store_config_wrapper.get_category_mandatory()
+
     def __name_in_conflict(self, file_name, tag_list, category_list):
         """
         checks for conflicts and returns the result as boolean
@@ -409,7 +428,7 @@ class Store(QtCore.QObject):
         returns a predefined list of allowed strings (controlled vocabulary) to be used for categorizing
         """
         #TODO: read predefined categorizing tags and return them to the UI
-        return ["category1", "category2", "category3", "category4",]
+        return [unicode("category1"), unicode("category2"), unicode("category3"), unicode("category4")]
         
 
 ## end

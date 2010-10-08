@@ -50,6 +50,7 @@ class Tagstore(QtCore.QObject):
         ## global settings/defaults (only used if reading config file failed or invalid!)
         self.STORE_CONFIG_DIR = TsConstants.STORE_CONFIG_DIR
         self.STORE_CONFIG_FILE_NAME = TsConstants.STORE_CONFIG_FILENAME
+        self.STORE_TAGS_FILE_NAME = TsConstants.STORE_TAGS_FILENAME
         self.STORE_STORAGE_DIRS = TsConstants.STORE_POSSIBLE_STORAGE_DIRS
         self.STORE_NAVIGATION_DIRS = TsConstants.STORE_POSSIBLE_NAVIGATION_DIRS
         self.TAG_SEPERATOR = TsConstants.DEFAULT_TAG_SEPARATOR
@@ -62,7 +63,7 @@ class Tagstore(QtCore.QObject):
         self.DIALOGS = {}
         
         ## init configurations
-        self.__config_file = None
+        self.__app_config_wrapper = None
         self.__log = None
         
         self.LOG_LEVEL = logging.INFO
@@ -106,24 +107,27 @@ class Tagstore(QtCore.QObject):
         """
         self.__log.info("initialize configuration")
         ## reload config file
-        self.__config_file = ConfigWrapper(TsConstants.CONFIG_PATH)
-        self.__config_file.connect(self.__config_file, QtCore.SIGNAL("changed()"), self.__init_configurations)
-        tag_seperator = self.__config_file.get_tag_seperator()
+        self.__app_config_wrapper = ConfigWrapper(TsConstants.CONFIG_PATH)
+        self.__app_config_wrapper.connect(self.__app_config_wrapper, QtCore.SIGNAL("changed()"), self.__init_configurations)
+        tag_seperator = self.__app_config_wrapper.get_tag_seperator()
         if tag_seperator.strip() != "":
             self.TAG_SEPERATOR = tag_seperator
         
-        self.NUM_RECENT_TAGS = self.__config_file.get_num_recent_tags()
-        self.NUM_POPULAR_TAGS = self.__config_file.get_num_popular_tags()
-        self.MAX_TAGS = self.__config_file.get_max_tags()
+        self.NUM_RECENT_TAGS = self.__app_config_wrapper.get_num_recent_tags()
+        self.NUM_POPULAR_TAGS = self.__app_config_wrapper.get_num_popular_tags()
+        self.MAX_TAGS = self.__app_config_wrapper.get_max_tags()
             
-        config_dir = self.__config_file.get_store_config_directory()
+        config_dir = self.__app_config_wrapper.get_store_config_directory()
         if config_dir != "":
             self.STORE_CONFIG_DIR = config_dir
-        config_file_name = self.__config_file.get_store_tagsfile_name()
+        config_file_name = self.__app_config_wrapper.get_store_configfile_name()
         if config_file_name != "":
             self.STORE_CONFIG_FILE_NAME = config_file_name
+        tags_file_name = self.__app_config_wrapper.get_store_tagsfile_name()
+        if tags_file_name != "":
+            self.STORE_TAGS_FILE_NAME = tags_file_name
         
-        self.SUPPORTED_LANGUAGES = self.__config_file.get_supported_languages()
+        self.SUPPORTED_LANGUAGES = self.__app_config_wrapper.get_supported_languages()
         current_language = self.CURRENT_LANGUAGE
         self.STORE_STORAGE_DIRS = []
         self.STORE_NAVIGATION_DIRS = [] 
@@ -135,15 +139,18 @@ class Tagstore(QtCore.QObject):
         self.change_language(current_language)
 
         ## get stores from config file         
-        config_store_items = self.__config_file.get_stores()
-        config_store_ids = self.__config_file.get_store_ids()
+        config_store_items = self.__app_config_wrapper.get_stores()
+        config_store_ids = self.__app_config_wrapper.get_store_ids()
 
         deleted_stores = []
         for store in self.STORES:
             id = store.get_id()
             if id in config_store_ids:
             ## update changed stores
-                store.set_path(self.__config_file.get_store_path(id), self.STORE_CONFIG_DIR + "/" + self.STORE_CONFIG_FILE_NAME)
+                store.set_path(self.__app_config_wrapper.get_store_path(id), 
+                               self.STORE_CONFIG_DIR + "/" + self.STORE_CONFIG_FILE_NAME,
+                               self.STORE_CONFIG_DIR + "/" + self.STORE_TAGS_FILE_NAME)
+                               
                 config_store_ids.remove(id)             ## remove already updated items
             else:
             ## remove deleted stores
@@ -157,13 +164,17 @@ class Tagstore(QtCore.QObject):
         ## add new stores
         for store_item in config_store_items:
             if store_item["id"] in config_store_ids:    ## new
-                store = Store(store_item["id"],store_item["path"], self.STORE_CONFIG_DIR + "/" + self.STORE_CONFIG_FILE_NAME, self.STORE_STORAGE_DIRS, self.STORE_NAVIGATION_DIRS)
+                store = Store(store_item["id"], store_item["path"], 
+                              self.STORE_CONFIG_DIR + "/" + self.STORE_CONFIG_FILE_NAME,
+                              self.STORE_CONFIG_DIR + "/" + self.STORE_TAGS_FILE_NAME,
+                              self.STORE_STORAGE_DIRS, 
+                              self.STORE_NAVIGATION_DIRS)
                 self.__log.debug("found store: %s", store.get_name())
                 
                 ## create a dialogcontroller for each store ...
                 ## can be accessed by its ID later on
                 tmp_dialog = TagDialogController(store.get_name(), self.MAX_TAGS, self.TAG_SEPERATOR)
-                format_setting = self.__config_file.get_datestamp_format()
+                format_setting = store.get_datestamp_format()
 
                 ##check if auto datestamp is enabled
                 if format_setting != EDateStampFormat.DISABLED:
@@ -176,8 +187,8 @@ class Tagstore(QtCore.QObject):
                         format = TsConstants.DATESTAMP_FORMAT_MONTH
                     tmp_dialog.set_datestamp_format(format)
                         
-                tmp_dialog.show_category_line(self.__config_file.get_show_category_line())
-                tmp_dialog.set_category_mandatory(self.__config_file.get_category_mandatory())
+                tmp_dialog.show_category_line(store.get_show_category_line())
+                tmp_dialog.set_category_mandatory(store.get_category_mandatory())
                 
                 tmp_dialog.connect(tmp_dialog, QtCore.SIGNAL("tag_item"), self.tag_item_action)
                 tmp_dialog.connect(tmp_dialog, QtCore.SIGNAL("handle_cancel()"), self.handle_cancel)
@@ -196,22 +207,22 @@ class Tagstore(QtCore.QObject):
     
     def show_admin_dialog(self):
         controller = StorePreferencesController(parent=self.sender().get_view())
-        controller.set_main_config(self.__config_file)
-        controller.set_store_list(self.__config_file.get_stores())
+        controller.set_main_config(self.__app_config_wrapper)
+        controller.set_store_list(self.__app_config_wrapper.get_stores())
         controller.show_dialog()
     
     def store_removed(self, store):
         """
         event handler of the stores remove event
         """
-        self.__config_file.remove_store(store.get_id())
+        self.__app_config_wrapper.remove_store(store.get_id())
         ## __init_configuration is called due to config file changes
         
     def store_renamed(self, store, new_path):
         """
         event handler of the stores rename event
         """
-        self.__config_file.rename_store(store.get_id(), new_path)
+        self.__app_config_wrapper.rename_store(store.get_id(), new_path)
         ## __init_configuration is called due to config file changes
         
     def file_renamed(self, store, old_file_name, new_file_name):

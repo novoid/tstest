@@ -50,6 +50,10 @@ class TagCompleterWidget(QObject):
         self.__show_datestamp = show_datestamp
         self.__datestamp_format = TsConstants.DATESTAMP_FORMAT_DAY
         
+        ## flag, if the line should be checked of emptiness
+        self.__check_not_empty = False
+        self.__check_text_in_list = False
+        
         self.__completer = QCompleter(self.__tag_list, self);    
         self.__completer.setCaseSensitivity(Qt.CaseInsensitive)
         self.__completer.setWidget(self.__tag_line)
@@ -83,6 +87,12 @@ class TagCompleterWidget(QObject):
         self.__tag_line.clear()
         if self.__show_datestamp:
             self.__handle_datestamp()
+    def set_check_not_empty(self, check_necessary):
+        """
+        set this to True, if there should be sent a signal that indicates 
+        that the tagline is not empty anymore 
+        """
+        self.__check_not_empty = True
     
     def select_line(self):
         """
@@ -93,6 +103,13 @@ class TagCompleterWidget(QObject):
 
     def __text_changed(self, text):
         all_text = unicode(text)
+        
+        if self.__check_not_empty:
+            if all_text is not None and all_text != "":
+                self.emit(QtCore.SIGNAL("line_empty"), False)
+            else:
+                self.emit(QtCore.SIGNAL("line_empty"), True)
+        
         text = all_text[:self.__tag_line.cursorPosition()]
         
         ## remove whitespace and filter out duplicates by using a set
@@ -162,6 +179,9 @@ class TagCompleterWidget(QObject):
     def set_tag_completion_list(self, tag_list):
         self.__tag_list = tag_list
         self.__completer.setModel(QtGui.QStringListModel(QtCore.QStringList(tag_list)))
+        
+    def get_tag_completion_list(self):
+        return self.__tag_list
 
     def is_empty(self):
         if self.__tag_line.text() == "":

@@ -17,6 +17,7 @@ import sys
 import logging.handlers
 from optparse import OptionParser
 from PyQt4 import QtCore, QtGui
+from tscore.store import Store
 from tscore.configwrapper import ConfigWrapper
 from tscore.tsconstants import TsConstants
 from tsgui.admindialog import StorePreferencesController
@@ -35,7 +36,6 @@ class Administration(QtCore.QObject):
             
         self.__init_logger(self.LOG_LEVEL)
         self.__init_configuration()
-        self.__show_admin_dialog(True)
         
     def __init_logger(self, log_level):
         LOG_FILENAME = TsConstants.LOG_FILENAME
@@ -67,18 +67,30 @@ class Administration(QtCore.QObject):
         self.__main_config = ConfigWrapper(TsConstants.CONFIG_PATH)
         self.__main_config.connect(self.__main_config, QtCore.SIGNAL("changed()"), self.__init_configuration)
     
-    def __show_admin_dialog(self, show):
+    def show_admin_dialog(self, show):
         if self.__admin_dialog is None:
             self.__admin_dialog = StorePreferencesController()
-        
-        self.__admin_dialog.set_main_config(self.__main_config)
-        self.__admin_dialog.set_store_list(self.__main_config.get_stores())
+            self.__admin_dialog.set_main_config(self.__main_config)
+            self.__admin_dialog.set_store_list(self.__main_config.get_stores())
+
+            self.connect(self.__admin_dialog, QtCore.SIGNAL("create_new_store"), self.__handle_new_store)
         
         self.__admin_dialog.show_dialog()
+        
+    def __handle_new_store(self, dir):
+        """
+        create new store at given directory
+        """
+        ## get all store ids
+        id_list = self.__main_config.get_store_ids()
+        new_store = Store(id_list)
         
 if __name__ == '__main__':  
   
     ## initialize and configure the optionparser
+    
+    ConfigWrapper.create_config_file("/Users/chris/Documents/CONFIG")
+    
     opt_parser = OptionParser("tagstore_admin.py [options]")
     opt_parser.add_option("-v", "--verbose", dest="verbose", action="store_true", help="start programm with detailed output")
 
@@ -96,5 +108,6 @@ if __name__ == '__main__':
     tagstore_admin.UnicodeUTF8
     
     admin_widget = Administration(verbose=verbose_mode)
+    admin_widget.show_admin_dialog(True)
     tagstore_admin.exec_()
 ## end
