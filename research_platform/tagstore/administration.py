@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # -*- coding: utf-8 -*-
 
 ## this file is part of tagstore_admin, an alternative way of storing and retrieving information
