@@ -89,8 +89,6 @@ if __name__ == '__main__':
   
     ## initialize and configure the optionparser
     
-    ConfigWrapper.create_config_file("/Users/chris/Documents/CONFIG")
-    
     opt_parser = OptionParser("tagstore_admin.py [options]")
     opt_parser.add_option("-v", "--verbose", dest="verbose", action="store_true", help="start programm with detailed output")
 
