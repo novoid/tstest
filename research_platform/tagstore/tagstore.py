@@ -286,7 +286,7 @@ class Tagstore(QtCore.QObject):
         tag_set = tag_set | set(store.get_recent_tags(self.NUM_RECENT_TAGS))
 
         #dialog_controller.set_category_list(store.get_category_list())
-        dialog_controller.set_category_list(store.get_controlled_vocabulary())
+        #dialog_controller.set_category_list(store.get_controlled_vocabulary())
         
         ## make a list out of the set, to enable indexing, as not all tags cannot be used
         tag_list = list(tag_set)
