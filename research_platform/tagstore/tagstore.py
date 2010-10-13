@@ -209,6 +209,7 @@ class Tagstore(QtCore.QObject):
         controller = StorePreferencesController(parent=self.sender().get_view())
         controller.set_main_config(self.__app_config_wrapper)
         controller.set_store_list(self.__app_config_wrapper.get_stores())
+        controller.select_tab(controller.TAB_NAME_VOCABULARY)
         controller.show_dialog()
     
     def store_removed(self, store):
@@ -280,20 +281,21 @@ class Tagstore(QtCore.QObject):
         self.__log.debug("refresh tag information on dialog")
         dialog_controller = self.DIALOGS[store.get_id()]
         dialog_controller.set_tag_list(store.get_tags())
-        dialog_controller.set_category_list(store.get_category_list())
         
         tag_set = set(store.get_popular_tags(self.NUM_POPULAR_TAGS))
         tag_set = tag_set | set(store.get_recent_tags(self.NUM_RECENT_TAGS))
+
+        #dialog_controller.set_category_list(store.get_category_list())
+        dialog_controller.set_category_list(store.get_controlled_vocabulary())
         
         ## make a list out of the set, to enable indexing, as not all tags cannot be used
         tag_list = list(tag_set)
         if len(tag_list) > self.NUM_POPULAR_TAGS:
             tag_list = tag_list[:self.NUM_POPULAR_TAGS]
         dialog_controller.set_popular_tags(tag_list)
-        ## TODO: implement categories ...
-        #dialog_controller.set_popular_categories()
-        if len(self.DIALOGS) > 1:
-            dialog_controller.set_store_name(store.get_name())
+
+        #if len(self.DIALOGS) > 1:
+        dialog_controller.set_store_name(store.get_name())
     
     def tag_item_action(self, store_name, item_name, tag_list, category_list):
         """

@@ -57,6 +57,21 @@ class StorePreferencesView(QtGui.QDialog):
         put a new preference view to the tab list 
         """
         self.__tab_widget.addTab(preference_widget, title)
+    
+    def select_preference_tab(self, preference_widget):
+        """
+        select the tab of the widget provided as parameter
+        """
+        index = self.__tab_widget.indexOf(preference_widget)
+        self.__tab_widget.setCurrentWidget(preference_widget)
+        
+    def remove_preference_tab(self, preference_widget):
+        """
+        remove an already added tab
+        """
+        index = self.__tab_widget.indexOf(preference_widget)
+        self.__tab_widget.removeTab(index)
+        
         
 class BasePreferenceView(QtGui.QWidget):
     
@@ -696,6 +711,7 @@ class ExpiryAdminController(BasePreferenceController):
         
 class StorePreferencesController(QtCore.QObject):
     
+    
     def __init__(self, parent=None):
         """
         controller for the store-preferences dialog
@@ -710,8 +726,12 @@ class StorePreferencesController(QtCore.QObject):
         self.__store_dict = {}
         self._store_list = None
         
+        self.TAB_NAME_STORE = self.trUtf8("Store Management")
+        self.TAB_NAME_DATESTAMP = self.trUtf8("Datestamps")
+        self.TAB_NAME_EXPIRY = self.trUtf8("Expiry Date")
+        self.TAB_NAME_VOCABULARY = self.trUtf8("Vocabulary")
         ## a list with all controllers used at the preference view
-        self.__preference_controller_list = []
+        self.__preference_controller_list = {}
         
         ## the main preferences window 
         self.__dialog = StorePreferencesView(parent=parent)
@@ -730,16 +750,16 @@ class StorePreferencesController(QtCore.QObject):
         
         ## initialize the controllers for each preference tab
         self.__controller_store_admin = StoreAdminController(self.__store_dict)
-        self.__register_controller(self.__controller_store_admin, self.trUtf8("Store Management"))
+        self.__register_controller(self.__controller_store_admin, self.TAB_NAME_STORE)
         
         self.__controller_datestamp = DatestampAdminController(self.__store_names)
-        self.__register_controller(self.__controller_datestamp, self.trUtf8("Datestamps"))
+        self.__register_controller(self.__controller_datestamp, self.TAB_NAME_DATESTAMP)
 
         self.__controller_expiry_admin = ExpiryAdminController()
-        self.__register_controller(self.__controller_expiry_admin, self.trUtf8("Expiry Date"))
+        self.__register_controller(self.__controller_expiry_admin, self.TAB_NAME_EXPIRY)
         
         self.__controller_vocabulary = VocabularyAdminController(self.__store_names)
-        self.__register_controller(self.__controller_vocabulary, self.trUtf8("Categories"))
+        self.__register_controller(self.__controller_vocabulary, self.TAB_NAME_VOCABULARY)
 
         #TODO: use real vocabulary data ...
         voc_list = [["cat", "blood", "shut"], ["screwdriver", "orange", "lorre", "BH"]]
@@ -793,7 +813,7 @@ class StorePreferencesController(QtCore.QObject):
         use this method to register a new preference controller
         it will be added to the tablist and to the internal controller_list too
         """
-        self.__preference_controller_list.append(controller)
+        self.__preference_controller_list[title] = controller
         ## add the preference tabs to the preferences window        
         self.__dialog.add_preference_tab(controller.get_view(), title)
 
@@ -802,7 +822,7 @@ class StorePreferencesController(QtCore.QObject):
         self.__log.info("**** CONFIG CHANGES ****")
         self.__log.info("writing to the config files:")
         self.__log.info("**** **** **** **** ****")
-        for controller in self.__preference_controller_list:
+        for controller in self.__preference_controller_list.values():
             ## iterate the properties of the controller
             for property in controller.get_settings():
                 ## write the properties into the config file
@@ -830,6 +850,20 @@ class StorePreferencesController(QtCore.QObject):
      
     def __handle_cancel(self):
         self.__dialog.close()
+    
+    def remove_tab(self, tab_name):
+        """
+        set to true if the controlled vocabulary tab should be shown
+        """
+        if tab_name is not None and tab_name != "":
+            self.__dialog.remove_preference_tab(self.__preference_controller_list[tab_name].get_view())
+            
+    def select_tab(self, tab_name):
+        """
+        method to programmatically set the selected tab
+        """
+        if tab_name is not None and tab_name != "":
+            self.__dialog.select_preference_tab(self.__preference_controller_list[tab_name].get_view())
     
     def show_dialog(self):
         self.__dialog.show()

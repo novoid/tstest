@@ -28,8 +28,9 @@ class TsConstants(object):
     
     CONFIG_PATH = "../conf/tagstore.cfg"
     STORE_CONFIG_DIR = ".tagstore"
-    STORE_TAGS_FILENAME = "store.tgs"
     STORE_CONFIG_FILENAME = "store.cfg"
+    STORE_TAGS_FILENAME = "store.tgs"
+    STORE_VOCABULARY_FILENAME = "vocabulary.txt"
     STORE_POSSIBLE_STORAGE_DIRS = "storage,Ablage"
     STORE_POSSIBLE_NAVIGATION_DIRS = "navigation,Navigation"
     STORE_TRASHBIN_NAME = "trash"

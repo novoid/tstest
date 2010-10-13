@@ -52,6 +52,7 @@ class TagCompleterWidget(QObject):
         
         ## flag, if the line should be checked of emptiness
         self.__check_not_empty = False
+        self.__check_tag_limit = False
         self.__check_text_in_list = False
         
         self.__completer = QCompleter(self.__tag_list, self);    
@@ -119,10 +120,15 @@ class TagCompleterWidget(QObject):
 
         ## do not proceed if the max tag count is reached
         if len(tag_set) > self.__max_tags:
-            self.emit(QtCore.SIGNAL("tag_limit_reached"))
+            self.emit(QtCore.SIGNAL("tag_limit_reached"), True)
             max_index = text.rfind(self.__tag_separator)
             self.__tag_line.setText(all_text[:max_index])
+            self.__check_tag_limit = True
             return
+        else:
+            if self.__check_tag_limit:
+                self.emit(QtCore.SIGNAL("tag_limit_reached"), False)
+                self.__check_tag_limit = False
         
         text_tags = []
         for tag in tag_set:

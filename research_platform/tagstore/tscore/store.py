@@ -24,6 +24,8 @@ from tscore.enums import EFileType, EFileEvent, EOS
 from tscore.pendingchanges import PendingChanges
 from tscore.exceptions import StoreInitError, StoreTaggingError
 from tscore.configwrapper import ConfigWrapper
+from tscore.vocabularywrapper import VocabularyWrapper
+from tscore.tsconstants import TsConstants
 
 class Store(QtCore.QObject):
 
@@ -423,12 +425,13 @@ class Store(QtCore.QObject):
             recursive_list.remove(tag)
             self.__delete_tag_folders(affected_tag, recursive_list, current_path + "/" + tag)
         
-    def get_category_list(self):
+    def get_controlled_vocabulary(self):
         """
         returns a predefined list of allowed strings (controlled vocabulary) to be used for categorizing
         """
-        #TODO: read predefined categorizing tags and return them to the UI
-        return [unicode("category1"), unicode("category2"), unicode("category3"), unicode("category4")]
+        wrapper = VocabularyWrapper("%s/%s/%s" % (self.__path, TsConstants.STORE_CONFIG_DIR, TsConstants.STORE_VOCABULARY_FILENAME))
+        #return [unicode("category1"), unicode("category2"), unicode("category3"), unicode("category4")]
+        return wrapper.get_vocabulary()
         
 
 ## end

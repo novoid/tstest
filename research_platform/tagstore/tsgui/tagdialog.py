@@ -89,7 +89,6 @@ class TagDialog(QtGui.QDialog):
         
         self.__tag_line = self.__tag_line_widget.get_tag_line()
         
-        #self.__tag_label = QtGui.QLabel()
         self.__pop_tag_layout = QtGui.QHBoxLayout()
         self.__pop_tag_layout.setContentsMargins(0, 0, 0, 0)
         self.__pop_tag_widget = QtGui.QWidget()
@@ -99,7 +98,6 @@ class TagDialog(QtGui.QDialog):
         self.__tag_error_label = QtGui.QLabel()
         self.__tag_error_label.setPalette(self.get_red_palette())
         
-#        self.__category_label = QtGui.QLabel()
         self.__pop_category_layout = QtGui.QHBoxLayout()
         self.__pop_category_layout.setContentsMargins(0, 0, 0, 0)
         self.__pop_category_widget = QtGui.QWidget()
@@ -120,13 +118,12 @@ class TagDialog(QtGui.QDialog):
         
         self.__mainlayout.addWidget(self.__tag_line, 2, 0, 1, 3)
         self.__mainlayout.addWidget(self.__tag_button, 2, 3, 4, 1)
-        self.__mainlayout.addWidget(self.__tag_error_label, 3, 0, 1, 3)
-#        self.__mainlayout.addWidget(self.__tag_label, 4, 0, 1, 3)
-        self.__mainlayout.addWidget(self.__pop_tag_widget, 4, 0, 1, 3)
+        self.__mainlayout.addWidget(self.__pop_tag_widget, 3, 0, 1, 3)
+        self.__mainlayout.addWidget(self.__tag_error_label, 4, 0, 1, 3)
         
         self.__mainlayout.addWidget(self.__category_line, 5, 0, 1, 3)
-        self.__mainlayout.addWidget(self.__category_error_label, 6, 0, 1, 3)
-        self.__mainlayout.addWidget(self.__pop_category_widget, 7, 0, 1, 3)
+        self.__mainlayout.addWidget(self.__pop_category_widget, 6, 0, 1, 3)
+        self.__mainlayout.addWidget(self.__category_error_label, 7, 0, 1, 3)
 
         self.__mainlayout.addWidget(self.__help_button, 8, 0, 1, 1)
         self.__mainlayout.addWidget(self.__property_button, 8, 1, 1, 1)
@@ -252,12 +249,12 @@ class TagDialog(QtGui.QDialog):
     
     def set_item_info(self, info_text):
         self.__item_error_label.setText(info_text)
-        self.__item_error_label.setVisible(True)
+        #self.__item_error_label.setVisible(True)
         self.__info_no_item_selected_shown = True
         
     def remove_item_info(self):
         self.__item_error_label.setText("")
-        self.__item_error_label.setVisible(False)
+        #self.__item_error_label.setVisible(False)
         self.__info_no_item_selected_shown = False
         
     def set_max_tags_reached_info(self, info_text):
@@ -318,8 +315,11 @@ class TagDialog(QtGui.QDialog):
     def closeEvent(self, event):
         pass
         
-    def __handle_tag_limit_reached(self):
-        self.set_max_tags_reached_info(self.trUtf8("Tag limit reached. No more tags can be provided for this item."))
+    def __handle_tag_limit_reached(self, limit_reached):
+        if limit_reached:
+            self.set_max_tags_reached_info(self.trUtf8("Tag limit reached. No more tags can be provided for this item."))
+        else:
+            self.remove_max_tags_reached_info()
         
     def __handle_tagline_enter(self):
         ## switch to the category_line if it is enabled
