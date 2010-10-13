@@ -1,0 +1,4 @@
+work
+private
+personal
+public
