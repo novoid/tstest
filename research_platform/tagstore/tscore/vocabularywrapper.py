@@ -45,30 +45,33 @@ class VocabularyWrapper(QtCore.QObject):
         """
         get all vocabulary stored in the vocabulary file
         returns a list
-        """
         voc_list = []
         
-        with open(self.__file_path, "rw") as voc_file:
+        with open(self.__file_path,"rw") as voc_file:
             for line in voc_file:
                 voc_list.append(unicode(line.strip("\n")))
         
         return voc_list
+        """
+        pass
     
     def add_vocable(self, single_vocable):
         """
         add a single word to the vocabulary file
-        """
         ## unsing the "with" keyword closes the file automatically 
         with open(self.__file_path, "rw") as voc_file:
             voc_file.write("%s\n" % single_vocable)
+        """
+        pass
 
     def add_vocabulary(self, vocable_list):
         """
         add a single word to the vocabulary file
-        """
         with open(self.__file_path, "rw") as voc_file:
             for vocable in vocable_list:
                 voc_file.write("%s\n" % vocable)
+        """
+        pass
         
     def replace_vocabulary(self, vocabule_list):
         """
