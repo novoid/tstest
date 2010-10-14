@@ -657,9 +657,9 @@ class ExpiryAdminView(BasePreferenceView):
                      
     def __update_prefix(self, prefix):
         self.__prefix = prefix
-        descr_text = self.trUtf8("Directories or files tagged with '%s2010-12'" \
-            "will be moved to the tagstore directory %s on the January 1st 2011. All tag associations will be lost."\
-            "The correct writing of '%s2010-12' is really important thereby" % (self.__prefix, TsConstants.STORE_TRASHBIN_NAME, self.__prefix))
+        descr_text = self.trUtf8("Directories or files tagged with '%s2010-12' " \
+            "will be moved to the tagstore directory %s on the January 1st 2011 associated tags will be removed. "\
+            "The correct writing of '%s2010-12' is really important thereby." % (self.__prefix, TsConstants.STORE_TRASHBIN_NAME, self.__prefix))
         self.__detailed_description_label.setText(descr_text)
     
     def get_prefix(self):

@@ -152,6 +152,9 @@ class TagCompleterWidget(QObject):
             self.__completer.complete()
     
     def __text_activated(self, text):
+        
+        print "text activated"
+        
         cursor_pos = self.__tag_line.cursorPosition()
         before_text = unicode(self.__tag_line.text())[:cursor_pos]
         #after_text = unicode(self.__tag_line.text())[cursor_pos:]
@@ -159,6 +162,7 @@ class TagCompleterWidget(QObject):
 
         self.__tag_line.setText("%s%s" % (before_text[:cursor_pos - prefix_len], text))
         self.__tag_line.setCursorPosition(cursor_pos - prefix_len + len(text) + 2)
+        self.emit(QtCore.SIGNAL("activated"))
 
     def get_tag_list(self):
         tag_string = unicode(self.__tag_line.text())

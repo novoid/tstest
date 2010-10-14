@@ -429,9 +429,9 @@ class Store(QtCore.QObject):
         """
         returns a predefined list of allowed strings (controlled vocabulary) to be used for categorizing
         """
-        #wrapper = VocabularyWrapper("%s/%s/%s" % (self.__path, TsConstants.STORE_CONFIG_DIR, TsConstants.STORE_VOCABULARY_FILENAME))
-        return [unicode("category1"), unicode("category2"), unicode("category3"), unicode("category4")]
-        #return wrapper.get_vocabulary()
+        wrapper = VocabularyWrapper("%s/%s/%s" % (self.__path, TsConstants.STORE_CONFIG_DIR, TsConstants.STORE_VOCABULARY_FILENAME))
+        #return [unicode("category1"), unicode("category2"), unicode("category3"), unicode("category4")]
+        return wrapper.get_vocabulary()
         
 
 ## end

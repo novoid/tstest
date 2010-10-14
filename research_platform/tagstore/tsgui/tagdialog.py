@@ -44,7 +44,9 @@ class TagDialog(QtGui.QDialog):
         self.__show_datestamp = False
         self.__show_categories = False
         self.__category_mandatory = False
-        
+        ## this flag is set, if the completer has been activated before
+        ## this is to tell, how the enter-signal should be handled  
+        self.__completer_activated = False
         ## state-flags for indicating, if an error is currently being displayed
         self.__info_no_item_selected_shown = False
         self.__info_no_tag_shown = False
@@ -205,8 +207,8 @@ class TagDialog(QtGui.QDialog):
         self.retranslateUi()
         self.__set_taborder()
         #self.connect(self, QtCore.SIGNAL("returnPressed()"), self.__handle_enter) 
-        self.connect(self.__category_line, QtCore.SIGNAL("returnPressed()"), self.__handle_categoryline_enter) 
-        self.connect(self.__tag_line, QtCore.SIGNAL("returnPressed()"), self.__handle_tagline_enter) 
+        self.connect(self.__category_line, QtCore.SIGNAL("returnPressed()"), self.__defer_categoryline_enter) 
+        self.connect(self.__tag_line, QtCore.SIGNAL("returnPressed()"), self.__defer_tagline_enter) 
         self.connect(self.__item_list_view, QtCore.SIGNAL("currentRowChanged(int)"), self.__handle_selection_changed)
         self.connect(self.__close_button, QtCore.SIGNAL("clicked()"), QtCore.SIGNAL("cancel_clicked()"))
         self.connect(self.__help_button, QtCore.SIGNAL("clicked()"), QtCore.SIGNAL("help_clicked()"))
@@ -214,9 +216,14 @@ class TagDialog(QtGui.QDialog):
         self.connect(self.__tag_button, QtCore.SIGNAL("clicked()"), self.__tag_button_pressed)
         self.connect(self.__tag_line_widget, QtCore.SIGNAL("tag_limit_reached"), self.__handle_tag_limit_reached)
         self.connect(self.__tag_line_widget, QtCore.SIGNAL("line_empty"), self.__handle_tag_line_empty)
+        self.connect(self.__tag_line_widget, QtCore.SIGNAL("activated"), self.__handle_completer_activated)
         self.connect(self.__cat_line_widget, QtCore.SIGNAL("line_empty"), self.__handle_category_line_empty)
+        self.connect(self.__cat_line_widget, QtCore.SIGNAL("activated"), self.__handle_completer_activated)
         """
         """
+    def __handle_completer_activated(self):
+        self.__completer_activated = True    
+    
     def __handle_tag_line_empty(self, empty):
         if not empty:
             self.remove_no_tag_entered_info()
@@ -320,8 +327,30 @@ class TagDialog(QtGui.QDialog):
             self.set_max_tags_reached_info(self.trUtf8("Tag limit reached. No more tags can be provided for this item."))
         else:
             self.remove_max_tags_reached_info()
+
+
+    def __defer_categoryline_enter(self):
+        """
+        this method is to delay the handling of the returnPressed signal ... 
+        so that another signal emitted immediately after the returnPressed signal is handled first 
+        if there is a suggestion in the completer activated by pressing "enter" there are two signals emitted
+        a) returnPressed from the QlineEdit
+        b) textActivated from the QCompleter
+        this is the wrong order ... the timeout benenfits the textActivated signals
+        """
+        timer = QtCore.QTimer()
+        timer.singleShot(100, self.__handle_categoryline_enter)
+        
+    def __defer_tagline_enter(self):
+        timer = QtCore.QTimer()
+        timer.singleShot(100, self.__handle_tagline_enter)
         
     def __handle_tagline_enter(self):
+        print "tagline enter"
+        if self.__completer_activated:
+            self.__completer_activated = False
+            return
+
         ## switch to the category_line if it is enabled
         if self.__show_categories:
             self.__category_line.selectAll()
@@ -335,17 +364,13 @@ class TagDialog(QtGui.QDialog):
         check if the tagline is not empty
         then emit the "tag" signal
         """
-        
-        ##TODO - re-implement the enter-handling
-        #sender = self.sender()
-        
-        #if sender is None or not isinstance(self.__category_line, QtGui.QLineEdit):
-        #    return
-        
-        #if not self.__tag_line_widget.is_empty():
-        #    self.__handle_tag_action()
-        #else:
-        #    self.set_no_tag_entered_info(self.trUtf8("Please type at least one tag in the tag-line"))
+        if self.__completer_activated:
+            self.__completer_activated = False
+            return
+        if not self.__tag_line_widget.is_empty():
+            self.__handle_tag_action()
+        else:
+            self.set_no_tag_entered_info(self.trUtf8("Please type at least one tag in the tag-line"))
     
     def __tag_button_pressed(self):
         self.__handle_tag_action()
@@ -576,7 +601,7 @@ class TagDialog(QtGui.QDialog):
         
         ## use a timer to automatically remove the tooltip
         #timer = QtCore.QTimer()
-        #timer.connect(timer, QtCore.SIGNAL("timeout()"), self.hide_tooltip)
+        #self.connect(timer, QtCore.SIGNAL("timeout()"), self.hide_tooltip)
         #timer.start(4000)
 
     def hide_tooltip(self):
@@ -667,12 +692,15 @@ class TagDialogController(QtCore.QObject):
         
         ## just predefined categories are allowed - check this
         if category_setting == ECategorySetting.ENABLED_ONLY_PERSONAL:
-            completion_set = set(self.__tag_dialog.get_category_completion_list())
+            completion_list = self.__tag_dialog.get_category_completion_list()
+            if completion_list is None:
+                return
+            completion_set = set(completion_list)
             #TODO: maybe just take the intersection
             if not category_list.issubset(completion_set):
                 self.__tag_dialog.set_not_suitable_categories_entered(
                         self.trUtf8("Please use just the suggested categories"))
-            return
+                return
             
         self.__item_to_remove = item
         self.emit(QtCore.SIGNAL("tag_item"), self.__store_name, item.text(), tag_list, category_list)
