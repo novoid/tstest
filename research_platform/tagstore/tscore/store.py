@@ -110,11 +110,12 @@ class Store(QtCore.QObject):
         self.__config_path = self.__path + "/" + self.__config_file_name
         self.__watcher_path = self.__path + "/" + self.__storage_dir_name
         self.__navigation_path = self.__path + "/" + self.__navigation_dir_name
+        self.__vocabulary_path = self.__path + "/" + TsConstants.STORE_CONFIG_DIR + "/" + TsConstants.STORE_VOCABULARY_FILENAME
         
         self.__tag_wrapper = TagWrapper(self.__tags_file_path)
         ## update store id to avoid inconsistency
         self.__tag_wrapper.set_store_id(self.__id)
-        
+        self.__vocabulary_wrapper = VocabularyWrapper(self.__vocabulary_path)
         self.__store_config_wrapper = ConfigWrapper(self.__config_path)
         
         self.__watcher.addPath(self.__parent_path)
@@ -429,9 +430,10 @@ class Store(QtCore.QObject):
         """
         returns a predefined list of allowed strings (controlled vocabulary) to be used for categorizing
         """
-        wrapper = VocabularyWrapper("%s/%s/%s" % (self.__path, TsConstants.STORE_CONFIG_DIR, TsConstants.STORE_VOCABULARY_FILENAME))
-        #return [unicode("category1"), unicode("category2"), unicode("category3"), unicode("category4")]
-        return wrapper.get_vocabulary()
+        return self.__vocabulary_wrapper.get_vocabulary()
+    
+    def set_controlled_vocabulary(self, vocabulary_set):
+        self.__vocabulary_wrapper.set_vocabulary(vocabulary_set)
         
 
 ## end

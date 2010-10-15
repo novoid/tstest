@@ -19,6 +19,7 @@ from PyQt4 import QtGui, QtCore
 from tscore.configwrapper import ConfigWrapper
 from tscore.tsconstants import TsConstants
 from tscore.enums import ECategorySetting, EDateStampFormat
+from tscore.vocabularywrapper import VocabularyWrapper
 
 class StorePreferencesView(QtGui.QDialog):
     """
@@ -473,8 +474,8 @@ class VocabularyAdminView(MultipleStorePreferenceView):
     def __get_vocabulary_list(self):
         vocabulary_list = []
         for index in range(self.__vocabulary_list_view.count()):
-            vocabulary_list.append(self.__vocabulary_list_view.item(index).text())
-        return vocabulary_list
+            vocabulary_list.append(unicode(self.__vocabulary_list_view.item(index).text()))
+        return set(vocabulary_list)
     
     def __voc_deactivated(self, checked):
         if checked:
@@ -722,6 +723,7 @@ class StorePreferencesController(QtCore.QObject):
         self.__log = logging.getLogger("TagStoreLogger")
       
         self.__store_config_dict = {}
+        self.__store_vocabulary_wrapper_dict = {}
         self.__store_names = []
         self.__store_dict = {}
         self._store_list = None
@@ -761,22 +763,22 @@ class StorePreferencesController(QtCore.QObject):
         self.__controller_vocabulary = VocabularyAdminController(self.__store_names)
         self.__register_controller(self.__controller_vocabulary, self.TAB_NAME_VOCABULARY)
 
-        #TODO: use real vocabulary data ...
-        voc_list = [["cat", "blood", "shut"], ["screwdriver", "orange", "lorre", "BH"]]
-        voc_list_counter = 0
         ## create a list with one config wrapper for each store
         for store in store_list:
             store_path = store["path"]
             store_name = store_path.split("/").pop()
-            config_path = "%s/%s/%s" % (store_path, TsConstants.STORE_CONFIG_DIR, TsConstants.STORE_CONFIG_FILENAME)
             
+            config_path = "%s/%s/%s" % (store_path, TsConstants.STORE_CONFIG_DIR, TsConstants.STORE_CONFIG_FILENAME)
             config = ConfigWrapper(config_path)
             self.__store_config_dict[store_name] = config
-            ##TODO add to config view!
+            
+            voc_path = "%s/%s/%s" % (store_path, TsConstants.STORE_CONFIG_DIR, TsConstants.STORE_VOCABULARY_FILENAME)
+            voc_wrapper = VocabularyWrapper(voc_path)
+            self.__store_vocabulary_wrapper_dict[store_name] = voc_wrapper
+            ##TODO add "category_mandatory" setting to config view!
             self.__controller_vocabulary.add_setting(TsConstants.SETTING_CATEGORY_MANDATORY, config.get_category_mandatory(), store_name)
             self.__controller_vocabulary.add_setting(TsConstants.SETTING_SHOW_CATEGORY_LINE, config.get_show_category_line(), store_name)
-            self.__controller_vocabulary.add_setting(TsConstants.SETTING_CATEGORY_VOCABULARY, voc_list[voc_list_counter], store_name)
-            voc_list_counter = voc_list_counter+1
+            self.__controller_vocabulary.add_setting(TsConstants.SETTING_CATEGORY_VOCABULARY, voc_wrapper.get_vocabulary(), store_name)
             
             self.__controller_datestamp.add_setting(TsConstants.SETTING_DATESTAMP_FORMAT, config.get_datestamp_format(), store_name)
 
@@ -828,14 +830,14 @@ class StorePreferencesController(QtCore.QObject):
                 ## write the properties into the config file
                 if property["STORE_NAME"] is not None:
                     ## this is a store specific setting
-                    store_config = self.__get_store_config_by_name[property["STORE_NAME"]]
+                    store_config = self.__get_store_config_by_name(property["STORE_NAME"])
                     if property["SETTING_NAME"] == TsConstants.SETTING_DATESTAMP_FORMAT:
                         store_config.set_datestamp_format(property["SETTING_VALUE"])
                     elif property["SETTING_NAME"] == TsConstants.SETTING_SHOW_CATEGORY_LINE:
                         store_config.set_show_category_line(property["SETTING_VALUE"])
                     elif property["SETTING_NAME"] == TsConstants.SETTING_CATEGORY_VOCABULARY:
-                        ##TODO - write to the vocabulary file
-                        pass
+                        vocabulary_wrapper = self.__store_vocabulary_wrapper_dict[property["STORE_NAME"]]
+                        vocabulary_wrapper.set_vocabulary(property["SETTING_VALUE"])
                 else:
                     ## this is a general setting  
                     if property["SETTING_NAME"] == TsConstants.SETTING_EXPIRY_PREFIX:

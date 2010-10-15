@@ -48,7 +48,7 @@ class VocabularyWrapper(QtCore.QObject):
         """
         voc_list = []
         
-        voc_file = open(self.__file_path,"rw")
+        voc_file = open(self.__file_path,"r")
         for line in voc_file:
             voc_list.append(unicode(line.strip("\n")))
         voc_file.close()
@@ -59,23 +59,27 @@ class VocabularyWrapper(QtCore.QObject):
         """
         add a single word to the vocabulary file
         """
-        ## unsing the "with" keyword closes the file automatically 
-        voc_file = open(self.__file_path,"rw")
+        ## using "a" (APPEND) as open parameter   
+        voc_file = open(self.__file_path,"a")
         voc_file.write("%s\n" % single_vocable)
         voc_file.close()
 
-    def add_vocabulary(self, vocable_list):
+    def add_vocabulary(self, vocable_set):
         """
         add a single word to the vocabulary file
         """
-        voc_file = open(self.__file_path,"rw")
-        for vocable in vocable_list:
+        voc_file = open(self.__file_path,"a")
+        for vocable in vocable_set:
             voc_file.write("%s\n" % vocable)
         voc_file.close()
         
-    def replace_vocabulary(self, vocabule_list):
+    def set_vocabulary(self, vocable_set):
         """
         replace the current vocabulary and add the provided list of new vocabulary 
         """
-        pass
+        ## opening in write mode means the existing file content will be over-written
+        voc_file = open(self.__file_path,"w")
+        for vocable in vocable_set:
+            voc_file.write("%s\n" % vocable)
+        voc_file.close()
 ## end
