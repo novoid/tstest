@@ -400,17 +400,23 @@ class VocabularyAdminView(MultipleStorePreferenceView):
 
         self.__radio_deactivated = QtGui.QRadioButton(self.trUtf8("deactivated"))
         self.__radio_deactivated.setProperty("value", QtCore.QVariant(ECategorySetting.DISABLED))
+        
         self.__radio_activated = QtGui.QRadioButton(self.trUtf8("activated, without restrictions"))
         self.__radio_activated.setProperty("value", QtCore.QVariant(ECategorySetting.ENABLED))
+        
         self.__radio_activated_restricted = QtGui.QRadioButton(self.trUtf8("activated, restricted to personal categories"))
         self.__radio_activated_restricted.setProperty("value", QtCore.QVariant(ECategorySetting.ENABLED_ONLY_PERSONAL))
+        
         self.__radio_single_restricted = QtGui.QRadioButton(self.trUtf8("activated, restricted to personal categories, only one tagline"))
         self.__radio_single_restricted.setProperty("value", QtCore.QVariant(ECategorySetting.ENABLED_SINGLE_CONTROLLED_TAGLINE))
+        
+        self.__checkbox_mandatory = QtGui.QCheckBox(self.trUtf8("At least one category is mandatory"))
         
         self.__radio_layout.addWidget(self.__radio_deactivated)
         self.__radio_layout.addWidget(self.__radio_activated)
         self.__radio_layout.addWidget(self.__radio_activated_restricted)
         self.__radio_layout.addWidget(self.__radio_single_restricted)
+        #self.__radio_layout.addWidget(self.__checkbox_mandatory)
         
         self.__radio_panel = QtGui.QWidget()
         self.__radio_panel.setLayout(self.__radio_layout)
@@ -430,6 +436,7 @@ class VocabularyAdminView(MultipleStorePreferenceView):
         self.add_widget(self.__radio_panel)
         self.add_widget(self.__vocabulary_list_view)
         self.add_widget(self.__btn_panel)
+        self.add_widget(self.__checkbox_mandatory)
         
         self.connect(self.__btn_add_vocabulary, QtCore.SIGNAL("clicked()"), self.__add_vocabulary)
         self.connect(self.__btn_del_vocabulary, QtCore.SIGNAL("clicked()"), self.__delete_vocabulary)
@@ -438,6 +445,19 @@ class VocabularyAdminView(MultipleStorePreferenceView):
         self.connect(self.__radio_activated_restricted, QtCore.SIGNAL("toggled(bool)"), self.__voc_activated_restricted)
         self.connect(self.__radio_single_restricted, QtCore.SIGNAL("toggled(bool)"), self.__voc_single_restricted)
         self.connect(self.__vocabulary_list_view, QtCore.SIGNAL("itemSelectionChanged()"), self.__voc_selection_changed)
+        self.connect(self.__checkbox_mandatory, QtCore.SIGNAL("toggled(bool)"), self.__category_mandatory_checked)
+        
+    def enable_radio_buttons(self, enable):
+        self.__radio_activated.setEnabled(enable)
+        self.__radio_activated_restricted.setEnabled(enable)
+        self.__radio_deactivated.setEnabled(enable)
+        self.__radio_single_restricted.setEnabled(enable)
+        
+    def __category_mandatory_checked(self, checked):
+        if checked:
+            self._promote_setting_changed(self._store_combo.currentText(), TsConstants.SETTING_CATEGORY_MANDATORY, True)
+        else:
+            self._promote_setting_changed(self._store_combo.currentText(), TsConstants.SETTING_CATEGORY_MANDATORY, False)
         
     def __voc_selection_changed(self):
         selection_list = self.__vocabulary_list_view.selectedItems()
@@ -485,17 +505,20 @@ class VocabularyAdminView(MultipleStorePreferenceView):
         if checked:
             self._promote_setting_changed(self._store_combo.currentText(), 
                       TsConstants.SETTING_SHOW_CATEGORY_LINE, ECategorySetting.DISABLED)
+            self.__checkbox_mandatory.setEnabled(False)
             
     def __voc_activated(self, checked):
         if checked:
             self._promote_setting_changed(self._store_combo.currentText(), 
                       TsConstants.SETTING_SHOW_CATEGORY_LINE, ECategorySetting.ENABLED)
+            self.__checkbox_mandatory.setEnabled(True)
         
     def __voc_activated_restricted(self, checked):
         if checked:
             self.__enable_voc_widgets(True)
             self._promote_setting_changed(self._store_combo.currentText(), 
                       TsConstants.SETTING_SHOW_CATEGORY_LINE, ECategorySetting.ENABLED_ONLY_PERSONAL)
+            self.__checkbox_mandatory.setEnabled(True)
         else:
             self.__enable_voc_widgets(False)
 
@@ -504,6 +527,7 @@ class VocabularyAdminView(MultipleStorePreferenceView):
             self.__enable_voc_widgets(True)
             self._promote_setting_changed(self._store_combo.currentText(), 
                       TsConstants.SETTING_SHOW_CATEGORY_LINE, ECategorySetting.ENABLED_SINGLE_CONTROLLED_TAGLINE)
+            self.__checkbox_mandatory.setEnabled(True)
         else:
             self.__enable_voc_widgets(False)
         
@@ -522,6 +546,12 @@ class VocabularyAdminView(MultipleStorePreferenceView):
     def set_vocabulary_list(self, vocabulary_list):
         self.__vocabulary_list_view.clear()
         self.__vocabulary_list_view.addItems(vocabulary_list)
+        
+    def set_category_mandatory(self, is_mandatory):
+        """
+        there must be a boolean value provided as param
+        """
+        self.__checkbox_mandatory.setChecked(is_mandatory)
         
 class VocabularyAdminController(MultipleStorePreferenceController):
     
@@ -546,6 +576,8 @@ class VocabularyAdminController(MultipleStorePreferenceController):
                     self.get_view().set_vocabulary_enabled_personal()
             if setting_name == TsConstants.SETTING_CATEGORY_VOCABULARY:
                 self.get_view().set_vocabulary_list(setting_value)
+            if setting_name == TsConstants.SETTING_CATEGORY_MANDATORY:
+                self.get_view().set_category_mandatory(setting_value)
                 
     def _add_additional_settings(self):
         pass
@@ -851,6 +883,8 @@ class StorePreferencesController(QtCore.QObject):
                     elif property["SETTING_NAME"] == TsConstants.SETTING_CATEGORY_VOCABULARY:
                         vocabulary_wrapper = self.__store_vocabulary_wrapper_dict[property["STORE_NAME"]]
                         vocabulary_wrapper.set_vocabulary(property["SETTING_VALUE"])
+                    elif property["SETTING_NAME"] == TsConstants.SETTING_CATEGORY_MANDATORY:
+                        store_config.set_category_mandatory(property["SETTING_VALUE"])
                 else:
                     ## this is a general setting  
                     if property["SETTING_NAME"] == TsConstants.SETTING_EXPIRY_PREFIX:

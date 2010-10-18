@@ -162,6 +162,9 @@ class ConfigWrapper(QtCore.QObject):
     def set_show_category_line(self, setting_value):
         self.__put_setting(TsConstants.SETTING_SHOW_CATEGORY_LINE, setting_value)
 
+    def set_category_mandatory(self, setting_value):
+        self.__put_setting(TsConstants.SETTING_CATEGORY_MANDATORY, setting_value)
+
     def get_category_mandatory(self):
         """
         returns True if the category line should be enabled in the tag dialog
