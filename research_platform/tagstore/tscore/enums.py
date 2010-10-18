@@ -41,8 +41,9 @@ EFileType = Enum(["FILE",
                   "DIRECTORY"])
 
 ECategorySetting = Enum(["DISABLED",
-                  "ENABLED",
-                  "ENABLED_ONLY_PERSONAL"])
+                         "ENABLED",
+                         "ENABLED_ONLY_PERSONAL",
+                         "ENABLED_SINGLE_CONTROLLED_TAGLINE"])
 
 EDateStampFormat = Enum(["DISABLED",
                   "MONTH",

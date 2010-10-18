@@ -322,6 +322,18 @@ class Store(QtCore.QObject):
         """
         return self.__tag_wrapper.get_popular_tags(number)
 
+    def get_popular_categories(self, number):
+        """
+        returns a given number of the most popular tags
+        """
+        return self.__tag_wrapper.get_popular_categories(number)
+
+    def get_recent_categories(self, number):
+        """
+        returns a given number of recently entered tags
+        """
+        return self.__tag_wrapper.get_recent_categories(number)
+
     def get_show_category_line(self):
         return self.__store_config_wrapper.get_show_category_line()
     
@@ -372,7 +384,7 @@ class Store(QtCore.QObject):
         except:
             raise Exception, self.trUtf8("An error occurred during building the navigation paths and links!")
         try:
-            self.__tag_wrapper.set_file(file_name, tags)
+            self.__tag_wrapper.set_file(file_name, tags, category_list)
             self.__pending_changes.remove(file_name)
         except:
             raise Exception, self.trUtf8("An error occurred during saving file and tags to configuration file!")

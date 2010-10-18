@@ -21,6 +21,7 @@ from tscore.tsconstants import TsConstants
 from tscore.enums import ECategorySetting
 from admindialog import StorePreferencesController
 from administration import Administration
+from tsgui.tagdialogstate import TagDialogState
 
 class TagDialog(QtGui.QDialog):
 
@@ -52,6 +53,7 @@ class TagDialog(QtGui.QDialog):
         self.__info_no_tag_shown = False
         self.__info_no_category_shown = False
         self.__info_tag_limit_shown = False
+        self.__tag_state = TagDialogState()
         
         self.__selected_item = None
         
@@ -83,11 +85,15 @@ class TagDialog(QtGui.QDialog):
         
         self.__cat_line_widget = TagCompleterWidget(self.__max_tags, separator=self.__tag_separator, 
             parent=self)
+        self.__TAG_LINE_2_NAME = "_tag_line_2_"
+        self.__cat_line_widget.setObjectName(self.__TAG_LINE_2_NAME)
         
         self.__category_line = self.__cat_line_widget.get_tag_line()
         
         self.__tag_line_widget = TagCompleterWidget(self.__max_tags, separator=self.__tag_separator, 
             parent=self, show_datestamp=self.__show_datestamp)
+        self.__TAG_LINE_1_NAME = "_tag_line_1_"
+        self.__tag_line_widget.setObjectName(self.__TAG_LINE_1_NAME)
         
         self.__tag_line = self.__tag_line_widget.get_tag_line()
         
@@ -144,61 +150,6 @@ class TagDialog(QtGui.QDialog):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(":/ts/images/icon.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.setWindowIcon(icon)
-
-        self.__centralwidget = QtGui.QWidget(self)
-        self.__centralwidget.setObjectName("__centralwidget")
-        
-        self.__close_button = QtGui.QPushButton(self.__centralwidget)
-        self.__close_button.setGeometry(QtCore.QRect(368, 216, 113, 32))
-        self.__close_button.setObjectName("__close_button")
-        self.__tag_button = QtGui.QPushButton(self.__centralwidget)
-        self.__tag_button.setGeometry(QtCore.QRect(419, 104, 60, 60))
-        self.__tag_button.setObjectName("__tag_button")
-        self.__property_button = QtGui.QPushButton(self.__centralwidget)
-        self.__property_button.setGeometry(QtCore.QRect(48, 217, 113, 32))
-        self.__property_button.setObjectName("__property_button")
-        self.__help_button = QtGui.QToolButton(self.__centralwidget)
-        self.__help_button.setGeometry(QtCore.QRect(20, 220, 25, 23))
-        self.__help_button.setObjectName("__help_button")
-        icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(":/ts/images/help.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.__help_button.setIcon(icon)
-
-        self.__item_list_view = QtGui.QListWidget(self.__centralwidget)
-        self.__item_list_view.setGeometry(QtCore.QRect(20, 20, 451, 61))
-        self.__item_list_view.setObjectName("__item_list_view")
-        self.__item_list_view.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
-        
-        self.__cat_line_widget = TagCompleterWidget(self.__max_tags, separator=self.__tag_separator, 
-            parent=self)
-        self.__category_line = self.__cat_line_widget.get_tag_line()
-        
-        line_size = QtCore.QRect(20, 150, 381, 21)
-        self.__category_line.setGeometry(line_size)
-        self.__category_line.setObjectName("__category_line")
-
-        self.__tag_line_widget = TagCompleterWidget(self.__max_tags, separator=self.__tag_separator, 
-            parent=self, show_datestamp=self.__show_datestamp)
-        self.__tag_line = self.__tag_line_widget.get_tag_line()
-        
-        line_size = QtCore.QRect(20, 90, 381, 21)
-        self.__tag_line.setGeometry(line_size)
-        self.__tag_line.setObjectName("__tag_line_widget")
-
-        
-        self.__category_label = QtGui.QLabel(self.__centralwidget)
-        self.__category_label.setGeometry(QtCore.QRect(23, 174, 401, 16))
-        self.__category_label.setObjectName("__category_label")
-        
-        #self.__tag_label = QtGui.QLabel(self.__centralwidget)
-        self.__tag_layout = QtGui.QHBoxLayout()
-        self.__tag_layout.setGeometry(QtCore.QRect(23, 113, 371, 16))
-        
-        self.__tag_label = QtGui.QLabel(self.__centralwidget)
-#        self.__tag_label = QtGui.QWidget()
-#        self.__tag_label.setLayout(self.__tag_layout)
-        self.__tag_label.setGeometry(QtCore.QRect(23, 113, 371, 16))
-        self.__tag_label.setObjectName("__tag_label")
         """
 
         self.show_category_line(self.__show_categories)
@@ -217,10 +168,23 @@ class TagDialog(QtGui.QDialog):
         self.connect(self.__tag_line_widget, QtCore.SIGNAL("tag_limit_reached"), self.__handle_tag_limit_reached)
         self.connect(self.__tag_line_widget, QtCore.SIGNAL("line_empty"), self.__handle_tag_line_empty)
         self.connect(self.__tag_line_widget, QtCore.SIGNAL("activated"), self.__handle_completer_activated)
+        self.connect(self.__cat_line_widget, QtCore.SIGNAL("tag_limit_reached"), self.__handle_tag_limit_reached)
+        self.connect(self.__cat_line_widget, QtCore.SIGNAL("no_completion_found"), self.__handle_no_completion_found)
         self.connect(self.__cat_line_widget, QtCore.SIGNAL("line_empty"), self.__handle_category_line_empty)
         self.connect(self.__cat_line_widget, QtCore.SIGNAL("activated"), self.__handle_completer_activated)
-        """
-        """
+        self.connect(self.__tag_state, QtCore.SIGNAL("tagging_state_updated"), self.__state_updated)
+        
+    def __handle_no_completion_found(self, no_completion_found):
+        if no_completion_found:
+            self.__tag_state.set_not_allowed_category(True)
+            self.set_not_suitable_categories_entered()
+        else:
+            self.__tag_state.set_not_allowed_category(False)
+            self.remove_not_suitable_categories_entered()
+        
+    def __state_updated(self, state_positive):
+        self.__tag_button.setEnabled(state_positive)
+    
     def __handle_completer_activated(self):
         self.__completer_activated = True    
     
@@ -230,7 +194,7 @@ class TagDialog(QtGui.QDialog):
     
     def __handle_category_line_empty(self, empty):
         if not empty:
-            self.remove_category_info()
+            self.__remove_category_info()
     
     def get_red_palette(self):
         """
@@ -245,71 +209,69 @@ class TagDialog(QtGui.QDialog):
         
         return self.__info_palette
     
-    def __reset_all_info_states(self, state=False):
-        """
-        reset all info states
-        """
-        self.__info_no_category_shown = state
-        self.__info_no_tag_shown = state
-        self.__info_no_item_selected_shown = state
-        self.__info_tag_limit_shown = state
-    
     def set_item_info(self, info_text):
         self.__item_error_label.setText(info_text)
-        #self.__item_error_label.setVisible(True)
         self.__info_no_item_selected_shown = True
         
     def remove_item_info(self):
         self.__item_error_label.setText("")
-        #self.__item_error_label.setVisible(False)
         self.__info_no_item_selected_shown = False
         
-    def set_max_tags_reached_info(self, info_text):
-        self.__tag_error_label.setText(info_text)
-        #self.__tag_error_label.setVisible(True)
-        self.__info_tag_limit_shown = True
+    def set_max_tags_reached_info(self):
+        self.__set_tag_info(self.trUtf8("Tag limit reached. No more tags can be provided for this item."))
+        self.__tag_state.set_tag_limit_exceeded(True)
         
     def remove_max_tags_reached_info(self):
-        self.__tag_error_label.setText("")
-        #self.__tag_error_label.setVisible(False)
-        self.__info_tag_limit_shown = False
+        self.__remove_tag_info()
+        self.__tag_state.set_tag_limit_exceeded(False)
         
     def set_no_tag_entered_info(self, info_text):
         self.__tag_error_label.setText(info_text)
-        #self.__tag_error_label.setVisible(True)
         self.__tag_line_widget.set_check_not_empty(True)
-        self.__info_no_tag_shown = True
+        self.__tag_state.set_no_tag_entered(True)
         
     def remove_no_tag_entered_info(self):
         self.__tag_error_label.setText("")
-        #self.__tag_error_label.setVisible(False)
         self.__tag_line_widget.set_check_not_empty(False)
-        self.__info_no_tag_shown = False
+        self.__tag_state.set_no_tag_entered(False)
     
-    def set_no_category_entered_info(self, info_text):
+    def __set_category_info(self, info_text):
         self.__category_error_label.setText(info_text)
-        #self.__category_error_label.setVisible(True)
-        self.__cat_line_widget.set_check_not_empty(True)
-        self.__info_no_category_shown = True
-    def remove_no_category_entered_info(self):
+    def __remove_category_info(self):
         self.__category_error_label.setText("")
-        #self.__category_error_label.setVisible(False)
-        self.__cat_line_widget.set_check_not_empty(False)
-        self.__info_no_category_shown = False
+    
+    def __set_tag_info(self, info_text):
+        self.__tag_error_label.setText(info_text)
+    def __remove_tag_info(self):
+        self.__tag_error_label.setText("")
         
-    def set_not_suitable_categories_entered(self, info_text):
-        self.__category_error_label.setText(info_text)
-        #self.__categor7y_error_label.setVisible(True)
+    def set_category_limit_reached(self):
+        self.__set_category_info(self.trUtf8("Tag limit reached. No more tags can be provided for this item."))
+        self.__cat_line_widget.set_check_not_empty(True)
+        self.__tag_state.set_category_limit_exceeded(True)
+    def remove_category_limit_reached(self):
+        self.__remove_category_info()
+        self.__cat_line_widget.set_check_not_empty(False)
+        self.__tag_state.set_category_limit_exceeded(False)
+        
+    def set_no_category_entered(self):
+        self.__set_category_info(self.trUtf8("Please select at least one category"))
+        self.__cat_line_widget.set_check_not_empty(True)
+        self.__tag_state.set_no_category_entered(True)
+
+    def remove_no_category_entered_info(self):
+        self.__remove_category_info()
+        self.__cat_line_widget.set_check_not_empty(False)
+        self.__tag_state.set_no_category_entered(False)
+        
+    def set_not_suitable_categories_entered(self):
+        self.__set_category_info(self.trUtf8("Please use just the suggested categories"))
+        self.__tag_state.set_not_allowed_category(True)
     
     def remove_not_suitable_categories_entered(self):
-        self.__category_error_label.setText("")
-        #self.__category_error_label.setVisible(False)
-        
-        
-    def remove_category_info(self):
-        self.__category_error_label.setText("")
-        #self.__info_no_tag_shown = False
-    
+        self.__remove_category_info()
+        self.__tag_state.set_not_allowed_category(False)
+
     def keyPressEvent(self, event):
         """
         dummy re-implementation to avoid random signal sending
@@ -323,10 +285,16 @@ class TagDialog(QtGui.QDialog):
         pass
         
     def __handle_tag_limit_reached(self, limit_reached):
-        if limit_reached:
-            self.set_max_tags_reached_info(self.trUtf8("Tag limit reached. No more tags can be provided for this item."))
-        else:
-            self.remove_max_tags_reached_info()
+        if self.sender().objectName() == self.__TAG_LINE_1_NAME:
+            if limit_reached:
+                self.set_max_tags_reached_info()
+            else:
+                self.remove_max_tags_reached_info()
+        elif self.sender().objectName() == self.__TAG_LINE_2_NAME:
+            if limit_reached:
+                self.set_category_limit_reached()
+            else:
+                self.remove_category_limit_reached()
 
 
     def __defer_categoryline_enter(self):
@@ -346,7 +314,6 @@ class TagDialog(QtGui.QDialog):
         timer.singleShot(100, self.__handle_tagline_enter)
         
     def __handle_tagline_enter(self):
-        print "tagline enter"
         if self.__completer_activated:
             self.__completer_activated = False
             return
@@ -429,7 +396,7 @@ class TagDialog(QtGui.QDialog):
         print clicked_text
 
     def __handle_category_label_clicked(self, clicked_text):
-        current_text = self.__tag_line.text()
+        current_text = self.__category_line.text()
         if current_text == "":
             self.__category_line.setText(clicked_text)
         else:
@@ -462,10 +429,15 @@ class TagDialog(QtGui.QDialog):
         """
         remove all info-labels and their according states
         """
-        self.remove_category_info()
+        self.__remove_category_info()
+        self.__remove_tag_info()
         self.remove_item_info()
-        self.remove_no_tag_entered_info()
+
         self.remove_max_tags_reached_info()
+        self.remove_no_tag_entered_info()
+        self.remove_category_limit_reached()
+        self.remove_no_category_entered_info()
+        self.remove_not_suitable_categories_entered()
 
     def __handle_tag_action(self):
         self.emit(QtCore.SIGNAL("tag_button_pressed"), self.__get_selected_item(), self.__tag_line_widget.get_tag_list())
@@ -488,15 +460,29 @@ class TagDialog(QtGui.QDialog):
         + resize the dialog 
         """
         self.__show_categories = setting
+        if setting == ECategorySetting.ENABLED_ONLY_PERSONAL or setting == ECategorySetting.ENABLED_SINGLE_CONTROLLED_TAGLINE:
+            self.set_restricted_vocabulary(True)
+            self.__tag_state.set_check_vocab(True)
         
-        
-        if setting != ECategorySetting.DISABLED:
+        if setting == ECategorySetting.ENABLED or setting == ECategorySetting.ENABLED_ONLY_PERSONAL:
             self.resize(481, 334)
             self.__category_line.setVisible(True)
             self.__pop_category_widget.setVisible(True)
             self.__category_error_label.setVisible(True)
             self.__mainlayout.removeWidget(self.__tag_button)
             self.__mainlayout.addWidget(self.__tag_button, 2, 3, 4, 1)
+        elif setting == ECategorySetting.ENABLED_SINGLE_CONTROLLED_TAGLINE:
+            self.resize(481, 200)
+            self.__category_line.setVisible(True)
+            self.__pop_category_widget.setVisible(True)
+            self.__category_error_label.setVisible(True)
+            
+            self.__tag_line.setVisible(False)
+            self.__pop_tag_widget.setVisible(False)
+            self.__tag_error_label.setVisible(False)
+            
+            self.__mainlayout.removeWidget(self.__tag_button)
+            self.__mainlayout.addWidget(self.__tag_button, 5, 3, 1, 1)
         else:
             self.resize(481, 268)
             self.__category_line.setVisible(False)
@@ -508,9 +494,16 @@ class TagDialog(QtGui.QDialog):
     
     def set_category_mandatory(self, mandatory):
         self.__category_mandatory = mandatory
-     
+    
+    def set_restricted_vocabulary(self, restricted):
+        self.__cat_line_widget.set_restricted_vocabulary(restricted)
+    
     def set_item_list(self, item_list):
         self.__item_list_view.addItems(item_list)
+        ## no items available
+        if self.__item_list_view.count() == 0:
+            self.__set_selected_item(None)
+            self.emit(QtCore.SIGNAL("no_items_left"))
 
     def add_item(self, item_name):
         """
@@ -530,6 +523,7 @@ class TagDialog(QtGui.QDialog):
         
         ## remove all existing labels
         for label in self.__tag_label_list:
+            label.setVisible(False)
             self.__pop_tag_layout.removeWidget(label)
             label.destroy()
         ## clear the label list
@@ -549,6 +543,7 @@ class TagDialog(QtGui.QDialog):
     def set_popular_categories(self, cat_list):
         ## remove all existing labels
         for label in self.__category_label_list:
+            label.setVisible(False)
             self.__pop_category_layout.removeWidget(label)
             label.destroy()
         ## clear the label list
@@ -674,32 +669,32 @@ class TagDialogController(QtCore.QObject):
         """
         pre-check if all necessary data is available for storing tags to an item 
         """
-        if tag_list is None or len(tag_list) == 0:
+        category_list = self.__tag_dialog.get_category_list()
+        category_mandatory = self.__tag_dialog.is_category_mandatory()
+        category_setting = self.__tag_dialog.is_category_enabled()
+
+        if (tag_list is None or len(tag_list) == 0) and category_setting != ECategorySetting.ENABLED_SINGLE_CONTROLLED_TAGLINE:
             self.__tag_dialog.set_no_tag_entered_info(self.trUtf8("Please enter at least one tag for the selected item"))
             return
         if item is None:
             self.__tag_dialog.set_item_info(self.trUtf8("Please select an Item, to which the tags should be added"))
             return
         
-        category_list = self.__tag_dialog.get_category_list()
-        category_mandatory = self.__tag_dialog.is_category_mandatory()
-        category_setting = self.__tag_dialog.is_category_enabled()
         
         ## just check this, if the category line is enabled
         if (category_setting == ECategorySetting.ENABLED or category_setting == ECategorySetting.ENABLED) and category_mandatory and (category_list is None or len(category_list) == 0):
-            self.__tag_dialog.set_no_category_entered_info(self.trUtf8("Please select at least one category"))
+            self.__tag_dialog.set_no_category_entered()
             return
         
         ## just predefined categories are allowed - check this
-        if category_setting == ECategorySetting.ENABLED_ONLY_PERSONAL:
+        if category_setting == ECategorySetting.ENABLED_ONLY_PERSONAL or category_setting == ECategorySetting.ENABLED_SINGLE_CONTROLLED_TAGLINE:
             completion_list = self.__tag_dialog.get_category_completion_list()
             if completion_list is None:
                 return
             completion_set = set(completion_list)
             #TODO: maybe just take the intersection
             if not category_list.issubset(completion_set):
-                self.__tag_dialog.set_not_suitable_categories_entered(
-                        self.trUtf8("Please use just the suggested categories"))
+                self.__tag_dialog.set_not_suitable_categories_entered()
                 return
             
         self.__item_to_remove = item

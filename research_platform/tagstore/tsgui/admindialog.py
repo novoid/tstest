@@ -401,13 +401,16 @@ class VocabularyAdminView(MultipleStorePreferenceView):
         self.__radio_deactivated = QtGui.QRadioButton(self.trUtf8("deactivated"))
         self.__radio_deactivated.setProperty("value", QtCore.QVariant(ECategorySetting.DISABLED))
         self.__radio_activated = QtGui.QRadioButton(self.trUtf8("activated, without restrictions"))
-        self.__radio_deactivated.setProperty("value", QtCore.QVariant(ECategorySetting.ENABLED))
+        self.__radio_activated.setProperty("value", QtCore.QVariant(ECategorySetting.ENABLED))
         self.__radio_activated_restricted = QtGui.QRadioButton(self.trUtf8("activated, restricted to personal categories"))
-        self.__radio_deactivated.setProperty("value", QtCore.QVariant(ECategorySetting.ENABLED_ONLY_PERSONAL))
+        self.__radio_activated_restricted.setProperty("value", QtCore.QVariant(ECategorySetting.ENABLED_ONLY_PERSONAL))
+        self.__radio_single_restricted = QtGui.QRadioButton(self.trUtf8("activated, restricted to personal categories, only one tagline"))
+        self.__radio_single_restricted.setProperty("value", QtCore.QVariant(ECategorySetting.ENABLED_SINGLE_CONTROLLED_TAGLINE))
         
         self.__radio_layout.addWidget(self.__radio_deactivated)
         self.__radio_layout.addWidget(self.__radio_activated)
         self.__radio_layout.addWidget(self.__radio_activated_restricted)
+        self.__radio_layout.addWidget(self.__radio_single_restricted)
         
         self.__radio_panel = QtGui.QWidget()
         self.__radio_panel.setLayout(self.__radio_layout)
@@ -433,6 +436,7 @@ class VocabularyAdminView(MultipleStorePreferenceView):
         self.connect(self.__radio_deactivated, QtCore.SIGNAL("toggled(bool)"), self.__voc_deactivated)
         self.connect(self.__radio_activated, QtCore.SIGNAL("toggled(bool)"), self.__voc_activated)
         self.connect(self.__radio_activated_restricted, QtCore.SIGNAL("toggled(bool)"), self.__voc_activated_restricted)
+        self.connect(self.__radio_single_restricted, QtCore.SIGNAL("toggled(bool)"), self.__voc_single_restricted)
         self.connect(self.__vocabulary_list_view, QtCore.SIGNAL("itemSelectionChanged()"), self.__voc_selection_changed)
         
     def __voc_selection_changed(self):
@@ -492,6 +496,14 @@ class VocabularyAdminView(MultipleStorePreferenceView):
             self.__enable_voc_widgets(True)
             self._promote_setting_changed(self._store_combo.currentText(), 
                       TsConstants.SETTING_SHOW_CATEGORY_LINE, ECategorySetting.ENABLED_ONLY_PERSONAL)
+        else:
+            self.__enable_voc_widgets(False)
+
+    def __voc_single_restricted(self, checked):
+        if checked:
+            self.__enable_voc_widgets(True)
+            self._promote_setting_changed(self._store_combo.currentText(), 
+                      TsConstants.SETTING_SHOW_CATEGORY_LINE, ECategorySetting.ENABLED_SINGLE_CONTROLLED_TAGLINE)
         else:
             self.__enable_voc_widgets(False)
         
@@ -751,6 +763,9 @@ class StorePreferencesController(QtCore.QObject):
                 self.__store_dict[store["path"].split("/").pop()] = store["path"]
         
         ## initialize the controllers for each preference tab
+        self.__controller_vocabulary = VocabularyAdminController(self.__store_names)
+        self.__register_controller(self.__controller_vocabulary, self.TAB_NAME_VOCABULARY)
+
         self.__controller_store_admin = StoreAdminController(self.__store_dict)
         self.__register_controller(self.__controller_store_admin, self.TAB_NAME_STORE)
         
@@ -760,8 +775,6 @@ class StorePreferencesController(QtCore.QObject):
         self.__controller_expiry_admin = ExpiryAdminController()
         self.__register_controller(self.__controller_expiry_admin, self.TAB_NAME_EXPIRY)
         
-        self.__controller_vocabulary = VocabularyAdminController(self.__store_names)
-        self.__register_controller(self.__controller_vocabulary, self.TAB_NAME_VOCABULARY)
 
         ## create a list with one config wrapper for each store
         for store in store_list:

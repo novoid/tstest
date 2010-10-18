@@ -22,7 +22,6 @@ class TagWrapper():
 
     GROUP_STORE_NAME = "store"
     GROUP_FILES_NAME = "files"
-    GROUP_CATEGORIES_NAME = "categories"
     
     KEY_STORE_ID = "store_id"
     KEY_TAGS = "tags"
@@ -75,8 +74,9 @@ class TagWrapper():
         for file in self.__settings.childGroups():
             self.__settings.beginGroup(file)            
             tags = unicode(self.__settings.value(self.KEY_TAGS, "").toString()).split(self.TAG_SEPARATOR)
+            categories = unicode(self.__settings.value(self.KEY_CATEGORY, "").toString()).split(self.TAG_SEPARATOR)
             timestamp = unicode(self.__settings.value(self.KEY_TIMESTAMP, "").toString())
-            file_list.append(dict(filename=file, tags=tags, timestamp=timestamp))
+            file_list.append(dict(filename=file, tags=tags, categories=categories, timestamp=timestamp))
             self.__settings.endGroup()
         self.__settings.endGroup()
         return sorted(file_list, key=lambda k:k[self.KEY_TIMESTAMP], reverse=True)
@@ -92,15 +92,17 @@ class TagWrapper():
                 filtered_list.append(file)
         return filtered_list
         
-    def __get_tag_dictionary(self):
+    def __get_tag_dictionary(self, attribute=KEY_TAGS):
         """
         iterates through all files and creates a dictionary with tags + counter
+        attribute is used to define if it returns describing tags or categorizing tags (categories)
+        atribute can be KEY_TAGS|KEY_CATEGORY
         """
         dictionary = dict()
         self.__settings.beginGroup(self.GROUP_FILES_NAME)
         for file in self.__settings.childGroups():
             self.__settings.beginGroup(file)
-            tags = unicode(self.__settings.value(self.KEY_TAGS, "").toString()).split(self.TAG_SEPARATOR)
+            tags = unicode(self.__settings.value(attribute, "").toString()).split(self.TAG_SEPARATOR)
             self.__settings.endGroup()
             for tag in tags:
                 if tag in dictionary:
@@ -197,6 +199,29 @@ class TagWrapper():
         for item in list[:no_of_tags]:
             return_list.append(item[0])
         return return_list
+
+    def get_popular_categories(self, no_of_tags):
+        """
+        returns a defined number of the most popular categories
+        """
+        dictionary = self.__get_tag_dictionary(self.KEY_CATEGORY)
+        list = sorted(dictionary.iteritems(), key=lambda (k,v): (v,k), reverse=True)
+        return_list = []
+        for item in list[:no_of_tags]:
+            return_list.append(item[0])
+        return return_list
+
+    def get_recent_categories(self, no_of_tags):
+        """
+        returns a defined number of recently entered tags
+        """
+        tags = set()
+        files = self.__get_file_list()
+        position = 0
+        while len(tags) < no_of_tags and position < len(files) and files[position] is not None:
+            tags = tags.union(set(files[position]["categories"]))
+            position +=1
+        return sorted(tags)[:no_of_tags]
 
     def set_file(self, file_name, tag_list, category_list=None, timestamp=time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())):
         """

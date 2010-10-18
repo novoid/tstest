@@ -55,6 +55,12 @@ class TagCompleterWidget(QObject):
         self.__check_tag_limit = False
         self.__check_text_in_list = False
         
+        self.__restricted_vocabulary = False
+        self.__check_vocabulary = False
+        
+        ## the latest activated suggestion 
+        self.__activated_text = None
+        
         self.__completer = QCompleter(self.__tag_list, self);    
         self.__completer.setCaseSensitivity(Qt.CaseInsensitive)
         self.__completer.setWidget(self.__tag_line)
@@ -95,6 +101,9 @@ class TagCompleterWidget(QObject):
         """
         self.__check_not_empty = True
     
+    def set_restricted_vocabulary(self, is_restricted):
+        self.__restricted_vocabulary = is_restricted
+    
     def select_line(self):
         """
         select the tagline ... 
@@ -116,13 +125,13 @@ class TagCompleterWidget(QObject):
         ## remove whitespace and filter out duplicates by using a set
         tag_set = set([])
         for tag in all_text.split(self.__tag_separator):
-            tag_set.add (tag.strip())
+            tag_set.add(tag.strip())
 
         ## do not proceed if the max tag count is reached
         if len(tag_set) > self.__max_tags:
             self.emit(QtCore.SIGNAL("tag_limit_reached"), True)
             max_index = text.rfind(self.__tag_separator)
-            self.__tag_line.setText(all_text[:max_index])
+            #self.__tag_line.setText(all_text[:max_index])
             self.__check_tag_limit = True
             return
         else:
@@ -147,13 +156,25 @@ class TagCompleterWidget(QObject):
         model = QStringListModel(tags, self)
         self.__completer.setModel(model)
         self.__completer.setCompletionPrefix(completion_prefix)
+        
+        
+        if self.__restricted_vocabulary and self.__completer.completionCount() == 0:
+            if completion_prefix is not None and len(completion_prefix) > 0 and completion_prefix != "" and completion_prefix != self.__activated_text:
+                self.emit(QtCore.SIGNAL("no_completion_found"), True)
+                self.__check_vocabulary = True
+        elif self.__check_vocabulary:
+            if self.__completer.completionCount() > 0:
+                self.emit(QtCore.SIGNAL("no_completion_found"), False)
+                self.__check_vocabulary = False
+                
+            
         if completion_prefix.strip() != '':
             ## use the default completion algorithm
             self.__completer.complete()
     
     def __text_activated(self, text):
         
-        print "text activated"
+        self.__activated_text = text
         
         cursor_pos = self.__tag_line.cursorPosition()
         before_text = unicode(self.__tag_line.text())[:cursor_pos]
