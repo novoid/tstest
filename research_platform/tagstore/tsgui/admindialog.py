@@ -452,6 +452,7 @@ class VocabularyAdminView(MultipleStorePreferenceView):
         self.__radio_activated_restricted.setEnabled(enable)
         self.__radio_deactivated.setEnabled(enable)
         self.__radio_single_restricted.setEnabled(enable)
+        self.__checkbox_mandatory.setEnabled(enable)
         
     def __category_mandatory_checked(self, checked):
         if checked:
@@ -581,6 +582,9 @@ class VocabularyAdminController(MultipleStorePreferenceController):
                 
     def _add_additional_settings(self):
         pass
+    
+    def set_settings_editable(self, enabled):
+        self.get_view().enable_radio_buttons(enabled)
     
 class DatestampAdminView(MultipleStorePreferenceView):
 
@@ -820,10 +824,13 @@ class StorePreferencesController(QtCore.QObject):
             voc_path = "%s/%s/%s" % (store_path, TsConstants.STORE_CONFIG_DIR, TsConstants.STORE_VOCABULARY_FILENAME)
             voc_wrapper = VocabularyWrapper(voc_path)
             self.__store_vocabulary_wrapper_dict[store_name] = voc_wrapper
-            ##TODO add "category_mandatory" setting to config view!
+
             self.__controller_vocabulary.add_setting(TsConstants.SETTING_CATEGORY_MANDATORY, config.get_category_mandatory(), store_name)
             self.__controller_vocabulary.add_setting(TsConstants.SETTING_SHOW_CATEGORY_LINE, config.get_show_category_line(), store_name)
             self.__controller_vocabulary.add_setting(TsConstants.SETTING_CATEGORY_VOCABULARY, voc_wrapper.get_vocabulary(), store_name)
+            
+            ## TODO: create a method to switch this from outside
+            self.__controller_vocabulary.set_settings_editable(False)
             
             self.__controller_datestamp.add_setting(TsConstants.SETTING_DATESTAMP_FORMAT, config.get_datestamp_format(), store_name)
 
