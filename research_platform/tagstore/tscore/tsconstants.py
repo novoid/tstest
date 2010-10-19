@@ -43,13 +43,12 @@ class TsConstants(object):
     SETTING_SHOW_CATEGORY_LINE = "show_category_line"
     ## this constant is NOT used at the config file - it is a "gui setting name"
     SETTING_CATEGORY_VOCABULARY = "category_vocabulary"
-    
-    
     SETTING_EXPIRY_PREFIX = "expiry_prefix"
     
     DATESTAMP_FORMAT_DAY = "%Y-%m-%d"
     DATESTAMP_FORMAT_MONTH = "%Y-%m"
     
+    DEFAULT_EXPIRY_PREFIX = "exp:"
     DEFAULT_STORE_CONFIG_DIR = ".tagstore"
     DEFAULT_STORE_CONFIG_FILENAME = "store.cfg"
     DEFAULT_STORE_TAGS_FILENAME = "store.tgs"

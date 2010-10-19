@@ -69,6 +69,7 @@ class Tagstore(QtCore.QObject):
         ## reset language 
         self.change_language(store_current_language) 
      
+        self.EXPIRY_PREFIX = TsConstants.DEFAULT_EXPIRY_PREFIX
         self.TAG_SEPERATOR = TsConstants.DEFAULT_TAG_SEPARATOR
         self.NUM_RECENT_TAGS = TsConstants.DEFAULT_RECENT_TAGS
         self.NUM_POPULAR_TAGS = TsConstants.DEFAULT_POPULAR_TAGS
@@ -127,6 +128,9 @@ class Tagstore(QtCore.QObject):
         tag_seperator = self.__app_config_wrapper.get_tag_seperator()
         if tag_seperator.strip() != "":
             self.TAG_SEPERATOR = tag_seperator
+        expiry_prefix = self.__app_config_wrapper.get_expiry_prefix()
+        if expiry_prefix.strip() != "":
+            self.EXPIRY_PREFIX = expiry_prefix
         
         self.NUM_RECENT_TAGS = self.__app_config_wrapper.get_num_recent_tags()
         self.NUM_POPULAR_TAGS = self.__app_config_wrapper.get_num_popular_tags()
