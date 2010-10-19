@@ -48,7 +48,7 @@ class TsConstants(object):
     DATESTAMP_FORMAT_DAY = "%Y-%m-%d"
     DATESTAMP_FORMAT_MONTH = "%Y-%m"
     
-    DEFAULT_EXPIRY_PREFIX = "exp:"
+    DEFAULT_EXPIRY_PREFIX = "exp_"
     DEFAULT_STORE_CONFIG_DIR = ".tagstore"
     DEFAULT_STORE_CONFIG_FILENAME = "store.cfg"
     DEFAULT_STORE_TAGS_FILENAME = "store.tgs"
