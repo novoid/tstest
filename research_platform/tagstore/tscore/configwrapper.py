@@ -59,9 +59,11 @@ class ConfigWrapper(QtCore.QObject):
         file = open(file_path, "w")
         
         file.write("[settings]\n")
-        file.write("store_config_directory=%s\n" % TsConstants.STORE_CONFIG_DIR)
-        file.write("store_config_filename=%s\n" % TsConstants.STORE_CONFIG_FILENAME)
-        file.write("store_tags_filename=%s\n" % TsConstants.STORE_TAGS_FILENAME)
+        file.write("store_config_directory=%s\n" % TsConstants.DEFAULT_STORE_CONFIG_DIR)
+        file.write("store_config_filename=%s\n" % TsConstants.DEFAULT_STORE_CONFIG_FILENAME)
+        file.write("store_tags_filename=%s\n" % TsConstants.DEFAULT_STORE_TAGS_FILENAME)
+        file.write("store_vocabulary_filename=%s\n" % TsConstants.DEFAULT_STORE_VOCABULARY_FILENAME)
+        
         file.write("tag_separator=\"%s\"\n" % TsConstants.DEFAULT_TAG_SEPARATOR)
         file.write("supported_languages=\"en,de\"\n")
         file.write("datestamp_format=0\n")
