@@ -128,6 +128,7 @@ class Store(QtCore.QObject):
         self.__vocabulary_path = self.__path + "/" + self.__vocabulary_file_name #TsConstants.STORE_CONFIG_DIR + "/" + TsConstants.STORE_VOCABULARY_FILENAME
         self.__watcher_path = self.__path + "/" + self.__storage_dir_name
         self.__describing_nav_path = self.__path + "/" + self.__describing_nav_dir_name
+        self.__categorising_nav_path = self.__path + "/" + self.__categorising_nav_dir_name
         
         self.__tag_wrapper = TagWrapper(self.__tags_file_path)
         ## update store id to avoid inconsistency
@@ -184,6 +185,7 @@ class Store(QtCore.QObject):
         else:                   ## renamed
             self.__path = self.__parent_path + "/" + new_name
             self.__describing_nav_path = self.__path + "/" + self.__describing_nav_dir_name
+            self.__categorising_nav_path = self.__path + "/" + self.__categorising_nav_dir_name
             ## update all links in windows: absolute links only
             if self.__file_system.get_os() == EOS.Windows:
                 print "rebuild"
@@ -275,6 +277,7 @@ class Store(QtCore.QObject):
         removes all directories and links in the stores describing_nav path
         """
         self.__file_system.delete_dir_content(self.__describing_nav_path)
+        self.__file_system.delete_dir_content(self.__categorising_nav_path)
     
     def rebuild(self):
         """
@@ -309,6 +312,7 @@ class Store(QtCore.QObject):
         if self.__tag_wrapper.file_exists(file_name):
             tag_list = self.__tag_wrapper.get_file_tags(file_name)
             self.__delete_links(file_name, tag_list, self.__describing_nav_path)
+            self.__delete_links(file_name, tag_list, self.__categorising_nav_path)
             self.__tag_wrapper.remove_file(file_name)
         else:
             self.emit(QtCore.SIGNAL("pending_operations_changed(PyQt_PyObject)"), self)
@@ -377,7 +381,7 @@ class Store(QtCore.QObject):
                 return True
         return False
          
-    def add_item_with_tags(self, file_name, tag_list, category_list=None):
+    def add_item_with_tags(self, file_name, describing_tag_list, categorising_tag_list=None):
         """
         adds tags to the given file, resets existing tags
         """
@@ -389,30 +393,34 @@ class Store(QtCore.QObject):
         if self.__file_system.inode_shortage(self.__config_path):
             raise Exception, self.trUtf8("Number of free inodes < 10%! Tagging has not been carried out!")
         ## throw error if item-names and tag-names (new and existing) are in conflict
-        if self.__name_in_conflict(file_name, tag_list, category_list):
+        if self.__name_in_conflict(file_name, describing_tag_list, categorising_tag_list):
             raise Exception, self.trUtf8("Entered item or tag names are in conflict with existing denotation")
         ## ignore multiple tags
-        tags = list(set(tag_list))
+        describing_tags = list(set(describing_tag_list))
+        categorising_tags = []
+        if categorising_tag_list is not None:
+            categorising_tags = list(set(categorising_tag_list))
         #categories = list(set(category_list))
 
         ## scalability test
         ##start = time.clock()
         try:
-            self.__build_store_describing_nav(file_name, tags, self.__describing_nav_path)
+            self.__build_store_navigation(file_name, describing_tags, self.__describing_nav_path)
+            self.__build_store_navigation(file_name, categorising_tags, self.__categorising_nav_path)
             #self.__build_store_describing_nav(file_name, categories, self.__describing_nav_path)
         except:
-            raise Exception, self.trUtf8("An error occurred during building the describing_nav paths and links!")
+            raise Exception, self.trUtf8("An error occurred during building the navigation path(s) and links!")
         try:
-            self.__tag_wrapper.set_file(file_name, tags, category_list)
+            self.__tag_wrapper.set_file(file_name, describing_tags, categorising_tags)
             self.__pending_changes.remove(file_name)
         except:
             raise Exception, self.trUtf8("An error occurred during saving file and tags to configuration file!")
         ## scalability test
         ##print "number of tags: " + str(len(tags)) + ", time: " + str(time.clock()-start)
         
-    def __build_store_describing_nav(self, link_name, tag_list, current_path):
+    def __build_store_navigation(self, link_name, tag_list, current_path):
         """
-        builds the whole directory and link-structure (describing_nav path) inside a stores filesystem
+        builds the whole directory and link-structure (describing & categorising nav path) inside a stores filesystem
         """
         link_source = self.__watcher_path + "/" + link_name
         for tag in tag_list:
@@ -420,7 +428,7 @@ class Store(QtCore.QObject):
             self.__file_system.create_link(link_source, current_path + "/" + tag + "/" + link_name)
             recursive_list = [] + tag_list
             recursive_list.remove(tag)
-            self.__build_store_describing_nav(link_name, recursive_list, current_path + "/" + tag)
+            self.__build_store_navigation(link_name, recursive_list, current_path + "/" + tag)
     
     def rename_tag(self, old_tag_name, new_tag_name):
         """
