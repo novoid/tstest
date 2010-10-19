@@ -68,7 +68,7 @@ class Administration(QtCore.QObject):
         """
         self.__log.info("initialize configuration")
         self.__main_config = ConfigWrapper(TsConstants.CONFIG_PATH)
-        self.__main_config.connect(self.__main_config, QtCore.SIGNAL("changed()"), self.__init_configuration)
+        #self.__main_config.connect(self.__main_config, QtCore.SIGNAL("changed()"), self.__init_configuration)
 
         if self.__admin_dialog is None:
             self.__admin_dialog = StorePreferencesController()
@@ -86,7 +86,64 @@ class Administration(QtCore.QObject):
         create new store at given directory
         """
         ## add the new path to the config file - the tagstore script does the rest
-        self.__main_config.add_new_store(dir)
+        store_id = self.__main_config.add_new_store(dir)
+        
+        stores = self.__main_config.get_stores()
+        store_item = None
+        for current_store_item in stores:
+            if current_store_item["id"] == store_id:
+                store_item = current_store_item
+
+        self.STORE_CONFIG_DIR = TsConstants.DEFAULT_STORE_CONFIG_DIR
+        self.STORE_CONFIG_FILE_NAME = TsConstants.DEFAULT_STORE_CONFIG_FILENAME
+        self.STORE_TAGS_FILE_NAME = TsConstants.DEFAULT_STORE_TAGS_FILENAME
+        self.STORE_VOCABULARY_FILE_NAME = TsConstants.DEFAULT_STORE_VOCABULARY_FILENAME
+        
+        #get dir names for all available languages
+        self.CURRENT_LANGUAGE = self.trUtf8("en")
+        store_current_language = self.CURRENT_LANGUAGE 
+        self.STORE_STORAGE_DIRS = []
+        self.STORE_DESCRIBING_NAV_DIRS = []
+        self.STORE_CATEGORIZING_NAV_DIRS = []
+        self.STORE_EXPIRED_DIRS = []
+
+        self.SUPPORTED_LANGUAGES = TsConstants.DEFAULT_SUPPORTED_LANGUAGES
+        for lang in self.SUPPORTED_LANGUAGES: 
+            #self.change_language(lang) 
+            self.STORE_STORAGE_DIRS.append(self.trUtf8("storage"))#self.STORE_STORAGE_DIR_EN))  
+            self.STORE_DESCRIBING_NAV_DIRS.append(self.trUtf8("navigation"))#self.STORE_DESCRIBING_NAVIGATION_DIR_EN))  
+            self.STORE_CATEGORIZING_NAV_DIRS.append(self.trUtf8("categorization"))#self.STORE_CATEGORIZING_NAVIGATION_DIR_EN)) 
+            self.STORE_EXPIRED_DIRS.append(self.trUtf8("expired_items"))#STORE_EXPIRED_DIR_EN)) 
+        ## reset language 
+        #self.change_language(store_current_language) 
+
+        
+        config_dir = self.__main_config.get_store_config_directory()
+        if config_dir != "":
+            self.STORE_CONFIG_DIR = config_dir
+        config_file_name = self.__main_config.get_store_configfile_name()
+        if config_file_name != "":
+            self.STORE_CONFIG_FILE_NAME = config_file_name
+        tags_file_name = self.__main_config.get_store_tagsfile_name()
+        if tags_file_name != "":
+            self.STORE_TAGS_FILE_NAME = tags_file_name
+        vocabulary_file_name = self.__main_config.get_store_vocabularyfile_name()
+        if vocabulary_file_name != "":
+            self.STORE_VOCABULARY_FILE_NAME = vocabulary_file_name
+        
+        
+        ## create a store object since it builds its own structure 
+        Store(store_item["id"], store_item["path"], 
+              self.STORE_CONFIG_DIR + "/" + self.STORE_CONFIG_FILE_NAME,
+              self.STORE_CONFIG_DIR + "/" + self.STORE_TAGS_FILE_NAME,
+              self.STORE_CONFIG_DIR + "/" + self.STORE_VOCABULARY_FILE_NAME,
+              self.STORE_STORAGE_DIRS, 
+              self.STORE_DESCRIBING_NAV_DIRS,
+              self.STORE_CATEGORIZING_NAV_DIRS,
+              self.STORE_EXPIRED_DIRS)
+        
+        ## re-initialize the config
+        self.__init_configuration()
         
 if __name__ == '__main__':  
   

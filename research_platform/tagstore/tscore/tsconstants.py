@@ -75,4 +75,4 @@ class TsConstants(object):
         """
         these chars are not allowed to appear in any of the tags
         """
-        return unicode(TsConstants.DEFAULT_NOT_ALLOWED_CHARS.split(","))
+        return TsConstants.DEFAULT_NOT_ALLOWED_CHARS.split(",")

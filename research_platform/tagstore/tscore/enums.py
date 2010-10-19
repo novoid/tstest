@@ -59,7 +59,7 @@ ETagErrorEnum = Enum(["NO_DESCRIBING_TAG",
                       "LIMIT_EXCEEDED_CATEGORIZING_TAG",
                       "NOT_ALLOWED_CHAR_DESCRIBING_TAG",
                       "NOT_ALLOWED_CHAR_CATEGORIZING_TAG",
-                      "NOT_ALLOWED_DESRIBING_TAG_NAME",
+                      "NOT_ALLOWED_DESCRIBING_TAG_NAME",
                       "NOT_ALLOWED_CATEGORIZING_TAG_NAME",
                       "NOT_DEFINED_CATEGORIZING_TAG_NAME",
                       "NO_ITEM_SELECTED"])

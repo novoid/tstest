@@ -358,6 +358,7 @@ class StoreAdminController(BasePreferenceController):
             return 
         
         self.emit(QtCore.SIGNAL("new"), dir)
+        self.get_view().add_store_name(store_name)
     
     def __rebuild_store(self):
         
@@ -850,10 +851,10 @@ class StorePreferencesController(QtCore.QObject):
         # TODO: 
         pass
     
-    def __handle_rename(self, store_name):
+    def __handle_rename(self, store_name, new_store_name):
         pass
     
-    def __handle_delete(self, store_name, new_store_name):
+    def __handle_delete(self, store_name):
         pass
 
     def __get_config_for_store(self, store_path):

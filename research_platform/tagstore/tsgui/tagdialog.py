@@ -18,7 +18,7 @@ from PyQt4 import QtCore, QtGui
 import tsresources.resources
 from tagcompleter import TagCompleterWidget
 from tscore.tsconstants import TsConstants
-from tscore.enums import ECategorySetting
+from tscore.enums import ECategorySetting, ETagErrorEnum
 from admindialog import StorePreferencesController
 from administration import Administration
 from tsgui.tagdialogstate import TagDialogState
@@ -104,6 +104,7 @@ class TagDialog(QtGui.QDialog):
         
         
         self.__tag_error_label = QtGui.QLabel()
+        self.__tag_error_label.setWordWrap(True)
         self.__tag_error_label.setPalette(self.get_red_palette())
         
         self.__pop_category_layout = QtGui.QHBoxLayout()
@@ -112,9 +113,11 @@ class TagDialog(QtGui.QDialog):
         self.__pop_category_widget.setLayout(self.__pop_category_layout)
         
         self.__category_error_label = QtGui.QLabel()
+        self.__category_error_label.setWordWrap(True)
         self.__category_error_label.setPalette(self.get_red_palette())
         
         self.__item_error_label = QtGui.QLabel()
+        self.__item_error_label.setWordWrap(True)
         self.__item_error_label.setPalette(self.get_red_palette())
         
         #self.__tag_error_label.setVisible(False)
@@ -293,7 +296,14 @@ class TagDialog(QtGui.QDialog):
         NOT_DEFINED_CATEGORIZING_TAG_NAME
         NO_ITEM_SELECTED
         """               
-    
+        if error_enum == ETagErrorEnum.NOT_ALLOWED_CHAR_DESCRIBING_TAG:
+            self.__set_tag_info(self.trUtf8("At least one describing tag contains a special character, which is not allowed to be used"))
+        elif error_enum == ETagErrorEnum.NOT_ALLOWED_DESCRIBING_TAG_NAME:
+            self.__set_tag_info(self.trUtf8("At least one describing tag is equal to a reserved keyword"))
+        elif error_enum == ETagErrorEnum.NOT_ALLOWED_CHAR_CATEGORIZING_TAG:
+            self.__set_category_info(self.trUtf8("At least one categorizing tag contains a special character, which is not allowed to be used"))
+        elif error_enum == ETagErrorEnum.NOT_ALLOWED_CATEGORIZING_TAG_NAME:
+            self.__set_category_info(self.trUtf8("At least one categorizing tag is equal to a reserved keyword"))
 
     def keyPressEvent(self, event):
         """
@@ -694,7 +704,10 @@ class TagDialogController(QtCore.QObject):
         """
         char_list = TsConstants.get_not_allowed_chars_list()
         for tag in tag_list:
-            return True in [char in tag for char in char_list]
+            for char in char_list:
+                if tag.find(char) != -1:
+                    return True
+            #return True in [char in tag for char in char_list]
         return False
             
         
@@ -724,12 +737,10 @@ class TagDialogController(QtCore.QObject):
             return
 
         if self.check_on_special_chars(tag_list):
-            self.__tag_dialog.set_not_allowed_char_in_desc_tagline()
-            print "at least one tag contains a special character"
+            self.__tag_dialog.set_error_occured(ETagErrorEnum.NOT_ALLOWED_CHAR_DESCRIBING_TAG)
             return
         if self.check_on_special_strings(tag_list):
-            self.__tag_dialog.set_not_allowed_string_in_desc_tagline()
-            print "at least one tag is named like a special keyword"
+            self.__tag_dialog.set_error_occured(ETagErrorEnum.NOT_ALLOWED_DESCRIBING_TAG_NAME)
             return
         
         ## just check this, if the category line is enabled
@@ -747,6 +758,12 @@ class TagDialogController(QtCore.QObject):
             if not category_list.issubset(completion_set):
                 self.__tag_dialog.set_not_suitable_categories_entered()
                 return
+        if self.check_on_special_chars(category_list):
+            self.__tag_dialog.set_error_occured(ETagErrorEnum.NOT_ALLOWED_CHAR_CATEGORIZING_TAG)
+            return
+        if self.check_on_special_strings(category_list):
+            self.__tag_dialog.set_error_occured(ETagErrorEnum.NOT_ALLOWED_CATEGORIZING_TAG_NAME)
+            return
             
         self.__item_to_remove = item
         self.emit(QtCore.SIGNAL("tag_item"), self.__store_name, item.text(), tag_list, category_list)
