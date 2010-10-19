@@ -276,6 +276,19 @@ class ConfigWrapper(QtCore.QObject):
         self.__settings.beginGroup("stores")
         self.__settings.remove(id)
         self.__settings.endGroup()
-
+    
+    def add_new_store(self, store_path):
+        """
+        just write the new store-path to the config file
+        the store structure will be created automatically 
+        """
+        ## get the highest id
+        max_id = max(self.get_store_ids())
+        max_id_int = int(max_id.strip())
+        new_id_int = max_id_int + 1
+        
+        self.__settings.beginGroup("stores")
+        self.__settings.setValue(str(new_id_int), store_path)
+        self.__settings.endGroup()
 
 ## end

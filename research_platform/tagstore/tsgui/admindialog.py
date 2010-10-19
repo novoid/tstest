@@ -708,7 +708,7 @@ class ExpiryAdminView(BasePreferenceView):
         self.__prefix = prefix
         descr_text = self.trUtf8("Directories or files tagged with '%s2010-12' " \
             "will be moved to the tagstore directory %s on the January 1st 2011 associated tags will be removed. "\
-            "The correct writing of '%s2010-12' is really important thereby." % (self.__prefix, TsConstants.STORE_TRASHBIN_NAME, self.__prefix))
+            "The correct writing of '%s2010-12' is really important thereby." % (self.__prefix, self.trUtf8("expired_items"), self.__prefix))
         self.__detailed_description_label.setText(descr_text)
     
     def get_prefix(self):
@@ -817,11 +817,11 @@ class StorePreferencesController(QtCore.QObject):
             store_path = store["path"]
             store_name = store_path.split("/").pop()
             
-            config_path = "%s/%s/%s" % (store_path, TsConstants.STORE_CONFIG_DIR, TsConstants.STORE_CONFIG_FILENAME)
+            config_path = "%s/%s/%s" % (store_path, TsConstants.DEFAULT_STORE_CONFIG_DIR, TsConstants.DEFAULT_STORE_CONFIG_FILENAME)
             config = ConfigWrapper(config_path)
             self.__store_config_dict[store_name] = config
             
-            voc_path = "%s/%s/%s" % (store_path, TsConstants.STORE_CONFIG_DIR, TsConstants.STORE_VOCABULARY_FILENAME)
+            voc_path = "%s/%s/%s" % (store_path, TsConstants.DEFAULT_STORE_CONFIG_DIR, TsConstants.DEFAULT_STORE_VOCABULARY_FILENAME)
             voc_wrapper = VocabularyWrapper(voc_path)
             self.__store_vocabulary_wrapper_dict[store_name] = voc_wrapper
 
@@ -834,8 +834,8 @@ class StorePreferencesController(QtCore.QObject):
             
             self.__controller_datestamp.add_setting(TsConstants.SETTING_DATESTAMP_FORMAT, config.get_datestamp_format(), store_name)
 
-#        self.connect(self.__controller_store_admin, QtCore.SIGNAL("new"), self.__handle_new_store)
-        self.connect(self.__controller_store_admin, QtCore.SIGNAL("new"), QtCore.SIGNAL("create_new_store"))
+        self.connect(self.__controller_store_admin, QtCore.SIGNAL("new"), self.__handle_new_store)
+#        self.connect(self.__controller_store_admin, QtCore.SIGNAL("new"), QtCore.SIGNAL("create_new_store"))
         self.connect(self.__controller_store_admin, QtCore.SIGNAL("rebuild"), self.__handle_rebuild)
         self.connect(self.__controller_store_admin, QtCore.SIGNAL("rename"), self.__handle_rename)
         self.connect(self.__controller_store_admin, QtCore.SIGNAL("delete"), self.__handle_delete)
@@ -845,7 +845,6 @@ class StorePreferencesController(QtCore.QObject):
     
     def __handle_new_store(self, path):
         self.emit(QtCore.SIGNAL("create_new_store"), path)
-        pass
     
     def __handle_rebuild(self, store_name):
         # TODO: 

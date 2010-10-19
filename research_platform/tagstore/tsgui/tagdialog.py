@@ -272,6 +272,29 @@ class TagDialog(QtGui.QDialog):
         self.__remove_category_info()
         self.__tag_state.set_not_allowed_category(False)
 
+    def set_not_allowed_string_in_desc_tagline(self):
+        self.__set_tag_info(self.trUtf8("At least one tag contains a special character, which is not allowed to be used"))
+    
+    def set_not_allowed_string_in_cat_tagline(self):
+        self.__set_tag_info(self.trUtf8("at least one tag contains a special character"))
+        self.__tag_state.set_not_allowed_category(True)
+
+    def set_error_occured(self, error_enum):
+        """
+        these error types can be used as param
+        NO_DESCRIBING_TAG
+        NO_CATEGORIZING_TAG
+        LIMIT_EXCEEDED_DESRIBING_TAG
+        LIMIT_EXCEEDED_CATEGORIZING_TAG
+        NOT_ALLOWED_CHAR_DESCRIBING_TAG
+        NOT_ALLOWED_CHAR_CATEGORIZING_TAG
+        NOT_ALLOWED_DESRIBING_TAG_NAME
+        NOT_ALLOWED_CATEGORIZING_TAG_NAME
+        NOT_DEFINED_CATEGORIZING_TAG_NAME
+        NO_ITEM_SELECTED
+        """               
+    
+
     def keyPressEvent(self, event):
         """
         dummy re-implementation to avoid random signal sending
@@ -665,6 +688,26 @@ class TagDialogController(QtCore.QObject):
         """
         self.hide_dialog()
     
+    def check_on_special_chars(self, tag_list):
+        """
+        check the given list, if any of its items contains a not allowed special character
+        """
+        char_list = TsConstants.get_not_allowed_chars_list()
+        for tag in tag_list:
+            return True in [char in tag for char in char_list]
+        return False
+            
+        
+    def check_on_special_strings(self, tag_list):
+        """
+        check the given list, if any of its items equals a reserved keyword (which is not allowed to be used)
+        """
+        string_list = TsConstants.get_not_allowed_strings_list()
+        for tag in tag_list:
+            if tag in string_list:
+                return tag
+        return ""
+    
     def tag_item(self, item, tag_list):
         """
         pre-check if all necessary data is available for storing tags to an item 
@@ -679,7 +722,15 @@ class TagDialogController(QtCore.QObject):
         if item is None:
             self.__tag_dialog.set_item_info(self.trUtf8("Please select an Item, to which the tags should be added"))
             return
-        
+
+        if self.check_on_special_chars(tag_list):
+            self.__tag_dialog.set_not_allowed_char_in_desc_tagline()
+            print "at least one tag contains a special character"
+            return
+        if self.check_on_special_strings(tag_list):
+            self.__tag_dialog.set_not_allowed_string_in_desc_tagline()
+            print "at least one tag is named like a special keyword"
+            return
         
         ## just check this, if the category line is enabled
         if (category_setting == ECategorySetting.ENABLED or category_setting == ECategorySetting.ENABLED) and category_mandatory and (category_list is None or len(category_list) == 0):

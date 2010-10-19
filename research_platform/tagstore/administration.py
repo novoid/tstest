@@ -27,6 +27,7 @@ from tsgui.admindialog import StorePreferencesController
 class Administration(QtCore.QObject):
 
     def __init__(self, verbose):
+        QtCore.QObject.__init__(self)
         
         self.__log = None
         self.__main_config = None
@@ -68,14 +69,15 @@ class Administration(QtCore.QObject):
         self.__log.info("initialize configuration")
         self.__main_config = ConfigWrapper(TsConstants.CONFIG_PATH)
         self.__main_config.connect(self.__main_config, QtCore.SIGNAL("changed()"), self.__init_configuration)
-    
-    def show_admin_dialog(self, show):
+
         if self.__admin_dialog is None:
             self.__admin_dialog = StorePreferencesController()
-            self.__admin_dialog.set_main_config(self.__main_config)
-            self.__admin_dialog.set_store_list(self.__main_config.get_stores())
-
             self.connect(self.__admin_dialog, QtCore.SIGNAL("create_new_store"), self.__handle_new_store)
+        self.__admin_dialog.set_main_config(self.__main_config)
+        self.__admin_dialog.set_store_list(self.__main_config.get_stores())
+    
+    def show_admin_dialog(self, show):
+
         
         self.__admin_dialog.show_dialog()
         
@@ -83,9 +85,8 @@ class Administration(QtCore.QObject):
         """
         create new store at given directory
         """
-        ## get all store ids
-        id_list = self.__main_config.get_store_ids()
-        new_store = Store(id_list)
+        ## add the new path to the config file - the tagstore script does the rest
+        self.__main_config.add_new_store(dir)
         
 if __name__ == '__main__':  
   

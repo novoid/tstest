@@ -58,6 +58,21 @@ class TsConstants(object):
     DEFAULT_MAX_TAGS = 3
     DEFAULT_TAG_SEPARATOR = ","
     DEFAULT_SUPPORTED_LANGUAGES = ["en", "de"]
+    DEFAULT_NOT_ALLOWED_CHARS = "/,?,<,>,\,:,*,|,\""
+    DEFAULT_NOT_ALLOWED_STRINGS = "com1,com2,com3,com4,com5,com6,com7,com8,com9,lpt1,lpt2,lpt3,lpt4,lpt5,lpt6,lpt7,lpt8,lpt9,con,nul,prn"
     
     def __init__(self):
         pass
+    
+    @staticmethod
+    def get_not_allowed_strings_list():
+        """
+        tags are not allowed to be named like any of these strings
+        """
+        return unicode(TsConstants.DEFAULT_NOT_ALLOWED_STRINGS.split(","))
+    @staticmethod
+    def get_not_allowed_chars_list():
+        """
+        these chars are not allowed to appear in any of the tags
+        """
+        return unicode(TsConstants.DEFAULT_NOT_ALLOWED_CHARS.split(","))
