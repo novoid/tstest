@@ -27,13 +27,11 @@ class TsConstants(object):
     LOG_FILESIZE = 524288
     
     CONFIG_PATH = "../conf/tagstore.cfg"
-    STORE_CONFIG_DIR = ".tagstore"
-    STORE_CONFIG_FILENAME = "store.cfg"
-    STORE_TAGS_FILENAME = "store.tgs"
-    STORE_VOCABULARY_FILENAME = "vocabulary.txt"
-    STORE_POSSIBLE_STORAGE_DIRS = "storage,Ablage"
-    STORE_POSSIBLE_NAVIGATION_DIRS = "navigation,Navigation"
-    STORE_TRASHBIN_NAME = "trash"
+
+    #STORE_STORAGE_DIR_EN = "storage"#,Ablage"
+    #STORE_DESCRIBING_NAVIGATION_DIR_EN = "navigation"#,Navigation"
+    #STORE_CATEGORIZING_NAVIGATION_DIR_EN = "categorization"#,Kategorisierung"
+    #STORE_EXPIRED_DIR_EN = "expired_items"#abgelaufene_Daten"
     
     SETTING_SUPPORTED_LANGUAGES = "supported_languages"
     SETTING_AUTO_DATESTAMP = "automatic_datestamp"
@@ -52,6 +50,10 @@ class TsConstants(object):
     DATESTAMP_FORMAT_DAY = "%Y-%m-%d"
     DATESTAMP_FORMAT_MONTH = "%Y-%m"
     
+    DEFAULT_STORE_CONFIG_DIR = ".tagstore"
+    DEFAULT_STORE_CONFIG_FILENAME = "store.cfg"
+    DEFAULT_STORE_TAGS_FILENAME = "store.tgs"
+    DEFAULT_STORE_VOCABULARY_FILENAME = "vocabulary.txt"
     DEFAULT_RECENT_TAGS = 5
     DEFAULT_POPULAR_TAGS = 5
     DEFAULT_MAX_TAGS = 3

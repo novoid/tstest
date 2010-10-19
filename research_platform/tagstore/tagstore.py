@@ -48,13 +48,28 @@ class Tagstore(QtCore.QObject):
         self.SUPPORTED_LANGUAGES = TsConstants.DEFAULT_SUPPORTED_LANGUAGES
         
         ## global settings/defaults (only used if reading config file failed or invalid!)
-        self.STORE_CONFIG_DIR = TsConstants.STORE_CONFIG_DIR
-        self.STORE_CONFIG_FILE_NAME = TsConstants.STORE_CONFIG_FILENAME
-        self.STORE_TAGS_FILE_NAME = TsConstants.STORE_TAGS_FILENAME
-        self.STORE_STORAGE_DIRS = TsConstants.STORE_POSSIBLE_STORAGE_DIRS
-        self.STORE_NAVIGATION_DIRS = TsConstants.STORE_POSSIBLE_NAVIGATION_DIRS
-        self.TAG_SEPERATOR = TsConstants.DEFAULT_TAG_SEPARATOR
+        self.STORE_CONFIG_DIR = TsConstants.DEFAULT_STORE_CONFIG_DIR
+        self.STORE_CONFIG_FILE_NAME = TsConstants.DEFAULT_STORE_CONFIG_FILENAME
+        self.STORE_TAGS_FILE_NAME = TsConstants.DEFAULT_STORE_TAGS_FILENAME
+        self.STORE_VOCABULARY_FILE_NAME = TsConstants.DEFAULT_STORE_VOCABULARY_FILENAME
 
+        #get dir names for all available languages
+        store_current_language = self.CURRENT_LANGUAGE 
+        self.STORE_STORAGE_DIRS = []
+        self.STORE_DESCRIBING_NAV_DIRS = []
+        self.STORE_CATEGORIZING_NAV_DIRS = []
+        self.STORE_EXPIRED_DIRS = []
+
+        for lang in self.SUPPORTED_LANGUAGES: 
+            self.change_language(lang) 
+            self.STORE_STORAGE_DIRS.append(self.trUtf8("storage"))#self.STORE_STORAGE_DIR_EN))  
+            self.STORE_DESCRIBING_NAV_DIRS.append(self.trUtf8("navigation"))#self.STORE_DESCRIBING_NAVIGATION_DIR_EN))  
+            self.STORE_CATEGORIZING_NAV_DIRS.append(self.trUtf8("categorization"))#self.STORE_CATEGORIZING_NAVIGATION_DIR_EN)) 
+            self.STORE_EXPIRED_DIRS.append(self.trUtf8("expired_items"))#STORE_EXPIRED_DIR_EN)) 
+        ## reset language 
+        self.change_language(store_current_language) 
+     
+        self.TAG_SEPERATOR = TsConstants.DEFAULT_TAG_SEPARATOR
         self.NUM_RECENT_TAGS = TsConstants.DEFAULT_RECENT_TAGS
         self.NUM_POPULAR_TAGS = TsConstants.DEFAULT_POPULAR_TAGS
         self.MAX_TAGS = TsConstants.DEFAULT_MAX_TAGS
@@ -106,7 +121,7 @@ class Tagstore(QtCore.QObject):
         initializes the configuration. This method is called every time the config file changes
         """
         self.__log.info("initialize configuration")
-        ## reload config file
+        ## reload config file - overwrite default settings
         self.__app_config_wrapper = ConfigWrapper(TsConstants.CONFIG_PATH)
         self.__app_config_wrapper.connect(self.__app_config_wrapper, QtCore.SIGNAL("changed()"), self.__init_configurations)
         tag_seperator = self.__app_config_wrapper.get_tag_seperator()
@@ -126,17 +141,21 @@ class Tagstore(QtCore.QObject):
         tags_file_name = self.__app_config_wrapper.get_store_tagsfile_name()
         if tags_file_name != "":
             self.STORE_TAGS_FILE_NAME = tags_file_name
+        vocabulary_file_name = self.__app_config_wrapper.get_store_vocabularyfile_name()
+        if vocabulary_file_name != "":
+            self.STORE_VOCABULARY_FILE_NAME = vocabulary_file_name
         
-        self.SUPPORTED_LANGUAGES = self.__app_config_wrapper.get_supported_languages()
-        current_language = self.CURRENT_LANGUAGE
-        self.STORE_STORAGE_DIRS = []
-        self.STORE_NAVIGATION_DIRS = [] 
-        for lang in self.SUPPORTED_LANGUAGES:
-            self.change_language(lang)
-            self.STORE_STORAGE_DIRS.append(self.trUtf8("storage")) 
-            self.STORE_NAVIGATION_DIRS.append(self.trUtf8("navigation")) 
-        ## reset language
-        self.change_language(current_language)
+       
+#        self.SUPPORTED_LANGUAGES = self.__app_config_wrapper.get_supported_languages()
+#        current_language = self.CURRENT_LANGUAGE
+#        self.STORE_STORAGE_DIRS = []
+#        self.STORE_NAVIGATION_DIRS = [] 
+#        for lang in self.SUPPORTED_LANGUAGES:
+#            self.change_language(lang)
+#            self.STORE_STORAGE_DIRS.append(self.trUtf8("storage")) 
+#            self.STORE_NAVIGATION_DIRS.append(self.trUtf8("navigation")) 
+#        ## reset language
+#        self.change_language(current_language)
 
         ## get stores from config file         
         config_store_items = self.__app_config_wrapper.get_stores()
@@ -149,7 +168,8 @@ class Tagstore(QtCore.QObject):
             ## update changed stores
                 store.set_path(self.__app_config_wrapper.get_store_path(id), 
                                self.STORE_CONFIG_DIR + "/" + self.STORE_CONFIG_FILE_NAME,
-                               self.STORE_CONFIG_DIR + "/" + self.STORE_TAGS_FILE_NAME)
+                               self.STORE_CONFIG_DIR + "/" + self.STORE_TAGS_FILE_NAME,
+                               self.STORE_CONFIG_DIR + "/" + self.STORE_VOCABULARY_FILE_NAME)
                                
                 config_store_ids.remove(id)             ## remove already updated items
             else:
@@ -167,8 +187,12 @@ class Tagstore(QtCore.QObject):
                 store = Store(store_item["id"], store_item["path"], 
                               self.STORE_CONFIG_DIR + "/" + self.STORE_CONFIG_FILE_NAME,
                               self.STORE_CONFIG_DIR + "/" + self.STORE_TAGS_FILE_NAME,
+                              self.STORE_CONFIG_DIR + "/" + self.STORE_VOCABULARY_FILE_NAME,
                               self.STORE_STORAGE_DIRS, 
-                              self.STORE_NAVIGATION_DIRS)
+                              self.STORE_DESCRIBING_NAV_DIRS,
+                              self.STORE_CATEGORIZING_NAV_DIRS,
+                              self.STORE_EXPIRED_DIRS)
+
                 self.__log.debug("found store: %s", store.get_name())
                 
                 ## create a dialogcontroller for each store ...

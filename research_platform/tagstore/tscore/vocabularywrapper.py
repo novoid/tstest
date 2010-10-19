@@ -35,6 +35,16 @@ class VocabularyWrapper(QtCore.QObject):
     
         self.__file_path = file_path
     
+    @staticmethod
+    def create_vocabulary_file(file_path):
+        """
+        create a new vocabulary file
+        this  method has to be used in a static way
+        the file must be opened with write permission
+        """
+        file = open(file_path, "w")
+        file.close()
+        
     def __file_changed(self):
         """
         event handler: called when file was changed

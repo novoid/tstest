@@ -104,6 +104,13 @@ class ConfigWrapper(QtCore.QObject):
         config_file = self.__get_setting("store_config_filename")
         return config_file.strip("/")
         
+    def get_store_vocabularyfile_name(self):
+        """
+        returns the parameter: stores vocabulary file name
+        """
+        config_file = self.__get_setting("store_vocabulary_filename")
+        return config_file.strip("/")
+        
     def get_tag_seperator(self):
         """
         returns the parameter: tag separator for user interface 
