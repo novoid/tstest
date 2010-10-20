@@ -69,7 +69,7 @@ class TagDialog(QtGui.QDialog):
         self.setLayout(self.__baseLayout)
         
         self.__mainlayout = QtGui.QGridLayout()
-        self.__mainwidget = QtGui.QWidget()
+        self.__mainwidget = QtGui.QWidget(self)
         self.__mainwidget.setLayout(self.__mainlayout)
         self.__baseLayout.addWidget(self.__mainwidget)
         
@@ -141,7 +141,7 @@ class TagDialog(QtGui.QDialog):
         self.__mainlayout.addItem(QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding), 8, 2, 1, 1)
         self.__mainlayout.addWidget(self.__close_button, 8, 3, 1, 1)
         
-        self.setGeometry(self.__mainwidget.geometry())
+        #self.setGeometry(self.geometry())
         # TODO: fix resizing ... 
         #sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
         #sizePolicy.setHorizontalStretch(0)
