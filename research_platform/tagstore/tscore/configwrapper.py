@@ -284,9 +284,12 @@ class ConfigWrapper(QtCore.QObject):
         returns the newly created store_id
         """
         ## get the highest id
-        max_id = max(self.get_store_ids())
-        max_id_int = int(max_id.strip())
-        new_id_int = max_id_int + 1
+        new_id_int = 1 
+        id_list = self.get_store_ids()
+        if(len(id_list) > 0):
+            max_id = max(self.get_store_ids())
+            max_id_int = int(max_id.strip())
+            new_id_int = max_id_int + 1
         
         self.__settings.beginGroup("stores")
         self.__settings.setValue(str(new_id_int), store_path)
