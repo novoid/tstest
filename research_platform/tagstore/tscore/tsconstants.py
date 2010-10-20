@@ -26,7 +26,7 @@ class TsConstants(object):
     LOG_BACKUP_COUNT = 5
     LOG_FILESIZE = 524288
     
-    CONFIG_PATH = "../conf/tagstore.cfg"
+    CONFIG_PATH = "./tsresources/conf/tagstore.cfg"
 
     #STORE_STORAGE_DIR_EN = "storage"#,Ablage"
     #STORE_DESCRIBING_NAVIGATION_DIR_EN = "navigation"#,Navigation"
