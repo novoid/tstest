@@ -113,7 +113,8 @@ class Store(QtCore.QObject):
             self.__tag_wrapper = TagWrapper(self.__path + "/" + self.__tags_file_name)
             self.__tag_wrapper.set_store_id(self.__id)
         if not self.__file_system.path_exists(self.__path + "/" + self.__vocabulary_file_name):
-            VocabularyWrapper.create_vocabulary_file(self.__path + "/" + self.__vocabulary_file_name)
+            self.__vocabulary_wrapper = VocabularyWrapper.create_vocabulary_file(self.__path + "/" + self.__vocabulary_file_name)
+            
         
         self.__init_store()
         
@@ -134,10 +135,14 @@ class Store(QtCore.QObject):
         ## update store id to avoid inconsistency
         self.__tag_wrapper.set_store_id(self.__id)
         self.__vocabulary_wrapper = VocabularyWrapper(self.__vocabulary_path)
+        self.connect(self.__vocabulary_wrapper, QtCore.SIGNAL("changed"), self.__handle_vocabulary_changed)
         self.__store_config_wrapper = ConfigWrapper(self.__config_path)
         
         self.__watcher.addPath(self.__parent_path)
         self.__watcher.addPath(self.__watcher_path)
+        
+    def __handle_vocabulary_changed(self):
+        self.emit(QtCore.SIGNAL("vocabulary_changed"), self)
         
     def handle_offline_changes(self):
         """

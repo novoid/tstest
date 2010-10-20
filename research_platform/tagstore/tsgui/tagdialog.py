@@ -813,7 +813,8 @@ class TagDialogController(QtCore.QObject):
         """
         remove all pending items from the tree_view
         """
-        self.__tag_dialog.clear_item_view()    
+        self.__tag_dialog.clear_item_view()
+         
         
     def clear_store_children(self, store_name):
         self.__log.debug("not implemented ... just for multi-store dialogs")

@@ -31,6 +31,7 @@ class VocabularyWrapper(QtCore.QObject):
         
         self.__watcher = QtCore.QFileSystemWatcher(self)
         self.__watcher.addPath(file_path)
+#        self.__watcher.connect(self.__watcher,QtCore.SIGNAL("fileChanged(QString)"), QtCore.SIGNAL("changed"))
         self.__watcher.connect(self.__watcher,QtCore.SIGNAL("fileChanged(QString)"), self.__file_changed)
     
         self.__file_path = file_path
@@ -49,7 +50,7 @@ class VocabularyWrapper(QtCore.QObject):
         """
         event handler: called when file was changed
         """
-        self.emit(QtCore.SIGNAL("changed()"))
+        self.emit(QtCore.SIGNAL("changed"))
     
     def get_vocabulary(self):
         """

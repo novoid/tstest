@@ -825,6 +825,7 @@ class StorePreferencesController(QtCore.QObject):
             voc_path = "%s/%s/%s" % (store_path, TsConstants.DEFAULT_STORE_CONFIG_DIR, TsConstants.DEFAULT_STORE_VOCABULARY_FILENAME)
             voc_wrapper = VocabularyWrapper(voc_path)
             self.__store_vocabulary_wrapper_dict[store_name] = voc_wrapper
+            #self.connect(voc_wrapper, QtCore.SIGNAL("changed"), self.__refresh_vocabulary)
 
             self.__controller_vocabulary.add_setting(TsConstants.SETTING_CATEGORY_MANDATORY, config.get_category_mandatory(), store_name)
             self.__controller_vocabulary.add_setting(TsConstants.SETTING_SHOW_CATEGORY_LINE, config.get_show_category_line(), store_name)
@@ -843,6 +844,14 @@ class StorePreferencesController(QtCore.QObject):
 
         ## this setting comes from the main config
         self.__controller_expiry_admin.add_setting(TsConstants.SETTING_EXPIRY_PREFIX, self.__main_config.get_expiry_prefix())
+    
+    def __refresh_vocabulary(self):
+        """
+        re-write the vocabulary in all stores 
+        """
+        for store_name in self.__store_names:
+            voc_wrapper = self.__store_vocabulary_wrapper_dict[store_name]
+            self.__controller_vocabulary.add_setting(TsConstants.SETTING_CATEGORY_VOCABULARY, voc_wrapper.get_vocabulary(), store_name)
     
     def __handle_new_store(self, path):
         self.emit(QtCore.SIGNAL("create_new_store"), path)

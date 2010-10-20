@@ -229,9 +229,13 @@ class Tagstore(QtCore.QObject):
                 store.connect(store, QtCore.SIGNAL("file_renamed(PyQt_PyObject, QString, QString)"), self.file_renamed)
                 store.connect(store, QtCore.SIGNAL("file_removed(PyQt_PyObject, QString)"), self.file_removed)
                 store.connect(store, QtCore.SIGNAL("pending_operations_changed(PyQt_PyObject)"), self.pending_file_operations)
+                store.connect(store, QtCore.SIGNAL("vocabulary_changed"), self.__handle_vocabulary_changed)
                 ## handle offline changes
                 store.handle_offline_changes()
                 self.STORES.append(store)
+    
+    def __handle_vocabulary_changed(self, store):
+        self.__set_tag_information_to_dialog(store)
     
     def show_admin_dialog(self):
         controller = StorePreferencesController(parent=self.sender().get_view())
@@ -286,6 +290,7 @@ class Tagstore(QtCore.QObject):
         whole_list = added_list | added_renamed_list
         
         if whole_list is None or len(whole_list) == 0:
+            dialog_controller.hide_dialog()
             return
         self.__log.debug("store: %s, item: %s " % (store.get_id(), store.get_pending_changes().to_string()))
         

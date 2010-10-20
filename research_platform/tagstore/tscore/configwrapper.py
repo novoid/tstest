@@ -234,7 +234,7 @@ class ConfigWrapper(QtCore.QObject):
         self.__settings.beginGroup("stores")
         path = unicode(self.__settings.value(id, "").toString())
         self.__settings.endGroup()
-        return path.strip("/")
+        return path.rstrip("/")
 
     def get_stores(self):
         """
