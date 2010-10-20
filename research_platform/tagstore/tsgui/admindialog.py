@@ -212,6 +212,7 @@ class MultipleStorePreferenceView(BasePreferenceView):
         set a list of store_names to be displayed at the combo box
         """
         self._store_name_list = store_name_list
+        self._store_combo.clear()
         self._store_combo.addItems(store_name_list)
 
     def add_store_name(self, store_name):
@@ -776,6 +777,7 @@ class StorePreferencesController(QtCore.QObject):
         self.__store_names = []
         self.__store_dict = {}
         self._store_list = None
+        self.__first_time_init = True
         
         self.TAB_NAME_STORE = self.trUtf8("Store Management")
         self.TAB_NAME_DATESTAMP = self.trUtf8("Datestamps")
@@ -795,22 +797,30 @@ class StorePreferencesController(QtCore.QObject):
     def set_store_list(self, store_list):
         if store_list is not None:
             self._store_list = store_list
+            self.__store_names = []
+            self.__store_dict = {}
             for store in self._store_list:
                 self.__store_names.append(store["path"].split("/").pop())
                 self.__store_dict[store["path"].split("/").pop()] = store["path"]
         
         ## initialize the controllers for each preference tab
-        self.__controller_vocabulary = VocabularyAdminController(self.__store_names)
-        self.__register_controller(self.__controller_vocabulary, self.TAB_NAME_VOCABULARY)
-
-        self.__controller_store_admin = StoreAdminController(self.__store_dict)
-        self.__register_controller(self.__controller_store_admin, self.TAB_NAME_STORE)
-        
-        self.__controller_datestamp = DatestampAdminController(self.__store_names)
-        self.__register_controller(self.__controller_datestamp, self.TAB_NAME_DATESTAMP)
-
-        self.__controller_expiry_admin = ExpiryAdminController()
-        self.__register_controller(self.__controller_expiry_admin, self.TAB_NAME_EXPIRY)
+        if self.__first_time_init:
+            self.__controller_vocabulary = VocabularyAdminController(self.__store_names)
+            self.__register_controller(self.__controller_vocabulary, self.TAB_NAME_VOCABULARY)
+    
+            self.__controller_store_admin = StoreAdminController(self.__store_dict)
+            self.__register_controller(self.__controller_store_admin, self.TAB_NAME_STORE)
+            
+            self.__controller_datestamp = DatestampAdminController(self.__store_names)
+            self.__register_controller(self.__controller_datestamp, self.TAB_NAME_DATESTAMP)
+    
+            self.__controller_expiry_admin = ExpiryAdminController()
+            self.__register_controller(self.__controller_expiry_admin, self.TAB_NAME_EXPIRY)
+            self.__first_time_init = False
+        else:
+            self.__controller_vocabulary.set_store_names(self.__store_names)
+            self.__controller_datestamp.set_store_names(self.__store_names)
+            
         
 
         ## create a list with one config wrapper for each store
