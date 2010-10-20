@@ -807,15 +807,16 @@ class StorePreferencesController(QtCore.QObject):
         if self.__first_time_init:
             self.__controller_vocabulary = VocabularyAdminController(self.__store_names)
             self.__register_controller(self.__controller_vocabulary, self.TAB_NAME_VOCABULARY)
-    
-            self.__controller_store_admin = StoreAdminController(self.__store_dict)
-            self.__register_controller(self.__controller_store_admin, self.TAB_NAME_STORE)
             
             self.__controller_datestamp = DatestampAdminController(self.__store_names)
             self.__register_controller(self.__controller_datestamp, self.TAB_NAME_DATESTAMP)
     
             self.__controller_expiry_admin = ExpiryAdminController()
             self.__register_controller(self.__controller_expiry_admin, self.TAB_NAME_EXPIRY)
+
+            self.__controller_store_admin = StoreAdminController(self.__store_dict)
+            self.__register_controller(self.__controller_store_admin, self.TAB_NAME_STORE)
+
             self.__first_time_init = False
         else:
             self.__controller_vocabulary.set_store_names(self.__store_names)
