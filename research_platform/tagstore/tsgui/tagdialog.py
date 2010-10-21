@@ -421,17 +421,21 @@ class TagDialog(QtGui.QDialog):
             self.__log.debug("set_selected_item: %s" % self.__selected_item.text())
         
     def __handle_tag_label_clicked(self, clicked_text):
-        current_text = self.__tag_line.text()
+        current_text = str(self.__tag_line.text()).strip()
         if current_text == "":
             self.__tag_line.setText(clicked_text)
+        elif current_text[len(current_text)-1] == ",":
+            self.__tag_line.setText("%s %s" % (current_text, clicked_text))
         else:
             self.__tag_line.setText("%s%s %s" % (current_text, self.__tag_separator, clicked_text))
         print clicked_text
 
     def __handle_category_label_clicked(self, clicked_text):
-        current_text = self.__category_line.text()
+        current_text = str(self.__category_line.text()).strip()
         if current_text == "":
             self.__category_line.setText(clicked_text)
+        elif current_text[len(current_text)-1] == ",":
+            self.__category_line.setText("%s %s" % (current_text, clicked_text))
         else:
             self.__category_line.setText("%s%s %s" % (current_text, self.__tag_separator, clicked_text))
         print clicked_text
