@@ -428,7 +428,6 @@ class TagDialog(QtGui.QDialog):
             self.__tag_line.setText("%s %s" % (current_text, clicked_text))
         else:
             self.__tag_line.setText("%s%s %s" % (current_text, self.__tag_separator, clicked_text))
-        print clicked_text
 
     def __handle_category_label_clicked(self, clicked_text):
         current_text = str(self.__category_line.text()).strip()
@@ -438,7 +437,6 @@ class TagDialog(QtGui.QDialog):
             self.__category_line.setText("%s %s" % (current_text, clicked_text))
         else:
             self.__category_line.setText("%s%s %s" % (current_text, self.__tag_separator, clicked_text))
-        print clicked_text
 
     def remove_item_from_list(self, item):
         if item is None:
