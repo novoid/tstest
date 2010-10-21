@@ -397,8 +397,9 @@ class TagDialog(QtGui.QDialog):
         self.__help_button.setToolTip(QtGui.QApplication.translate("tagstore", "Help", None, QtGui.QApplication.UnicodeUTF8))
         self.__property_button.setToolTip(QtGui.QApplication.translate("tagstore", "Set application properties", None, QtGui.QApplication.UnicodeUTF8))
         self.__property_button.setText(QtGui.QApplication.translate("tagstore", "Preferences ...", None, QtGui.QApplication.UnicodeUTF8))
-        self.__close_button.setToolTip(QtGui.QApplication.translate("tagstore", "Close the dialog", None, QtGui.QApplication.UnicodeUTF8))
-        self.__close_button.setText(QtGui.QApplication.translate("tagstore", "Close", None, QtGui.QApplication.UnicodeUTF8))
+        self.__close_button.setToolTip(QtGui.QApplication.translate("tagstore", "Click this button if you want to tag the currently displayed items later on.",
+                                                                    None, QtGui.QApplication.UnicodeUTF8))
+        self.__close_button.setText(QtGui.QApplication.translate("tagstore", "Postpone", None, QtGui.QApplication.UnicodeUTF8))
         self.__tag_button.setToolTip(QtGui.QApplication.translate("tagstore", "Tag the selected item", None, QtGui.QApplication.UnicodeUTF8))
         self.__tag_button.setText(QtGui.QApplication.translate("tagstore", "Tag!", None, QtGui.QApplication.UnicodeUTF8))
         
