@@ -290,8 +290,9 @@ class Store(QtCore.QObject):
         """
         self.remove()
         for file in self.__tag_wrapper.get_files():
-            tag_list = self.__tag_wrapper.get_file_tags(file)
-            self.add_item_with_tags(file, tag_list)
+            describing_tag_list = self.__tag_wrapper.get_file_tags(file)
+            categorising_tag_list = self.__tag_wrapper.get_file_categories(file)
+            self.add_item_with_tags(file, describing_tag_list, categorising_tag_list)
         pass
     
     def rename_file(self, old_file_name, new_file_name):
@@ -299,9 +300,10 @@ class Store(QtCore.QObject):
         renames an existing file: links and config settings 
         """
         if self.__tag_wrapper.file_exists(old_file_name):
-            tag_list = self.__tag_wrapper.get_file_tags(old_file_name)
+            describing_tag_list = self.__tag_wrapper.get_file_tags(old_file_name)
+            categorising_tag_list = self.__tag_wrapper.get_file_categories(old_file_name)
             self.remove_file(old_file_name)
-            self.add_item_with_tags(new_file_name, tag_list)
+            self.add_item_with_tags(new_file_name, describing_tag_list, categorising_tag_list)
 
             self.__pending_changes.remove(old_file_name)
             self.__pending_changes.remove(new_file_name)
@@ -315,9 +317,10 @@ class Store(QtCore.QObject):
         """
         self.__pending_changes.remove(file_name)
         if self.__tag_wrapper.file_exists(file_name):
-            tag_list = self.__tag_wrapper.get_file_tags(file_name)
-            self.__delete_links(file_name, tag_list, self.__describing_nav_path)
-            self.__delete_links(file_name, tag_list, self.__categorising_nav_path)
+            describing_tag_list = self.__tag_wrapper.get_file_tags(file_name)
+            categorising_tag_list = self.__tag_wrapper.get_file_categories(file_name)
+            self.__delete_links(file_name, describing_tag_list, self.__describing_nav_path)
+            self.__delete_links(file_name, categorising_tag_list, self.__categorising_nav_path)
             self.__tag_wrapper.remove_file(file_name)
         else:
             self.emit(QtCore.SIGNAL("pending_operations_changed(PyQt_PyObject)"), self)
@@ -371,14 +374,15 @@ class Store(QtCore.QObject):
     def get_category_mandatory(self):
         return self.__store_config_wrapper.get_category_mandatory()
 
-    def __name_in_conflict(self, file_name, tag_list, category_list):
+    def __name_in_conflict(self, file_name, describing_tag_list, categorising_tag_list):
         """
         checks for conflicts and returns the result as boolean
         """
-        #TODO: add functionality for categorizing tags
         #TODO: extend functionality: have a look at #18 (Wiki)
         existing_files = self.__tag_wrapper.get_files()
         existing_tags = self.__tag_wrapper.get_all_tags()
+        tag_list = list(Set(describing_tag_list) | Set(categorising_tag_list))
+        
         if file_name in existing_tags:
             return True
         for tag in tag_list:
@@ -443,8 +447,13 @@ class Store(QtCore.QObject):
         files = self.__tag_wrapper.get_files_with_tag(old_tag_name)
         self.delete_tags([old_tag_name])
         for file in files:
-            file["tags"].remove(old_tag_name)
-            self.add_item_with_tags(file["filename"], file["tags"].append(new_tag_name))
+            if old_tag_name in file["tags"]:
+                file["tags"].remove(old_tag_name)
+                file["tags"].append(new_tag_name)
+            if old_tag_name in file["category"]:
+                file["category"].remove(old_tag_name)
+                file["category"].append(new_tag_name)
+            self.add_item_with_tags(file["filename"], file["tags"], file["category"]) 
         
     def delete_tags(self, tag_list):
         """

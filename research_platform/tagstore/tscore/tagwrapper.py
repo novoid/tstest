@@ -26,7 +26,7 @@ class TagWrapper():
     KEY_STORE_ID = "store_id"
     KEY_TAGS = "tags"
     KEY_TIMESTAMP = "timestamp"
-    KEY_CATEGORY = "category"
+    KEY_CATEGORIES = "category"
 
     TAG_SEPARATOR = ","
     
@@ -74,7 +74,7 @@ class TagWrapper():
         for file in self.__settings.childGroups():
             self.__settings.beginGroup(file)            
             tags = unicode(self.__settings.value(self.KEY_TAGS, "").toString()).split(self.TAG_SEPARATOR)
-            categories = unicode(self.__settings.value(self.KEY_CATEGORY, "").toString()).split(self.TAG_SEPARATOR)
+            categories = unicode(self.__settings.value(self.KEY_CATEGORIES, "").toString()).split(self.TAG_SEPARATOR)
             timestamp = unicode(self.__settings.value(self.KEY_TIMESTAMP, "").toString())
             file_list.append(dict(filename=file, tags=tags, categories=categories, timestamp=timestamp))
             self.__settings.endGroup()
@@ -83,12 +83,12 @@ class TagWrapper():
         
     def get_files_with_tag(self, tag):
         """
-        returns a list of file dictionaries including filename, tags, timestamp
+        returns a list of file dictionaries including filename, tags, categories, timestamp
         """
         file_list = self.__get_file_list()
         filtered_list = []
         for file in file_list:
-            if tag in file["tags"]:
+            if tag in file[self.KEY_TAGS] or tag in file[self.KEY_CATEGORIES]:
                 filtered_list.append(file)
         return filtered_list
         
@@ -96,7 +96,7 @@ class TagWrapper():
         """
         iterates through all files and creates a dictionary with tags + counter
         attribute is used to define if it returns describing tags or categorizing tags (categories)
-        atribute can be KEY_TAGS|KEY_CATEGORY
+        attribute can be KEY_TAGS|KEY_CATEGORIES
         """
         dictionary = dict()
         self.__settings.beginGroup(self.GROUP_FILES_NAME)
@@ -114,7 +114,7 @@ class TagWrapper():
 
     def get_file_tags(self, file_name):
         """
-        returns the tag list of a given file
+        returns the describing tag list of a given file
         """
         self.__settings.beginGroup(self .GROUP_FILES_NAME)
         self.__settings.beginGroup(file_name)
@@ -122,6 +122,17 @@ class TagWrapper():
         self.__settings.endGroup()        
         self.__settings.endGroup()    
         return tags    
+    
+    def get_file_categories(self, file_name):
+        """
+        returns the categorising tag list of a given file
+        """
+        self.__settings.beginGroup(self .GROUP_FILES_NAME)
+        self.__settings.beginGroup(file_name)
+        categories = unicode(self.__settings.value(self.KEY_CATEGORIES, "").toString()).split(self.TAG_SEPARATOR)
+        self.__settings.endGroup()        
+        self.__settings.endGroup()    
+        return categories
     
     def get_files(self):
         """
@@ -204,7 +215,7 @@ class TagWrapper():
         """
         returns a defined number of the most popular categories
         """
-        dictionary = self.__get_tag_dictionary(self.KEY_CATEGORY)
+        dictionary = self.__get_tag_dictionary(self.KEY_CATEGORIES)
         list = sorted(dictionary.iteritems(), key=lambda (k,v): (v,k), reverse=True)
         return_list = []
         for item in list[:no_of_tags]:
@@ -235,7 +246,7 @@ class TagWrapper():
         self.__settings.setValue(self.KEY_TAGS, self.TAG_SEPARATOR.join(tag_list))
         self.__settings.setValue(self.KEY_TIMESTAMP, timestamp)
         if category_list is not None:
-            self.__settings.setValue(self.KEY_CATEGORY, self.TAG_SEPARATOR.join(category_list))
+            self.__settings.setValue(self.KEY_CATEGORIES, self.TAG_SEPARATOR.join(category_list))
         self.__settings.endGroup()
         self.__settings.endGroup()
 
