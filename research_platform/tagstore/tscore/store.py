@@ -424,20 +424,19 @@ class Store(QtCore.QObject):
         categorising_tags = []
         if categorising_tag_list is not None:
             categorising_tags = list(set(categorising_tag_list))
-        #categories = list(set(category_list))
 
         ## scalability test
         ## start = time.clock()
-        try:
-            self.__build_store_navigation(file_name, describing_tags, self.__describing_nav_path)
-            self.__build_store_navigation(file_name, categorising_tags, self.__categorising_nav_path)
-        except:
-            raise Exception, self.trUtf8("An error occurred during building the navigation path(s) and links!")
-        try:
-            self.__tag_wrapper.set_file(file_name, describing_tags, categorising_tags)
-            self.__pending_changes.remove(file_name)
-        except:
-            raise Exception, self.trUtf8("An error occurred during saving file and tags to configuration file!")
+        #try:
+        self.__build_store_navigation(file_name, describing_tags, self.__describing_nav_path)
+        self.__build_store_navigation(file_name, categorising_tags, self.__categorising_nav_path)
+        #except:
+        #    raise Exception, self.trUtf8("An error occurred during building the navigation path(s) and links!")
+        #try:
+        self.__tag_wrapper.set_file(file_name, describing_tags, categorising_tags)
+        self.__pending_changes.remove(file_name)
+        #except:
+        #    raise Exception, self.trUtf8("An error occurred during saving file and tags to configuration file!")
         ## scalability test
         ## print "number of tags: " + str(len(tags)) + ", time: " + str(time.clock()-start)
         
@@ -462,11 +461,11 @@ class Store(QtCore.QObject):
         self.delete_tags([old_tag_name])
         for file in files:
             if old_tag_name in file["tags"]:
-                file["tags"].remove(old_tag_name)
                 file["tags"].append(new_tag_name)
+                file["tags"].remove(old_tag_name)
             if old_tag_name in file["category"]:
-                file["category"].remove(old_tag_name)
                 file["category"].append(new_tag_name)
+                file["category"].remove(old_tag_name)
             self.add_item_with_tags(file["filename"], file["tags"], file["category"]) 
         
     def delete_tags(self, tag_list):

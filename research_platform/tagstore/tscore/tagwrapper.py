@@ -169,6 +169,13 @@ class TagWrapper():
         """
         dictionary = self.__get_tag_dictionary()
         return sorted(dictionary.keys())
+        
+    def get_all_categorizing_tags(self):
+        """
+        returns a list of all categorizing tags of the current store sorted by name asc
+        """
+        dictionary = self.__get_tag_dictionary(self.KEY_CATEGORY)
+        return sorted(dictionary.keys())
 
     def get_recent_tags(self, no_of_tags):
         """

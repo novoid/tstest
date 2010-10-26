@@ -151,6 +151,12 @@ class FileSystemWrapper():
         """
         source = unicode(source)
         link_path = unicode(link_path)
+        ## at first check if the link already exists
+        ##TODO @wolfgang ... tried it with a whitespace containing (dir)item - and it did not check that the path already exists
+        if os.path.exists(link_path):
+            self.__log.debug("link (%s) already exists ... do nothing" % link_path)
+            return
+            
         self.__log.debug("creating link --- %s --- with the path: %s" % (link_path, source))
         if source.find(":/") == -1:
             source = source.replace(":", ":/")

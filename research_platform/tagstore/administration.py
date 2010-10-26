@@ -32,11 +32,27 @@ class Administration(QtCore.QObject):
         self.__log = None
         self.__main_config = None
         self.__admin_dialog = None
-        
+
         self.LOG_LEVEL = logging.INFO
         if verbose:
             self.LOG_LEVEL = logging.DEBUG
             
+
+        self.STORE_CONFIG_DIR = TsConstants.DEFAULT_STORE_CONFIG_DIR
+        self.STORE_CONFIG_FILE_NAME = TsConstants.DEFAULT_STORE_CONFIG_FILENAME
+        self.STORE_TAGS_FILE_NAME = TsConstants.DEFAULT_STORE_TAGS_FILENAME
+        self.STORE_VOCABULARY_FILE_NAME = TsConstants.DEFAULT_STORE_VOCABULARY_FILENAME
+        
+        #get dir names for all available languages
+        self.CURRENT_LANGUAGE = self.trUtf8("en")
+        store_current_language = self.CURRENT_LANGUAGE 
+        self.STORE_STORAGE_DIRS = []
+        self.STORE_DESCRIBING_NAV_DIRS = []
+        self.STORE_CATEGORIZING_NAV_DIRS = []
+        self.STORE_EXPIRED_DIRS = []
+        self.SUPPORTED_LANGUAGES = TsConstants.DEFAULT_SUPPORTED_LANGUAGES
+        self.__store_dict = {}
+        
         self.__init_logger(self.LOG_LEVEL)
         self.__init_configuration()
         
@@ -73,50 +89,50 @@ class Administration(QtCore.QObject):
         if self.__admin_dialog is None:
             self.__admin_dialog = StorePreferencesController()
             self.connect(self.__admin_dialog, QtCore.SIGNAL("create_new_store"), self.__handle_new_store)
+            self.connect(self.__admin_dialog, QtCore.SIGNAL("rename_desc_tag"), self.__handle_desc_tag_rename)
+            self.connect(self.__admin_dialog, QtCore.SIGNAL("rename_cat_tag"), self.__handle_cat_tag_rename)
         self.__admin_dialog.set_main_config(self.__main_config)
-        self.__admin_dialog.set_store_list(self.__main_config.get_stores())
+        
+        self.__prepare_store_params()
+        self.__create_stores()
+        
+        ## create a temporary store list
+        ## add the desc and cat tags which are needed in the admin-dialog
+        tmp_store_list = []
+        for current_store_item in self.__main_config.get_stores():
+            store_name = current_store_item["path"].split("/").pop()
+            current_store_item["desc_tags"] = self.__store_dict[store_name].get_tags()
+            current_store_item["cat_tags"] = self.__store_dict[store_name].get_categorizing_tags()
+            tmp_store_list.append(current_store_item)
+        
+        self.__admin_dialog.set_store_list(tmp_store_list)
+    
+    def __handle_desc_tag_rename(self, old_tag, new_tag, store_name):
+        print "rename a describing tag from %s to %s" % (old_tag, new_tag)
+        store = self.__store_dict[store_name]
+        store.rename_tag(str(old_tag), str(new_tag))
+
+    def __handle_cat_tag_rename(self, old_tag, new_tag, store_name):
+        print "rename a categorizing tag from %s to %s" % (old_tag, new_tag)
+        store = self.__store_dict[store_name]
+        store.rename_categorizing_tag(str(old_tag), str(new_tag))
     
     def show_admin_dialog(self, show):
-
-        
         self.__admin_dialog.show_dialog()
-        
-    def __handle_new_store(self, dir):
+    
+    def __prepare_store_params(self):
         """
-        create new store at given directory
+        initialzes all necessary params for creating a store object
         """
-        ## add the new path to the config file - the tagstore script does the rest
-        store_id = self.__main_config.add_new_store(dir)
         
-        stores = self.__main_config.get_stores()
-        store_item = None
-        for current_store_item in stores:
-            if current_store_item["id"] == store_id:
-                store_item = current_store_item
-
-        self.STORE_CONFIG_DIR = TsConstants.DEFAULT_STORE_CONFIG_DIR
-        self.STORE_CONFIG_FILE_NAME = TsConstants.DEFAULT_STORE_CONFIG_FILENAME
-        self.STORE_TAGS_FILE_NAME = TsConstants.DEFAULT_STORE_TAGS_FILENAME
-        self.STORE_VOCABULARY_FILE_NAME = TsConstants.DEFAULT_STORE_VOCABULARY_FILENAME
-        
-        #get dir names for all available languages
-        self.CURRENT_LANGUAGE = self.trUtf8("en")
-        store_current_language = self.CURRENT_LANGUAGE 
-        self.STORE_STORAGE_DIRS = []
-        self.STORE_DESCRIBING_NAV_DIRS = []
-        self.STORE_CATEGORIZING_NAV_DIRS = []
-        self.STORE_EXPIRED_DIRS = []
-
-        self.SUPPORTED_LANGUAGES = TsConstants.DEFAULT_SUPPORTED_LANGUAGES
         for lang in self.SUPPORTED_LANGUAGES: 
             #self.change_language(lang) 
-            self.STORE_STORAGE_DIRS.append(self.trUtf8("storage"))#self.STORE_STORAGE_DIR_EN))  
-            self.STORE_DESCRIBING_NAV_DIRS.append(self.trUtf8("navigation"))#self.STORE_DESCRIBING_NAVIGATION_DIR_EN))  
-            self.STORE_CATEGORIZING_NAV_DIRS.append(self.trUtf8("categorization"))#self.STORE_CATEGORIZING_NAVIGATION_DIR_EN)) 
-            self.STORE_EXPIRED_DIRS.append(self.trUtf8("expired_items"))#STORE_EXPIRED_DIR_EN)) 
+            self.STORE_STORAGE_DIRS.append(self.trUtf8("storage"))  
+            self.STORE_DESCRIBING_NAV_DIRS.append(self.trUtf8("navigation"))  
+            self.STORE_CATEGORIZING_NAV_DIRS.append(self.trUtf8("categorization")) 
+            self.STORE_EXPIRED_DIRS.append(self.trUtf8("expired_items")) 
         ## reset language 
         #self.change_language(store_current_language) 
-
         
         config_dir = self.__main_config.get_store_config_directory()
         if config_dir != "":
@@ -130,10 +146,30 @@ class Administration(QtCore.QObject):
         vocabulary_file_name = self.__main_config.get_store_vocabularyfile_name()
         if vocabulary_file_name != "":
             self.STORE_VOCABULARY_FILE_NAME = vocabulary_file_name
-        
+    
+    def __create_stores(self):
+
+        for current_store_item in self.__main_config.get_stores():
+            store_name = current_store_item["path"].split("/").pop()
+            ## use the store name as identifier in the dicttionary.
+            ## the admindialog just provides store names instead of ids later on
+            self.__store_dict[store_name] = Store(current_store_item["id"], current_store_item["path"], 
+                  self.STORE_CONFIG_DIR + "/" + self.STORE_CONFIG_FILE_NAME,
+                  self.STORE_CONFIG_DIR + "/" + self.STORE_TAGS_FILE_NAME,
+                  self.STORE_CONFIG_DIR + "/" + self.STORE_VOCABULARY_FILE_NAME,
+                  self.STORE_STORAGE_DIRS, 
+                  self.STORE_DESCRIBING_NAV_DIRS,
+                  self.STORE_CATEGORIZING_NAV_DIRS,
+                  self.STORE_EXPIRED_DIRS)
+    
+    def __handle_new_store(self, dir):
+        """
+        create new store at given directory
+        """
+        store_id = self.__main_config.add_new_store(dir)
         
         ## create a store object since it builds its own structure 
-        Store(store_item["id"], store_item["path"], 
+        Store(store_id, dir, 
               self.STORE_CONFIG_DIR + "/" + self.STORE_CONFIG_FILE_NAME,
               self.STORE_CONFIG_DIR + "/" + self.STORE_TAGS_FILE_NAME,
               self.STORE_CONFIG_DIR + "/" + self.STORE_VOCABULARY_FILE_NAME,

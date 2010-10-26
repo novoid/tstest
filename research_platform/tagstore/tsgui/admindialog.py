@@ -37,8 +37,8 @@ class StorePreferencesView(QtGui.QDialog):
         
         self.__tab_widget = QtGui.QTabWidget()
         
-        self.__apply_button = QtGui.QPushButton("Apply")
-        self.__cancel_button = QtGui.QPushButton("Cancel")
+        self.__apply_button = QtGui.QPushButton(self.trUtf8("Save"))
+        self.__cancel_button = QtGui.QPushButton(self.trUtf8("Cancel"))
         
         self.__button_widget = QtGui.QWidget()
         self.__button_layout = QtGui.QHBoxLayout()
@@ -462,6 +462,7 @@ class VocabularyAdminView(MultipleStorePreferenceView):
         else:
             self._promote_setting_changed(self._store_combo.currentText(), TsConstants.SETTING_CATEGORY_MANDATORY, False)
         
+        self.connect(self.__vocabulary_list_view, QtCore.SIGNAL("itemSelectionChanged()"), self.__voc_selection_changed)
     def __voc_selection_changed(self):
         selection_list = self.__vocabulary_list_view.selectedItems()
         if selection_list is None or len(selection_list) == 0:
@@ -587,6 +588,168 @@ class VocabularyAdminController(MultipleStorePreferenceController):
     
     def set_settings_editable(self, enabled):
         self.get_view().enable_radio_buttons(enabled)
+ 
+class TagAdminView(MultipleStorePreferenceView):
+    
+    def __init__(self, store_list=None, parent=None):
+        MultipleStorePreferenceView.__init__(self, store_list)
+    
+        self.set_description(self.trUtf8("Define your own vocabulary to be used as categorizing tags"))
+
+        self.__selected_desc_tag = None
+        self.__selected_cat_tag = None
+
+        self.__desc_tag_list_view = QtGui.QListWidget()
+        self.__cat_tag_list_view = QtGui.QListWidget()
+        
+        self.__btn_desc_tag_rename = QtGui.QPushButton(self.trUtf8("Rename"))
+        self.__btn_desc_tag_rename.setEnabled(False)
+        self.__btn_cat_tag_rename = QtGui.QPushButton(self.trUtf8("Rename"))
+        self.__btn_cat_tag_rename.setEnabled(False)
+        
+        desc_layout = QtGui.QVBoxLayout()
+        desc_layout.addWidget(QtGui.QLabel(self.trUtf8("Describing Tags")))
+        desc_layout.addWidget(self.__desc_tag_list_view)
+        desc_layout.addWidget(self.__btn_desc_tag_rename)
+
+        self.__desc_panel = QtGui.QWidget()
+        self.__desc_panel.setLayout(desc_layout)
+
+        cat_layout = QtGui.QVBoxLayout()
+        cat_layout.addWidget(QtGui.QLabel(self.trUtf8("Categorizing Tags")))
+        cat_layout.addWidget(self.__cat_tag_list_view)
+        cat_layout.addWidget(self.__btn_cat_tag_rename)
+        
+        self.__cat_panel = QtGui.QWidget()
+        self.__cat_panel.setLayout(cat_layout)
+        
+        self.__list_view_layout = QtGui.QHBoxLayout()
+        self.__list_view_layout.addWidget(self.__desc_panel)
+        self.__list_view_layout.addWidget(self.__cat_panel)
+        
+        self.__list_view_panel = QtGui.QWidget()
+        self.__list_view_panel.setLayout(self.__list_view_layout)
+        
+        self.add_widget(self.__list_view_panel)
+    
+        self.connect(self.__desc_tag_list_view, QtCore.SIGNAL("itemSelectionChanged()"), self.__desc_selection_changed)
+        self.connect(self.__cat_tag_list_view, QtCore.SIGNAL("itemSelectionChanged()"), self.__cat_selection_changed)
+        self.connect(self.__btn_desc_tag_rename, QtCore.SIGNAL("clicked()"), self.__rename_desc_tag_btn_clicked)
+        self.connect(self.__btn_cat_tag_rename, QtCore.SIGNAL("clicked()"), self.__rename_cat_tag_btn_clicked)
+    
+    def __rename_desc_tag_btn_clicked(self):
+        """
+        show an input dialog to rename a selected tag
+        """
+        result = QtGui.QInputDialog.getText(self, self.trUtf8("Rename a tag"), 
+                                            self.trUtf8("Please consider that renaming a tag can be a time consuming process for your system"), 
+                                            text=self.__selected_desc_tag.text())
+        ## the second element of the result list is True if the OK button has been clicked 
+        if result[1]:
+            self.emit(QtCore.SIGNAL("rename_desc_tag"), self.__selected_desc_tag.text(), result[0])
+            self.__desc_tag_list_view.takeItem(self.__desc_tag_list_view.row(self.__selected_desc_tag))
+            self.__desc_tag_list_view.addItem(QtGui.QListWidgetItem(result[0]))
+            
+    def __rename_cat_tag_btn_clicked(self):
+        """
+        show an input dialog to rename a selected tag
+        """
+        result = QtGui.QInputDialog.getText(self, self.trUtf8("Rename a tag"), 
+                                            self.trUtf8("Please consider that renaming a tag can be a time consuming process for your system"), 
+                                            text=self.__selected_cat_tag.text())
+        
+        ## the second element of the result list is True if the OK button has been clicked 
+        if result[1]:
+            self.emit(QtCore.SIGNAL("rename_cat_tag"), self.__selected_cat_tag.text(), result[0])
+            self.__cat_tag_list_view.takeItem(self.__cat_tag_list_view.row(self.__selected_cat_tag))
+            self.__cat_tag_list_view.addItem(QtGui.QListWidgetItem(result[0]))
+    
+    def __desc_selection_changed(self):
+        selection_list = self.__desc_tag_list_view.selectedItems()
+        if selection_list is None or len(selection_list) == 0:
+            self.__selected_desc_tag = None
+            self.__btn_desc_tag_rename.setEnabled(False)
+        else:
+            self.__selected_desc_tag = selection_list[0]
+            self.__btn_desc_tag_rename.setEnabled(True)
+            
+    def __cat_selection_changed(self):
+        selection_list = self.__cat_tag_list_view.selectedItems()
+        if selection_list is None or len(selection_list) == 0:
+            self.__selected_cat_tag = None
+            self.__btn_cat_tag_rename.setEnabled(False)
+        else:
+            self.__selected_cat_tag = selection_list[0]
+            self.__btn_cat_tag_rename.setEnabled(True)
+    
+    def set_describing_tags(self, tag_list):
+        if tag_list is not None:
+            self.__desc_tag_list_view.addItems(tag_list)
+        else:
+            self.__desc_tag_list_view.clear()
+            
+    def set_categorizing_tags(self, tag_list):
+        if tag_list is not None:
+            self.__cat_tag_list_view.addItems(tag_list)
+        else:
+            self.__cat_tag_list_view.clear()
+            
+    def enable_cat_widgets(self, enable):
+        self.__cat_tag_list_view.setEnabled(enable)
+    
+    def enable_desc_widgets(self, enable):
+        self.__desc_tag_list_view.setEnabled(enable)
+        
+    def __get_cat_list(self):
+        vocabulary_list = []
+        for index in range(self.__desc_tag_list_view.count()):
+            vocabulary_list.append(unicode(self.__desc_tag_list_view.item(index).text()))
+        return set(vocabulary_list)
+    
+    def __get_desc_list(self):
+        vocabulary_list = []
+        for index in range(self.__cat_tag_list_view.count()):
+            vocabulary_list.append(unicode(self.__cat_tag_list_view.item(index).text()))
+        return set(vocabulary_list)
+    
+
+class TagAdminController(MultipleStorePreferenceController):
+    
+    def __init__(self, store_list):
+        MultipleStorePreferenceController.__init__(self, store_list)
+        
+        self.set_store_names(self._store_list)
+        
+        self.connect(self.get_view(), QtCore.SIGNAL("rename_desc_tag"), self.__handle_desc_tag_renaming)
+        self.connect(self.get_view(), QtCore.SIGNAL("rename_cat_tag"), self.__handle_cat_tag_renaming)
+    
+    def __handle_desc_tag_renaming(self, old_tag, new_tag):
+        self.emit(QtCore.SIGNAL("rename_desc_tag"), old_tag, new_tag, self._current_store)
+    
+    def __handle_cat_tag_renaming(self, old_tag, new_tag):
+        self.emit(QtCore.SIGNAL("rename_cat_tag"), old_tag, new_tag, self._current_store)
+    
+    def _create_view(self):
+        return TagAdminView()
+    
+    def _handle_setting(self, store_name, setting_name, setting_value):
+        if store_name == self._current_store:
+            if setting_name == TsConstants.SETTING_DESC_TAGS:
+                self.get_view().set_describing_tags(setting_value)
+            elif setting_name == TsConstants.SETTING_CAT_TAGS:
+                if setting_value is None or len(setting_value) <= 0:
+                    self.get_view().enable_cat_widgets(False)
+                else:
+                    self.get_view().set_categorizing_tags(setting_value)
+            elif setting_name == TsConstants.SETTING_SHOW_CATEGORY_LINE:
+                    if setting_value == ECategorySetting.DISABLED:
+                        self.get_view().enable_desc_widgets(True)
+                        self.get_view().enable_cat_widgets(False)
+                        self.get_view().set_categorizing_tags(None)
+                    if setting_value == ECategorySetting.ENABLED_SINGLE_CONTROLLED_TAGLINE:
+                        self.get_view().enable_desc_widgets(False)
+                        self.get_view().enable_cat_widgets(True)
+                        self.get_view().set_describing_tags(None)
     
 class DatestampAdminView(MultipleStorePreferenceView):
 
@@ -783,13 +946,14 @@ class StorePreferencesController(QtCore.QObject):
         self.TAB_NAME_DATESTAMP = self.trUtf8("Datestamps")
         self.TAB_NAME_EXPIRY = self.trUtf8("Expiry Date")
         self.TAB_NAME_VOCABULARY = self.trUtf8("Vocabulary")
+        self.TAB_NAME_TAGS = self.trUtf8("Rename Tags")
         ## a list with all controllers used at the preference view
         self.__preference_controller_list = {}
         
         ## the main preferences window 
         self.__dialog = StorePreferencesView(parent=parent)
             
-        self.connect(self.__dialog, QtCore.SIGNAL("apply_clicked()"), self.__handle_apply)
+        self.connect(self.__dialog, QtCore.SIGNAL("apply_clicked()"), self.__handle_save)
         self.connect(self.__dialog, QtCore.SIGNAL("cancel_clicked()"), self.__handle_cancel)
     def set_main_config(self, main_config):
         self.__main_config = main_config
@@ -800,27 +964,32 @@ class StorePreferencesController(QtCore.QObject):
             self.__store_names = []
             self.__store_dict = {}
             for store in self._store_list:
-                self.__store_names.append(store["path"].split("/").pop())
-                self.__store_dict[store["path"].split("/").pop()] = store["path"]
+                store_name = store["path"].split("/").pop()
+                self.__store_names.append(store_name)
+                self.__store_dict[store_name] = store["path"]
         
         ## initialize the controllers for each preference tab
         if self.__first_time_init:
-            self.__controller_vocabulary = VocabularyAdminController(self.__store_names)
-            self.__register_controller(self.__controller_vocabulary, self.TAB_NAME_VOCABULARY)
+            controller_vocabulary = VocabularyAdminController(self.__store_names)
+            self.__register_controller(controller_vocabulary, self.TAB_NAME_VOCABULARY)
             
-            self.__controller_datestamp = DatestampAdminController(self.__store_names)
-            self.__register_controller(self.__controller_datestamp, self.TAB_NAME_DATESTAMP)
+            controller_datestamp = DatestampAdminController(self.__store_names)
+            self.__register_controller(controller_datestamp, self.TAB_NAME_DATESTAMP)
     
-            self.__controller_expiry_admin = ExpiryAdminController()
-            self.__register_controller(self.__controller_expiry_admin, self.TAB_NAME_EXPIRY)
+            controller_expiry_admin = ExpiryAdminController()
+            self.__register_controller(controller_expiry_admin, self.TAB_NAME_EXPIRY)
 
-            self.__controller_store_admin = StoreAdminController(self.__store_dict)
-            self.__register_controller(self.__controller_store_admin, self.TAB_NAME_STORE)
+            controller_tag_admin = TagAdminController(self.__store_names)
+            self.__register_controller(controller_tag_admin, self.TAB_NAME_TAGS)
+
+            controller_store_admin = StoreAdminController(self.__store_dict)
+            self.__register_controller(controller_store_admin, self.TAB_NAME_STORE)
 
             self.__first_time_init = False
         else:
-            self.__controller_vocabulary.set_store_names(self.__store_names)
-            self.__controller_datestamp.set_store_names(self.__store_names)
+            controller_vocabulary.set_store_names(self.__store_names)
+            controller_datestamp.set_store_names(self.__store_names)
+            controller_tag_admin.set_store_names(self.__store_names)
             
         
 
@@ -838,23 +1007,36 @@ class StorePreferencesController(QtCore.QObject):
             self.__store_vocabulary_wrapper_dict[store_name] = voc_wrapper
             #self.connect(voc_wrapper, QtCore.SIGNAL("changed"), self.__refresh_vocabulary)
 
-            self.__controller_vocabulary.add_setting(TsConstants.SETTING_CATEGORY_MANDATORY, config.get_category_mandatory(), store_name)
-            self.__controller_vocabulary.add_setting(TsConstants.SETTING_SHOW_CATEGORY_LINE, config.get_show_category_line(), store_name)
-            self.__controller_vocabulary.add_setting(TsConstants.SETTING_CATEGORY_VOCABULARY, voc_wrapper.get_vocabulary(), store_name)
-            
+            controller_vocabulary.add_setting(TsConstants.SETTING_CATEGORY_MANDATORY, config.get_category_mandatory(), store_name)
+            controller_vocabulary.add_setting(TsConstants.SETTING_SHOW_CATEGORY_LINE, config.get_show_category_line(), store_name)
+            controller_vocabulary.add_setting(TsConstants.SETTING_CATEGORY_VOCABULARY, voc_wrapper.get_vocabulary(), store_name)
             ## TODO: create a method to switch this from outside
-            self.__controller_vocabulary.set_settings_editable(False)
+            controller_vocabulary.set_settings_editable(False)
             
-            self.__controller_datestamp.add_setting(TsConstants.SETTING_DATESTAMP_FORMAT, config.get_datestamp_format(), store_name)
+            controller_tag_admin.add_setting(TsConstants.SETTING_DESC_TAGS, store["desc_tags"], store_name)
+            controller_tag_admin.add_setting(TsConstants.SETTING_CAT_TAGS, store["cat_tags"], store_name)
+            controller_tag_admin.add_setting(TsConstants.SETTING_SHOW_CATEGORY_LINE, config.get_show_category_line(), store_name)
+            
+            controller_datestamp.add_setting(TsConstants.SETTING_DATESTAMP_FORMAT, config.get_datestamp_format(), store_name)
 
-        self.connect(self.__controller_store_admin, QtCore.SIGNAL("new"), self.__handle_new_store)
+        self.connect(controller_store_admin, QtCore.SIGNAL("new"), self.__handle_new_store)
 #        self.connect(self.__controller_store_admin, QtCore.SIGNAL("new"), QtCore.SIGNAL("create_new_store"))
-        self.connect(self.__controller_store_admin, QtCore.SIGNAL("rebuild"), self.__handle_rebuild)
-        self.connect(self.__controller_store_admin, QtCore.SIGNAL("rename"), self.__handle_rename)
-        self.connect(self.__controller_store_admin, QtCore.SIGNAL("delete"), self.__handle_delete)
+        self.connect(controller_store_admin, QtCore.SIGNAL("rebuild"), self.__handle_rebuild)
+        self.connect(controller_store_admin, QtCore.SIGNAL("rename"), self.__handle_rename)
+        self.connect(controller_store_admin, QtCore.SIGNAL("delete"), self.__handle_delete)
+#        self.connect(controller_tag_admin, QtCore.SIGNAL("rename_desc_tag"), self.__handle_desc_tag_rename)
+#        self.connect(controller_tag_admin, QtCore.SIGNAL("rename_cat_tag"), self.__handle_cat_tag_rename)
+        self.connect(controller_tag_admin, QtCore.SIGNAL("rename_desc_tag"), QtCore.SIGNAL("rename_desc_tag"))
+        self.connect(controller_tag_admin, QtCore.SIGNAL("rename_cat_tag"), QtCore.SIGNAL("rename_cat_tag"))
 
         ## this setting comes from the main config
-        self.__controller_expiry_admin.add_setting(TsConstants.SETTING_EXPIRY_PREFIX, self.__main_config.get_expiry_prefix())
+        controller_expiry_admin.add_setting(TsConstants.SETTING_EXPIRY_PREFIX, self.__main_config.get_expiry_prefix())
+    
+    def __handle_desc_tag_rename(self, old, new, store_name):
+        self.emit(QtCore.SIGNAL("rename_desc_tag"), old, new, self.__store_dict[store_name])
+
+    def __handle_cat_tag_rename(self, old, new, store_name):
+        self.emit(QtCore.SIGNAL("rename_cat_tag"), old, new, self.__store_dict[store_name])
     
     def __refresh_vocabulary(self):
         """
@@ -891,7 +1073,7 @@ class StorePreferencesController(QtCore.QObject):
         ## add the preference tabs to the preferences window        
         self.__dialog.add_preference_tab(controller.get_view(), title)
 
-    def __handle_apply(self):
+    def __handle_save(self):
         ##iterate the controllers 
         self.__log.info("**** CONFIG CHANGES ****")
         self.__log.info("writing to the config files:")
@@ -918,6 +1100,8 @@ class StorePreferencesController(QtCore.QObject):
                         self.__main_config.set_expiry_prefix(property["SETTING_VALUE"])
                 self.__log.info("%s, setting: %s, value: %s" % (property["STORE_NAME"], 
                                 property["SETTING_NAME"], property["SETTING_VALUE"]))
+        
+        self.__dialog.close()
     
     def __get_store_config_by_name(self, store_name):
         if store_name is not None and store_name != "":
