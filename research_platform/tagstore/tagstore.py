@@ -195,7 +195,8 @@ class Tagstore(QtCore.QObject):
                               self.STORE_STORAGE_DIRS, 
                               self.STORE_DESCRIBING_NAV_DIRS,
                               self.STORE_CATEGORIZING_NAV_DIRS,
-                              self.STORE_EXPIRED_DIRS)
+                              self.STORE_EXPIRED_DIRS,
+							  self.EXPIRY_PREFIX)
 
                 store.connect(store, QtCore.SIGNAL("removed(PyQt_PyObject)"), self.store_removed)
                 store.connect(store, QtCore.SIGNAL("renamed(PyQt_PyObject, QString)"), self.store_renamed)

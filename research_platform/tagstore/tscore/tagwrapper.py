@@ -15,6 +15,7 @@
 ## if not, see <http://www.gnu.org/licenses/>.
 
 import time
+import re
 from PyQt4.QtCore import QSettings
 
 
@@ -85,6 +86,30 @@ class TagWrapper():
         for file in file_list:
             if tag in file[self.KEY_TAGS] or tag in file[self.KEY_CATEGORIES]:
                 filtered_list.append(file)
+        return filtered_list
+    
+    def get_files_with_expiry_tags(self, prefix):
+        """
+        returns all file with a valid expiry timestamp
+        """
+        file_list = self.__get_file_list()
+        filtered_list = []
+        for file in file_list:
+            file_added = False
+            for tag in file[self.KEY_TAGS]:
+                match = re.match("^("+prefix+")([0-9]{4})(-)([0-9]{2})", tag)
+                if match: 
+                    filtered_list.append(dict(filename=file["filename"], tags=file["tags"], category=file["category"], exp_year=match.groups()[1], exp_month=match.groups()[3]))
+                    file_added = True
+                    break
+            
+#            if not file_added:
+#                for tag in file[self.KEY_CATEGORIES]:
+#                    match = re.match("^("+prefix+")([0-9]{4})(-)([0-9]{2})", tag)
+#                    if match:
+#                        filtered_list.append(dict(filename=file["filename"], tags=file["tags"], category=file["category"], exp_year=match.groups()[1], exp_month=match.groups()[3]))
+#                        break
+
         return filtered_list
         
     def __get_tag_dictionary(self, attribute=KEY_TAGS):

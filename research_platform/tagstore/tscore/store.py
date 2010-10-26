@@ -34,7 +34,7 @@ class Store(QtCore.QObject):
                        "file_removed(PyQt_PyObject, QString)",
                        "pending_operations_changed(PyQt_PyObject)")
 
-    def __init__(self, id, path, config_file_name, tags_file, vocabulary_file, storage_dir_list, describing_nav_dir_list, categorising_nav_dir_list, expired_dir_list):
+    def __init__(self, id, path, config_file_name, tags_file, vocabulary_file, storage_dir_list, describing_nav_dir_list, categorising_nav_dir_list, expiry_dir_list, expiry_prefix):
         """
         constructor
         """
@@ -58,12 +58,13 @@ class Store(QtCore.QObject):
         self.__storage_dir_list = storage_dir_list
         self.__describing_nav_dir_list = describing_nav_dir_list
         self.__categorising_nav_dir_list = categorising_nav_dir_list
-        self.__expired_dir_list = expired_dir_list
+        self.__expiry_dir_list = expiry_dir_list
+        self.__expiry_prefix = unicode(expiry_prefix)
         
         self.__storage_dir_name = self.trUtf8("storage")
         self.__describing_nav_dir_name = self.trUtf8("navigation")
         self.__categorising_nav_dir_name = self.trUtf8("categorization")
-        self.__expired_dir_name = self.trUtf8("expired_items")
+        self.__expiry_dir_name = self.trUtf8("expired_items")
         #self.__parent_path = None
         #self.__name = None
         #self.__config_path = None
@@ -106,16 +107,16 @@ class Store(QtCore.QObject):
             for dir in self.__categorising_nav_dir_list:
                 if self.__file_system.path_exists(self.__path + "/" + dir):
                     self.__categorising_nav_dir_name = unicode(dir)
-        if not self.__file_system.path_exists(self.__path + "/" + self.__expired_dir_name):
-            for dir in self.__expired_dir_list:
+        if not self.__file_system.path_exists(self.__path + "/" + self.__expiry_dir_name):
+            for dir in self.__expiry_dir_list:
                 if self.__file_system.path_exists(self.__path + "/" + dir):
-                    self.__expired_dir_name = unicode(dir)
+                    self.__expiry_dir_name = unicode(dir)
         
         ## built stores directories and config file if they currently not exist (new store)
         self.__file_system.create_dir(self.__path + "/" + self.__storage_dir_name)
         self.__file_system.create_dir(self.__path + "/" + self.__describing_nav_dir_name)
         self.__file_system.create_dir(self.__path + "/" + self.__categorising_nav_dir_name)
-        self.__file_system.create_dir(self.__path + "/" + self.__expired_dir_name)
+        self.__file_system.create_dir(self.__path + "/" + self.__expiry_dir_name)
         self.__file_system.create_dir(self.__path + "/" + self.__config_file_name.split("/")[0])
         ## create config/vocabulary files if they don't exist
         if not self.__file_system.path_exists(self.__path + "/" + self.__config_file_name):
@@ -152,6 +153,7 @@ class Store(QtCore.QObject):
         self.__watcher.addPath(self.__parent_path)
         self.__watcher.addPath(self.__watcher_path)
         ## handle offline changes
+        self.__handle_file_expiry()
         self.__handle_file_changes(self.__watcher_path)
         
     def __handle_vocabulary_changed(self):
@@ -227,6 +229,12 @@ class Store(QtCore.QObject):
         else:
             ## files or directories in the store directory have been changed
             self.__handle_file_changes(self.__watcher_path)
+
+    def __handle_file_expiry(self):
+        #self.__expiry_dir_name
+        expiry_date_files = self.__tag_wrapper.get_files_with_expiry_tags(self.__expiry_prefix)
+        #for file in expiry_date_files:
+        #    print file["exp_year"] + " " + file["exp_month"] 
             
     def __handle_file_changes(self, path):
         """
