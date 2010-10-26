@@ -20,10 +20,8 @@ from PyQt4.QtCore import QSettings
 
 class TagWrapper():
 
-    GROUP_STORE_NAME = "store"
     GROUP_FILES_NAME = "files"
     
-    KEY_STORE_ID = "store_id"
     KEY_TAGS = "tags"
     KEY_TIMESTAMP = "timestamp"
     KEY_CATEGORIES = "category"
@@ -59,10 +57,7 @@ class TagWrapper():
         the file must be opened with write permission
         """
         file = open(file_path, "w")
-        
-        file.write("[store]\n")
         file.write("[files]\n")
-        
         file.close()
           
     def __get_file_list(self):
@@ -76,7 +71,7 @@ class TagWrapper():
             tags = unicode(self.__settings.value(self.KEY_TAGS, "").toString()).split(self.TAG_SEPARATOR)
             categories = unicode(self.__settings.value(self.KEY_CATEGORIES, "").toString()).split(self.TAG_SEPARATOR)
             timestamp = unicode(self.__settings.value(self.KEY_TIMESTAMP, "").toString())
-            file_list.append(dict(filename=file, tags=tags, categories=categories, timestamp=timestamp))
+            file_list.append(dict(filename=file, tags=tags, category=categories, timestamp=timestamp))
             self.__settings.endGroup()
         self.__settings.endGroup()
         return sorted(file_list, key=lambda k:k[self.KEY_TIMESTAMP], reverse=True)
@@ -151,23 +146,22 @@ class TagWrapper():
         """
         self.__settings = QSettings(file_path, QSettings.IniFormat)
 
-    def set_store_id(self, id):
-        """
-        writes the stores id to the configuration file
-        """
-        self.__settings.beginGroup(self.GROUP_STORE_NAME)
-        self.__settings.setValue("store_id", id)
-        self.__settings.endGroup()
-        return id
+#    def set_store_id(self, id):
+#        """
+#        writes the stores id to the configuration file
+#        """
+#        self.__settings.beginGroup(self.GROUP_STORE_NAME)
+#        self.__settings.setValue("store_id", id)
+#        self.__settings.endGroup()
     
-    def get_store_id(self):
-        """
-        returns the store id of the current file to identify the store during rename
-        """
-        self.__settings.beginGroup(self.GROUP_STORE_NAME)
-        id = unicode(self.__settings.value(self.KEY_STORE_ID, "").toString())
-        self.__settings.endGroup()
-        return id
+#    def get_store_id(self):
+#        """
+#        returns the store id of the current file to identify the store during rename
+#        """
+#        self.__settings.beginGroup(self.GROUP_STORE_NAME)
+#        id = unicode(self.__settings.value(self.KEY_STORE_ID, "").toString())
+#        self.__settings.endGroup()
+#        return id
     
     def get_all_tags(self):
         """
@@ -230,7 +224,7 @@ class TagWrapper():
         files = self.__get_file_list()
         position = 0
         while len(tags) < no_of_tags and position < len(files) and files[position] is not None:
-            tags = tags.union(set(files[position]["categories"]))
+            tags = tags.union(set(files[position]["category"]))
             position +=1
         return sorted(tags)[:no_of_tags]
 
@@ -250,17 +244,19 @@ class TagWrapper():
         self.__settings.endGroup()
         self.__settings.endGroup()
 
-    def __set_tags(self, file_name, tag_list):
+    def __set_tags(self, file_name, tag_list, category_list=None):
         """
         resets the files tag list without updating its timestamp
         this method is called during renaming/deleting tags to avoid changing the recent tags
         """
         if not self.file_exists(file_name):
-            self.set_file(file_name, tag_list)
+            self.set_file(file_name, tag_list, category_list)
         else:
             self.__settings.beginGroup(self .GROUP_FILES_NAME)
             self.__settings.beginGroup(file_name)
             self.__settings.setValue(self.KEY_TAGS, self.TAG_SEPARATOR.join(tag_list))
+            if category_list is not None:
+                self.__settings.setValue(self.KEY_CATEGORIES, self.TAG_SEPARATOR.join(category_list))
             self.__settings.endGroup()
             self.__settings.endGroup()
 
@@ -314,11 +310,13 @@ class TagWrapper():
         """
         files = self.__get_file_list()
         for file in files:
-            tags = file["tags"]
-            if tag_name in tags:
-                tags.remove(tag_name)
-                if len(tags) >= 1:
-                    self.__set_tags(file["filename"], tags)
+            describing_tags = file["tags"]
+            categorising_tags = file["category"]
+            if tag_name in describing_tags or tag_name in categorising_tags:
+                describing_tags.remove(tag_name)
+                categorising_tags.remove(tag_name)
+                if len(describing_tags) >= 1 or len(categorising_tags) >= 1:
+                    self.__set_tags(file["filename"], describing_tags, categorising_tags)
                 else:
                     #delete file entry if there is no tag left
                     self.remove_file(file["filename"])

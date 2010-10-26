@@ -67,17 +67,20 @@ class Store(QtCore.QObject):
         #self.__config_path = self.__path + "/" + self.__config_file_name
         #self.__watcher_path = self.__path + "/" + self.__storage_dir_name
         #self.__describing_nav_path = self.__path + "/" + self.__describing_nav_dir_name
-        #self.__tag_wrapper = TagWrapper(self.__config_path)
+        self.__tag_wrapper = TagWrapper(self.__tags_file_name)
 
         ## throw exception if store directory does not exist
         if self.__path.find(":/") == -1:
             self.__path = self.__path.replace(":", ":/")
         self.__name = unicode(self.__path.split("/")[-1])
         self.__parent_path = unicode(self.__path[:len(self.__path)-len(self.__name)-1])
+        #print self.__parent_path + ", " + self.__name
         if not self.__file_system.path_exists(self.__path):
             ## look for renamed or removed store folder
+            #print "lookup"
             self.__handle_renamed_removed_store()
         if not self.__file_system.path_exists(self.__path):
+            #print self.__path
             raise StoreInitError, self.trUtf8("The specified store directory does not exist!")
         
         ## look for store/describing_nav/categorising_nav/expire directories names (all languages) if they do not exist
@@ -109,12 +112,11 @@ class Store(QtCore.QObject):
             ConfigWrapper.create_store_config_file(self.__path + "/" + self.__config_file_name)
         if not self.__file_system.path_exists(self.__path + "/" + self.__tags_file_name):
             TagWrapper.create_tags_file(self.__path + "/" + self.__tags_file_name)
-            ## write store id to config file
-            self.__tag_wrapper = TagWrapper(self.__path + "/" + self.__tags_file_name)
-            self.__tag_wrapper.set_store_id(self.__id)
         if not self.__file_system.path_exists(self.__path + "/" + self.__vocabulary_file_name):
             self.__vocabulary_wrapper = VocabularyWrapper.create_vocabulary_file(self.__path + "/" + self.__vocabulary_file_name)
-            
+        ## write store id to config file
+        #config_wrapper = ConfigWrapper(self.__path + "/" + self.__config_file_name)#self.__tags_file_name)
+        #config_wrapper.set_store_id(self.__id)
         
         self.__init_store()
         
@@ -133,7 +135,8 @@ class Store(QtCore.QObject):
         
         self.__tag_wrapper = TagWrapper(self.__tags_file_path)
         ## update store id to avoid inconsistency
-        self.__tag_wrapper.set_store_id(self.__id)
+        config_wrapper = ConfigWrapper(self.__path + "/" + self.__config_file_name)#self.__tags_file_name)
+        config_wrapper.set_store_id(self.__id)
         self.__vocabulary_wrapper = VocabularyWrapper(self.__vocabulary_path)
         self.connect(self.__vocabulary_wrapper, QtCore.SIGNAL("changed"), self.__handle_vocabulary_changed)
         self.__store_config_wrapper = ConfigWrapper(self.__config_path)
@@ -178,10 +181,13 @@ class Store(QtCore.QObject):
         #print "config paths: " + ",".join(config_paths)
         new_name = ""
         for path in config_paths:
-            reader = TagWrapper(path)
+            reader = ConfigWrapper(path)
             #print "found: " + path
+            #print self.__id + ", " + reader.get_store_id()
+            
             if self.__id == reader.get_store_id():
                 new_name = path.split("/")[-3]
+                #print "new name: " + new_name
 
         if new_name == "":      ## removed
             ## delete describing_nav directors
@@ -192,9 +198,10 @@ class Store(QtCore.QObject):
             self.__describing_nav_path = self.__path + "/" + self.__describing_nav_dir_name
             self.__categorising_nav_path = self.__path + "/" + self.__categorising_nav_dir_name
             ## update all links in windows: absolute links only
-            if self.__file_system.get_os() == EOS.Windows:
-                print "rebuild"
+            #if self.__file_system.get_os() == EOS.Windows:
+                #print "rebuild"
                 #self.rebuild()
+            #print "emit: " + self.__parent_path + "/" + new_name
             self.emit(QtCore.SIGNAL("renamed(PyQt_PyObject, QString)"), self, self.__parent_path + "/" + new_name)
     
     def __directory_changed(self, path):
@@ -293,7 +300,6 @@ class Store(QtCore.QObject):
             describing_tag_list = self.__tag_wrapper.get_file_tags(file)
             categorising_tag_list = self.__tag_wrapper.get_file_categories(file)
             self.add_item_with_tags(file, describing_tag_list, categorising_tag_list)
-        pass
     
     def rename_file(self, old_file_name, new_file_name):
         """
@@ -394,7 +400,6 @@ class Store(QtCore.QObject):
         """
         adds tags to the given file, resets existing tags
         """
-        #TODO: add/edit functionality for categorizing tags
         #TODO: if file_name already in config, delete missing tags and recreate whole link structure
         #existing tags will not be recreated in windows-> linux, osx???
         
@@ -412,11 +417,10 @@ class Store(QtCore.QObject):
         #categories = list(set(category_list))
 
         ## scalability test
-        ##start = time.clock()
+        ## start = time.clock()
         try:
             self.__build_store_navigation(file_name, describing_tags, self.__describing_nav_path)
             self.__build_store_navigation(file_name, categorising_tags, self.__categorising_nav_path)
-            #self.__build_store_describing_nav(file_name, categories, self.__describing_nav_path)
         except:
             raise Exception, self.trUtf8("An error occurred during building the navigation path(s) and links!")
         try:
@@ -425,7 +429,7 @@ class Store(QtCore.QObject):
         except:
             raise Exception, self.trUtf8("An error occurred during saving file and tags to configuration file!")
         ## scalability test
-        ##print "number of tags: " + str(len(tags)) + ", time: " + str(time.clock()-start)
+        ## print "number of tags: " + str(len(tags)) + ", time: " + str(time.clock()-start)
         
     def __build_store_navigation(self, link_name, tag_list, current_path):
         """
@@ -463,7 +467,8 @@ class Store(QtCore.QObject):
             ##get all affected files per tag
             files = self.__tag_wrapper.get_files_with_tag(tag_name)
             for file in files:
-                self.__delete_tag_folders(tag_name, file["tags"].split(","), self.__describing_nav_path)
+                self.__delete_tag_folders(tag_name, file["tags"], self.__describing_nav_path)
+                self.__delete_tag_folders(tag_name, file["category"], self.__categorising_nav_path)
             ##remove tag from config file
             self.__tag_wrapper.remove_tag(tag_name)
         

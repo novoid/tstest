@@ -22,6 +22,9 @@ class ConfigWrapper(QtCore.QObject):
 
     __pyqtSignals__ = ("changed()")
 
+    GROUP_STORE_NAME = "store"
+    KEY_STORE_ID = "store_id"
+
     def __init__(self, config_file_path):
         """
         constructor
@@ -41,7 +44,8 @@ class ConfigWrapper(QtCore.QObject):
         the file must be opened with write permission
         """
         file = open(file_path, "w")
-        
+        file.write("[store]\n")
+        file.write("store_id=0\n\n")
         file.write("[settings]\n")
         file.write("datestamp_format=1\n")
         file.write("show_category_line=1\n")
@@ -78,6 +82,23 @@ class ConfigWrapper(QtCore.QObject):
         
         file.close()
         
+    def set_store_id(self, id):
+        """
+        writes the stores id to the configuration file
+        """
+        self.__settings.beginGroup(self.GROUP_STORE_NAME)
+        self.__settings.setValue("store_id", id)
+        self.__settings.endGroup()
+    
+    def get_store_id(self):
+        """
+        returns the store id of the current file to identify the store during rename
+        """
+        self.__settings.beginGroup(self.GROUP_STORE_NAME)
+        id = unicode(self.__settings.value(self.KEY_STORE_ID, "").toString())
+        self.__settings.endGroup()
+        return id
+
     def __file_changed(self):
         """
         event handler: called when file was changed

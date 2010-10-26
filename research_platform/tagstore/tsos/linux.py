@@ -37,16 +37,18 @@ class FileSystem():
             rel_source = "../" + rel_source
 
         ## create relative symlink
-        os.symlink(rel_source, link_name)
+        if not os.path.islink(link_name):
+            os.symlink(rel_source, link_name)
 
-    def remove_link(self, link):
+    def remove_link(self, link_path):
         """
         removes a windows .lnk link from file system and empty folders as well
         """
-        if os.path.exists(file_path):
-            os.remove(file_path)
+        link = unicode(link_path)
+        if os.path.islink(link):
+            os.unlink(link)
         ## delete folder if empty
-        parent_path = "/".join(file_path.split("/")[:-1])
+        parent_path = "/".join(link.split("/")[:-1])
         if len(os.listdir(parent_path)) == 0: #empty
             os.rmdir(parent_path)        
         

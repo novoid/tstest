@@ -116,24 +116,30 @@ class FileSystemWrapper():
         deletes the directories content without deleting the root folder as well
         """
         if self.path_exists(path_name):
-            self.__log.debug("deleting dir content with the path: %s" % path_name)
+            self.__log.debug("deleting dir content: %s" % path_name)
             for item in os.listdir(path_name):
-                if os.path.isdir(path_name + "/" + item):
-                    self.delete_dir(path_name)
+                item_path = path_name + "/" + item
+                if os.path.isdir(item_path):
+                    self.delete_dir(item_path)
+                elif os.path.islink(item_path):
+                    os.unlink(item_path)
                 else:
-                    os.remove(path_name + "/" + item)
+                    os.remove(item_path)
         
     def delete_dir(self, path_name):
         """
         deletes a given directory and its content
         """
         if self.path_exists(path_name):
-            self.__log.debug("deleting dir with the path: %s" % path_name)
+            self.__log.debug("deleting dir: %s" % path_name)
             for item in os.listdir(path_name):
-                if os.path.isdir(path_name + "/" + item):
-                    self.delete_dir(path_name)
+                item_path = path_name + "/" + item
+                if os.path.isdir(item_path):
+                    self.delete_dir(item_path)
+                elif os.path.islink(item_path):
+                    os.unlink(item_path)
                 else:
-                    os.remove(path_name + "/" + item)
+                    os.remove(item_path)
             os.rmdir(path_name)
         
     def create_link(self, source, link_path):

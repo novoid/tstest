@@ -20,6 +20,7 @@ import sys
 import logging.handlers
 from optparse import OptionParser
 from PyQt4 import QtCore, QtGui
+from sets import Set
 from tsgui.tagdialog import TagDialogController
 from tscore.configwrapper import ConfigWrapper
 from tscore.store import Store
