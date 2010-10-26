@@ -115,7 +115,7 @@ class Administration(QtCore.QObject):
     def __handle_cat_tag_rename(self, old_tag, new_tag, store_name):
         print "rename a categorizing tag from %s to %s" % (old_tag, new_tag)
         store = self.__store_dict[store_name]
-        store.rename_categorizing_tag(str(old_tag), str(new_tag))
+        store.rename_tag(str(old_tag), str(new_tag))
     
     def show_admin_dialog(self, show):
         self.__admin_dialog.show_dialog()
@@ -153,7 +153,7 @@ class Administration(QtCore.QObject):
             store_name = current_store_item["path"].split("/").pop()
             ## use the store name as identifier in the dicttionary.
             ## the admindialog just provides store names instead of ids later on
-            self.__store_dict[store_name] = Store(current_store_item["id"], current_store_item["path"], 
+            tmp_store = Store(current_store_item["id"], current_store_item["path"], 
                   self.STORE_CONFIG_DIR + "/" + self.STORE_CONFIG_FILE_NAME,
                   self.STORE_CONFIG_DIR + "/" + self.STORE_TAGS_FILE_NAME,
                   self.STORE_CONFIG_DIR + "/" + self.STORE_VOCABULARY_FILE_NAME,
@@ -161,6 +161,8 @@ class Administration(QtCore.QObject):
                   self.STORE_DESCRIBING_NAV_DIRS,
                   self.STORE_CATEGORIZING_NAV_DIRS,
                   self.STORE_EXPIRED_DIRS)
+            tmp_store.init()
+            self.__store_dict[store_name] = tmp_store
     
     def __handle_new_store(self, dir):
         """

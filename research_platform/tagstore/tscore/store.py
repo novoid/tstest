@@ -72,7 +72,7 @@ class Store(QtCore.QObject):
         #self.__config_path = self.__path + "/" + self.__config_file_name
         #self.__watcher_path = self.__path + "/" + self.__storage_dir_name
         #self.__describing_nav_path = self.__path + "/" + self.__describing_nav_dir_name
-        self.__tag_wrapper = TagWrapper(self.__tags_file_name)
+        self.__tag_wrapper = TagWrapper(self.__path + "/" + self.__tags_file_name)
         self.__store_config_wrapper = ConfigWrapper(self.__path + "/" + self.__config_file_name)
 
         if self.__path.find(":/") == -1:
@@ -353,9 +353,15 @@ class Store(QtCore.QObject):
     
     def get_tags(self):
         """
-        returns a list of all tags
+        returns a list of all describing  tags
         """
         return self.__tag_wrapper.get_all_tags()
+
+    def get_categorizing_tags(self):
+        """
+        returns a list of categorizing all tags
+        """
+        return self.__tag_wrapper.get_all_categorizing_tags()
 
     def get_recent_tags(self, number):
         """
