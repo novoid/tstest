@@ -20,7 +20,6 @@ import sys
 import logging.handlers
 from optparse import OptionParser
 from PyQt4 import QtCore, QtGui
-from sets import Set
 from tsgui.tagdialog import TagDialogController
 from tscore.configwrapper import ConfigWrapper
 from tscore.store import Store
@@ -198,7 +197,16 @@ class Tagstore(QtCore.QObject):
                               self.STORE_CATEGORIZING_NAV_DIRS,
                               self.STORE_EXPIRED_DIRS)
 
-                self.__log.debug("found store: %s", store.get_name())
+                store.connect(store, QtCore.SIGNAL("removed(PyQt_PyObject)"), self.store_removed)
+                store.connect(store, QtCore.SIGNAL("renamed(PyQt_PyObject, QString)"), self.store_renamed)
+                store.connect(store, QtCore.SIGNAL("file_renamed(PyQt_PyObject, QString, QString)"), self.file_renamed)
+                store.connect(store, QtCore.SIGNAL("file_removed(PyQt_PyObject, QString)"), self.file_removed)
+                store.connect(store, QtCore.SIGNAL("pending_operations_changed(PyQt_PyObject)"), self.pending_file_operations)
+                store.connect(store, QtCore.SIGNAL("vocabulary_changed"), self.__handle_vocabulary_changed)
+
+                self.STORES.append(store)
+
+                self.__log.debug("init store: %s", store.get_name())
                 
                 ## create a dialogcontroller for each store ...
                 ## can be accessed by its ID later on
@@ -224,17 +232,10 @@ class Tagstore(QtCore.QObject):
                 tmp_dialog.connect(tmp_dialog, QtCore.SIGNAL("open_store_admin_dialog()"), self.show_admin_dialog)
                 #self.DIALOGS[store.get_id()] = tmp_dialog
                 self.DIALOGS[store.get_id()] = tmp_dialog
+                ## call init to initialize new store instance (after adding the event handler)
+                ## necessary if store was renamed during tagstore was not running (to write config)
+                store.init()
 
-                store.connect(store, QtCore.SIGNAL("removed(PyQt_PyObject)"), self.store_removed)
-                store.connect(store, QtCore.SIGNAL("renamed(PyQt_PyObject, QString)"), self.store_renamed)
-                store.connect(store, QtCore.SIGNAL("file_renamed(PyQt_PyObject, QString, QString)"), self.file_renamed)
-                store.connect(store, QtCore.SIGNAL("file_removed(PyQt_PyObject, QString)"), self.file_removed)
-                store.connect(store, QtCore.SIGNAL("pending_operations_changed(PyQt_PyObject)"), self.pending_file_operations)
-                store.connect(store, QtCore.SIGNAL("vocabulary_changed"), self.__handle_vocabulary_changed)
-                ## handle offline changes
-                store.handle_offline_changes()
-                self.STORES.append(store)
-    
     def __handle_vocabulary_changed(self, store):
         self.__set_tag_information_to_dialog(store)
     

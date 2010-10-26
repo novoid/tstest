@@ -16,7 +16,6 @@
 
 import time #for performance test only
 import logging.handlers
-from sets import Set
 from PyQt4 import QtCore
 from tsos.filesystem import FileSystemWrapper
 from tscore.tagwrapper import TagWrapper
@@ -55,6 +54,12 @@ class Store(QtCore.QObject):
         self.__config_file_name = unicode(config_file_name)
         self.__tags_file_name = unicode(tags_file)
         self.__vocabulary_file_name = unicode(vocabulary_file)
+        
+        self.__storage_dir_list = storage_dir_list
+        self.__describing_nav_dir_list = describing_nav_dir_list
+        self.__categorising_nav_dir_list = categorising_nav_dir_list
+        self.__expired_dir_list = expired_dir_list
+        
         self.__storage_dir_name = self.trUtf8("storage")
         self.__describing_nav_dir_name = self.trUtf8("navigation")
         self.__categorising_nav_dir_name = self.trUtf8("categorization")
@@ -68,36 +73,41 @@ class Store(QtCore.QObject):
         #self.__watcher_path = self.__path + "/" + self.__storage_dir_name
         #self.__describing_nav_path = self.__path + "/" + self.__describing_nav_dir_name
         self.__tag_wrapper = TagWrapper(self.__tags_file_name)
+        self.__store_config_wrapper = ConfigWrapper(self.__path + "/" + self.__config_file_name)
 
-        ## throw exception if store directory does not exist
         if self.__path.find(":/") == -1:
             self.__path = self.__path.replace(":", ":/")
         self.__name = unicode(self.__path.split("/")[-1])
         self.__parent_path = unicode(self.__path[:len(self.__path)-len(self.__name)-1])
-        #print self.__parent_path + ", " + self.__name
+
+    def init(self):
+        """
+        init is called after event listeners were added to the store instance
+        """
+        ## throw exception if store directory does not exist
         if not self.__file_system.path_exists(self.__path):
             ## look for renamed or removed store folder
-            #print "lookup"
             self.__handle_renamed_removed_store()
         if not self.__file_system.path_exists(self.__path):
             #print self.__path
             raise StoreInitError, self.trUtf8("The specified store directory does not exist!")
+            return
         
         ## look for store/describing_nav/categorising_nav/expire directories names (all languages) if they do not exist
         if not self.__file_system.path_exists(self.__path + "/" + self.__storage_dir_name):
-            for dir in storage_dir_list:
+            for dir in self.__storage_dir_list:
                 if self.__file_system.path_exists(self.__path + "/" + dir):
                     self.__storage_dir_name = unicode(dir)
         if not self.__file_system.path_exists(self.__path + "/" + self.__describing_nav_dir_name):
-            for dir in describing_nav_dir_list:
+            for dir in self.__describing_nav_dir_list:
                 if self.__file_system.path_exists(self.__path + "/" + dir):
                     self.__describing_nav_dir_name = unicode(dir)
         if not self.__file_system.path_exists(self.__path + "/" + self.__categorising_nav_dir_name):
-            for dir in categorising_nav_dir_list:
+            for dir in self.__categorising_nav_dir_list:
                 if self.__file_system.path_exists(self.__path + "/" + dir):
                     self.__categorising_nav_dir_name = unicode(dir)
         if not self.__file_system.path_exists(self.__path + "/" + self.__expired_dir_name):
-            for dir in expired_dir_list:
+            for dir in self.__expired_dir_list:
                 if self.__file_system.path_exists(self.__path + "/" + dir):
                     self.__expired_dir_name = unicode(dir)
         
@@ -114,11 +124,9 @@ class Store(QtCore.QObject):
             TagWrapper.create_tags_file(self.__path + "/" + self.__tags_file_name)
         if not self.__file_system.path_exists(self.__path + "/" + self.__vocabulary_file_name):
             self.__vocabulary_wrapper = VocabularyWrapper.create_vocabulary_file(self.__path + "/" + self.__vocabulary_file_name)
-        ## write store id to config file
-        #config_wrapper = ConfigWrapper(self.__path + "/" + self.__config_file_name)#self.__tags_file_name)
-        #config_wrapper.set_store_id(self.__id)
-        
+
         self.__init_store()
+
         
     def __init_store(self):
         """
@@ -143,15 +151,17 @@ class Store(QtCore.QObject):
         
         self.__watcher.addPath(self.__parent_path)
         self.__watcher.addPath(self.__watcher_path)
+        ## handle offline changes
+        self.__handle_file_changes(self.__watcher_path)
         
     def __handle_vocabulary_changed(self):
         self.emit(QtCore.SIGNAL("vocabulary_changed"), self)
         
-    def handle_offline_changes(self):
-        """
-        called after store and event-handler are created to handle (offline) modifications
-        """
-        self.__handle_file_changes(self.__watcher_path)
+#    def handle_offline_changes(self):
+#        """
+#        called after store and event-handler are created to handle (offline) modifications
+#        """
+#        self.__handle_file_changes(self.__watcher_path)
 
     def set_path(self, path, config_file=None, tags_file=None, vocabulary_file=None):
         """
@@ -224,11 +234,11 @@ class Store(QtCore.QObject):
         """
         
         ## this method does not handle the renaming or deletion of the store directory itself (only childs)
-        existing_files = Set(self.__file_system.get_files(path))
-        existing_dirs = Set(self.__file_system.get_directories(path))
-        config_files = Set(self.__tag_wrapper.get_files())
-        captured_added_files = Set(self.__pending_changes.get_added_names())
-        captured_removed_files = Set(self.__pending_changes.get_removed_names())
+        existing_files = set(self.__file_system.get_files(path))
+        existing_dirs = set(self.__file_system.get_directories(path))
+        config_files = set(self.__tag_wrapper.get_files())
+        captured_added_files = set(self.__pending_changes.get_added_names())
+        captured_removed_files = set(self.__pending_changes.get_removed_names())
 
         data_files = (config_files | captured_added_files) - captured_removed_files 
         added = list((existing_files | existing_dirs) - data_files)
@@ -387,7 +397,7 @@ class Store(QtCore.QObject):
         #TODO: extend functionality: have a look at #18 (Wiki)
         existing_files = self.__tag_wrapper.get_files()
         existing_tags = self.__tag_wrapper.get_all_tags()
-        tag_list = list(Set(describing_tag_list) | Set(categorising_tag_list))
+        tag_list = list(set(describing_tag_list) | set(categorising_tag_list))
         
         if file_name in existing_tags:
             return True
