@@ -476,6 +476,8 @@ class Store(QtCore.QObject):
         """
         recursive function to delete the tag directories within the describing_nav structure
         """
+        if affected_tag not in tag_list:
+            return
         self.__file_system.delete_dir(current_path + "/" + affected_tag)
         diff_list = [] + tag_list
         diff_list.remove(affected_tag)

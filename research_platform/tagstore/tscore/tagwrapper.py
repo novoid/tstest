@@ -313,8 +313,10 @@ class TagWrapper():
             describing_tags = file["tags"]
             categorising_tags = file["category"]
             if tag_name in describing_tags or tag_name in categorising_tags:
-                describing_tags.remove(tag_name)
-                categorising_tags.remove(tag_name)
+                if tag_name in describing_tags:
+                    describing_tags.remove(tag_name)
+                if tag_name in categorising_tags:
+                    categorising_tags.remove(tag_name)
                 if len(describing_tags) >= 1 or len(categorising_tags) >= 1:
                     self.__set_tags(file["filename"], describing_tags, categorising_tags)
                 else:
