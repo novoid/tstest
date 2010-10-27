@@ -992,10 +992,10 @@ class StorePreferencesController(QtCore.QObject):
             self.__register_controller(controller_store_admin, self.TAB_NAME_STORE)
 
             self.__first_time_init = False
-        else:
-            controller_vocabulary.set_store_names(self.__store_names)
-            controller_datestamp.set_store_names(self.__store_names)
-            controller_tag_admin.set_store_names(self.__store_names)
+        #else:
+        controller_vocabulary.set_store_names(self.__store_names)
+        controller_datestamp.set_store_names(self.__store_names)
+        controller_tag_admin.set_store_names(self.__store_names)
             
         
 
