@@ -164,6 +164,18 @@ class FileSystemWrapper():
             link_path = link_path.replace(":", ":/")
         self.file_system.create_link(source, link_path)
         
+#    def move_file(self, file_path, target_directory):
+#        """
+#        moves an existing file to another directory
+#        """
+#        pass
+    
+    def rename_file(self, src, dst):
+        """
+        creates a file at the file system
+        """
+        os.rename(src, dst)
+
     def create_file(self, file_path):
         """
         creates a file at the file system
