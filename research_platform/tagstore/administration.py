@@ -178,15 +178,16 @@ class Administration(QtCore.QObject):
         store_id = self.__main_config.add_new_store(dir)
         
         ## create a store object since it builds its own structure 
-        #Store(store_id, dir, 
-        #      self.STORE_CONFIG_DIR + "/" + self.STORE_CONFIG_FILE_NAME,
-        #      self.STORE_CONFIG_DIR + "/" + self.STORE_TAGS_FILE_NAME,
-        #      self.STORE_CONFIG_DIR + "/" + self.STORE_VOCABULARY_FILE_NAME,
-        #      self.STORE_STORAGE_DIRS, 
-        #      self.STORE_DESCRIBING_NAV_DIRS,
-        #      self.STORE_CATEGORIZING_NAV_DIRS,
-        #      self.STORE_EXPIRED_DIRS)
-        
+        tmp_store = Store(store_id, dir, 
+              self.STORE_CONFIG_DIR + "/" + self.STORE_CONFIG_FILE_NAME,
+              self.STORE_CONFIG_DIR + "/" + self.STORE_TAGS_FILE_NAME,
+              self.STORE_CONFIG_DIR + "/" + self.STORE_VOCABULARY_FILE_NAME,
+              self.STORE_STORAGE_DIRS, 
+              self.STORE_DESCRIBING_NAV_DIRS,
+              self.STORE_CATEGORIZING_NAV_DIRS,
+              self.STORE_EXPIRED_DIRS,
+              self.__main_config.get_expiry_prefix())
+        tmp_store.init()
         ## re-initialize the config
         self.__init_configuration()
         

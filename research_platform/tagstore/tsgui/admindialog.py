@@ -976,26 +976,26 @@ class StorePreferencesController(QtCore.QObject):
         
         ## initialize the controllers for each preference tab
         if self.__first_time_init:
-            controller_vocabulary = VocabularyAdminController(self.__store_names)
-            self.__register_controller(controller_vocabulary, self.TAB_NAME_VOCABULARY)
+            self.__controller_vocabulary = VocabularyAdminController(self.__store_names)
+            self.__register_controller(self.__controller_vocabulary, self.TAB_NAME_VOCABULARY)
             
-            controller_datestamp = DatestampAdminController(self.__store_names)
-            self.__register_controller(controller_datestamp, self.TAB_NAME_DATESTAMP)
+            self.__controller_datestamp = DatestampAdminController(self.__store_names)
+            self.__register_controller(self.__controller_datestamp, self.TAB_NAME_DATESTAMP)
     
-            controller_expiry_admin = ExpiryAdminController()
-            self.__register_controller(controller_expiry_admin, self.TAB_NAME_EXPIRY)
+            self.__controller_expiry_admin = ExpiryAdminController()
+            self.__register_controller(self.__controller_expiry_admin, self.TAB_NAME_EXPIRY)
 
-            controller_tag_admin = TagAdminController(self.__store_names)
-            self.__register_controller(controller_tag_admin, self.TAB_NAME_TAGS)
+            self.__controller_tag_admin = TagAdminController(self.__store_names)
+            self.__register_controller(self.__controller_tag_admin, self.TAB_NAME_TAGS)
 
-            controller_store_admin = StoreAdminController(self.__store_dict)
-            self.__register_controller(controller_store_admin, self.TAB_NAME_STORE)
+            self.__controller_store_admin = StoreAdminController(self.__store_dict)
+            self.__register_controller(self.__controller_store_admin, self.TAB_NAME_STORE)
 
             self.__first_time_init = False
-        #else:
-        controller_vocabulary.set_store_names(self.__store_names)
-        controller_datestamp.set_store_names(self.__store_names)
-        controller_tag_admin.set_store_names(self.__store_names)
+        else:
+            self.__controller_vocabulary.set_store_names(self.__store_names)
+            self.__controller_datestamp.set_store_names(self.__store_names)
+            self.__controller_tag_admin.set_store_names(self.__store_names)
             
         
 
@@ -1013,30 +1013,30 @@ class StorePreferencesController(QtCore.QObject):
             self.__store_vocabulary_wrapper_dict[store_name] = voc_wrapper
             #self.connect(voc_wrapper, QtCore.SIGNAL("changed"), self.__refresh_vocabulary)
 
-            controller_vocabulary.add_setting(TsConstants.SETTING_CATEGORY_MANDATORY, config.get_category_mandatory(), store_name)
-            controller_vocabulary.add_setting(TsConstants.SETTING_SHOW_CATEGORY_LINE, config.get_show_category_line(), store_name)
-            controller_vocabulary.add_setting(TsConstants.SETTING_CATEGORY_VOCABULARY, voc_wrapper.get_vocabulary(), store_name)
+            self.__controller_vocabulary.add_setting(TsConstants.SETTING_CATEGORY_MANDATORY, config.get_category_mandatory(), store_name)
+            self.__controller_vocabulary.add_setting(TsConstants.SETTING_SHOW_CATEGORY_LINE, config.get_show_category_line(), store_name)
+            self.__controller_vocabulary.add_setting(TsConstants.SETTING_CATEGORY_VOCABULARY, voc_wrapper.get_vocabulary(), store_name)
             ## TODO: create a method to switch this from outside
-            controller_vocabulary.set_settings_editable(False)
+            self.__controller_vocabulary.set_settings_editable(False)
             
-            controller_tag_admin.add_setting(TsConstants.SETTING_DESC_TAGS, store["desc_tags"], store_name)
-            controller_tag_admin.add_setting(TsConstants.SETTING_CAT_TAGS, store["cat_tags"], store_name)
-            controller_tag_admin.add_setting(TsConstants.SETTING_SHOW_CATEGORY_LINE, config.get_show_category_line(), store_name)
+            self.__controller_tag_admin.add_setting(TsConstants.SETTING_DESC_TAGS, store["desc_tags"], store_name)
+            self.__controller_tag_admin.add_setting(TsConstants.SETTING_CAT_TAGS, store["cat_tags"], store_name)
+            self.__controller_tag_admin.add_setting(TsConstants.SETTING_SHOW_CATEGORY_LINE, config.get_show_category_line(), store_name)
             
-            controller_datestamp.add_setting(TsConstants.SETTING_DATESTAMP_FORMAT, config.get_datestamp_format(), store_name)
+            self.__controller_datestamp.add_setting(TsConstants.SETTING_DATESTAMP_FORMAT, config.get_datestamp_format(), store_name)
 
-        self.connect(controller_store_admin, QtCore.SIGNAL("new"), self.__handle_new_store)
+        self.connect(self.__controller_store_admin, QtCore.SIGNAL("new"), self.__handle_new_store)
 #        self.connect(self.__controller_store_admin, QtCore.SIGNAL("new"), QtCore.SIGNAL("create_new_store"))
-        self.connect(controller_store_admin, QtCore.SIGNAL("rebuild"), self.__handle_rebuild)
-        self.connect(controller_store_admin, QtCore.SIGNAL("rename"), self.__handle_rename)
-        self.connect(controller_store_admin, QtCore.SIGNAL("delete"), self.__handle_delete)
+        self.connect(self.__controller_store_admin, QtCore.SIGNAL("rebuild"), self.__handle_rebuild)
+        self.connect(self.__controller_store_admin, QtCore.SIGNAL("rename"), self.__handle_rename)
+        self.connect(self.__controller_store_admin, QtCore.SIGNAL("delete"), self.__handle_delete)
 #        self.connect(controller_tag_admin, QtCore.SIGNAL("rename_desc_tag"), self.__handle_desc_tag_rename)
 #        self.connect(controller_tag_admin, QtCore.SIGNAL("rename_cat_tag"), self.__handle_cat_tag_rename)
-        self.connect(controller_tag_admin, QtCore.SIGNAL("rename_desc_tag"), QtCore.SIGNAL("rename_desc_tag"))
-        self.connect(controller_tag_admin, QtCore.SIGNAL("rename_cat_tag"), QtCore.SIGNAL("rename_cat_tag"))
+        self.connect(self.__controller_tag_admin, QtCore.SIGNAL("rename_desc_tag"), QtCore.SIGNAL("rename_desc_tag"))
+        self.connect(self.__controller_tag_admin, QtCore.SIGNAL("rename_cat_tag"), QtCore.SIGNAL("rename_cat_tag"))
 
         ## this setting comes from the main config
-        controller_expiry_admin.add_setting(TsConstants.SETTING_EXPIRY_PREFIX, self.__main_config.get_expiry_prefix())
+        self.__controller_expiry_admin.add_setting(TsConstants.SETTING_EXPIRY_PREFIX, self.__main_config.get_expiry_prefix())
     
     def __handle_desc_tag_rename(self, old, new, store_name):
         self.emit(QtCore.SIGNAL("rename_desc_tag"), old, new, self.__store_dict[store_name])
