@@ -103,12 +103,12 @@ class TagWrapper():
                     file_added = True
                     break
             
-#            if not file_added:
-#                for tag in file[self.KEY_CATEGORIES]:
-#                    match = re.match("^("+prefix+")([0-9]{4})(-)([0-9]{2})", tag)
-#                    if match:
-#                        filtered_list.append(dict(filename=file["filename"], tags=file["tags"], category=file["category"], exp_year=match.groups()[1], exp_month=match.groups()[3]))
-#                        break
+            if not file_added:
+                for tag in file[self.KEY_CATEGORIES]:
+                    match = re.match("^("+prefix+")([0-9]{4})(-)([0-9]{2})", tag)
+                    if match:
+                        filtered_list.append(dict(filename=file["filename"], tags=file["tags"], category=file["category"], exp_year=match.groups()[1], exp_month=match.groups()[3]))
+                        break
 
         return filtered_list
         
@@ -126,9 +126,9 @@ class TagWrapper():
             self.__settings.endGroup()
             for tag in tags:
                 if tag in dictionary:
-                    dictionary[tag] += 1
+                    dictionary[unicode(tag)] += 1
                 else:
-                    dictionary[tag] = 1
+                    dictionary[unicode(tag)] = 1
         self.__settings.endGroup()
         return dictionary
 
@@ -269,10 +269,10 @@ class TagWrapper():
         """
         self.__settings.beginGroup(self.GROUP_FILES_NAME)
         self.__settings.beginGroup(file_name)
-        self.__settings.setValue(self.KEY_TAGS, self.TAG_SEPARATOR.join(tag_list))
+        self.__settings.setValue(self.KEY_TAGS, unicode(self.TAG_SEPARATOR.join(tag_list)))
         self.__settings.setValue(self.KEY_TIMESTAMP, timestamp)
         if category_list is not None:
-            self.__settings.setValue(self.KEY_CATEGORIES, self.TAG_SEPARATOR.join(category_list))
+            self.__settings.setValue(self.KEY_CATEGORIES, unicode(self.TAG_SEPARATOR.join(category_list)))
         self.__settings.endGroup()
         self.__settings.endGroup()
 

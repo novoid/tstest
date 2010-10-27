@@ -142,6 +142,8 @@ class Store(QtCore.QObject):
         self.__watcher_path = self.__path + "/" + self.__storage_dir_name
         self.__describing_nav_path = self.__path + "/" + self.__describing_nav_dir_name
         self.__categorising_nav_path = self.__path + "/" + self.__categorising_nav_dir_name
+        config_file_name = unicode(self.__config_path.split("/")[-1])
+        self.__temp_progress_path = unicode(self.__config_path[:len(self.__config_path)-len(config_file_name)-1])
         
         self.__tag_wrapper = TagWrapper(self.__tags_file_path)
         ## update store id to avoid inconsistency
@@ -154,6 +156,7 @@ class Store(QtCore.QObject):
         self.__watcher.addPath(self.__parent_path)
         self.__watcher.addPath(self.__watcher_path)
         ## handle offline changes
+        self.__handle_unfinished_operation()
         self.__handle_file_expiry()
         self.__handle_file_changes(self.__watcher_path)
         
@@ -231,8 +234,30 @@ class Store(QtCore.QObject):
             ## files or directories in the store directory have been changed
             self.__handle_file_changes(self.__watcher_path)
 
+    def __handle_unfinished_operation(self):
+        """
+        looks for a opInProgress.tmp file to find out if the last operation was finished correctly
+        this file is created before an operation starts and deleted afterwards
+        """
+        if self.__file_system.path_exists(self.__temp_progress_path + "/" + "opInProgress.tmp"):
+            self.rebuild()
+            
+    def __create_inprogress_file(self):
+        """
+        creates a temporary file during an operation in progress to handle operation interruption
+        """
+        self.__file_system.create_file(self.__temp_progress_path + "/" + "opInProgress.tmp")
+
+    def __remove_inprogress_file(self):
+        """
+        removes the temporary file after the operation succeeded
+        """
+        self.__file_system.remove_file(self.__temp_progress_path + "/" + "opInProgress.tmp")
+        
     def __handle_file_expiry(self):
-        #self.__expiry_dir_name
+        """
+        looks for expired items and moves & renames them to filename including tags in the expiry_directory
+        """
         expiry_date_files = self.__tag_wrapper.get_files_with_expiry_tags(self.__expiry_prefix)
         now = datetime.datetime.now()
         for file in expiry_date_files:
@@ -318,16 +343,19 @@ class Store(QtCore.QObject):
         """
         removes and rebuilds all links in the describing_nav path
         """
+        self.__create_inprogress_file()
         self.remove()
         for file in self.__tag_wrapper.get_files():
             describing_tag_list = self.__tag_wrapper.get_file_tags(file)
             categorising_tag_list = self.__tag_wrapper.get_file_categories(file)
             self.add_item_with_tags(file, describing_tag_list, categorising_tag_list)
+        self.__remove_inprogress_file()
     
     def rename_file(self, old_file_name, new_file_name):
         """
         renames an existing file: links and config settings 
         """
+        self.__create_inprogress_file()
         if self.__tag_wrapper.file_exists(old_file_name):
             describing_tag_list = self.__tag_wrapper.get_file_tags(old_file_name)
             categorising_tag_list = self.__tag_wrapper.get_file_categories(old_file_name)
@@ -339,11 +367,13 @@ class Store(QtCore.QObject):
         else:
             self.__pending_changes.edit(old_file_name, new_file_name)
             self.emit(QtCore.SIGNAL("pending_operations_changed(PyQt_PyObject)"), self)
+        self.__remove_inprogress_file()
         
     def remove_file(self, file_name):
         """
         removes a file: links and config settings 
         """
+        self.__create_inprogress_file()
         self.__pending_changes.remove(file_name)
         if self.__tag_wrapper.file_exists(file_name):
             describing_tag_list = self.__tag_wrapper.get_file_tags(file_name)
@@ -353,16 +383,19 @@ class Store(QtCore.QObject):
             self.__tag_wrapper.remove_file(file_name)
         else:
             self.emit(QtCore.SIGNAL("pending_operations_changed(PyQt_PyObject)"), self)
+        self.__remove_inprogress_file()
         
     def __delete_links(self, file_name, tag_list, current_path):
         """
         deletes all links to the given file
         """
+        self.__create_inprogress_file()
         for tag in tag_list:
             recursive_list = [] + tag_list
             recursive_list.remove(tag)
             self.__delete_links(file_name, recursive_list, current_path + "/" + tag)
             self.__file_system.remove_link(current_path + "/" + tag + "/" + file_name)
+        self.__remove_inprogress_file()
     
     def get_tags(self):
         """
@@ -447,6 +480,7 @@ class Store(QtCore.QObject):
         ## scalability test
         ## start = time.clock()
         #try:
+        self.__create_inprogress_file()
         self.__build_store_navigation(file_name, describing_tags, self.__describing_nav_path)
         self.__build_store_navigation(file_name, categorising_tags, self.__categorising_nav_path)
         #except:
@@ -454,6 +488,7 @@ class Store(QtCore.QObject):
         #try:
         self.__tag_wrapper.set_file(file_name, describing_tags, categorising_tags)
         self.__pending_changes.remove(file_name)
+        self.__remove_inprogress_file()
         #except:
         #    raise Exception, self.trUtf8("An error occurred during saving file and tags to configuration file!")
         ## scalability test
@@ -475,6 +510,7 @@ class Store(QtCore.QObject):
         """
         renames a tag inside the store 
         """
+        self.__create_inprogress_file()
         ##get all affected files per tag
         files = self.__tag_wrapper.get_files_with_tag(old_tag_name)
         self.delete_tags([old_tag_name])
@@ -486,11 +522,13 @@ class Store(QtCore.QObject):
                 file["category"].append(new_tag_name)
                 file["category"].remove(old_tag_name)
             self.add_item_with_tags(file["filename"], file["tags"], file["category"]) 
+        self.__remove_inprogress_file()
         
     def delete_tags(self, tag_list):
         """
         delete tags inside the store
         """
+        self.__create_inprogress_file()
         for tag_name in tag_list:
             ##get all affected files per tag
             files = self.__tag_wrapper.get_files_with_tag(tag_name)
@@ -499,6 +537,7 @@ class Store(QtCore.QObject):
                 self.__delete_tag_folders(tag_name, file["category"], self.__categorising_nav_path)
             ##remove tag from config file
             self.__tag_wrapper.remove_tag(tag_name)
+        self.__remove_inprogress_file()
         
     def __delete_tag_folders(self, affected_tag, tag_list, current_path):
         """

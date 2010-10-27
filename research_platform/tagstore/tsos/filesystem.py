@@ -117,8 +117,8 @@ class FileSystemWrapper():
         """
         if self.path_exists(path_name):
             self.__log.debug("deleting dir content: %s" % path_name)
-            for item in os.listdir(path_name):
-                item_path = path_name + "/" + item
+            for item in os.listdir(unicode(path_name)):
+                item_path = unicode(path_name) + "/" + item
                 if os.path.isdir(item_path):
                     self.delete_dir(item_path)
                 elif os.path.islink(item_path):

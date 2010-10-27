@@ -390,7 +390,7 @@ if __name__ == '__main__':
   
     ## initialize and configure the optionparser
     opt_parser = OptionParser("tagstore.py [options]")
-    opt_parser.add_option("-v", "--verbose", dest="verbose", action="store_true", help="start programm with detailed output")
+    opt_parser.add_option("-v", "--verbose", dest="verbose", action="store_true", help="start program with detailed output")
     opt_parser.add_option("-d", "--dry-run", dest="dry_run", action="store_true", help="test-mode. actions are just written to ouput. no changes to filesystem made.")
 
     (options, args) = opt_parser.parse_args()
