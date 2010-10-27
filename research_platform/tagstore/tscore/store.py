@@ -16,6 +16,7 @@
 
 #import time #for performance tests only
 import datetime
+import re
 import logging.handlers
 from PyQt4 import QtCore
 from tsos.filesystem import FileSystemWrapper
@@ -395,6 +396,32 @@ class Store(QtCore.QObject):
             recursive_list.remove(tag)
             self.__delete_links(file_name, recursive_list, current_path + "/" + tag)
             self.__file_system.remove_link(current_path + "/" + tag + "/" + file_name)
+        self.__remove_inprogress_file()
+    
+    def change_expiry_prefix(self, new_prefix):
+        """
+        changes the expiry prefix and all existing expiry tags
+        """
+        ## handle changes only
+        if self.__expiry_prefix == new_prefix:  
+            return
+        
+        self.__create_inprogress_file()
+        expiry_date_files = self.__tag_wrapper.get_files_with_expiry_tags(self.__expiry_prefix)
+        
+        for file in expiry_date_files:
+            for tag in file["tags"]:
+                match = re.match("^(" + self.__expiry_prefix + ")([0-9]{4})(-)([0-9]{2})", tag)
+                if match:
+                    self.rename_tag(tag, tag.replace(self.__expiry_prefix, new_prefix))
+            
+            for tag in file["category"]:
+                match = re.match("^(" + self.__expiry_prefix + ")([0-9]{4})(-)([0-9]{2})", tag)
+                if match:
+                    self.rename_tag(tag, tag.replace(self.__expiry_prefix, new_prefix))
+
+        ## set new prefix
+        self.__expiry_prefix = new_prefix
         self.__remove_inprogress_file()
     
     def get_tags(self):

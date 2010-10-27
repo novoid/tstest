@@ -48,6 +48,7 @@ class FileSystemWrapper():
         """
         returns True if given path exists, else False
         """
+        path = unicode(path)
         return os.path.exists(path)
     
     def find_files(self, in_path, search_path):
@@ -55,6 +56,8 @@ class FileSystemWrapper():
         returns a list of files including the search_path from the directory in_path
         caution: this method does not provide a hierarchical search- use os.walk() for this purpose
         """
+        in_path = unicode(in_path)
+        search_path = unicode(search_path)
         files = []
         if not os.path.exists(in_path):
             return files
@@ -68,6 +71,7 @@ class FileSystemWrapper():
         """
         returns a list of files found in the given directory filtered by ignore- settings
         """
+        directory = unicode(directory)
         files = []
         ignored = []
         for item in os.listdir(directory):
@@ -86,6 +90,7 @@ class FileSystemWrapper():
         """
         returns a list of dirs found in the given directory filtered by ignore- settings
         """
+        directory = unicode(directory)
         files = []
         ignored = []
         for item in os.listdir(directory):
@@ -101,12 +106,14 @@ class FileSystemWrapper():
         """
         returns True if the given path points to a directory
         """
+        path = unicode(path)
         return os.path.isdir(path)
     
     def create_dir(self, path_name):
         """
         creates a directory with the given pathname at the filesystem
         """
+        path_name = unicode(path_name)
         if not self.path_exists(path_name):
             self.__log.debug("creating dir with the path: %s" % path_name)
             os.mkdir(path_name)
@@ -115,6 +122,7 @@ class FileSystemWrapper():
         """
         deletes the directories content without deleting the root folder as well
         """
+        path_name = unicode(path_name)
         if self.path_exists(path_name):
             self.__log.debug("deleting dir content: %s" % path_name)
             for item in os.listdir(unicode(path_name)):
@@ -130,6 +138,7 @@ class FileSystemWrapper():
         """
         deletes a given directory and its content
         """
+        path_name = unicode(path_name)
         if self.path_exists(path_name):
             self.__log.debug("deleting dir: %s" % path_name)
             for item in os.listdir(path_name):
@@ -174,12 +183,15 @@ class FileSystemWrapper():
         """
         creates a file at the file system
         """
+        src = unicode(src)
+        dst = unicode(dst)
         os.rename(src, dst)
 
     def create_file(self, file_path):
         """
         creates a file at the file system
         """
+        file_path = unicode(file_path)
         file = open(file_path, "w")
         file.close()
         
@@ -187,6 +199,7 @@ class FileSystemWrapper():
         """
         removes a file from filesystem
         """
+        file_path = unicode(file_path)
         if self.path_exists(file_path):
             os.remove(file_path)
         
@@ -194,6 +207,7 @@ class FileSystemWrapper():
         """
         removes a given link from file system and also the folder if it's empty
         """
+        file_path = unicode(file_path)
         self.file_system.remove_link(file_path)
         
     def inode_shortage(self, file_path):
@@ -201,6 +215,7 @@ class FileSystemWrapper():
         returns True, if the free number of inodes (non-root) < 10% of all available
         Caution: Windows does not support this functionality, that's why it returns False in any case
         """
+        file_path = unicode(file_path)
         return self.file_system.inode_shortage(file_path)
         
         
