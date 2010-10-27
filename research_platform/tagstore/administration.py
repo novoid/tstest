@@ -120,6 +120,12 @@ class Administration(QtCore.QObject):
     def show_admin_dialog(self, show):
         self.__admin_dialog.show_dialog()
     
+    def set_parent(self, parent):
+        """
+        set the parent for the admin-dialog if there is already a gui window
+        """
+        self.__admin_dialog.set_parent(parent)
+    
     def __prepare_store_params(self):
         """
         initialzes all necessary params for creating a store object
@@ -160,8 +166,9 @@ class Administration(QtCore.QObject):
                   self.STORE_STORAGE_DIRS, 
                   self.STORE_DESCRIBING_NAV_DIRS,
                   self.STORE_CATEGORIZING_NAV_DIRS,
-                  self.STORE_EXPIRED_DIRS)
-            tmp_store.init()
+                  self.STORE_EXPIRED_DIRS,
+                  self.__main_config.get_expiry_prefix())
+            #tmp_store.init()
             self.__store_dict[store_name] = tmp_store
     
     def __handle_new_store(self, dir):

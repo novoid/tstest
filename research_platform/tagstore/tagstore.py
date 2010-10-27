@@ -26,7 +26,7 @@ from tscore.store import Store
 from tscore.enums import EFileEvent, EDateStampFormat
 from tscore.tsconstants import TsConstants
 from tscore.exceptions import StoreTaggingError
-from tsgui.admindialog import StorePreferencesController
+from administration import Administration
 
     
 class Tagstore(QtCore.QObject):
@@ -174,7 +174,7 @@ class Tagstore(QtCore.QObject):
                                self.STORE_CONFIG_DIR + "/" + self.STORE_CONFIG_FILE_NAME,
                                self.STORE_CONFIG_DIR + "/" + self.STORE_TAGS_FILE_NAME,
                                self.STORE_CONFIG_DIR + "/" + self.STORE_VOCABULARY_FILE_NAME)
-                               
+                store.change_expiry_prefix(self.EXPIRY_PREFIX)               
                 config_store_ids.remove(id)             ## remove already updated items
             else:
             ## remove deleted stores
@@ -241,10 +241,9 @@ class Tagstore(QtCore.QObject):
         self.__set_tag_information_to_dialog(store)
     
     def show_admin_dialog(self):
-        controller = StorePreferencesController(parent=self.sender().get_view())
-        controller.set_main_config(self.__app_config_wrapper)
-        controller.set_store_list(self.__app_config_wrapper.get_stores())
-        controller.show_dialog()
+        admin_widget = Administration(verbose=verbose_mode)
+        admin_widget.set_parent(self.sender().get_view())
+        admin_widget.show_admin_dialog(True)
     
     def store_removed(self, store):
         """

@@ -732,6 +732,12 @@ class TagAdminController(MultipleStorePreferenceController):
     def _create_view(self):
         return TagAdminView()
     
+    def _add_additional_settings(self):
+        """
+        not needed here ... yet
+        """
+        pass
+    
     def _handle_setting(self, store_name, setting_name, setting_value):
         if store_name == self._current_store:
             if setting_name == TsConstants.SETTING_DESC_TAGS:
@@ -1124,6 +1130,9 @@ class StorePreferencesController(QtCore.QObject):
         """
         if tab_name is not None and tab_name != "":
             self.__dialog.select_preference_tab(self.__preference_controller_list[tab_name].get_view())
+    def set_parent(self, parent):
+#        self.__dialog.setParent(parent)
+        self.setParent(parent)
     
     def show_dialog(self):
         self.__dialog.show()
