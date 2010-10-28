@@ -154,11 +154,11 @@ class Administration(QtCore.QObject):
             self.STORE_VOCABULARY_FILE_NAME = vocabulary_file_name
     
     def __create_stores(self):
-
-        for current_store_item in self.__main_config.get_stores():
-            store_name = current_store_item["path"].split("/").pop()
-            ## use the store name as identifier in the dicttionary.
+        store_items = self.__main_config.get_stores()
+        for current_store_item in store_items:
+            ## use the store name as identifier in the dictionary.
             ## the admindialog just provides store names instead of ids later on
+            store_name = current_store_item["path"].split("/").pop()
             tmp_store = Store(current_store_item["id"], current_store_item["path"], 
                   self.STORE_CONFIG_DIR + "/" + self.STORE_CONFIG_FILE_NAME,
                   self.STORE_CONFIG_DIR + "/" + self.STORE_TAGS_FILE_NAME,
@@ -168,7 +168,7 @@ class Administration(QtCore.QObject):
                   self.STORE_CATEGORIZING_NAV_DIRS,
                   self.STORE_EXPIRED_DIRS,
                   self.__main_config.get_expiry_prefix())
-            #tmp_store.init()
+            tmp_store.init()
             self.__store_dict[store_name] = tmp_store
     
     def __handle_new_store(self, dir):

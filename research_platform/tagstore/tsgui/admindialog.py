@@ -234,7 +234,7 @@ class MultipleStorePreferenceController(BasePreferenceController):
         self.connect(self._view, QtCore.SIGNAL("store_selected(QString)"), self._set_selected_store)
     
     def _set_selected_store(self, store_name):
-        self._current_store = store_name
+        self._current_store = unicode(store_name)
         self._map_store_settings_to_gui()
         
     def _map_store_settings_to_gui(self):
@@ -683,16 +683,20 @@ class TagAdminView(MultipleStorePreferenceView):
             self.__btn_cat_tag_rename.setEnabled(True)
     
     def set_describing_tags(self, tag_list):
+        self.clear_describing_tags()
         if tag_list is not None:
             self.__desc_tag_list_view.addItems(tag_list)
-        else:
-            self.__desc_tag_list_view.clear()
             
     def set_categorizing_tags(self, tag_list):
+        self.__cat_tag_list_view.clear()
         if tag_list is not None:
             self.__cat_tag_list_view.addItems(tag_list)
-        else:
-            self.__cat_tag_list_view.clear()
+
+    def clear_describing_tags(self):
+        self.__desc_tag_list_view.clear()
+
+    def clear_categorizing_tags(self):
+        self.__cat_tag_list_view.clear()
             
     def enable_cat_widgets(self, enable):
         self.__cat_tag_list_view.setEnabled(enable)
@@ -743,17 +747,17 @@ class TagAdminController(MultipleStorePreferenceController):
             if setting_name == TsConstants.SETTING_DESC_TAGS:
                 self.get_view().set_describing_tags(setting_value)
             elif setting_name == TsConstants.SETTING_CAT_TAGS:
-                if setting_value is None or len(setting_value) <= 0:
-                    self.get_view().enable_cat_widgets(False)
-                else:
-                    self.get_view().set_categorizing_tags(setting_value)
+                self.get_view().set_categorizing_tags(setting_value)
             elif setting_name == TsConstants.SETTING_SHOW_CATEGORY_LINE:
                     if setting_value == ECategorySetting.DISABLED:
                         self.get_view().enable_desc_widgets(True)
                         self.get_view().enable_cat_widgets(False)
-                        self.get_view().set_categorizing_tags(None)
+                        ## clear the list because it is not needed
+                        self.get_view().clear_categorizing_tags()
                     if setting_value == ECategorySetting.ENABLED_SINGLE_CONTROLLED_TAGLINE:
                         self.get_view().enable_desc_widgets(False)
+                        ## clear the list because it is not needed
+                        self.get_view().clear_describing_tags()
                         self.get_view().enable_cat_widgets(True)
                         self.get_view().set_describing_tags(None)
     
