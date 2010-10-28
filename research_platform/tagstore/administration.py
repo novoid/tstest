@@ -89,8 +89,8 @@ class Administration(QtCore.QObject):
         if self.__admin_dialog is None:
             self.__admin_dialog = StorePreferencesController()
             self.connect(self.__admin_dialog, QtCore.SIGNAL("create_new_store"), self.__handle_new_store)
-            self.connect(self.__admin_dialog, QtCore.SIGNAL("rename_desc_tag"), self.__handle_desc_tag_rename)
-            self.connect(self.__admin_dialog, QtCore.SIGNAL("rename_cat_tag"), self.__handle_cat_tag_rename)
+            self.connect(self.__admin_dialog, QtCore.SIGNAL("rename_desc_tag"), self.__handle_tag_rename)
+            self.connect(self.__admin_dialog, QtCore.SIGNAL("rename_cat_tag"), self.__handle_tag_rename)
         self.__admin_dialog.set_main_config(self.__main_config)
         
         self.__prepare_store_params()
@@ -107,13 +107,7 @@ class Administration(QtCore.QObject):
         
         self.__admin_dialog.set_store_list(tmp_store_list)
     
-    def __handle_desc_tag_rename(self, old_tag, new_tag, store_name):
-        print "rename a describing tag from %s to %s" % (old_tag, new_tag)
-        store = self.__store_dict[store_name]
-        store.rename_tag(str(old_tag), str(new_tag))
-
-    def __handle_cat_tag_rename(self, old_tag, new_tag, store_name):
-        print "rename a categorizing tag from %s to %s" % (old_tag, new_tag)
+    def __handle_tag_rename(self, old_tag, new_tag, store_name):
         store = self.__store_dict[store_name]
         store.rename_tag(str(old_tag), str(new_tag))
     

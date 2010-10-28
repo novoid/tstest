@@ -20,6 +20,7 @@ from tscore.configwrapper import ConfigWrapper
 from tscore.tsconstants import TsConstants
 from tscore.enums import ECategorySetting, EDateStampFormat
 from tscore.vocabularywrapper import VocabularyWrapper
+from tscore.specialcharhelper import SpecialCharHelper
 
 class StorePreferencesView(QtGui.QDialog):
     """
@@ -73,6 +74,24 @@ class StorePreferencesView(QtGui.QDialog):
         index = self.__tab_widget.indexOf(preference_widget)
         self.__tab_widget.removeTab(index)
         
+    def show_tooltip(self, message, parent=None):
+        """
+        show a tooltip
+        """
+        
+        if parent is None:
+            parent = self
+        
+        tip_position = parent.pos()
+        
+        height = parent.height()/2
+        width = parent.width()/2
+
+        tip_position.setX(tip_position.x()+width)
+        tip_position.setY(tip_position.y()+height)
+        
+        QtGui.QWhatsThis.showText(tip_position, message, parent)
+        
         
 class BasePreferenceView(QtGui.QWidget):
     
@@ -114,7 +133,7 @@ class BasePreferenceView(QtGui.QWidget):
         if parent is None:
             parent = self
         
-        tip_position = parent.pos()
+        tip_position = parent.mapToGlobal(parent.pos())
         
         height = parent.height()/2
         width = parent.width()/2
@@ -641,29 +660,59 @@ class TagAdminView(MultipleStorePreferenceView):
         """
         show an input dialog to rename a selected tag
         """
-        result = QtGui.QInputDialog.getText(self, self.trUtf8("Rename a tag"), 
-                                            self.trUtf8("Please consider that renaming a tag can be a time consuming process for your system"), 
-                                            text=self.__selected_desc_tag.text())
-        ## the second element of the result list is True if the OK button has been clicked 
-        if result[1]:
-            self.emit(QtCore.SIGNAL("rename_desc_tag"), self.__selected_desc_tag.text(), result[0])
+        new_tag = self.__show_renaming_dialog(self.__selected_cat_tag.text())
+        if new_tag != "":
+            self.emit(QtCore.SIGNAL("rename_desc_tag"), self.__selected_desc_tag.text(), new_tag)
             self.__desc_tag_list_view.takeItem(self.__desc_tag_list_view.row(self.__selected_desc_tag))
-            self.__desc_tag_list_view.addItem(QtGui.QListWidgetItem(result[0]))
+            self.__desc_tag_list_view.addItem(QtGui.QListWidgetItem(new_tag))
             
     def __rename_cat_tag_btn_clicked(self):
         """
         show an input dialog to rename a selected tag
         """
+        new_tag = self.__show_renaming_dialog(self.__selected_cat_tag.text())
+        if new_tag != "":
+            self.emit(QtCore.SIGNAL("rename_cat_tag"), self.__selected_cat_tag.text(), new_tag)
+            self.__cat_tag_list_view.takeItem(self.__cat_tag_list_view.row(self.__selected_cat_tag))
+            self.__cat_tag_list_view.addItem(QtGui.QListWidgetItem(new_tag))
+    
+    def __show_renaming_dialog(self, old_value):
+        """
+        show the dialog for renaming a tag. 
+        returns an empty string if the renaming is not allowed.
+        OR
+        returns the new entered tag 
+        """
+        
         result = QtGui.QInputDialog.getText(self, self.trUtf8("Rename a tag"), 
                                             self.trUtf8("Please consider that renaming a tag can be a time consuming process for your system"), 
-                                            text=self.__selected_cat_tag.text())
+                                            text=old_value)
         
         ## the second element of the result list is True if the OK button has been clicked 
         if result[1]:
-            self.emit(QtCore.SIGNAL("rename_cat_tag"), self.__selected_cat_tag.text(), result[0])
-            self.__cat_tag_list_view.takeItem(self.__cat_tag_list_view.row(self.__selected_cat_tag))
-            self.__cat_tag_list_view.addItem(QtGui.QListWidgetItem(result[0]))
+            new_tag = unicode(result[0])
+            if self.__check_special_chars(new_tag):
+                return ""
+            return new_tag
+        return ""
+        
     
+    def __check_special_chars(self, string_to_check):
+        """
+        check whether the string contains a not allowed special char
+        OR
+        if it equals a not allowed keyword
+        this method automatically shows a message
+        """
+        if SpecialCharHelper.contains_special_chars([string_to_check]):
+            self.show_tooltip(self.trUtf8("The new tag contains a special character which is not allowed."))
+            return True
+        special_string = SpecialCharHelper.is_special_string([string_to_check])
+        if special_string != "":
+            self.show_tooltip(self.trUtf8("The new tag '%s' is a not allowed keyword." % special_string))
+            return True
+        return False
+
     def __desc_selection_changed(self):
         selection_list = self.__desc_tag_list_view.selectedItems()
         if selection_list is None or len(selection_list) == 0:
@@ -1137,6 +1186,9 @@ class StorePreferencesController(QtCore.QObject):
     def set_parent(self, parent):
 #        self.__dialog.setParent(parent)
         self.setParent(parent)
+    
+    def show_tooltip(self, message, parent=None):
+        self.__dialog.show_tooltip(message, parent)
     
     def show_dialog(self):
         self.__dialog.show()

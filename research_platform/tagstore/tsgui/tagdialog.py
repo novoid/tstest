@@ -22,6 +22,7 @@ from tscore.enums import ECategorySetting, ETagErrorEnum
 from admindialog import StorePreferencesController
 from administration import Administration
 from tsgui.tagdialogstate import TagDialogState
+from tscore.specialcharhelper import SpecialCharHelper
 
 class TagDialog(QtGui.QDialog):
 
@@ -701,29 +702,6 @@ class TagDialogController(QtCore.QObject):
         """
         self.hide_dialog()
     
-    def check_on_special_chars(self, tag_list):
-        """
-        check the given list, if any of its items contains a not allowed special character
-        """
-        char_list = TsConstants.get_not_allowed_chars_list()
-        for tag in tag_list:
-            for char in char_list:
-                if tag.find(char) != -1:
-                    return True
-            #return True in [char in tag for char in char_list]
-        return False
-            
-        
-    def check_on_special_strings(self, tag_list):
-        """
-        check the given list, if any of its items equals a reserved keyword (which is not allowed to be used)
-        """
-        string_list = TsConstants.get_not_allowed_strings_list()
-        for tag in tag_list:
-            if tag in string_list:
-                return tag
-        return ""
-    
     def tag_item(self, item, tag_list):
         """
         pre-check if all necessary data is available for storing tags to an item 
@@ -739,10 +717,10 @@ class TagDialogController(QtCore.QObject):
             self.__tag_dialog.set_item_info(self.trUtf8("Please select an Item, to which the tags should be added"))
             return
 
-        if self.check_on_special_chars(tag_list):
+        if SpecialCharHelper.contains_special_chars(tag_list):
             self.__tag_dialog.set_error_occured(ETagErrorEnum.NOT_ALLOWED_CHAR_DESCRIBING_TAG)
             return
-        if self.check_on_special_strings(tag_list):
+        if SpecialCharHelper.is_special_string(tag_list):
             self.__tag_dialog.set_error_occured(ETagErrorEnum.NOT_ALLOWED_DESCRIBING_TAG_NAME)
             return
         
@@ -761,10 +739,10 @@ class TagDialogController(QtCore.QObject):
             if not category_list.issubset(completion_set):
                 self.__tag_dialog.set_not_suitable_categories_entered()
                 return
-        if self.check_on_special_chars(category_list):
+        if SpecialCharHelper.contains_special_chars(category_list):
             self.__tag_dialog.set_error_occured(ETagErrorEnum.NOT_ALLOWED_CHAR_CATEGORIZING_TAG)
             return
-        if self.check_on_special_strings(category_list):
+        if SpecialCharHelper.is_special_string(category_list):
             self.__tag_dialog.set_error_occured(ETagErrorEnum.NOT_ALLOWED_CATEGORIZING_TAG_NAME)
             return
             
