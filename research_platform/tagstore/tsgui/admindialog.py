@@ -368,6 +368,8 @@ class StoreAdminController(BasePreferenceController):
         ##TODO create new store framework (folders, files)
         ##TODO write new store to config
 
+        if dir is None or dir == "":
+            return
         ## prepare path for a split("/")        
         if dir.endsWith("/"):
             dir = dir.remove(dir.length()-1, 1)
