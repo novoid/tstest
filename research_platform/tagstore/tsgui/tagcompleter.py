@@ -102,6 +102,9 @@ class TagCompleterWidget(QObject):
         self.__check_not_empty = True
     
     def set_restricted_vocabulary(self, is_restricted):
+        """
+        use True/False to turn the restricted function on/off
+        """
         self.__restricted_vocabulary = is_restricted
     
     def select_line(self):
