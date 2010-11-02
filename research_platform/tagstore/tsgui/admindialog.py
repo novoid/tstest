@@ -660,11 +660,12 @@ class TagAdminView(MultipleStorePreferenceView):
         """
         show an input dialog to rename a selected tag
         """
-        new_tag = self.__show_renaming_dialog(self.__selected_cat_tag.text())
+        new_tag = self.__show_renaming_dialog(self.__selected_desc_tag.text())
         if new_tag != "":
             self.emit(QtCore.SIGNAL("rename_desc_tag"), self.__selected_desc_tag.text(), new_tag)
             self.__desc_tag_list_view.takeItem(self.__desc_tag_list_view.row(self.__selected_desc_tag))
             self.__desc_tag_list_view.addItem(QtGui.QListWidgetItem(new_tag))
+            self.__desc_tag_list_view.sortItems()
             
     def __rename_cat_tag_btn_clicked(self):
         """
@@ -675,6 +676,7 @@ class TagAdminView(MultipleStorePreferenceView):
             self.emit(QtCore.SIGNAL("rename_cat_tag"), self.__selected_cat_tag.text(), new_tag)
             self.__cat_tag_list_view.takeItem(self.__cat_tag_list_view.row(self.__selected_cat_tag))
             self.__cat_tag_list_view.addItem(QtGui.QListWidgetItem(new_tag))
+            self.__cat_tag_list_view.sortItems()
     
     def __show_renaming_dialog(self, old_value):
         """
