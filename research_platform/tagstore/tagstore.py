@@ -26,7 +26,7 @@ from tscore.store import Store
 from tscore.enums import EFileEvent, EDateStampFormat
 from tscore.tsconstants import TsConstants
 from tscore.exceptions import StoreTaggingError
-from administration import Administration
+from tagstore_manager import Administration
 
     
 class Tagstore(QtCore.QObject):

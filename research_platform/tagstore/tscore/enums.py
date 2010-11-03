@@ -40,6 +40,9 @@ EFileEvent = Enum(["ADDED",
 EFileType = Enum(["FILE",
                   "DIRECTORY"])
 
+EConflictType = Enum(["FILE",
+                  "TAG"])
+
 ECategorySetting = Enum(["DISABLED",
                          "ENABLED",
                          "ENABLED_ONLY_PERSONAL",

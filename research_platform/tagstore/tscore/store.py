@@ -21,9 +21,10 @@ import logging.handlers
 from PyQt4 import QtCore
 from tsos.filesystem import FileSystemWrapper
 from tscore.tagwrapper import TagWrapper
-from tscore.enums import EFileType, EFileEvent, EOS
+from tscore.enums import EFileType, EFileEvent, EOS, EConflictType
 from tscore.pendingchanges import PendingChanges
-from tscore.exceptions import StoreInitError, StoreTaggingError
+from tscore.exceptions import StoreInitError, StoreTaggingError,\
+    NameInConflictException
 from tscore.configwrapper import ConfigWrapper
 from tscore.vocabularywrapper import VocabularyWrapper
 #from tscore.tsconstants import TsConstants
@@ -479,11 +480,11 @@ class Store(QtCore.QObject):
         tag_list = list(set(describing_tag_list) | set(categorising_tag_list))
         
         if file_name in existing_tags:
-            return True
+            return [file_name, EConflictType.FILE]
         for tag in tag_list:
             if tag in existing_files:
-                return True
-        return False
+                return [tag, EConflictType.TAG]
+        return ""
          
     def add_item_with_tags(self, file_name, describing_tag_list, categorising_tag_list=None):
         """
@@ -496,8 +497,9 @@ class Store(QtCore.QObject):
         if self.__file_system.inode_shortage(self.__config_path):
             raise Exception, self.trUtf8("Number of free inodes < 10%! Tagging has not been carried out!")
         ## throw error if item-names and tag-names (new and existing) are in conflict
-        if self.__name_in_conflict(file_name, describing_tag_list, categorising_tag_list):
-            raise Exception, self.trUtf8("Entered item or tag names are in conflict with existing denotation")
+        conflict = self.__name_in_conflict(file_name, describing_tag_list, categorising_tag_list)
+        if conflict[0] != "":
+            raise NameInConflictException(conflict[0], conflict[1])
         ## ignore multiple tags
         describing_tags = list(set(describing_tag_list))
         categorising_tags = []

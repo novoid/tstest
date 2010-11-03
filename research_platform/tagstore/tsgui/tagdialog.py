@@ -19,8 +19,6 @@ import tsresources.resources
 from tagcompleter import TagCompleterWidget
 from tscore.tsconstants import TsConstants
 from tscore.enums import ECategorySetting, ETagErrorEnum
-from admindialog import StorePreferencesController
-from administration import Administration
 from tsgui.tagdialogstate import TagDialogState
 from tscore.specialcharhelper import SpecialCharHelper
 

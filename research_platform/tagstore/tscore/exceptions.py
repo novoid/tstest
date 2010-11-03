@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from tscore.enums import EConflictType
 
 ## this file is part of tagstore, an alternative way of storing and retrieving information
 ## Copyright (C) 2010  Karl Voit, Christoph Friedl, Wolfgang Wintersteller
@@ -28,6 +29,29 @@ custom error class to throw store specific error messages during setting/updatin
 this exception is thrown:
 - if a conflict occurs between tag names and link names (file names)
 """
+
+class LowInodesException(Exception):
+    """
+    use this exception if the number of free inodes has exceeded the defined threshold
+    """
+    def __init__(self):
+        pass
+
+class NameInConflictException(Exception):
+    """
+    this exception is thrown, when a tag has the same name as an already existing item
+    """
+    def __init__(self, name, conflict_type):
+        self.name = name
+        self.conflict_type = conflict_type
+    
+    def __str__(self):
+        if self.conflict_type == EConflictType.FILE:
+            return "The filename - %s - is in conflict with an already existing tag" % self.name
+        elif self.conflict_type == EConflictType.TAG:
+            return "The tag - %s - is in conflict with an already existing file" % self.name
+        else:
+            return "A tag or item is in conflict with an already existing tag/item"
 
 
 ## end
