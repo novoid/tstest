@@ -1004,6 +1004,7 @@ class StorePreferencesController(QtCore.QObject):
         self.__store_dict = {}
         self._store_list = None
         self.__first_time_init = True
+        self.__first_start = False
         
         self.TAB_NAME_STORE = self.trUtf8("Store Management")
         self.TAB_NAME_DATESTAMP = self.trUtf8("Datestamps")
@@ -1132,7 +1133,7 @@ class StorePreferencesController(QtCore.QObject):
         use this method to register a new preference controller
         it will be added to the tablist and to the internal controller_list too
         """
-        self.__preference_controller_list[title] = controller
+        self.__preference_controller_list[str(title)] = controller
         ## add the preference tabs to the preferences window        
         self.__dialog.add_preference_tab(controller.get_view(), title)
 
@@ -1186,7 +1187,18 @@ class StorePreferencesController(QtCore.QObject):
         method to programmatically set the selected tab
         """
         if tab_name is not None and tab_name != "":
-            self.__dialog.select_preference_tab(self.__preference_controller_list[tab_name].get_view())
+            self.__dialog.select_preference_tab(self.__preference_controller_list[str(tab_name)].get_view())
+            
+    def select_store_admin_tab(self):
+        self.select_tab(self.TAB_NAME_STORE)
+    
+    def set_first_start(self, first_start):
+        self.__first_start = first_start
+        if first_start:
+            self.__main_config.set_first_start(False)
+            self.select_store_admin_tab()
+            ## TODO: show wizard ...
+    
     def set_parent(self, parent):
 #        self.__dialog.setParent(parent)
         self.setParent(parent)

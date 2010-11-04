@@ -47,6 +47,8 @@ class TsConstants(object):
     SETTING_CATEGORY_VOCABULARY = "category_vocabulary"
     SETTING_DESC_TAGS = "describing_tags"
     SETTING_CAT_TAGS = "categorizing_tags"
+    SETTING_FIRST_START = "first_start"
+    SETTING_SHOW_WIZARD = "show_wizard"
     
     SETTING_EXPIRY_PREFIX = "expiry_prefix"
     
@@ -63,6 +65,8 @@ class TsConstants(object):
     DEFAULT_MAX_TAGS = 3
     DEFAULT_TAG_SEPARATOR = ","
     DEFAULT_SUPPORTED_LANGUAGES = ["en", "de"]
+    DEFAULT_FIRST_START = "true"
+    DEFAULT_SHOW_WIZARD = "true"
     
     def __init__(self):
         pass

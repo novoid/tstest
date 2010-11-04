@@ -230,6 +230,32 @@ class ConfigWrapper(QtCore.QObject):
             return 0
         return int(number.strip())
         
+    def get_show_wizard(self):
+        value = self.__get_setting(TsConstants.SETTING_SHOW_WIZARD)
+        if value == "true":
+            return True
+        return False
+    
+    def set_show_wizard(self, show):
+        """
+        set to false if the wizard should not be shown anymore on activation of the tag dialog
+        set to "true" if you want to re-activate the wizard
+        """
+        self.__put_setting(TsConstants.SETTING_SHOW_WIZARD, show)
+
+    def get_first_start(self):
+        value = self.__get_setting(TsConstants.SETTING_FIRST_START)
+        if value == "true":
+            return True
+        return False
+    
+    def set_first_start(self, first_start):
+        """
+        set to false after the first start of tagstore
+        set to "true" if you want to re-activate the first-start behaviour
+        """
+        self.__put_setting(TsConstants.SETTING_FIRST_START, first_start)
+
     def get_num_popular_tags(self):
         """
         returns the number of popular tags shown to the user
@@ -238,6 +264,7 @@ class ConfigWrapper(QtCore.QObject):
         if number == "":
             return 0
         return int(number.strip())
+    
         
     def get_max_tags(self):
         """

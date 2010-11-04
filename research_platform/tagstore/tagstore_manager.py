@@ -93,6 +93,7 @@ class Administration(QtCore.QObject):
             self.connect(self.__admin_dialog, QtCore.SIGNAL("rename_cat_tag"), self.__handle_tag_rename)
         self.__admin_dialog.set_main_config(self.__main_config)
         
+        
         self.__prepare_store_params()
         self.__create_stores()
         
@@ -106,6 +107,8 @@ class Administration(QtCore.QObject):
             tmp_store_list.append(current_store_item)
         
         self.__admin_dialog.set_store_list(tmp_store_list)
+        if self.__main_config.get_first_start():
+            self.__admin_dialog.set_first_start(True)
     
     def __handle_tag_rename(self, old_tag, new_tag, store_name):
         store = self.__store_dict[store_name]
