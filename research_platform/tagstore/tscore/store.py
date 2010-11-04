@@ -24,9 +24,10 @@ from tscore.tagwrapper import TagWrapper
 from tscore.enums import EFileType, EFileEvent, EOS, EConflictType
 from tscore.pendingchanges import PendingChanges
 from tscore.exceptions import StoreInitError, StoreTaggingError,\
-    NameInConflictException
+    NameInConflictException, InodeShortageException
 from tscore.configwrapper import ConfigWrapper
 from tscore.vocabularywrapper import VocabularyWrapper
+from tscore.tsconstants import TsConstants
 #from tscore.tsconstants import TsConstants
 
 class Store(QtCore.QObject):
@@ -495,7 +496,7 @@ class Store(QtCore.QObject):
         
         ## throw error if inodes run short
         if self.__file_system.inode_shortage(self.__config_path):
-            raise Exception, self.trUtf8("Number of free inodes < 10%! Tagging has not been carried out!")
+            raise InodeShortageException(TsConstants.INODE_THRESHOLD)
         ## throw error if item-names and tag-names (new and existing) are in conflict
         conflict = self.__name_in_conflict(file_name, describing_tag_list, categorising_tag_list)
         if conflict[0] != "":

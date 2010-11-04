@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from tscore.enums import EConflictType
 
 ## this file is part of tagstore, an alternative way of storing and retrieving information
 ## Copyright (C) 2010  Karl Voit, Christoph Friedl, Wolfgang Wintersteller
@@ -14,7 +13,8 @@ from tscore.enums import EConflictType
 ##
 ## You should have received a copy of the GNU General Public License along with this program;
 ## if not, see <http://www.gnu.org/licenses/>.
-
+from tscore.enums import EConflictType
+from PyQt4 import QtCore
 
 class StoreInitError(Exception): pass
 """
@@ -30,12 +30,18 @@ this exception is thrown:
 - if a conflict occurs between tag names and link names (file names)
 """
 
-class LowInodesException(Exception):
+class InodeShortageException(Exception):
     """
     use this exception if the number of free inodes has exceeded the defined threshold
     """
-    def __init__(self):
-        pass
+    def __init__(self, threshold):
+        self.threshold = threshold
+        
+    def __str__(self):
+        return "The Number of free inodes is below the threshld of %s%" % self.threshold
+    
+    def get_threshold(self):
+        return self.threshold
 
 class NameInConflictException(Exception):
     """
@@ -52,6 +58,11 @@ class NameInConflictException(Exception):
             return "The tag - %s - is in conflict with an already existing file" % self.name
         else:
             return "A tag or item is in conflict with an already existing tag/item"
+        
+    def get_conflict_type(self):
+        return self.conflict_type
+    def get_conflicted_name(self):
+        return self.name
 
 
 ## end

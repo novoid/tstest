@@ -25,6 +25,8 @@ class TsConstants(object):
     LOG_FILENAME = "tagstore.log"
     LOG_BACKUP_COUNT = 5
     LOG_FILESIZE = 524288
+    ## the percentage of inodes which must be left free 
+    INODE_THRESHOLD = 10
     
     CONFIG_PATH = "./tsresources/conf/tagstore.cfg"
 

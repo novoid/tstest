@@ -49,9 +49,9 @@ class FileSystem():
         if len(os.listdir(parent_path)) == 0: #empty
             os.rmdir(parent_path)        
         
-    def inode_shortage(self, file_path):
+    def inode_shortage(self, file_path, threshold_pct):
         """
-        returns True (on Linux), if the free number of inodes (non-root) < 10% of all available
+        returns True (on Linux), if the free number of inodes (non-root) < threshold_pct of all available
         Caution: Windows does not support this functionality, that's why it returns False in any case
         """
         return False

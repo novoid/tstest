@@ -23,9 +23,10 @@ from PyQt4 import QtCore, QtGui
 from tsgui.tagdialog import TagDialogController
 from tscore.configwrapper import ConfigWrapper
 from tscore.store import Store
-from tscore.enums import EFileEvent, EDateStampFormat
+from tscore.enums import EFileEvent, EDateStampFormat, EConflictType
 from tscore.tsconstants import TsConstants
-from tscore.exceptions import StoreTaggingError
+from tscore.exceptions import StoreTaggingError, NameInConflictException,\
+    InodeShortageException
 from tagstore_manager import Administration
 
     
@@ -355,10 +356,22 @@ class Tagstore(QtCore.QObject):
             ## 1. write the data to the store-file
             store.add_item_with_tags(item_name, tag_list, category_list)
             self.__log.debug("added item %s to store-file", item_name)
-        except (Exception), e:
-            #TODO: provide a more specific error msg
-            dialog_controller.show_message("An error occurred while tagging")
-            raise e
+        except NameInConflictException, e:
+            c_type = e.get_conflict_type()
+            c_name = e.get_conflicted_name()
+            if c_type == EConflictType.FILE:
+                dialog_controller.show_message(self.trUtf8("The filename - %s - is in conflict with an already existing tag" % c_name))
+            elif c_type == EConflictType.TAG:
+                dialog_controller.show_message(self.trUtf8("The tag - %s - is in conflict with an already existing file" % c_name))
+            else:
+                self.trUtf8("A tag or item is in conflict with an already existing tag/item")
+            #raise
+        except InodeShortageException, e:
+            dialog_controller.show_message(self.trUtf8("The Number of free inodes is below the threshld of %s%" % e.get_threshold()))
+            #raise
+        except Exception, e:
+            dialog_controller.show_message(self.trUtf8("An error occurred while tagging"))
+            raise
         else:
             ## 2 remove the item in the gui
             dialog_controller.remove_item(item_name)

@@ -16,6 +16,7 @@
 
 import os
 from tscore.enums import EOS
+from tscore.tsconstants import TsConstants
 
 class FileSystem():
 
@@ -52,15 +53,15 @@ class FileSystem():
         if len(os.listdir(parent_path)) == 0: #empty
             os.rmdir(parent_path)        
         
-    def inode_shortage(self, file_path):
+    def inode_shortage(self, file_path, threshold_pct):
         """
-        returns True, if the free number of inodes (non-root) < 10% of all available
+        returns True, if the free number of inodes (non-root) < threshold_pct of all available
         """
         info = os.statvfs(file_path)
         max = int(info.f_files)
         free = int(info.f_ffree)
         
-        if free*10 >= max:
+        if free*threshold_pct >= max:
             return False
         return True
         

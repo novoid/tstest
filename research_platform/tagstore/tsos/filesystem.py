@@ -17,6 +17,7 @@
 import sys
 import os
 import logging.handlers
+from tscore.tsconstants import TsConstants
 if sys.platform[:3] == "win":
     from windows import FileSystem
 elif sys.platform == "darwin":
@@ -212,11 +213,11 @@ class FileSystemWrapper():
         
     def inode_shortage(self, file_path):
         """
-        returns True, if the free number of inodes (non-root) < 10% of all available
+        returns True, if the free number of inodes (non-root) < TsConstants.INODE_THRESHOLD (10%) of all available
         Caution: Windows does not support this functionality, that's why it returns False in any case
         """
         file_path = unicode(file_path)
-        return self.file_system.inode_shortage(file_path)
+        return self.file_system.inode_shortage(file_path, TsConstants.INODE_THRESHOLD)
         
         
 ## end
