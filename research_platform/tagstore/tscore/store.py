@@ -485,7 +485,7 @@ class Store(QtCore.QObject):
         for tag in tag_list:
             if tag in existing_files:
                 return [tag, EConflictType.TAG]
-        return ""
+        return ["", None]
          
     def add_item_with_tags(self, file_name, describing_tag_list, categorising_tag_list=None):
         """

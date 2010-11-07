@@ -14,6 +14,7 @@
 ## You should have received a copy of the GNU General Public License along with this program;
 ## if not, see <http://www.gnu.org/licenses/>.
 import logging
+import re
 from PyQt4 import QtCore, QtGui
 import tsresources.resources
 from tagcompleter import TagCompleterWidget
@@ -605,9 +606,14 @@ class TagDialog(QtGui.QDialog):
     def show_datestamp(self, show):
         self.__show_datestamp = show
         self.__tag_line_widget.show_datestamp(show)
+        self.__cat_line_widget.show_datestamp(show)
+        
+    def is_show_datestamp(self):
+        return self.__show_datestamp
         
     def set_datestamp_format(self, format):
         self.__tag_line_widget.set_datestamp_format(format)
+        self.__cat_line_widget.set_datestamp_format(format)
         
     def show_tooltip(self, message, parent=None):
         """
@@ -707,6 +713,7 @@ class TagDialogController(QtCore.QObject):
         category_list = self.__tag_dialog.get_category_list()
         category_mandatory = self.__tag_dialog.is_category_mandatory()
         category_setting = self.__tag_dialog.is_category_enabled()
+        show_datestamp = self.__tag_dialog.is_show_datestamp()
 
         if (tag_list is None or len(tag_list) == 0) and category_setting != ECategorySetting.ENABLED_SINGLE_CONTROLLED_TAGLINE:
             self.__tag_dialog.set_no_tag_entered_info(self.trUtf8("Please enter at least one tag for the selected item"))
@@ -733,8 +740,22 @@ class TagDialogController(QtCore.QObject):
             if completion_list is None:
                 return
             completion_set = set(completion_list)
-            #TODO: maybe just take the intersection
-            if not category_list.issubset(completion_set):
+            ## if datestamps are allowed - remove the datestamp from the list
+            ## before checking the tags
+            if show_datestamp:
+                ## temporarily store all used datestamps in this set
+                datestamp_set = set()
+                
+                for tag in category_list:
+                    if SpecialCharHelper.is_datestamp(tag):
+                        ## union of two sets
+                        datestamp_set |= set([tag])
+                ## delete the datestamps from the list
+                without_ds_list = category_list.difference(datestamp_set)
+                #s1 = set(["2010-01","catschas"])
+                #s2 = set(["2010-01"])
+                
+            if not without_ds_list.issubset(completion_set):
                 self.__tag_dialog.set_not_suitable_categories_entered()
                 return
         if SpecialCharHelper.contains_special_chars(category_list):

@@ -17,7 +17,7 @@
 '''
 Created on Oct 28, 2010
 '''
-
+import re
 
 
 class SpecialCharHelper(object):
@@ -38,6 +38,7 @@ class SpecialCharHelper(object):
         tags are not allowed to be named like any of these strings
         """
         return unicode(SpecialCharHelper.DEFAULT_NOT_ALLOWED_STRINGS.split(","))
+    
     @staticmethod
     def get_not_allowed_chars_list():
         """
@@ -67,5 +68,13 @@ class SpecialCharHelper(object):
             if tag in string_list:
                 return tag
         return ""
+
+    @staticmethod
+    def is_datestamp(string_to_check):
+        match = re.match("^(([0-9]{4})-[0-1][0-9](-[0-3][0-9])?)$", string_to_check)
+        #match = re.match("([0-9]{4})(-)([01,02,03,04,05,06,07,08,09,10,11,12]{1})((-)([0-3]{1})([0-9]{1})?)", string_to_check)
+        if match:
+            return True
+        return False
 
 ## end     

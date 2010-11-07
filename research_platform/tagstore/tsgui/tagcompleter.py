@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from tscore.specialcharhelper import SpecialCharHelper
 
 # -*- coding: iso-8859-15 -*-
 ## this file is part of tagstore, an alternative way of storing and retrieving information
@@ -29,6 +30,7 @@ copies or substantial portions of the Software.
 '''
 import time
 import logging
+import re
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import Qt, QObject, SIGNAL
 from PyQt4.QtGui import QLineEdit, QCompleter, QStringListModel, QWidget
@@ -160,16 +162,20 @@ class TagCompleterWidget(QObject):
         self.__completer.setModel(model)
         self.__completer.setCompletionPrefix(completion_prefix)
         
-        
         if self.__restricted_vocabulary and self.__completer.completionCount() == 0:
             if completion_prefix is not None and len(completion_prefix) > 0 and completion_prefix != "" and completion_prefix != self.__activated_text:
-                self.emit(QtCore.SIGNAL("no_completion_found"), True)
-                self.__check_vocabulary = True
+                ## just send the signal if the tag is no datestamp
+                if not SpecialCharHelper.is_datestamp(completion_prefix):
+                    self.emit(QtCore.SIGNAL("no_completion_found"), True)
+                    self.__check_vocabulary = True
+                else:
+                    ## in this case a proper datestamo has been found ... so this is allowed
+                    self.emit(QtCore.SIGNAL("no_completion_found"), False)
+                    self.__check_vocabulary = False
         elif self.__check_vocabulary:
             if self.__completer.completionCount() > 0:
                 self.emit(QtCore.SIGNAL("no_completion_found"), False)
                 self.__check_vocabulary = False
-                
             
         if completion_prefix.strip() != '':
             ## use the default completion algorithm
