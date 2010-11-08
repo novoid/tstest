@@ -264,11 +264,12 @@ class Store(QtCore.QObject):
         expiry_date_files = self.__tag_wrapper.get_files_with_expiry_tags(self.__expiry_prefix)
         now = datetime.datetime.now()
         for file in expiry_date_files:
+            file_extension = "." + file["filename"].split(".")[-1]
+            file_name = file["filename"][:len(file_extension)]
             if int(file["exp_year"]) < now.year or (int(file["exp_year"]) == now.year and int(file["exp_month"]) < now.month):
-                #self.__file_system.move_file()
-                new_filename = file["filename"][:-4] + " - " + "; ".join(file["category"]) + " - " + "; ".join(file["tags"]) + file["filename"][-4:]
+                new_filename = file_name + " - " + "; ".join(file["category"]) + " - " + "; ".join(file["tags"]) + file_extension
                 self.__file_system.rename_file(self.__watcher_path + "/" + file["filename"], self.__path + "/" + self.__expiry_dir_name + "/" + new_filename)
-                
+                      
     def __handle_file_changes(self, path):
         """
         handles the stores file and dir changes to find out if a file/directory was added, renamed, removed
