@@ -314,7 +314,7 @@ class Store(QtCore.QObject):
         """
         returns the items type to be stored in pending_changes
         """
-        if self.__file_system.is_directory(self.__watcher_path + "/" + unicode(item):
+        if self.__file_system.is_directory(self.__watcher_path + "/" + unicode(item)):
             return EFileType.DIRECTORY
         return EFileType.FILE
     
