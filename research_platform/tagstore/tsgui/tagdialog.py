@@ -396,7 +396,7 @@ class TagDialog(QtGui.QDialog):
         #self.__category_line.setText(QtGui.QApplication.translate("tagstore", "categorize ...", None, QtGui.QApplication.UnicodeUTF8))
         self.__help_button.setToolTip(QtGui.QApplication.translate("tagstore", "Help", None, QtGui.QApplication.UnicodeUTF8))
         self.__property_button.setToolTip(QtGui.QApplication.translate("tagstore", "Set application properties", None, QtGui.QApplication.UnicodeUTF8))
-        self.__property_button.setText(QtGui.QApplication.translate("tagstore", "Preferences ...", None, QtGui.QApplication.UnicodeUTF8))
+        self.__property_button.setText(QtGui.QApplication.translate("tagstore", "Manager ...", None, QtGui.QApplication.UnicodeUTF8))
         self.__close_button.setToolTip(QtGui.QApplication.translate("tagstore", "Click this button if you want to tag the currently displayed items later on.",
                                                                     None, QtGui.QApplication.UnicodeUTF8))
         self.__close_button.setText(QtGui.QApplication.translate("tagstore", "Postpone", None, QtGui.QApplication.UnicodeUTF8))

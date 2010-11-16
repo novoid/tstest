@@ -155,6 +155,8 @@ class Store(QtCore.QObject):
         self.__vocabulary_wrapper = VocabularyWrapper(self.__vocabulary_path)
         self.connect(self.__vocabulary_wrapper, QtCore.SIGNAL("changed"), self.__handle_vocabulary_changed)
         self.__store_config_wrapper = ConfigWrapper(self.__config_path)
+        # TODO: connect the store_config to the "changed" signal ... re-emit to the tagstore with store_id ...
+        # tagstore then should update the tagdialogs
         
         self.__watcher.addPath(self.__parent_path)
         self.__watcher.addPath(self.__watcher_path)
