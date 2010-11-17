@@ -268,7 +268,7 @@ class TagDialog(QtGui.QDialog):
         self.__tag_state.set_no_category_entered(False)
         
     def set_not_suitable_categories_entered(self):
-        self.__set_category_info(self.trUtf8("Please use just the suggested categories"))
+        self.__set_category_info(self.trUtf8("Please use only predefined categories"))
         self.__tag_state.set_not_allowed_category(True)
     
     def remove_not_suitable_categories_entered(self):
@@ -279,7 +279,7 @@ class TagDialog(QtGui.QDialog):
         self.__set_tag_info(self.trUtf8("At least one tag contains a special character, which is not allowed to be used"))
     
     def set_not_allowed_string_in_cat_tagline(self):
-        self.__set_tag_info(self.trUtf8("at least one tag contains a special character"))
+        self.__set_tag_info(self.trUtf8("At least one tag contains a special character"))
         self.__tag_state.set_not_allowed_category(True)
 
     def set_error_occured(self, error_enum):

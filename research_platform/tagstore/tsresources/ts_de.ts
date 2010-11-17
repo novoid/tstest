@@ -6,7 +6,7 @@
     <message>
         <location filename="../tsgui/admindialog.py" line="758"/>
         <source>You can enable datestamps to be provided automatically at the tagging dialog</source>
-        <translation>Falls sie Datums-Einträge aktivieren, werden diese im Tagging-Dialog automatisch hinzu gefügt</translation>
+        <translation>Falls sie Datums-Einträge aktivieren, werden diese im Tagging-Dialog automatisch hinzugefügt</translation>
     </message>
     <message>
         <location filename="../tsgui/admindialog.py" line="762"/>
@@ -29,7 +29,7 @@
     <message>
         <location filename="../tsgui/admindialog.py" line="922"/>
         <source>Please provide a prefix, when this setting is enabled</source>
-        <translation>Bitte geben Sie einen Präfixein, falls diese Funktion aktiviert ist</translation>
+        <translation>Bitte geben Sie einen Präfix ein, falls diese Funktion aktiviert ist</translation>
     </message>
 </context>
 <context>
@@ -37,7 +37,7 @@
     <message>
         <location filename="../tsgui/admindialog.py" line="830"/>
         <source>Define a prefix for giving files an expiry date.</source>
-        <translation>Geben Sie bitte einen Präfix für das setzen eines Aublauf-Datums ein.</translation>
+        <translation>Geben Sie bitte einen Präfix für das Setzen eines Aublauf-Datums ein.</translation>
     </message>
     <message>
         <location filename="../tsgui/admindialog.py" line="836"/>
@@ -75,7 +75,7 @@
     <message>
         <location filename="../tscore/store.py" line="96"/>
         <source>The specified store directory does not exist!</source>
-        <translation>Das angegebene Store- Verzeichnis existiert nicht!</translation>
+        <translation>Das angegebene Store-Verzeichnis existiert nicht!</translation>
     </message>
     <message>
         <location filename="../tscore/store.py" line="68"/>
@@ -103,7 +103,7 @@
     <message>
         <location filename="../tsgui/admindialog.py" line="345"/>
         <source>Select a directory for the new tagstore</source>
-        <translation>Wähle ein Verzeichnis fü den neuen tagstore</translation>
+        <translation>Wähle ein Verzeichnis für den neuen tagstore</translation>
     </message>
     <message>
         <location filename="../tsgui/admindialog.py" line="358"/>
@@ -113,7 +113,7 @@
     <message>
         <location filename="../tsgui/admindialog.py" line="366"/>
         <source>Rebuild Store</source>
-        <translation>Store- Struktur  neu generieren</translation>
+        <translation>Store-Struktur neu generieren</translation>
     </message>
     <message>
         <location filename="../tsgui/admindialog.py" line="366"/>
@@ -147,7 +147,7 @@
     <message>
         <location filename="../tsgui/admindialog.py" line="261"/>
         <source>Manage your tagstore directories. Build new ones, rename them or delete ...</source>
-        <translation>Verwalten Sie Ihre tagstore- Verzeichnisse. Neue erstellen, umbenennen, löschen, ...</translation>
+        <translation>Verwalten Sie Ihre tagstore-Verzeichnisse. Neue erstellen, umbenennen, löschen, ...</translation>
     </message>
     <message>
         <location filename="../tsgui/admindialog.py" line="271"/>
@@ -175,22 +175,22 @@
     <message>
         <location filename="../tsgui/admindialog.py" line="945"/>
         <source>Store Management</source>
-        <translation>tagstore Verwaltung</translation>
+        <translation>Store-Verwaltung</translation>
     </message>
     <message>
         <location filename="../tsgui/admindialog.py" line="946"/>
         <source>Datestamps</source>
-        <translation>Datums-Angabe</translation>
+        <translation>Datumsstempel</translation>
     </message>
     <message>
         <location filename="../tsgui/admindialog.py" line="947"/>
         <source>Expiry Date</source>
-        <translation>Ablauf-Datum</translation>
+        <translation>Ablaufdatum</translation>
     </message>
     <message>
         <location filename="../tsgui/admindialog.py" line="948"/>
         <source>Vocabulary</source>
-        <translation>Wörterbuch</translation>
+        <translation>Woerterverzeichnis</translation>
     </message>
     <message>
         <location filename="../tsgui/admindialog.py" line="949"/>
@@ -231,7 +231,7 @@
     <message>
         <location filename="../tsgui/admindialog.py" line="619"/>
         <source>Categorizing Tags</source>
-        <translation>Kategorien- Tags</translation>
+        <translation>Kategorie-Tags</translation>
     </message>
     <message>
         <location filename="../tsgui/admindialog.py" line="657"/>
@@ -258,8 +258,8 @@
     </message>
     <message>
         <location filename="../tsgui/tagdialog.py" line="271"/>
-        <source>Please use just the suggested categories</source>
-        <translation>Bitte verwenden Sie ausschließlich die vorgeschlagenen Kategorien-Tags</translation>
+        <source>Please use only predefined categories</source>
+        <translation>Bitte verwenden Sie nur vorgeschlagene Kategorien</translation>
     </message>
     <message>
         <location filename="../tsgui/tagdialog.py" line="279"/>
@@ -268,7 +268,7 @@
     </message>
     <message>
         <location filename="../tsgui/tagdialog.py" line="282"/>
-        <source>at least one tag contains a special character</source>
+        <source>At least one tag contains a special character</source>
         <translation>Zumindest ein Tag beinhaltet ein Sonderzeichen das nicht unterstützt wird</translation>
     </message>
     <message>
@@ -284,7 +284,7 @@
     <message>
         <location filename="../tsgui/tagdialog.py" line="304"/>
         <source>At least one categorizing tag contains a special character, which is not allowed to be used</source>
-        <translation>In den Kategorien- Tags verwenden Sie zumindest ein nicht erlaubtes Sonderzeichen</translation>
+        <translation>In den Kategorie-Tags verwenden Sie zumindest ein nicht erlaubtes Sonderzeichen</translation>
     </message>
     <message>
         <location filename="../tsgui/tagdialog.py" line="306"/>
@@ -343,7 +343,7 @@
     <message>
         <location filename="../tsgui/admindialog.py" line="397"/>
         <source>Define your own vocabulary to be used as categorizing tags</source>
-        <translation>Erstellen Sie Ihr eigenes Wörterbuch für Ihre Kategorien-Tags</translation>
+        <translation>Erstellen Sie Ihr eigenes Wörterbuch für Ihre Kategorie-Tags</translation>
     </message>
     <message>
         <location filename="../tsgui/admindialog.py" line="403"/>
@@ -383,7 +383,7 @@
     <message>
         <location filename="../tsgui/admindialog.py" line="488"/>
         <source>Add new vocabulary</source>
-        <translation>Wörterbuch- Eintrag hinzufügen</translation>
+        <translation>Wörterbuch-Eintrag hinzufügen</translation>
     </message>
     <message>
         <location filename="../tsgui/admindialog.py" line="488"/>
@@ -406,7 +406,7 @@
     <message>
         <location filename="../tsgui/tagdialog.py" line="398"/>
         <source>Set application properties</source>
-        <translation>Setzen der Programm- Eigenschaften</translation>
+        <translation>Setzen der Programm-Eigenschaften</translation>
     </message>
     <message>
         <location filename="../tsgui/tagdialog.py" line="399"/>
