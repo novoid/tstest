@@ -55,10 +55,8 @@ class TagCompleterWidget(QObject):
         ## flag, if the line should be checked of emptiness
         self.__check_not_empty = False
         self.__check_tag_limit = False
-        self.__check_text_in_list = False
         
         self.__restricted_vocabulary = False
-        self.__check_vocabulary = False
         
         ## the latest activated suggestion 
         self.__activated_text = None
@@ -130,13 +128,13 @@ class TagCompleterWidget(QObject):
         ## remove whitespace and filter out duplicates by using a set
         tag_set = set([])
         for tag in all_text.split(self.__tag_separator):
-            tag_set.add(tag.strip())
-
+            strip_tag = tag.strip()
+            if strip_tag != "":
+                tag_set.add(strip_tag)
+        
         ## do not proceed if the max tag count is reached
         if len(tag_set) > self.__max_tags:
             self.emit(QtCore.SIGNAL("tag_limit_reached"), True)
-            max_index = text.rfind(self.__tag_separator)
-            #self.__tag_line.setText(all_text[:max_index])
             self.__check_tag_limit = True
             return
         else:
@@ -144,42 +142,68 @@ class TagCompleterWidget(QObject):
                 self.emit(QtCore.SIGNAL("tag_limit_reached"), False)
                 self.__check_tag_limit = False
         
-        text_tags = []
-        for tag in tag_set:
-            t1 = unicode(tag).strip()
-            if t1 != "":
-                text_tags.append(tag)
-        text_tags = list(set(text_tags))
+        #text_tags = []
+        #for tag in tag_set:
+        #    t1 = unicode(tag).strip()
+        #    if t1 != "":
+        #        text_tags.append(tag)
+        #text_tags = list(set(text_tags))
         prefix = text.split(self.__tag_separator)[-1].strip()
-        self.__update_completer(text_tags, prefix)
+        self.__update_completer(tag_set, prefix)
     
-    def __update_completer(self, text_tags, completion_prefix):
+    def __update_completer(self, tag_set, completion_prefix):
         if self.__tag_list is None:
             return
-        tags = list(set(self.__tag_list).difference(text_tags))
+        #tags = list(set(self.__tag_list).difference(tag_set))
+        tags = list(self.__ tag_list)
 
         model = QStringListModel(tags, self)
         self.__completer.setModel(model)
         self.__completer.setCompletionPrefix(completion_prefix)
         
-        if self.__restricted_vocabulary and self.__completer.completionCount() == 0:
-            if completion_prefix is not None and len(completion_prefix) > 0 and completion_prefix != "" and completion_prefix != self.__activated_text:
-                ## just send the signal if the tag is no datestamp
-                if not SpecialCharHelper.is_datestamp(completion_prefix):
-                    self.emit(QtCore.SIGNAL("no_completion_found"), True)
-                    self.__check_vocabulary = True
-                else:
-                    ## in this case a proper datestamo has been found ... so this is allowed
-                    self.emit(QtCore.SIGNAL("no_completion_found"), False)
-                    self.__check_vocabulary = False
-        elif self.__check_vocabulary:
-            if self.__completer.completionCount() > 0:
-                self.emit(QtCore.SIGNAL("no_completion_found"), False)
-                self.__check_vocabulary = False
+        if self.__restricted_vocabulary:
+            self.__check_vocabulary(tag_set, completion_prefix)
             
         if completion_prefix.strip() != '':
             ## use the default completion algorithm
             self.__completer.complete()
+    
+    def __check_vocabulary(self, tag_set, completion_prefix):
+        
+        not_allowed_tags_count = 0
+        no_completion_found = False
+        stripped_text = str(self.__tag_line.text()).strip()
+        ##when a tag separator is on the last position, there should have been entered a new tag
+        ##check this tag for its correctness
+        if len(stripped_text) > 0:
+            ##check if all written tags are allowed
+            for tag in tag_set:
+                if not SpecialCharHelper.is_datestamp(tag) and tag != "":
+                    if unicode(tag) not in self.__tag_list:
+                        not_allowed_tags_count += 1
+                            
+        if self.__restricted_vocabulary and self.__completer.completionCount() == 0:
+            ## additionally check if the prefix equals a tag from the suggestion list
+            ## this has to be done, because we do not get a completionCount > 0 if the prefix equals a given tag 
+            #if completion_prefix not in self.__tag_list:
+            if completion_prefix is not None and len(completion_prefix) > 0 and completion_prefix.strip() != "":
+                ## just send the signal if the tag is no datestamp
+                if not SpecialCharHelper.is_datestamp(completion_prefix):
+                    no_completion_found = True
+
+        ## there are tags which are not in the allowed tag_list 
+        if not_allowed_tags_count > 0:
+            ## it could be the case, that the user is still typing an allowed tag
+            ## so check, if the completer has a possible completion
+            ## if not -> send the signal 
+            if no_completion_found:
+                self.emit(QtCore.SIGNAL("no_completion_found"), True)
+        ## everytime there is no completion found, emit the signal
+        elif no_completion_found:
+            self.emit(QtCore.SIGNAL("no_completion_found"), True)
+        ## in this case everything is fine
+        else:
+            self.emit(QtCore.SIGNAL("no_completion_found"), False)
     
     def __text_activated(self, text):
         

@@ -210,6 +210,9 @@ class Tagstore(QtCore.QObject):
 
                 self.__log.debug("init store: %s", store.get_name())
                 
+#            if len(self.STORES) == len(config_store_items):
+
+#               for store in self.STORES:
                 ## create a dialogcontroller for each store ...
                 ## can be accessed by its ID later on
                 tmp_dialog = TagDialogController(store.get_name(), self.MAX_TAGS, self.TAG_SEPERATOR)
@@ -237,6 +240,8 @@ class Tagstore(QtCore.QObject):
                 ## call init to initialize new store instance (after adding the event handler)
                 ## necessary if store was renamed during tagstore was not running (to write config)
                 store.init()
+                
+                    
 
     def __handle_vocabulary_changed(self, store):
         self.__set_tag_information_to_dialog(store)
