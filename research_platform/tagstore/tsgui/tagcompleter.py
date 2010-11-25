@@ -142,12 +142,6 @@ class TagCompleterWidget(QObject):
                 self.emit(QtCore.SIGNAL("tag_limit_reached"), False)
                 self.__check_tag_limit = False
         
-        #text_tags = []
-        #for tag in tag_set:
-        #    t1 = unicode(tag).strip()
-        #    if t1 != "":
-        #        text_tags.append(tag)
-        #text_tags = list(set(text_tags))
         prefix = text.split(self.__tag_separator)[-1].strip()
         self.__update_completer(tag_set, prefix)
     

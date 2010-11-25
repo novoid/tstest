@@ -14,11 +14,8 @@
 ## You should have received a copy of the GNU General Public License along with this program;
 ## if not, see <http://www.gnu.org/licenses/>.
 import logging
-import re
 from PyQt4 import QtCore, QtGui
-import tsresources.resources
 from tagcompleter import TagCompleterWidget
-from tscore.tsconstants import TsConstants
 from tscore.enums import ECategorySetting, ETagErrorEnum
 from tsgui.tagdialogstate import TagDialogState
 from tscore.specialcharhelper import SpecialCharHelper
@@ -651,7 +648,7 @@ class TagDialog(QtGui.QDialog):
         the list to be used as item categories
         """
 #        self.__category_list = category_list
-        self.__cat_line_widget.clear_line()
+        #self.__cat_line_widget.clear_line()
         self.__cat_line_widget.set_tag_completion_list(category_list)
         #for category in category_list:
         #    QtGui.QListWidgetItem(category, self.__category_line)
