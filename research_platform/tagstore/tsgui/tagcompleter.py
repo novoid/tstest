@@ -155,7 +155,7 @@ class TagCompleterWidget(QObject):
         if self.__tag_list is None:
             return
         #tags = list(set(self.__tag_list).difference(tag_set))
-        tags = list(self.__ tag_list)
+        tags = list(self.__tag_list)
 
         model = QStringListModel(tags, self)
         self.__completer.setModel(model)
