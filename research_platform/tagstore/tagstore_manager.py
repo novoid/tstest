@@ -23,6 +23,7 @@ from tscore.store import Store
 from tscore.configwrapper import ConfigWrapper
 from tscore.tsconstants import TsConstants
 from tsgui.admindialog import StorePreferencesController
+from tscore.loghelper import LogHelper
 
 class Administration(QtCore.QObject):
 
@@ -54,30 +55,9 @@ class Administration(QtCore.QObject):
         self.__store_dict = {}
         
         self.__init_logger(self.LOG_LEVEL)
+        self.__log = LogHelper.get_app_logger(self.LOG_LEVEL)
         self.__init_configuration()
         
-    def __init_logger(self, log_level):
-        LOG_FILENAME = TsConstants.LOG_FILENAME
-        self.__log = logging.getLogger(TsConstants.LOGGER_NAME)
-        self.__log.setLevel(logging.DEBUG)
-
-        #logging.basicConfig(level=logging.INFO)
-        formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-
-        ## create console handler and set level
-        console_handler = logging.StreamHandler()
-        console_handler.setLevel(log_level)
-        console_handler.setFormatter(formatter)
-
-        ## create filehandler
-        file_handler = logging.handlers.RotatingFileHandler(LOG_FILENAME, 
-            maxBytes=TsConstants.LOG_FILESIZE, backupCount=TsConstants.LOG_BACKUP_COUNT)
-        file_handler.setFormatter(formatter)
-
-        ## add handlers to logger
-        self.__log.addHandler(console_handler)
-        self.__log.addHandler(file_handler)
-    
     def __init_configuration(self):
         """
         initializes the configuration. This method is called every time the config file changes

@@ -28,6 +28,7 @@ from tscore.tsconstants import TsConstants
 from tscore.exceptions import StoreTaggingError, NameInConflictException,\
     InodeShortageException
 from tagstore_manager import Administration
+from tscore.loghelper import LogHelper
 
     
 class Tagstore(QtCore.QObject):
@@ -87,37 +88,11 @@ class Tagstore(QtCore.QObject):
         if verbose:
             self.LOG_LEVEL = logging.DEBUG
             
-        self.__init_logger(self.LOG_LEVEL)
+        self.__log = LogHelper.get_app_logger(self.LOG_LEVEL)
         self.__log.info("starting tagstore watcher")
         
         self.__init_configurations()
         
-    def __init_logger(self, level):
-        '''
-        create a logger object with appropriate settings
-        '''
-        # TODO create a class for doing this
-        LOG_FILENAME = TsConstants.LOG_FILENAME
-        self.__log = logging.getLogger(TsConstants.LOGGER_NAME)
-        self.__log.setLevel(logging.DEBUG)
-
-        #logging.basicConfig(level=logging.INFO)
-        formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-
-        ## create console handler and set level
-        console_handler = logging.StreamHandler()
-        console_handler.setLevel(level)
-        console_handler.setFormatter(formatter)
-
-        ## create filehandler
-        file_handler = logging.handlers.RotatingFileHandler(LOG_FILENAME, 
-            maxBytes=TsConstants.LOG_FILESIZE, backupCount=TsConstants.LOG_BACKUP_COUNT)
-        file_handler.setFormatter(formatter)
-
-        ## add handlers to logger
-        self.__log.addHandler(console_handler)
-        self.__log.addHandler(file_handler)        
-
     def __init_configurations(self):
         """
         initializes the configuration. This method is called every time the config file changes
@@ -126,6 +101,7 @@ class Tagstore(QtCore.QObject):
         ## reload config file - overwrite default settings
         self.__app_config_wrapper = ConfigWrapper(TsConstants.CONFIG_PATH)
         self.__app_config_wrapper.connect(self.__app_config_wrapper, QtCore.SIGNAL("changed()"), self.__init_configurations)
+        self.__app_config_wrapper.print_app_config_to_log()
         tag_seperator = self.__app_config_wrapper.get_tag_seperator()
         if tag_seperator.strip() != "":
             self.TAG_SEPERATOR = tag_seperator
@@ -133,7 +109,7 @@ class Tagstore(QtCore.QObject):
         if expiry_prefix.strip() != "":
             self.EXPIRY_PREFIX = expiry_prefix
         
-        self.NUM_RECENT_TAGS = self.__app_config_wrapper.get_num_recent_tags()
+        self.NUM_RECENT_TAGS = self.__app_config_wrapper.get_num_popular_tags()
         self.NUM_POPULAR_TAGS = self.__app_config_wrapper.get_num_popular_tags()
         self.MAX_TAGS = self.__app_config_wrapper.get_max_tags()
             

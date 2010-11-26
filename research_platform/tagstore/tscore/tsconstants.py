@@ -23,8 +23,10 @@ class TsConstants(object):
     
     LOGGER_NAME = "TagStoreLogger"
     LOG_FILENAME = "tagstore.log"
-    LOG_BACKUP_COUNT = 5
+    LOG_BACKUP_COUNT = 3
     LOG_FILESIZE = 524288
+    STORE_LOGGER_NAME = "StoreLogger"
+    STORE_LOG_FILENAME = "store.log"
     ## the percentage of inodes which must be left free 
     INODE_THRESHOLD = 10
     
@@ -49,6 +51,7 @@ class TsConstants(object):
     SETTING_CAT_TAGS = "categorizing_tags"
     SETTING_FIRST_START = "first_start"
     SETTING_SHOW_WIZARD = "show_wizard"
+    SETTING_CURRENT_LANGUAGE = "current_language"
     
     SETTING_EXPIRY_PREFIX = "expiry_prefix"
     

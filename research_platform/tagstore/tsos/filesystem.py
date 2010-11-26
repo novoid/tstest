@@ -28,11 +28,17 @@ else:
 
 class FileSystemWrapper():
 
-    def __init__(self):
+    def __init__(self, logger=None):
         """
         constructor
         """
-        self.__log = logging.getLogger("TagStoreLogger")
+        
+        self.__log = None
+        
+        if logger is None:
+            self.__log = logging.getLogger("TagStoreLogger")
+        else:
+            self.__log = logger
         
         self.file_system = FileSystem()
         self.__IGNORED_FILE_PREFIXES = ["~$", "."]

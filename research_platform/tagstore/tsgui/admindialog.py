@@ -996,7 +996,7 @@ class StorePreferencesController(QtCore.QObject):
         #QtCore.QObject.__init__(self)
         super(StorePreferencesController, self).__init__(parent)
         #TODO: @CF: config wrapper should be passed from administration.py later on, same with store configs
-        self.__log = logging.getLogger("TagStoreLogger")
+        self.__log = logging.getLogger(TsConstants.LOGGER_NAME)
       
         self.__store_config_dict = {}
         self.__store_vocabulary_wrapper_dict = {}

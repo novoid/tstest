@@ -28,6 +28,7 @@ from tscore.exceptions import StoreInitError, StoreTaggingError,\
 from tscore.configwrapper import ConfigWrapper
 from tscore.vocabularywrapper import VocabularyWrapper
 from tscore.tsconstants import TsConstants
+from tscore.loghelper import LogHelper
 #from tscore.tsconstants import TsConstants
 
 class Store(QtCore.QObject):
@@ -44,9 +45,9 @@ class Store(QtCore.QObject):
         """
         QtCore.QObject.__init__(self)
 
-        self.__log = logging.getLogger("TagStoreLogger")
+        self.__log = LogHelper.get_store_logger(path, logging.INFO)
 
-        self.__file_system = FileSystemWrapper()
+        self.__file_system = FileSystemWrapper(self.__log)
         self.__watcher = QtCore.QFileSystemWatcher(self)
         self.__watcher.connect(self.__watcher,QtCore.SIGNAL("directoryChanged(QString)"), self.__directory_changed)
         self.__tag_wrapper = None
@@ -349,6 +350,7 @@ class Store(QtCore.QObject):
         """
         removes and rebuilds all links in the describing_nav path
         """
+        self.__log.info("START rebuild progress")
         self.__create_inprogress_file()
         self.remove()
         for file in self.__tag_wrapper.get_files():
@@ -356,11 +358,13 @@ class Store(QtCore.QObject):
             categorising_tag_list = self.__tag_wrapper.get_file_categories(file)
             self.add_item_with_tags(file, describing_tag_list, categorising_tag_list)
         self.__remove_inprogress_file()
+        self.__log.info("rebuild progress END")
     
     def rename_file(self, old_file_name, new_file_name):
         """
         renames an existing file: links and config settings 
         """
+        self.__log.info("renaming: %s to %s" % (old_file_name, new_file_name))
         self.__create_inprogress_file()
         if self.__tag_wrapper.file_exists(old_file_name):
             describing_tag_list = self.__tag_wrapper.get_file_tags(old_file_name)
@@ -379,6 +383,7 @@ class Store(QtCore.QObject):
         """
         removes a file: links and config settings 
         """
+        self.__log.info("remove file: %s" % file_name)
         self.__create_inprogress_file()
         self.__pending_changes.remove(file_name)
         if self.__tag_wrapper.file_exists(file_name):
@@ -410,6 +415,8 @@ class Store(QtCore.QObject):
         ## handle changes only
         if self.__expiry_prefix == new_prefix:  
             return
+
+        self.__log.info("changing the expiry prefix from %s to %s" % (self.__expiry_prefix, new_prefix))
         
         self.__create_inprogress_file()
         expiry_date_files = self.__tag_wrapper.get_files_with_expiry_tags(self.__expiry_prefix)
@@ -497,12 +504,18 @@ class Store(QtCore.QObject):
         #TODO: if file_name already in config, delete missing tags and recreate whole link structure
         #existing tags will not be recreated in windows-> linux, osx???
         
+        
+        self.__log.info("add item with tags to navigation: itemname: %s" % file_name)
+        self.__log.info("describing tags: %s" % describing_tag_list)
+        self.__log.info("categorizing tags: %s" % categorising_tag_list)
         ## throw error if inodes run short
         if self.__file_system.inode_shortage(self.__config_path):
+            self.__log.error("inode threshold has exceeded")
             raise InodeShortageException(TsConstants.INODE_THRESHOLD)
         ## throw error if item-names and tag-names (new and existing) are in conflict
         conflict = self.__name_in_conflict(file_name, describing_tag_list, categorising_tag_list)
         if conflict[0] != "":
+            self.__log.error("name_in_conflict_error: %s, %s" % (conflict[0], conflict[1]))
             raise NameInConflictException(conflict[0], conflict[1])
         ## ignore multiple tags
         describing_tags = list(set(describing_tag_list))

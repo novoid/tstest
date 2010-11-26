@@ -17,6 +17,8 @@
 from PyQt4 import QtCore
 from tscore.tsconstants import TsConstants
 from tscore.enums import EDateStampFormat, ECategorySetting
+from tscore.loghelper import LogHelper
+import logging
 
 class ConfigWrapper(QtCore.QObject):
 
@@ -35,6 +37,8 @@ class ConfigWrapper(QtCore.QObject):
         self.__watcher.addPath(config_file_path)
         self.__watcher.connect(self.__watcher,QtCore.SIGNAL("fileChanged(QString)"), self.__file_changed)
         self.__settings = QtCore.QSettings(config_file_path, QtCore.QSettings.IniFormat)
+        
+        self.__log = logging.getLogger(TsConstants.LOGGER_NAME)
     
     @staticmethod
     def create_store_config_file(file_path):
@@ -77,11 +81,38 @@ class ConfigWrapper(QtCore.QObject):
         file.write("expiry_prefix=expiration\n")
         file.write("max_tags=5\n")
         file.write("num_popular_tags=5\n")
-        file.write("num_recent_tags=5\n")
         file.write("[stores]\n")
         
         file.close()
+    
+    def print_store_config_to_log(self):
+        pass
+    
+    def print_app_config_to_log(self):
+        """
+        take all application config parameters and put them into the logfile
+        """
+        self.__log.info("***************************************************************")
+        self.__log.info("APPLICATION CONFIGURATION AT STARTUP")
+        self.__log.info("***************************************************************")
+        self.__log.info("[settings]")
+        self.__log.info("store_config_directory=%s" % self.get_store_config_directory())
+        self.__log.info("store_config_filename=%s" % self.get_store_configfile_name())
+        self.__log.info("store_tags_filename=%s" % self.get_store_tagsfile_name())
+        self.__log.info("store_vocabulary_filename=%s" % self.get_store_vocabularyfile_name())
         
+        self.__log.info("tag_separator=\"%s\"" % self.get_tag_seperator())
+        self.__log.info("supported_languages=%s" % self.get_supported_languages())
+        self.__log.info("datestamp_format=%s" % self.get_datestamp_format())
+        self.__log.info("current_language=%s" % self.get_current_language())
+        self.__log.info("expiry_prefix=%s" % self.get_expiry_prefix())
+        self.__log.info("max_tags=%s" % self.get_max_tags())
+        self.__log.info("num_popular_tags=%s" % self.get_num_popular_tags())
+        self.__log.info("[stores]")
+        self.__log.info("***************************************************************")
+        self.__log.info("END - APPLICATION CONFIGURATION")
+        self.__log.info("***************************************************************")
+    
     def set_store_id(self, id):
         """
         writes the stores id to the configuration file
@@ -105,7 +136,10 @@ class ConfigWrapper(QtCore.QObject):
         """
         self.__settings.sync()
         self.emit(QtCore.SIGNAL("changed()"))
-        
+    
+    def get_current_language(self):
+        return self.__get_setting(TsConstants.SETTING_CURRENT_LANGUAGE)
+     
     def get_store_config_directory(self):
         """
         returns the parameter: stores config directory name
@@ -178,7 +212,6 @@ class ConfigWrapper(QtCore.QObject):
     def set_datestamp_format(self, setting_value):
         self.__put_setting(TsConstants.SETTING_DATESTAMP_FORMAT, setting_value)
 
-    ## TODO: REMOVE ME - not needed anymore
     def get_show_category_line(self):
         """
         returns the enum code if the category line should be enabled in the tag dialog
@@ -221,15 +254,6 @@ class ConfigWrapper(QtCore.QObject):
         self.__settings.endGroup()
         return value.strip()
     
-    def get_num_recent_tags(self):
-        """
-        returns the number of recent tags shown to the user
-        """
-        number = self.__get_setting("num_recent_tags")
-        if number == "":
-            return 0
-        return int(number.strip())
-        
     def get_show_wizard(self):
         value = self.__get_setting(TsConstants.SETTING_SHOW_WIZARD)
         if value == "true":
