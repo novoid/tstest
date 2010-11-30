@@ -54,7 +54,6 @@ class Administration(QtCore.QObject):
         self.SUPPORTED_LANGUAGES = TsConstants.DEFAULT_SUPPORTED_LANGUAGES
         self.__store_dict = {}
         
-        self.__init_logger(self.LOG_LEVEL)
         self.__log = LogHelper.get_app_logger(self.LOG_LEVEL)
         self.__init_configuration()
         

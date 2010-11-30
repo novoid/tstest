@@ -64,7 +64,7 @@ class LogHelper(object):
         create a logger object with appropriate settings
         '''
         
-        store_name = path.split("/")[-1]
+        store_name = str(path).split("/")[-1]
         
         log = logging.getLogger(TsConstants.STORE_LOGGER_NAME + "_" + store_name)
         

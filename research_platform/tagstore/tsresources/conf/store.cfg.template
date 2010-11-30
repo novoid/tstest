@@ -1,0 +1,7 @@
+[store]
+store_id=0
+
+[settings]
+datestamp_format=1
+show_category_line=1
+category_mandatory=false

@@ -45,7 +45,7 @@ class Store(QtCore.QObject):
         """
         QtCore.QObject.__init__(self)
 
-        self.__log = LogHelper.get_store_logger(path, logging.INFO)
+        self.__log = None
 
         self.__file_system = FileSystemWrapper(self.__log)
         self.__watcher = QtCore.QFileSystemWatcher(self)
@@ -78,8 +78,10 @@ class Store(QtCore.QObject):
         #self.__config_path = self.__path + "/" + self.__config_file_name
         #self.__watcher_path = self.__path + "/" + self.__storage_dir_name
         #self.__describing_nav_path = self.__path + "/" + self.__describing_nav_dir_name
-        self.__tag_wrapper = TagWrapper(self.__path + "/" + self.__tags_file_name)
-        self.__store_config_wrapper = ConfigWrapper(self.__path + "/" + self.__config_file_name)
+        if self.__file_system.path_exists(self.__path + "/" + self.__tags_file_name):
+            self.__tag_wrapper = TagWrapper(self.__path + "/" + self.__tags_file_name)
+        if self.__file_system.path_exists(self.__path + "/" + self.__config_file_name):
+            self.__store_config_wrapper = ConfigWrapper(self.__path + "/" + self.__config_file_name)
 
         if self.__path.find(":/") == -1:
             self.__path = self.__path.replace(":", ":/")
@@ -156,8 +158,7 @@ class Store(QtCore.QObject):
         self.__vocabulary_wrapper = VocabularyWrapper(self.__vocabulary_path)
         self.connect(self.__vocabulary_wrapper, QtCore.SIGNAL("changed"), self.__handle_vocabulary_changed)
         self.__store_config_wrapper = ConfigWrapper(self.__config_path)
-        # TODO: connect the store_config to the "changed" signal ... re-emit to the tagstore with store_id ...
-        # tagstore then should update the tagdialogs
+        self.connect(self.__store_config_wrapper, QtCore.SIGNAL("changed"), QtCore.SIGNAL("store_config_changed"))
         
         self.__watcher.addPath(self.__parent_path)
         self.__watcher.addPath(self.__watcher_path)
@@ -166,6 +167,9 @@ class Store(QtCore.QObject):
         self.__handle_file_expiry()
         self.__handle_file_changes(self.__watcher_path)
         
+        ## all necessary files and dirs should have been created now - so init the logger
+        self.__log = LogHelper.get_store_logger(self.__path, logging.INFO) 
+    
     def __handle_vocabulary_changed(self):
         self.emit(QtCore.SIGNAL("vocabulary_changed"), self)
         

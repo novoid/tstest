@@ -14,11 +14,12 @@
 ## You should have received a copy of the GNU General Public License along with this program;
 ## if not, see <http://www.gnu.org/licenses/>.
 
+import logging
+import shutil
 from PyQt4 import QtCore
 from tscore.tsconstants import TsConstants
 from tscore.enums import EDateStampFormat, ECategorySetting
 from tscore.loghelper import LogHelper
-import logging
 
 class ConfigWrapper(QtCore.QObject):
 
@@ -43,20 +44,28 @@ class ConfigWrapper(QtCore.QObject):
     @staticmethod
     def create_store_config_file(file_path):
         """
-        create a new tags file structure in the given file
+        create a new store config file with the default settings provided in the app_config
+        it just copies the template file to the new store config dir
         this  method has to be used in a static way
-        the file must be opened with write permission
         """
+        
+        ## copy the config template to the new store config dir
+        shutil.copyfile(TsConstants.STORE_CONFIG_TEMPLATE_PATH, file_path)
+        """
+        ## at first create the new file
         file = open(file_path, "w")
         file.write("[store]\n")
         file.write("store_id=0\n\n")
         file.write("[settings]\n")
-        file.write("datestamp_format=1\n")
-        file.write("show_category_line=1\n")
-        file.write("category_mandatory=true\n")
-        
         file.close()
-
+        
+        ## fill the config with defaulr settings
+        store_conf_wrapper = ConfigWrapper(file_path)
+        
+        store_conf_wrapper.set_datestamp_format(self.get_datestamp_format())
+        store_conf_wrapper.set_show_category_line(self.get_show_category_line())
+        store_conf_wrapper.set_category_mandatory(self.get_category_mandatory())
+        """
     @staticmethod
     def create_app_config_file(file_path):
         """
@@ -71,16 +80,17 @@ class ConfigWrapper(QtCore.QObject):
         file.write("store_config_filename=%s\n" % TsConstants.DEFAULT_STORE_CONFIG_FILENAME)
         file.write("store_tags_filename=%s\n" % TsConstants.DEFAULT_STORE_TAGS_FILENAME)
         file.write("store_vocabulary_filename=%s\n" % TsConstants.DEFAULT_STORE_VOCABULARY_FILENAME)
-        
         file.write("tag_separator=\"%s\"\n" % TsConstants.DEFAULT_TAG_SEPARATOR)
         file.write("supported_languages=\"en,de\"\n")
-        file.write("datestamp_format=0\n")
-        file.write("show_category_line=1\n")
-        file.write("category_mandatory=false\n")
         file.write("current_language=de\n")
         file.write("expiry_prefix=expiration\n")
         file.write("max_tags=5\n")
         file.write("num_popular_tags=5\n")
+        ## store config defaults
+        #file.write("datestamp_format=1\n")
+        #file.write("show_category_line=1\n")
+        #file.write("category_mandatory=false\n")
+
         file.write("[stores]\n")
         
         file.close()
