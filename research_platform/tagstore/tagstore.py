@@ -65,8 +65,8 @@ class Tagstore(QtCore.QObject):
         for lang in self.SUPPORTED_LANGUAGES: 
             self.change_language(lang) 
             self.STORE_STORAGE_DIRS.append(self.trUtf8("storage"))#self.STORE_STORAGE_DIR_EN))  
-            self.STORE_DESCRIBING_NAV_DIRS.append(self.trUtf8("navigation"))#self.STORE_DESCRIBING_NAVIGATION_DIR_EN))  
-            self.STORE_CATEGORIZING_NAV_DIRS.append(self.trUtf8("categorization"))#self.STORE_CATEGORIZING_NAVIGATION_DIR_EN)) 
+            self.STORE_DESCRIBING_NAV_DIRS.append(self.trUtf8("descriptions"))#self.STORE_DESCRIBING_NAVIGATION_DIR_EN))  
+            self.STORE_CATEGORIZING_NAV_DIRS.append(self.trUtf8("categories"))#self.STORE_CATEGORIZING_NAVIGATION_DIR_EN)) 
             self.STORE_EXPIRED_DIRS.append(self.trUtf8("expired_items"))#STORE_EXPIRED_DIR_EN)) 
         ## reset language 
         self.change_language(store_current_language) 
@@ -181,46 +181,53 @@ class Tagstore(QtCore.QObject):
                 store.connect(store, QtCore.SIGNAL("file_removed(PyQt_PyObject, QString)"), self.file_removed)
                 store.connect(store, QtCore.SIGNAL("pending_operations_changed(PyQt_PyObject)"), self.pending_file_operations)
                 store.connect(store, QtCore.SIGNAL("vocabulary_changed"), self.__handle_vocabulary_changed)
+                store.connect(store, QtCore.SIGNAL("store_config_changed"), self.__handle_store_config_changed)
 
                 self.STORES.append(store)
 
                 self.__log.debug("init store: %s", store.get_name())
                 
-#            if len(self.STORES) == len(config_store_items):
-
-#               for store in self.STORES:
                 ## create a dialogcontroller for each store ...
-                ## can be accessed by its ID later on
                 tmp_dialog = TagDialogController(store.get_name(), self.MAX_TAGS, self.TAG_SEPERATOR)
-                format_setting = store.get_datestamp_format()
-
-                ##check if auto datestamp is enabled
-                if format_setting != EDateStampFormat.DISABLED:
-                    tmp_dialog.show_datestamp(True)
-                    ## set the format
-                    format = None
-                    if format_setting == EDateStampFormat.DAY:
-                        format = TsConstants.DATESTAMP_FORMAT_DAY
-                    elif format_setting == EDateStampFormat.MONTH:
-                        format = TsConstants.DATESTAMP_FORMAT_MONTH
-                    tmp_dialog.set_datestamp_format(format)
-                        
-                tmp_dialog.show_category_line(store.get_show_category_line())
-                tmp_dialog.set_category_mandatory(store.get_category_mandatory())
-                
-                tmp_dialog.connect(tmp_dialog, QtCore.SIGNAL("tag_item"), self.tag_item_action)
-                tmp_dialog.connect(tmp_dialog, QtCore.SIGNAL("handle_cancel()"), self.handle_cancel)
-                tmp_dialog.connect(tmp_dialog, QtCore.SIGNAL("open_store_admin_dialog()"), self.show_admin_dialog)
-                #self.DIALOGS[store.get_id()] = tmp_dialog
+                self.__configure_tag_dialog(store, tmp_dialog)
                 self.DIALOGS[store.get_id()] = tmp_dialog
                 ## call init to initialize new store instance (after adding the event handler)
                 ## necessary if store was renamed during tagstore was not running (to write config)
                 store.init()
                 
-                    
+
+    def __configure_tag_dialog(self, store, tmp_dialog):
+        """
+        given a store and a tag dialog - promote all settings to the dialog 
+        """
+        
+        format_setting = store.get_datestamp_format()
+
+        ##check if auto datestamp is enabled
+        if format_setting != EDateStampFormat.DISABLED:
+            tmp_dialog.show_datestamp(True)
+            ## set the format
+            format = None
+            if format_setting == EDateStampFormat.DAY:
+                format = TsConstants.DATESTAMP_FORMAT_DAY
+            elif format_setting == EDateStampFormat.MONTH:
+                format = TsConstants.DATESTAMP_FORMAT_MONTH
+            tmp_dialog.set_datestamp_format(format)
+                
+        tmp_dialog.show_category_line(store.get_show_category_line())
+        tmp_dialog.set_category_mandatory(store.get_category_mandatory())
+        
+        tmp_dialog.connect(tmp_dialog, QtCore.SIGNAL("tag_item"), self.tag_item_action)
+        tmp_dialog.connect(tmp_dialog, QtCore.SIGNAL("handle_cancel()"), self.handle_cancel)
+        tmp_dialog.connect(tmp_dialog, QtCore.SIGNAL("open_store_admin_dialog()"), self.show_admin_dialog)
 
     def __handle_vocabulary_changed(self, store):
         self.__set_tag_information_to_dialog(store)
+    
+    def __handle_store_config_changed(self, store):
+        ## at first get the store-corresponding dialog controller
+        dialog_controller = self.DIALOGS[store.get_id()]
+        self.__configure_tag_dialog(store, dialog_controller)
     
     def show_admin_dialog(self):
         admin_widget = Administration(verbose=verbose_mode)

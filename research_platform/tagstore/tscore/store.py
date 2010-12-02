@@ -67,8 +67,8 @@ class Store(QtCore.QObject):
         self.__expiry_prefix = unicode(expiry_prefix)
         
         self.__storage_dir_name = self.trUtf8("storage")
-        self.__describing_nav_dir_name = self.trUtf8("navigation")
-        self.__categorising_nav_dir_name = self.trUtf8("categorization")
+        self.__describing_nav_dir_name = self.trUtf8("descriptions")
+        self.__categorising_nav_dir_name = self.trUtf8("categories")
         self.__expiry_dir_name = self.trUtf8("expired_items")
         #self.__parent_path = None
         #self.__name = None
@@ -158,7 +158,7 @@ class Store(QtCore.QObject):
         self.__vocabulary_wrapper = VocabularyWrapper(self.__vocabulary_path)
         self.connect(self.__vocabulary_wrapper, QtCore.SIGNAL("changed"), self.__handle_vocabulary_changed)
         self.__store_config_wrapper = ConfigWrapper(self.__config_path)
-        self.connect(self.__store_config_wrapper, QtCore.SIGNAL("changed"), QtCore.SIGNAL("store_config_changed"))
+        self.connect(self.__store_config_wrapper, QtCore.SIGNAL("changed()"), self.__handle_store_config_changed)
         
         self.__watcher.addPath(self.__parent_path)
         self.__watcher.addPath(self.__watcher_path)
@@ -170,6 +170,9 @@ class Store(QtCore.QObject):
         ## all necessary files and dirs should have been created now - so init the logger
         self.__log = LogHelper.get_store_logger(self.__path, logging.INFO) 
     
+    def __handle_store_config_changed(self):
+        self.emit(QtCore.SIGNAL("store_config_changed"), self)
+
     def __handle_vocabulary_changed(self):
         self.emit(QtCore.SIGNAL("vocabulary_changed"), self)
         
