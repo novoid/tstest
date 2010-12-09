@@ -189,6 +189,11 @@ class Tagstore(QtCore.QObject):
                 
                 ## create a dialogcontroller for each store ...
                 tmp_dialog = TagDialogController(store.get_name(), self.MAX_TAGS, self.TAG_SEPERATOR)
+                
+                tmp_dialog.connect(tmp_dialog, QtCore.SIGNAL("tag_item"), self.tag_item_action)
+                tmp_dialog.connect(tmp_dialog, QtCore.SIGNAL("handle_cancel()"), self.handle_cancel)
+                tmp_dialog.connect(tmp_dialog, QtCore.SIGNAL("open_store_admin_dialog()"), self.show_admin_dialog)
+                
                 self.__configure_tag_dialog(store, tmp_dialog)
                 self.DIALOGS[store.get_id()] = tmp_dialog
                 ## call init to initialize new store instance (after adding the event handler)
@@ -216,10 +221,6 @@ class Tagstore(QtCore.QObject):
                 
         tmp_dialog.show_category_line(store.get_show_category_line())
         tmp_dialog.set_category_mandatory(store.get_category_mandatory())
-        
-        tmp_dialog.connect(tmp_dialog, QtCore.SIGNAL("tag_item"), self.tag_item_action)
-        tmp_dialog.connect(tmp_dialog, QtCore.SIGNAL("handle_cancel()"), self.handle_cancel)
-        tmp_dialog.connect(tmp_dialog, QtCore.SIGNAL("open_store_admin_dialog()"), self.show_admin_dialog)
 
     def __handle_vocabulary_changed(self, store):
         self.__set_tag_information_to_dialog(store)
