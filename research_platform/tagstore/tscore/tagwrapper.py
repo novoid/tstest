@@ -16,7 +16,9 @@
 
 import time
 import re
+import shutil
 from PyQt4.QtCore import QSettings
+from tscore.tsconstants import TsConstants
 
 
 class TagWrapper():
@@ -57,9 +59,8 @@ class TagWrapper():
         this  method has to be used in a static way
         the file must be opened with write permission
         """
-        file = open(file_path, "w")
-        file.write("[files]\n")
-        file.close()
+        ## copy the config template to the new store config dir
+        shutil.copyfile(TsConstants.STORE_TAGFILE_TEMPLATE_PATH, file_path)
           
     def __get_file_list(self):
         """

@@ -148,8 +148,8 @@ class TagCompleterWidget(QObject):
     def __update_completer(self, tag_set, completion_prefix):
         if self.__tag_list is None:
             return
-        #tags = list(set(self.__tag_list).difference(tag_set))
-        tags = list(self.__tag_list)
+        tags = list(set(self.__tag_list).difference(tag_set))
+        #tags = list(self.__tag_list)
 
         model = QStringListModel(tags, self)
         self.__completer.setModel(model)
@@ -161,6 +161,25 @@ class TagCompleterWidget(QObject):
         if completion_prefix.strip() != '':
             ## use the default completion algorithm
             self.__completer.complete()
+    
+    def __check_finished_tags(self, typed_tags_list):
+        """
+        use this method to control all typed tags. this means all tags terminated with a comma 
+        """
+        pass
+
+    def __check_in_completion_list(self, tag):
+        """
+        if a written tag equals a tag of the completion list - the tag will be removed from the completion list
+        so the completer will return a completion count of 0 for this tag.
+        in this case there would be displayed an error message at the dialog (when controlled vocab is activated)
+        so check manually, if the provided tag is contained in the suggestion_list
+        """
+        #for sug_tag in self.__tag_list:
+        #    if sug_tag == tag:
+        #        return True
+        #return False
+        return tag in self.__tag_list
     
     def __check_vocabulary(self, tag_set, completion_prefix):
         
@@ -175,29 +194,47 @@ class TagCompleterWidget(QObject):
                 if not SpecialCharHelper.is_datestamp(tag) and tag != "":
                     if unicode(tag) not in self.__tag_list:
                         not_allowed_tags_count += 1
+                         
+        if(completion_prefix.strip() == ""):
+            ## if the prefix is an empty string - manually set the completion_count to 0
+            ## because the completer would return the whole number of tags in its suggestion list
+            completion_count = 0
+        else:   
+            completion_count = self.__completer.completionCount()
                             
-        if self.__restricted_vocabulary and self.__completer.completionCount() == 0:
+        if self.__restricted_vocabulary and completion_count == 0:
             ## additionally check if the prefix equals a tag from the suggestion list
             ## this has to be done, because we do not get a completionCount > 0 if the prefix equals a given tag 
             #if completion_prefix not in self.__tag_list:
             if completion_prefix is not None and len(completion_prefix) > 0 and completion_prefix.strip() != "":
-                ## just send the signal if the tag is no datestamp
-                if not SpecialCharHelper.is_datestamp(completion_prefix):
+                ## just send the signal if the tag is no datestamp AND if it is no full tag
+                if not SpecialCharHelper.is_datestamp(completion_prefix) and not self.__check_in_completion_list(completion_prefix):
                     no_completion_found = True
 
-        ## there are tags which are not in the allowed tag_list 
+        ## there are tags (terminated with comma) which are not in the allowed tag_list 
+        if not_allowed_tags_count > 1:
+            self.emit(QtCore.SIGNAL("no_completion_found"), True)
+            return
+            
+            
         if not_allowed_tags_count > 0:
+            ## in this case the user has entered a not allowed tag and terminated it with a comma to mark it as a tag
+            ## the completion count is 0 because there is nothing after the last comma in the taglist 
+            if completion_count == 0:
+                self.emit(QtCore.SIGNAL("no_completion_found"), True)
+                return
             ## it could be the case, that the user is still typing an allowed tag
             ## so check, if the completer has a possible completion
             ## if not -> send the signal 
             if no_completion_found:
                 self.emit(QtCore.SIGNAL("no_completion_found"), True)
+                return
         ## everytime there is no completion found, emit the signal
         elif no_completion_found:
             self.emit(QtCore.SIGNAL("no_completion_found"), True)
+            return
         ## in this case everything is fine
-        else:
-            self.emit(QtCore.SIGNAL("no_completion_found"), False)
+        self.emit(QtCore.SIGNAL("no_completion_found"), False)
     
     def __text_activated(self, text):
         

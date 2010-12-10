@@ -312,8 +312,19 @@ class Tagstore(QtCore.QObject):
         cat_set = set(store.get_popular_categories(self.NUM_POPULAR_TAGS))
         cat_set = cat_set | set(store.get_recent_categories(self.NUM_RECENT_TAGS))
 
-        #dialog_controller.set_category_list(store.get_category_list())
-        dialog_controller.set_category_list(store.get_controlled_vocabulary())
+        cat_list = list(cat_set)
+        if store.is_controlled_vocabulary():
+            allowed_set = set(store.get_controlled_vocabulary())
+            dialog_controller.set_category_list(list(allowed_set))
+
+            ## just show allowed tags - so make the intersection of popular tags ant the allowed tags
+            cat_list = list(cat_set.intersection(allowed_set)) 
+        else:
+            dialog_controller.set_category_list(store.get_categorizing_tags())
+            
+        if len(cat_list) > self.NUM_POPULAR_TAGS:
+            cat_list = cat_list[:self.NUM_POPULAR_TAGS]
+        dialog_controller.set_popular_categories(cat_list)
         
         ## make a list out of the set, to enable indexing, as not all tags cannot be used
         tag_list = list(tag_set)
@@ -321,10 +332,6 @@ class Tagstore(QtCore.QObject):
             tag_list = tag_list[:self.NUM_POPULAR_TAGS]
         dialog_controller.set_popular_tags(tag_list)
 
-        cat_list = list(cat_set)
-        if len(cat_list) > self.NUM_POPULAR_TAGS:
-            cat_list = cat_list[:self.NUM_POPULAR_TAGS]
-        dialog_controller.set_popular_categories(cat_list)
 
         #if len(self.DIALOGS) > 1:
         dialog_controller.set_store_name(store.get_name())

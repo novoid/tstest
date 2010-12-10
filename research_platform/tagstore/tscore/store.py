@@ -21,7 +21,8 @@ import logging.handlers
 from PyQt4 import QtCore
 from tsos.filesystem import FileSystemWrapper
 from tscore.tagwrapper import TagWrapper
-from tscore.enums import EFileType, EFileEvent, EOS, EConflictType
+from tscore.enums import EFileType, EFileEvent, EOS, EConflictType,\
+    ECategorySetting
 from tscore.pendingchanges import PendingChanges
 from tscore.exceptions import StoreInitError, StoreTaggingError,\
     NameInConflictException, InodeShortageException
@@ -481,6 +482,15 @@ class Store(QtCore.QObject):
 
     def get_show_category_line(self):
         return self.__store_config_wrapper.get_show_category_line()
+
+    def is_controlled_vocabulary(self):
+        """
+        return True if there is just controlled vocabulary allowed in the second tagline 
+        """
+        setting = self.__store_config_wrapper.get_show_category_line()
+        if setting == ECategorySetting.ENABLED_ONLY_PERSONAL or setting == ECategorySetting.ENABLED_SINGLE_CONTROLLED_TAGLINE:
+            return True
+        return False
     
     def get_datestamp_format(self):
         return self.__store_config_wrapper.get_datestamp_format()

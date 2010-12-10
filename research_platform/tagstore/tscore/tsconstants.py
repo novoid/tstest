@@ -32,6 +32,7 @@ class TsConstants(object):
     
     CONFIG_PATH = "./tsresources/conf/tagstore.cfg"
     STORE_CONFIG_TEMPLATE_PATH = "./tsresources/conf/store.cfg.template"
+    STORE_TAGFILE_TEMPLATE_PATH = "./tsresources/conf/store.tgs.template"
 
     #STORE_STORAGE_DIR_EN = "storage"#,Ablage"
     #STORE_DESCRIBING_NAVIGATION_DIR_EN = "navigation"#,Navigation"

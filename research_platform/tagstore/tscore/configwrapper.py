@@ -140,11 +140,12 @@ class ConfigWrapper(QtCore.QObject):
         self.__settings.endGroup()
         return id
 
-    def __file_changed(self):
+    def __file_changed(self, signal_param):
         """
         event handler: called when file was changed
         """
         self.__settings.sync()
+        self.__log.debug("configwrapper: file changed ... %s" % signal_param)
         self.emit(QtCore.SIGNAL("changed()"))
     
     def get_current_language(self):
