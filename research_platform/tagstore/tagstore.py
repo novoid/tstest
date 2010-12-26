@@ -359,14 +359,14 @@ class Tagstore(QtCore.QObject):
             c_type = e.get_conflict_type()
             c_name = e.get_conflicted_name()
             if c_type == EConflictType.FILE:
-                dialog_controller.show_message(self.trUtf8("The filename - %s - is in conflict with an already existing tag" % c_name))
+                dialog_controller.show_message(self.trUtf8("The filename - %s - is in conflict with an already existing tag. Please rename!" % c_name))
             elif c_type == EConflictType.TAG:
                 dialog_controller.show_message(self.trUtf8("The tag - %s - is in conflict with an already existing file" % c_name))
             else:
                 self.trUtf8("A tag or item is in conflict with an already existing tag/item")
             #raise
         except InodeShortageException, e:
-            dialog_controller.show_message(self.trUtf8("The Number of free inodes is below the threshld of %s%" % e.get_threshold()))
+            dialog_controller.show_message(self.trUtf8("The Number of free inodes is below the threshold of %s%" % e.get_threshold()))
             #raise
         except Exception, e:
             dialog_controller.show_message(self.trUtf8("An error occurred while tagging"))
