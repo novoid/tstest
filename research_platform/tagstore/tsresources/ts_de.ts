@@ -6,7 +6,7 @@
     <message>
         <location filename="../tsgui/admindialog.py" line="821"/>
         <source>You can enable datestamps to be provided automatically at the tagging dialog</source>
-        <translation>Falls sie Datums-Einträge aktivieren, werden diese im Tagging-Dialog automatisch hinzugefügt</translation>
+        <translation>Falls Sie Datums-Einträge aktivieren, werden diese im Tagging-Dialog automatisch hinzugefügt</translation>
     </message>
     <message>
         <location filename="../tsgui/admindialog.py" line="825"/>
@@ -21,7 +21,7 @@
     <message>
         <location filename="../tsgui/admindialog.py" line="827"/>
         <source>automatic datestamp: 2010-12-31</source>
-        <translation>Aautomatischer Datumseintrag: 2010-12-31</translation>
+        <translation>Automatischer Datumseintrag: 2010-12-31</translation>
     </message>
 </context>
 <context>
@@ -37,7 +37,7 @@
     <message>
         <location filename="../tsgui/admindialog.py" line="893"/>
         <source>Define a prefix for giving files an expiry date.</source>
-        <translation>Geben Sie bitte einen Präfix für das Setzen eines Aublauf-Datums ein.</translation>
+        <translation>Geben Sie bitte einen Präfix für das Setzen eines Ablauf-Datums ein.</translation>
     </message>
     <message>
         <location filename="../tsgui/admindialog.py" line="899"/>
@@ -51,8 +51,8 @@
     </message>
     <message>
         <location filename="../tsgui/admindialog.py" line="937"/>
-        <source>Directories or files tagged with &apos;%s2010-12&apos; will be moved to the tagstore directory %s on the January 1st 2011 associated tags will be removed. The correct writing of &apos;%s2010-12&apos; is really important thereby.</source>
-        <translation></translation>
+        <source>Directories or files tagged with &apos;%s2010-12&apos; will be moved to the tagstore directory %s on January 1st 2011; associated tags will be added to the file name. The correct writing of &apos;%s2010-12&apos; is really important thereby.</source>
+        <translation>Dateien oder Ordner, die mit &apos;%s2010-12&apos; getaggt sind, werden am 1. Jänner 2011 nach %s verschoben und alle Tags dem Dateinamen hinzugefügt. Beachten Sie die exakte Schreibweise von &apos;%s2010-12&apos;.</translation>
     </message>
     <message>
         <location filename="../tsgui/admindialog.py" line="937"/>
@@ -95,7 +95,7 @@
     <message>
         <location filename="../tscore/store.py" line="500"/>
         <source>Entered item or tag names are in conflict with existing denotation</source>
-        <translation type="obsolete">Die verwendeten Tags- oder Filenamen stehen in Konflikt zu bereits verwendeten Bezeichnungen!</translation>
+        <translation type="obsolete">Die verwendeten Tags- oder Dateinamen stehen in Konflikt zu bereits verwendeten Bezeichnungen!</translation>
     </message>
     <message>
         <location filename="../tscore/store.py" line="71"/>
@@ -113,7 +113,7 @@
     <message>
         <location filename="../tsgui/admindialog.py" line="364"/>
         <source>Select a directory for the new tagstore</source>
-        <translation>Wähle ein Verzeichnis für den neuen tagstore</translation>
+        <translation>Wählen Sie ein Verzeichnis für den neuen tagstore</translation>
     </message>
     <message>
         <location filename="../tsgui/admindialog.py" line="379"/>
@@ -157,7 +157,7 @@
     <message>
         <location filename="../tsgui/admindialog.py" line="280"/>
         <source>Manage your tagstore directories. Build new ones, rename them or delete ...</source>
-        <translation>Verwalten Sie Ihre tagstore-Verzeichnisse. Neue erstellen, umbenennen, löschen, ...</translation>
+        <translation>Verwalten Sie Ihre tagstore-Verzeichnisse: Neue erstellen, umbenennen, löschen, ...</translation>
     </message>
     <message>
         <location filename="../tsgui/admindialog.py" line="290"/>
@@ -226,7 +226,7 @@
     <message>
         <location filename="../tsgui/admindialog.py" line="618"/>
         <source>Define your own vocabulary to be used as categorizing tags</source>
-        <translation>Definieren Sie sich ihr persönliches Wörterbuch für die Verwendung als Kategorien- Tags</translation>
+        <translation>Definieren Sie sich Ihr persönliches Wörterbuch für die Verwendung als Kategorie-Tags</translation>
     </message>
     <message>
         <location filename="../tsgui/admindialog.py" line="628"/>
@@ -256,12 +256,12 @@
     <message>
         <location filename="../tsgui/admindialog.py" line="712"/>
         <source>The new tag contains a special character which is not allowed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der neue Tag enthält nicht erlaubte Sonderzeichen.</translation>
     </message>
     <message>
         <location filename="../tsgui/admindialog.py" line="716"/>
-        <source>The new tag &apos;%s&apos; is a not allowed keyword.</source>
-        <translation type="unfinished"></translation>
+        <source>The new tag &apos;%s&apos; is unfortunately not an allowed one. Please choose another.</source>
+        <translation>Der neue Tag &apos;%s&apos; ist leider als Tag nicht erlaubt. Wählen Sie einen anderen.</translation>
     </message>
 </context>
 <context>
@@ -327,7 +327,7 @@
     <message>
         <location filename="../tsgui/tagdialog.py" line="719"/>
         <source>Please select an Item, to which the tags should be added</source>
-        <translation>Bitte selektieren Sie die Datei zu der Sie Tags eintragen wollen</translation>
+        <translation>Bitte selektieren Sie die Datei, zu der Sie Tags eintragen wollen</translation>
     </message>
 </context>
 <context>
@@ -359,28 +359,28 @@
     </message>
     <message>
         <location filename="../tagstore.py" line="351"/>
-        <source>The filename - %s - is in conflict with an already existing tag</source>
-        <translation type="unfinished"></translation>
+        <source>The filename - %s - is in conflict with an already existing tag. Please rename!</source>
+        <translation>Der Dateiname %s verursacht einen Konflikt mit einem bestehenden Tag. Bitte Umbenennen!</translation>
     </message>
     <message>
         <location filename="../tagstore.py" line="353"/>
         <source>The tag - %s - is in conflict with an already existing file</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Tag %s verursacht einen Konflikt mit einer bestehenden Datei. Bitte Umbenennen!</translation>
     </message>
     <message>
         <location filename="../tagstore.py" line="355"/>
         <source>A tag or item is in conflict with an already existing tag/item</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein Tag oder eine Datei verursacht einen Konflikt mit bestehenden Einträgen</translation>
     </message>
     <message>
         <location filename="../tagstore.py" line="358"/>
-        <source>The Number of free inodes is below the threshld of %s%</source>
-        <translation type="unfinished"></translation>
+        <source>The Number of free inodes is below the threshold of %s%</source>
+        <translation>Die Anzahl der freien Inodes ist unterhalb der Schwelle von %s%</translation>
     </message>
     <message>
         <location filename="../tagstore.py" line="361"/>
         <source>An error occurred while tagging</source>
-        <translation type="unfinished"></translation>
+        <translation>Leider passierte ein Fehler beim Taggen</translation>
     </message>
     <message>
         <location filename="../tagstore.py" line="68"/>
@@ -481,7 +481,7 @@
     <message>
         <location filename="../tsgui/tagdialog.py" line="400"/>
         <source>Tag the selected item</source>
-        <translation>Markiertes File taggen</translation>
+        <translation>Markierte Datei taggen</translation>
     </message>
     <message>
         <location filename="../tsgui/tagdialog.py" line="401"/>
@@ -491,7 +491,7 @@
     <message>
         <location filename="../tsgui/tagdialog.py" line="396"/>
         <source>Manager ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Manager ...</translation>
     </message>
 </context>
 </TS>
