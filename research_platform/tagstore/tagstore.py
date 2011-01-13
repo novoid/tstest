@@ -114,8 +114,8 @@ class Tagstore(QtCore.QObject):
         self.MAX_TAGS = self.__app_config_wrapper.get_max_tags()
         self.CURRENT_LANGUAGE = self.__app_config_wrapper.get_current_language();
         ## just change the language if it is not equal to the default
-        if(self.CURRENT_LANGUAGE != "en"):
-            self.change_language(self.CURRENT_LANGUAGE)
+        ##if(self.CURRENT_LANGUAGE != "en"):
+        self.change_language(self.CURRENT_LANGUAGE)
         config_dir = self.__app_config_wrapper.get_store_config_directory()
         if config_dir != "":
             self.STORE_CONFIG_DIR = config_dir

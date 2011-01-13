@@ -44,6 +44,10 @@ class Administration(QtCore.QObject):
         self.STORE_TAGS_FILE_NAME = TsConstants.DEFAULT_STORE_TAGS_FILENAME
         self.STORE_VOCABULARY_FILE_NAME = TsConstants.DEFAULT_STORE_VOCABULARY_FILENAME
         
+        locale = unicode(QtCore.QLocale.system().name())[0:2]
+        self.__translator = QtCore.QTranslator()
+        if self.__translator.load("ts_" + locale + ".qm", "tsresources/"):
+            tagstore_admin.installTranslator(self.__translator)
         #get dir names for all available languages
         self.CURRENT_LANGUAGE = self.trUtf8("en")
         store_current_language = self.CURRENT_LANGUAGE 
@@ -63,6 +67,9 @@ class Administration(QtCore.QObject):
         """
         self.__log.info("initialize configuration")
         self.__main_config = ConfigWrapper(TsConstants.CONFIG_PATH)
+        
+        self.CURRENT_LANGUAGE = self.__main_config.get_current_language();
+        self.change_language(self.CURRENT_LANGUAGE)
         #self.__main_config.connect(self.__main_config, QtCore.SIGNAL("changed()"), self.__init_configuration)
 
         if self.__admin_dialog is None:
@@ -128,6 +135,26 @@ class Administration(QtCore.QObject):
         vocabulary_file_name = self.__main_config.get_store_vocabularyfile_name()
         if vocabulary_file_name != "":
             self.STORE_VOCABULARY_FILE_NAME = vocabulary_file_name
+    
+    def change_language(self, locale):
+        """
+        changes the current application language
+        please notice: this method is used to find all available storage/navigation directory names
+        this is why it should not be extended to call any UI update methods directly
+        """
+        
+        ## delete current translation to switch to default strings
+        tagstore_admin.removeTranslator(self.__translator)
+
+        ## load new translation file        
+        self.__translator = QtCore.QTranslator()
+        language = unicode(locale)
+        if self.__translator.load("ts_" + language + ".qm", "tsresources/"):
+            tagstore_admin.installTranslator(self.__translator)
+            
+        ## update current language
+#        self.CURRENT_LANGUAGE = self.trUtf8("en")
+        self.CURRENT_LANGUAGE = self.trUtf8(locale)
     
     def __create_stores(self):
         store_items = self.__main_config.get_stores()
