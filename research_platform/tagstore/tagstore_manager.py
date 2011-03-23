@@ -27,12 +27,14 @@ from tscore.loghelper import LogHelper
 
 class Administration(QtCore.QObject):
 
-    def __init__(self, verbose):
+    def __init__(self, application, verbose):
         QtCore.QObject.__init__(self)
         
         self.__log = None
         self.__main_config = None
         self.__admin_dialog = None
+
+        self.__application = application
 
         self.LOG_LEVEL = logging.INFO
         if verbose:
@@ -47,7 +49,7 @@ class Administration(QtCore.QObject):
         locale = unicode(QtCore.QLocale.system().name())[0:2]
         self.__translator = QtCore.QTranslator()
         if self.__translator.load("ts_" + locale + ".qm", "tsresources/"):
-            tagstore_admin.installTranslator(self.__translator)
+            self.__application.installTranslator(self.__translator)
         #get dir names for all available languages
         self.CURRENT_LANGUAGE = self.trUtf8("en")
         store_current_language = self.CURRENT_LANGUAGE 
@@ -103,6 +105,12 @@ class Administration(QtCore.QObject):
     def show_admin_dialog(self, show):
         self.__admin_dialog.show_dialog()
     
+    def set_modal(self, modal):
+        """
+        True- if the admin dialog should be in modal-mode
+        """
+        self.__admin_dialog.set_modal(modal)
+    
     def set_parent(self, parent):
         """
         set the parent for the admin-dialog if there is already a gui window
@@ -144,13 +152,13 @@ class Administration(QtCore.QObject):
         """
         
         ## delete current translation to switch to default strings
-        tagstore_admin.removeTranslator(self.__translator)
+        self.__application.removeTranslator(self.__translator)
 
         ## load new translation file        
         self.__translator = QtCore.QTranslator()
         language = unicode(locale)
         if self.__translator.load("ts_" + language + ".qm", "tsresources/"):
-            tagstore_admin.installTranslator(self.__translator)
+            self.__application.installTranslator(self.__translator)
             
         ## update current language
 #        self.CURRENT_LANGUAGE = self.trUtf8("en")
@@ -197,7 +205,7 @@ class Administration(QtCore.QObject):
 if __name__ == '__main__':  
   
     ## initialize and configure the optionparser
-    opt_parser = OptionParser("tagstore_admin.py [options]")
+    opt_parser = OptionParser("tagstore_manager.py [options]")
     opt_parser.add_option("-v", "--verbose", dest="verbose", action="store_true", help="start programm with detailed output")
 
     (options, args) = opt_parser.parse_args()
@@ -209,11 +217,11 @@ if __name__ == '__main__':
         verbose_mode = True
     
     tagstore_admin = QtGui.QApplication(sys.argv)
-    tagstore_admin.setApplicationName("tagstore_admin")
-    tagstore_admin.setOrganizationDomain("www.tagstore_admin.org")
+    tagstore_admin.setApplicationName("tagstore_manager")
+    tagstore_admin.setOrganizationDomain("www.tagstore.org")
     tagstore_admin.UnicodeUTF8
     
-    admin_widget = Administration(verbose=verbose_mode)
+    admin_widget = Administration(tagstore_admin, verbose=verbose_mode)
     admin_widget.show_admin_dialog(True)
     tagstore_admin.exec_()
 ## end

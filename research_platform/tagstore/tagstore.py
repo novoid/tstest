@@ -234,7 +234,8 @@ class Tagstore(QtCore.QObject):
         self.__configure_tag_dialog(store, dialog_controller)
     
     def show_admin_dialog(self):
-        admin_widget = Administration(verbose=verbose_mode)
+        admin_widget = Administration(tagstore, verbose=verbose_mode)
+        admin_widget.set_modal(True)
         admin_widget.set_parent(self.sender().get_view())
         admin_widget.show_admin_dialog(True)
     
