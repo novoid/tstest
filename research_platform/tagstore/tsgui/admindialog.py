@@ -31,8 +31,8 @@ class StorePreferencesView(QtGui.QDialog):
         
         QtGui.QDialog.__init__(self, parent)
         
-        self.resize(640, 480)
-        self.setModal(True)
+        self.resize(700, 480)
+        #self.setModal(True)
             
         self.__layout = QtGui.QVBoxLayout(self)
         
@@ -1021,6 +1021,9 @@ class StorePreferencesController(QtCore.QObject):
         self.connect(self.__dialog, QtCore.SIGNAL("cancel_clicked()"), self.__handle_cancel)
     def set_main_config(self, main_config):
         self.__main_config = main_config
+
+    def set_modal(self, modal):
+        self.__dialog.setModal(modal)
 
     def set_store_list(self, store_list):
         if store_list is not None:
