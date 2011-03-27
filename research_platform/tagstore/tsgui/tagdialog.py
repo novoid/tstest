@@ -302,6 +302,9 @@ class TagDialog(QtGui.QDialog):
         elif error_enum == ETagErrorEnum.NOT_ALLOWED_CATEGORIZING_TAG_NAME:
             self.__set_category_info(self.trUtf8("At least one categorizing tag is equal to a reserved keyword"))
 
+    def set_parent(self, parent):
+        self.setParent(parent)
+
     def keyPressEvent(self, event):
         """
         dummy re-implementation to avoid random signal sending
@@ -313,7 +316,13 @@ class TagDialog(QtGui.QDialog):
     
     def closeEvent(self, event):
         pass
+    
+    def set_category_line_content(self, content):
+        self.__cat_line_widget.set_text(content)
         
+    def set_describing_line_content(self, content):
+        self.__tag_line_widget.set_text(content)
+    
     def __handle_tag_limit_reached(self, limit_reached):
         if self.sender().objectName() == self.__TAG_LINE_1_NAME:
             if limit_reached:
@@ -532,7 +541,9 @@ class TagDialog(QtGui.QDialog):
         self.__cat_line_widget.set_restricted_vocabulary(restricted)
     
     def set_item_list(self, item_list):
-        self.__item_list_view.addItems(item_list)
+        for item in item_list:
+            QtGui.QListWidgetItem(item, self.__item_list_view)
+        self.__item_list_view.sortItems()
         ## no items available
         if self.__item_list_view.count() == 0:
             self.__set_selected_item(None)
@@ -667,6 +678,10 @@ class TagDialog(QtGui.QDialog):
     
     def is_category_enabled(self):
         return self.__show_categories
+    
+    def set_retag_mode(self):
+        self.__property_button.setEnabled(False)
+        self.__close_button.setText(self.trUtf8("Cancel"))
 
 class TagDialogController(QtCore.QObject):
     """
@@ -748,11 +763,9 @@ class TagDialogController(QtCore.QObject):
                         ## union of two sets
                         datestamp_set |= set([tag])
                 ## delete the datestamps from the list
-                without_ds_list = category_list.difference(datestamp_set)
-                #s1 = set(["2010-01","catschas"])
-                #s2 = set(["2010-01"])
+                category_list = category_list.difference(datestamp_set)
                 
-            if not without_ds_list.issubset(completion_set):
+            if not category_list.issubset(completion_set):
                 self.__tag_dialog.set_not_suitable_categories_entered()
                 return
         if SpecialCharHelper.contains_special_chars(category_list):
@@ -784,12 +797,39 @@ class TagDialogController(QtCore.QObject):
     def add_pending_item(self, file_name):
         #self.__tag_dialog.set_store_label_text(store_name)
         self.__tag_dialog.add_item(file_name)
+
+    def set_item_list(self, item_list):
+        #self.__tag_dialog.set_store_label_text(store_name)
+        self.__tag_dialog.set_item_list(item_list)
         
     def set_tag_list(self, tag_list):
         self.__tag_dialog.set_tag_list(tag_list)    
 
     def set_category_list(self, category_list):
-        self.__tag_dialog.set_available_categories(category_list)    
+        """
+        set the list of available categories, used for the suggestion box
+        """
+        self.__tag_dialog.set_available_categories(category_list)   
+        
+    def set_describing_line_content(self, content):
+        """
+        set the content of the first tagline manually
+        """
+        self.__tag_dialog.set_describing_line_content(content) 
+
+    def set_category_line_content(self, content):
+        """
+        set the content of the second tagline manually
+        """ 
+        self.__tag_dialog.set_category_line_content(content) 
+
+    def set_retag_mode(self):
+        """
+        when the tagdialog is used for retagging, there have to be made some modifications on the dialog.
+        * the manager button is disabled since the manager app is already open
+        * the "Postpone" button is renamed to "Cancel"
+        """
+        self.__tag_dialog.set_retag_mode()
 
     def show_datestamp(self, show):
         self.__tag_dialog.show_datestamp(show)
@@ -834,6 +874,9 @@ class TagDialogController(QtCore.QObject):
         
     def set_popular_tags(self, tag_list):
         self.__tag_dialog.set_popular_tags(tag_list)
+        
+    def set_parent(self, parent):
+        self.setParent(parent)
 
     def set_popular_categories(self, cat_list):
         self.__tag_dialog.set_popular_categories(cat_list)
