@@ -329,12 +329,15 @@ if __name__ == '__main__':
         store_path = options.store_path
     else:
         print "no store name given"
+        opt_parser.print_help()
         sys.exit()
     if options.itemname:
         item_name = options.itemname
     else:
         print "no item name given"
+        opt_parser.print_help()
         sys.exit()
+        #exit_application()
         
     print "opening store: %s for item: %s" % (store_path, item_name)
     
@@ -347,4 +350,8 @@ if __name__ == '__main__':
     admin_widget = TagController(tagstore_tag, store_path, item_name, True, verbose_mode)
     admin_widget.show_tag_dialog(True)
     tagstore_tag.exec_()
+    
+def exit_application():
+    opt_parser.print_help()
+    sys.exit()
 ## end
