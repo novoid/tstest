@@ -163,13 +163,15 @@ class Store(QtCore.QObject):
         
         self.__watcher.addPath(self.__parent_path)
         self.__watcher.addPath(self.__watcher_path)
+        
+        ## all necessary files and dirs should have been created now - so init the logger
+        self.__log = LogHelper.get_store_logger(self.__path, logging.INFO) 
+
         ## handle offline changes
         self.__handle_unfinished_operation()
         self.__handle_file_expiry()
         self.__handle_file_changes(self.__watcher_path)
         
-        ## all necessary files and dirs should have been created now - so init the logger
-        self.__log = LogHelper.get_store_logger(self.__path, logging.INFO) 
     
     def __handle_store_config_changed(self):
         self.emit(QtCore.SIGNAL("store_config_changed"), self)
@@ -340,6 +342,10 @@ class Store(QtCore.QObject):
         returns the stores id
         """
         return unicode(self.__id)
+    def get_max_tags(self):
+        return self.__store_config_wrapper.get_max_tags()
+    def get_tag_separator(self):
+        return self.__store_config_wrapper.get_tag_seperator()
     
     def get_pending_changes(self):
         """
@@ -444,6 +450,12 @@ class Store(QtCore.QObject):
         self.__expiry_prefix = new_prefix
         self.__remove_inprogress_file()
     
+    def get_items(self):
+        """
+        returns a list of all item names in the store 
+        """
+        return self.__tag_wrapper.get_files()
+    
     def get_tags(self):
         """
         returns a list of all describing  tags
@@ -479,6 +491,19 @@ class Store(QtCore.QObject):
         returns a given number of recently entered tags
         """
         return self.__tag_wrapper.get_recent_categories(number)
+
+    def get_describing_tags_for_item(self, item_name):
+        """
+        returns all describing tags associated with the given item
+        """
+        return self.__tag_wrapper.get_file_tags(item_name)
+        
+    def get_categorizing_tags_for_item(self, item_name):
+        """
+        returns all categorizing tags associated with the given item
+        """
+        return self.__tag_wrapper.get_file_categories(item_name)
+        
 
     def get_show_category_line(self):
         return self.__store_config_wrapper.get_show_category_line()
@@ -520,8 +545,7 @@ class Store(QtCore.QObject):
         """
         #TODO: if file_name already in config, delete missing tags and recreate whole link structure
         #existing tags will not be recreated in windows-> linux, osx???
-        
-        
+                
         self.__log.info("add item with tags to navigation: itemname: %s" % file_name)
         self.__log.info("describing tags: %s" % describing_tag_list)
         self.__log.info("categorizing tags: %s" % categorising_tag_list)

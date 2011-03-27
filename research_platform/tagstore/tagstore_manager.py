@@ -24,6 +24,9 @@ from tscore.configwrapper import ConfigWrapper
 from tscore.tsconstants import TsConstants
 from tsgui.admindialog import StorePreferencesController
 from tscore.loghelper import LogHelper
+from tsgui.tagdialog import TagDialogController
+from tscore.enums import EDateStampFormat, EConflictType
+from tscore.exceptions import NameInConflictException, InodeShortageException
 
 class Administration(QtCore.QObject):
 
@@ -33,7 +36,9 @@ class Administration(QtCore.QObject):
         self.__log = None
         self.__main_config = None
         self.__admin_dialog = None
+        self.__retag_dialog = None
 
+        # the main application which has the translator installed
         self.__application = application
 
         self.LOG_LEVEL = logging.INFO
@@ -46,19 +51,26 @@ class Administration(QtCore.QObject):
         self.STORE_TAGS_FILE_NAME = TsConstants.DEFAULT_STORE_TAGS_FILENAME
         self.STORE_VOCABULARY_FILE_NAME = TsConstants.DEFAULT_STORE_VOCABULARY_FILENAME
         
-        locale = unicode(QtCore.QLocale.system().name())[0:2]
+        self.__system_locale = unicode(QtCore.QLocale.system().name())[0:2]
         self.__translator = QtCore.QTranslator()
-        if self.__translator.load("ts_" + locale + ".qm", "tsresources/"):
+        if self.__translator.load("ts_" + self.__system_locale + ".qm", "tsresources/"):
             self.__application.installTranslator(self.__translator)
-        #get dir names for all available languages
-        self.CURRENT_LANGUAGE = self.trUtf8("en")
-        store_current_language = self.CURRENT_LANGUAGE 
+        # "en" is automatically translated to the current language e.g. en -> de
+        self.CURRENT_LANGUAGE = self.__get_locale_language()
+        #dir names for all available languages
         self.STORE_STORAGE_DIRS = []
         self.STORE_DESCRIBING_NAV_DIRS = []
         self.STORE_CATEGORIZING_NAV_DIRS = []
         self.STORE_EXPIRED_DIRS = []
         self.SUPPORTED_LANGUAGES = TsConstants.DEFAULT_SUPPORTED_LANGUAGES
         self.__store_dict = {}
+        
+        for lang in self.SUPPORTED_LANGUAGES: 
+            self.change_language(lang) 
+            self.STORE_STORAGE_DIRS.append(self.trUtf8("storage"))#self.STORE_STORAGE_DIR_EN))  
+            self.STORE_DESCRIBING_NAV_DIRS.append(self.trUtf8("descriptions"))#self.STORE_DESCRIBING_NAVIGATION_DIR_EN))  
+            self.STORE_CATEGORIZING_NAV_DIRS.append(self.trUtf8("categories"))#self.STORE_CATEGORIZING_NAVIGATION_DIR_EN)) 
+            self.STORE_EXPIRED_DIRS.append(self.trUtf8("expired_items"))#STORE_EXPIRED_DIR_EN)) 
         
         self.__log = LogHelper.get_app_logger(self.LOG_LEVEL)
         self.__init_configuration()
@@ -71,6 +83,10 @@ class Administration(QtCore.QObject):
         self.__main_config = ConfigWrapper(TsConstants.CONFIG_PATH)
         
         self.CURRENT_LANGUAGE = self.__main_config.get_current_language();
+        
+        if self.CURRENT_LANGUAGE is None or self.CURRENT_LANGUAGE == "":
+            self.CURRENT_LANGUAGE = self.__get_locale_language()
+        
         self.change_language(self.CURRENT_LANGUAGE)
         #self.__main_config.connect(self.__main_config, QtCore.SIGNAL("changed()"), self.__init_configuration)
 
@@ -79,6 +95,7 @@ class Administration(QtCore.QObject):
             self.connect(self.__admin_dialog, QtCore.SIGNAL("create_new_store"), self.__handle_new_store)
             self.connect(self.__admin_dialog, QtCore.SIGNAL("rename_desc_tag"), self.__handle_tag_rename)
             self.connect(self.__admin_dialog, QtCore.SIGNAL("rename_cat_tag"), self.__handle_tag_rename)
+            self.connect(self.__admin_dialog, QtCore.SIGNAL("retag"), self.__handle_retagging)
         self.__admin_dialog.set_main_config(self.__main_config)
         
         
@@ -98,24 +115,168 @@ class Administration(QtCore.QObject):
         if self.__main_config.get_first_start():
             self.__admin_dialog.set_first_start(True)
     
+    def __get_locale_language(self):
+        """
+        returns the translation of "en" in the system language
+        """
+        return self.trUtf8("en")
+    
     def __handle_tag_rename(self, old_tag, new_tag, store_name):
         store = self.__store_dict[store_name]
         store.rename_tag(str(old_tag), str(new_tag))
     
+    def set_application(self, application):
+        """
+        if the manager is called from another qt application (e.g. tagstore.py)
+        you must set the calling application here for proper i18n
+        """
+        self.__application = application
+    
+    def __handle_retagging(self, store_name, item_name):
+        """
+        creates and configures a tag-dialog with all store-params and tags
+        """
+        store = self.__store_dict[store_name]
+        
+                
+        self.__log.info("retagging item %s at store %s..." % (item_name.text(), store_name))
+        if(self.__retag_dialog is None):
+            self.__retag_dialog = TagDialogController(store.get_name(), self.__main_config.get_max_tags(), self.__main_config.get_tag_seperator())
+            self.__retag_dialog.set_parent(self.__admin_dialog.get_view())
+            self.__retag_dialog.get_view().setModal(True)
+            #self.__retag_dialog.set_parent(self.sender().get_view())
+            self.__retag_dialog.connect(self.__retag_dialog, QtCore.SIGNAL("tag_item"), self.__retag_item_action)
+            self.__retag_dialog.connect(self.__retag_dialog, QtCore.SIGNAL("handle_cancel()"), self.__handle_retag_cancel)
+
+
+        ## configure the tag dialog with the according settings
+        format_setting = store.get_datestamp_format()
+
+        ## check if auto datestamp is enabled
+        if format_setting != EDateStampFormat.DISABLED:
+            self.__retag_dialog.show_datestamp(True)
+            ## set the format
+            format = None
+            if format_setting == EDateStampFormat.DAY:
+                format = TsConstants.DATESTAMP_FORMAT_DAY
+            elif format_setting == EDateStampFormat.MONTH:
+                format = TsConstants.DATESTAMP_FORMAT_MONTH
+            self.__retag_dialog.set_datestamp_format(format)
+        
+        ## prepare the content of the taglines 
+        cat_content = ""
+        cat_tags = store.get_describing_tags_for_item(item_name.text())
+        for tag in cat_tags:
+            if cat_content == "":
+                cat_content = tag
+            else:
+                cat_content = "%s%s%s" %(cat_content,", ", tag) 
+        self.__retag_dialog.set_describing_line_content(cat_content)
+        desc_content = ""
+        desc_tags = store.get_categorizing_tags_for_item(item_name.text())
+        for tag in desc_tags:
+            if desc_content == "":
+                desc_content = tag
+            else:
+                desc_content = "%s%s%s" %(desc_content,", ", tag) 
+        self.__retag_dialog.set_category_line_content(desc_content)
+        
+        self.__retag_dialog.add_pending_item(item_name.text())
+             
+        self.__retag_dialog.show_category_line(store.get_show_category_line())
+        self.__retag_dialog.set_category_mandatory(store.get_category_mandatory()) 
+        
+        self.__retag_dialog.set_retag_mode()
+        self.__set_tag_information_to_dialog(store)
+        self.__retag_dialog.show_dialog()
+        
+    def __set_tag_information_to_dialog(self, store):
+        """
+        convenience method for setting the tag data at the gui-dialog
+        """
+        self.__retag_dialog.set_tag_list(store.get_tags())
+        
+        num_pop_tags = self.__main_config.get_num_popular_tags()
+        
+        tag_set = set(store.get_popular_tags(self.__main_config.get_max_tags()))
+        tag_set = tag_set | set(store.get_recent_tags(num_pop_tags))
+
+        cat_set = set(store.get_popular_categories(num_pop_tags))
+        cat_set = cat_set | set(store.get_recent_categories(num_pop_tags))
+
+        cat_list = list(cat_set)
+        if store.is_controlled_vocabulary():
+            allowed_set = set(store.get_controlled_vocabulary())
+            self.__retag_dialog.set_category_list(list(allowed_set))
+
+            ## just show allowed tags - so make the intersection of popular tags ant the allowed tags
+            cat_list = list(cat_set.intersection(allowed_set)) 
+        else:
+            self.__retag_dialog.set_category_list(store.get_categorizing_tags())
+            
+        if len(cat_list) > num_pop_tags:
+            cat_list = cat_list[:num_pop_tags]
+        self.__retag_dialog.set_popular_categories(cat_list)
+        
+        ## make a list out of the set, to enable indexing, as not all tags cannot be used
+        tag_list = list(tag_set)
+        if len(tag_list) > num_pop_tags:
+            tag_list = tag_list[:num_pop_tags]
+        self.__retag_dialog.set_popular_tags(tag_list)
+
+
+        self.__retag_dialog.set_store_name(store.get_name())
+    
+    def __retag_item_action(self, store_name, item_name, tag_list, category_list):
+        """
+        the "tag!" button in the re-tag dialog has been clicked
+        """
+        store = self.__store_dict[store_name]
+        try:
+            ## 1. write the data to the store-file
+            store.add_item_with_tags(item_name, tag_list, category_list)
+            self.__log.debug("added item %s to store-file", item_name)
+        except NameInConflictException, e:
+            c_type = e.get_conflict_type()
+            c_name = e.get_conflicted_name()
+            if c_type == EConflictType.FILE:
+                self.__retag_dialog.show_message(self.trUtf8("The filename - %s - is in conflict with an already existing tag. Please rename!" % c_name))
+            elif c_type == EConflictType.TAG:
+                self.__retag_dialog.show_message(self.trUtf8("The tag - %s - is in conflict with an already existing file" % c_name))
+            else:
+                self.trUtf8("A tag or item is in conflict with an already existing tag/item")
+            #raise
+        except InodeShortageException, e:
+            self.__retag_dialog.show_message(self.trUtf8("The Number of free inodes is below the threshold of %s%" % e.get_threshold()))
+            #raise
+        except Exception, e:
+            self.__retag_dialog.show_message(self.trUtf8("An error occurred while tagging"))
+            raise
+        else:
+            ## 2 remove the item in the gui
+            self.__retag_dialog.remove_item(item_name)
+            self.__retag_dialog.hide_dialog()
+    
+    def __handle_retag_cancel(self):
+        """
+        the "postpone" button in the re-tag dialog has been clicked
+        """
+        self.__retag_dialog.hide_dialog()
+    
     def show_admin_dialog(self, show):
         self.__admin_dialog.show_dialog()
-    
-    def set_modal(self, modal):
-        """
-        True- if the admin dialog should be in modal-mode
-        """
-        self.__admin_dialog.set_modal(modal)
     
     def set_parent(self, parent):
         """
         set the parent for the admin-dialog if there is already a gui window
         """
         self.__admin_dialog.set_parent(parent)
+    
+    def set_modal(self, modal):
+        """
+        True- if the admin dialog should be in modal-mode
+        """
+        self.__admin_dialog.set_modal(modal)
     
     def __prepare_store_params(self):
         """

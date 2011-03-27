@@ -47,8 +47,11 @@ class TsConstants(object):
     
     SETTING_CATEGORY_MANDATORY = "category_mandatory"
     SETTING_SHOW_CATEGORY_LINE = "show_category_line"
-    ## this constant is NOT used at the config file - it is a "gui setting name"
+    
+    ## these constants are NOT used at the config file - it is a "gui setting name"
     SETTING_CATEGORY_VOCABULARY = "category_vocabulary"
+    SETTING_ITEMS = "store_items"
+    
     SETTING_DESC_TAGS = "describing_tags"
     SETTING_CAT_TAGS = "categorizing_tags"
     SETTING_FIRST_START = "first_start"

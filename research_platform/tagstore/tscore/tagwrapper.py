@@ -137,7 +137,7 @@ class TagWrapper():
         """
         returns the describing tag list of a given file
         """
-        self.__settings.beginGroup(self .GROUP_FILES_NAME)
+        self.__settings.beginGroup(self.GROUP_FILES_NAME)
         self.__settings.beginGroup(file_name)
         tags = unicode(self.__settings.value(self.KEY_TAGS, "").toString()).split(self.TAG_SEPARATOR)
         self.__settings.endGroup()        
@@ -146,9 +146,9 @@ class TagWrapper():
     
     def get_file_categories(self, file_name):
         """
-        returns the categorising tag list of a given file
+        returns the categorizing tag list of a given file
         """
-        self.__settings.beginGroup(self .GROUP_FILES_NAME)
+        self.__settings.beginGroup(self.GROUP_FILES_NAME)
         self.__settings.beginGroup(file_name)
         categories = unicode(self.__settings.value(self.KEY_CATEGORIES, "").toString()).split(self.TAG_SEPARATOR)
         self.__settings.endGroup()        
@@ -318,7 +318,7 @@ class TagWrapper():
         """ 
         checks if a file is already existing in the section "files"
         """
-        self.__settings.beginGroup(self .GROUP_FILES_NAME)
+        self.__settings.beginGroup(self.GROUP_FILES_NAME)
         files = self.__settings.childGroups()
         self.__settings.endGroup()
         if file_name in files:

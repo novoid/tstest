@@ -42,10 +42,11 @@ class Tagstore(QtCore.QObject):
         
         self.DRY_RUN = dryrun        
         ## initialize localization
-        locale = unicode(QtCore.QLocale.system().name())[0:2]
+        self.__system_locale = unicode(QtCore.QLocale.system().name())[0:2]
         self.__translator = QtCore.QTranslator()
-        if self.__translator.load("ts_" + locale + ".qm", "tsresources/"):
-            tagstore.installTranslator(self.__translator)
+        if self.__translator.load("ts_" + self.__system_locale + ".qm", "tsresources/"):
+            self.__application.installTranslator(self.__translator)
+        # "en" is automatically translated to the current language e.g. en -> de
         self.CURRENT_LANGUAGE = self.trUtf8("en")
         self.SUPPORTED_LANGUAGES = TsConstants.DEFAULT_SUPPORTED_LANGUAGES
         
@@ -112,10 +113,12 @@ class Tagstore(QtCore.QObject):
         self.NUM_RECENT_TAGS = self.__app_config_wrapper.get_num_popular_tags()
         self.NUM_POPULAR_TAGS = self.__app_config_wrapper.get_num_popular_tags()
         self.MAX_TAGS = self.__app_config_wrapper.get_max_tags()
+        
         self.CURRENT_LANGUAGE = self.__app_config_wrapper.get_current_language();
-        ## just change the language if it is not equal to the default
-        ##if(self.CURRENT_LANGUAGE != "en"):
+        if self.CURRENT_LANGUAGE is None or self.CURRENT_LANGUAGE == "":
+            self.CURRENT_LANGUAGE = self.trUtf8("en")
         self.change_language(self.CURRENT_LANGUAGE)
+        
         config_dir = self.__app_config_wrapper.get_store_config_directory()
         if config_dir != "":
             self.STORE_CONFIG_DIR = config_dir
@@ -202,8 +205,8 @@ class Tagstore(QtCore.QObject):
                 ## call init to initialize new store instance (after adding the event handler)
                 ## necessary if store was renamed during tagstore was not running (to write config)
                 store.init()
-                
 
+    
     def __configure_tag_dialog(self, store, tmp_dialog):
         """
         given a store and a tag dialog - promote all settings to the dialog 
@@ -237,6 +240,7 @@ class Tagstore(QtCore.QObject):
         admin_widget = Administration(tagstore, verbose=verbose_mode)
         admin_widget.set_modal(True)
         admin_widget.set_parent(self.sender().get_view())
+        #admin_widget.set_application(tagstore)
         admin_widget.show_admin_dialog(True)
     
     def store_removed(self, store):
