@@ -33,13 +33,13 @@ from tscore.loghelper import LogHelper
     
 class Tagstore(QtCore.QObject):
 
-    def __init__(self, parent=None, verbose=False, dryrun=False):
+    def __init__(self, application, parent=None, verbose=False, dryrun=False):
         """ 
         initializes the configuration. This method is called every time the config file changes
         """
-
-        QtCore.QObject.__init__(self)
         
+        QtCore.QObject.__init__(self)
+        self.__application = application
         self.DRY_RUN = dryrun        
         ## initialize localization
         self.__system_locale = unicode(QtCore.QLocale.system().name())[0:2]
@@ -425,7 +425,7 @@ if __name__ == '__main__':
     tagstore.setOrganizationDomain("www.tagstore.org")
     tagstore.UnicodeUTF8
     
-    tag_widget = Tagstore(verbose=verbose_mode, dryrun=dry_run)
+    tag_widget = Tagstore(tagstore,verbose=verbose_mode, dryrun=dry_run)
     tagstore.exec_()
     #sys.exit(tagstore.exec_())
     
