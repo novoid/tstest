@@ -19,6 +19,8 @@ from tscore.tagwrapper import TagWrapper
 from tscore.enums import EFileEvent, EFileType
 from tscore.pendingchanges import PendingChanges
 from tscore.configwrapper import ConfigWrapper
+from tscore import pathhelper
+from tscore.pathhelper import PathHelper
 
 class Test(unittest.TestCase):
 
@@ -69,7 +71,6 @@ class Test(unittest.TestCase):
         
         tag_wrapper.remove_tag("TUG")
         assert("TUG" not in tag_wrapper.get_all_tags())
-        
         
     def test_tagwrapper_rename_file_and_tag(self):
         ## rename_file method has been removed!
@@ -184,7 +185,32 @@ class Test(unittest.TestCase):
     def test_configwrapper(self):
         #test = ConfigWrapper()
         pass
+    
+    def test_pathcompleter(self):
+        
+        store_path_list = []
+        
+        store_path_list.append("/Users/chris/teststore")
+        store_path_list.append("/Users/chris/Documents/workspace/tagstore")
+        store_path_list.append("/karl/Documents/workspace")
+        store_path_list.append("/Users/wolfgang/Documents/workspace")
+        
+        item_path = "/Users/chris/teststore/navigation/test/item.txt"
+        result = PathHelper.resolve_store_path(item_path, store_path_list)
+        assert(result == "/Users/chris/teststore")
+        item_name = PathHelper.get_item_name_from_path(item_path)
+        assert(item_name == "item.txt")
 
+        ## this one should produce a None result
+        item_path = "/Users/chris/navigation/test/"
+        result = PathHelper.resolve_store_path(item_path, store_path_list)
+        assert(result is None)
+
+        item_path = ("../../tagstore/tstest/__init__.py")
+        result = PathHelper.resolve_store_path(item_path, store_path_list)
+        assert(result == "/Users/chris/Documents/workspace/tagstore")
+        item_name = PathHelper.get_item_name_from_path(item_path)
+        assert(item_name == "__init__.py")
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

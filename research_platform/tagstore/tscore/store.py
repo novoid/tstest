@@ -610,7 +610,13 @@ class Store(QtCore.QObject):
                 file["category"].remove(old_tag_name)
             self.add_item_with_tags(file["filename"], file["tags"], file["category"]) 
         self.__remove_inprogress_file()
-        
+    
+    def item_exists(self, item_name):
+        """
+        returns True or False if the item is entered in the store.tgs
+        """
+        return self.__tag_wrapper.file_exists(item_name)
+    
     def delete_tags(self, tag_list):
         """
         delete tags inside the store

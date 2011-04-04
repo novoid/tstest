@@ -39,7 +39,9 @@ class Tagstore(QtCore.QObject):
         """
         
         QtCore.QObject.__init__(self)
+        
         self.__application = application
+        
         self.DRY_RUN = dryrun        
         ## initialize localization
         self.__system_locale = unicode(QtCore.QLocale.system().name())[0:2]
@@ -377,7 +379,7 @@ class Tagstore(QtCore.QObject):
             dialog_controller.show_message(self.trUtf8("An error occurred while tagging"))
             raise
         else:
-            ## 2 remove the item in the gui
+            ## 2. remove the item in the gui
             dialog_controller.remove_item(item_name)
             ## 3. refresh the tag information of the gui
             self.__set_tag_information_to_dialog(store)

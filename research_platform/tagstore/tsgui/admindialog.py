@@ -21,6 +21,7 @@ from tscore.tsconstants import TsConstants
 from tscore.enums import ECategorySetting, EDateStampFormat
 from tscore.vocabularywrapper import VocabularyWrapper
 from tscore.specialcharhelper import SpecialCharHelper
+from tscore.tagwrapper import TagWrapper
 
 class StorePreferencesView(QtGui.QDialog):
     """
@@ -483,7 +484,6 @@ class VocabularyAdminView(MultipleStorePreferenceView):
         else:
             self._promote_setting_changed(self._store_combo.currentText(), TsConstants.SETTING_CATEGORY_MANDATORY, False)
         
-        self.connect(self.__vocabulary_list_view, QtCore.SIGNAL("itemSelectionChanged()"), self.__voc_selection_changed)
     def __voc_selection_changed(self):
         selection_list = self.__vocabulary_list_view.selectedItems()
         if selection_list is None or len(selection_list) == 0:
@@ -610,6 +610,71 @@ class VocabularyAdminController(MultipleStorePreferenceController):
     def set_settings_editable(self, enabled):
         self.get_view().enable_radio_buttons(enabled)
  
+class ReTaggingView(MultipleStorePreferenceView):
+    def __init__(self, store_list=None, parent=None):
+        MultipleStorePreferenceView.__init__(self, store_list)
+        self.set_description(self.trUtf8("Re-tag already tagged items"))
+        
+        self.__selected_item = None
+        
+        self.__item_list_view = QtGui.QListWidget()
+        
+        self.__btn_retag = QtGui.QPushButton(self.trUtf8("Re-Tag"))
+        self.__btn_retag.setEnabled(False)
+        
+        main_layout = QtGui.QVBoxLayout()
+        main_layout.addWidget(self.__item_list_view)
+        main_layout.addWidget(self.__btn_retag)
+        #btn_layout = QtGui.QHBoxLayout()
+        
+        self.__main_panel = QtGui.QWidget()
+        self.__main_panel.setLayout(main_layout)
+        
+        self.add_widget(self.__main_panel)
+        
+        self.connect(self.__btn_retag, QtCore.SIGNAL("clicked()"), self.__handle_retag)
+        self.connect(self.__item_list_view, QtCore.SIGNAL("itemSelectionChanged()"), self.__item_selection_changed)
+    
+    def __item_selection_changed(self):
+        selection_list = self.__item_list_view.selectedItems()
+        if selection_list is None or len(selection_list) == 0:
+            self.__selected_item = None
+            self.__btn_retag.setEnabled(False)
+        else:
+            self.__selected_item = selection_list[0]
+            self.__btn_retag.setEnabled(True)
+        
+    def __handle_retag(self):
+        self.emit(QtCore.SIGNAL("retag"))
+        
+    def set_item_list(self, item_list):
+        self.__item_list_view.clear()
+        self.__item_list_view.addItems(item_list)
+        
+    def get_selected_item(self):
+        return self.__selected_item
+        
+        
+class ReTaggingController(MultipleStorePreferenceController):
+    
+    def __init__(self, store_list):
+        MultipleStorePreferenceController.__init__(self, store_list)
+        
+        self.set_store_names(self._store_list)
+        
+        self.connect(self.get_view(), QtCore.SIGNAL("retag"), self.__handle_retagging)
+        
+    def __handle_retagging(self):
+        self.emit(QtCore.SIGNAL("retag"), self._current_store, self.get_view().get_selected_item())
+        
+    def _create_view(self):
+        return ReTaggingView()
+    
+    def _handle_setting(self, store_name, setting_name, setting_value):
+        if store_name == self._current_store:
+            if setting_name == TsConstants.SETTING_ITEMS:
+                self.get_view().set_item_list(setting_value)
+    
 class TagAdminView(MultipleStorePreferenceView):
     
     def __init__(self, store_list=None, parent=None):
@@ -1011,6 +1076,7 @@ class StorePreferencesController(QtCore.QObject):
         self.TAB_NAME_EXPIRY = self.trUtf8("Expiry Date")
         self.TAB_NAME_VOCABULARY = self.trUtf8("Vocabulary")
         self.TAB_NAME_TAGS = self.trUtf8("Rename Tags")
+        self.TAB_NAME_RETAG = self.trUtf8("Re-Tagging")
         ## a list with all controllers used at the preference view
         self.__preference_controller_list = {}
         
@@ -1046,6 +1112,9 @@ class StorePreferencesController(QtCore.QObject):
             self.__controller_expiry_admin = ExpiryAdminController()
             self.__register_controller(self.__controller_expiry_admin, self.TAB_NAME_EXPIRY)
 
+            self.__controller_retag = ReTaggingController(self.__store_names)
+            self.__register_controller(self.__controller_retag, self.TAB_NAME_RETAG)
+
             self.__controller_tag_admin = TagAdminController(self.__store_names)
             self.__register_controller(self.__controller_tag_admin, self.TAB_NAME_TAGS)
 
@@ -1057,7 +1126,7 @@ class StorePreferencesController(QtCore.QObject):
             self.__controller_vocabulary.set_store_names(self.__store_names)
             self.__controller_datestamp.set_store_names(self.__store_names)
             self.__controller_tag_admin.set_store_names(self.__store_names)
-            
+            self.__controller_retag.set_store_names(self.__store_names)
         
 
         ## create a list with one config wrapper for each store
@@ -1068,6 +1137,9 @@ class StorePreferencesController(QtCore.QObject):
             config_path = "%s/%s/%s" % (store_path, TsConstants.DEFAULT_STORE_CONFIG_DIR, TsConstants.DEFAULT_STORE_CONFIG_FILENAME)
             config = ConfigWrapper(config_path)
             self.__store_config_dict[store_name] = config
+            
+            tagfile_path = "%s/%s/%s" % (store_path, TsConstants.DEFAULT_STORE_CONFIG_DIR, TsConstants.DEFAULT_STORE_TAGS_FILENAME)
+            tagfile_wrapper = TagWrapper(tagfile_path)
             
             voc_path = "%s/%s/%s" % (store_path, TsConstants.DEFAULT_STORE_CONFIG_DIR, TsConstants.DEFAULT_STORE_VOCABULARY_FILENAME)
             voc_wrapper = VocabularyWrapper(voc_path)
@@ -1084,6 +1156,8 @@ class StorePreferencesController(QtCore.QObject):
             self.__controller_tag_admin.add_setting(TsConstants.SETTING_CAT_TAGS, store["cat_tags"], store_name)
             self.__controller_tag_admin.add_setting(TsConstants.SETTING_SHOW_CATEGORY_LINE, config.get_show_category_line(), store_name)
             
+            self.__controller_retag.add_setting(TsConstants.SETTING_ITEMS, tagfile_wrapper.get_files(), store_name)
+            
             self.__controller_datestamp.add_setting(TsConstants.SETTING_DATESTAMP_FORMAT, config.get_datestamp_format(), store_name)
 
         self.connect(self.__controller_store_admin, QtCore.SIGNAL("new"), self.__handle_new_store)
@@ -1095,6 +1169,8 @@ class StorePreferencesController(QtCore.QObject):
 #        self.connect(controller_tag_admin, QtCore.SIGNAL("rename_cat_tag"), self.__handle_cat_tag_rename)
         self.connect(self.__controller_tag_admin, QtCore.SIGNAL("rename_desc_tag"), QtCore.SIGNAL("rename_desc_tag"))
         self.connect(self.__controller_tag_admin, QtCore.SIGNAL("rename_cat_tag"), QtCore.SIGNAL("rename_cat_tag"))
+
+        self.connect(self.__controller_retag, QtCore.SIGNAL("retag"), QtCore.SIGNAL("retag"))
 
         ## this setting comes from the main config
         self.__controller_expiry_admin.add_setting(TsConstants.SETTING_EXPIRY_PREFIX, self.__main_config.get_expiry_prefix())
@@ -1214,5 +1290,8 @@ class StorePreferencesController(QtCore.QObject):
         
     def hide_dialog(self):
         self.__dialog.hide()
+        
+    def get_view(self):
+        return self.__dialog
 
 ## end

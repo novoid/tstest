@@ -16,32 +16,51 @@
 ## You should have received a copy of the GNU General Public License along with this program;
 ## if not, see <http://www.gnu.org/licenses/>.
 import sys
-import logging.handlers
-from optparse import OptionParser
+import logging
 from PyQt4 import QtCore, QtGui
-from tscore.store import Store
+from optparse import OptionParser
 from tscore.configwrapper import ConfigWrapper
-from tscore.tsconstants import TsConstants
-from tscore.loghelper import LogHelper
-from tsgui.tagdialog import TagDialogController
 from tscore.enums import EDateStampFormat, EConflictType, EFileEvent
 from tscore.exceptions import NameInConflictException, InodeShortageException
+from tscore.loghelper import LogHelper
+from tscore.pathhelper import PathHelper
+from tscore.store import Store
+from tscore.tsconstants import TsConstants
+from tsgui.tagdialog import TagDialogController
 
-class TagController(QtCore.QObject):
+class ReTagController(QtCore.QObject):
+    """
+    object for calling the re-tag view.
+    MANDATORY parameters: 
+    * application -> the parent qt-application object ()for installing the translator properly
+    * item_path -> absolute OR relative path to the item to be retagged. the path to the item can also be a path to an item link in the tagtree
+    OPTIONAL parameters:
+    * standalone_application -> default = False; set this to true if there
+    * verbose -> set this to true for detailed output
+    (DEVEL * retag_mode -> this application could even be used for a normal tagging procedure as well.)
+    
+    IMPORTANT!!!
+    the start() method must be called in order to begin with the tagging procedure
+    """
 
-    def __init__(self, application, store_path, item_name = "", retag_mode = False, verbose = False):
+    def __init__(self, application, item_path, retag_mode = True, verbose = False):
         QtCore.QObject.__init__(self)
         
         self.__log = None
         self.__main_config = None
+        self.__store_config = None
         self.__tag_dialog = None
         self.__store = None
         
-        self.__store_path = store_path
-        self.__item_name = item_name
         self.__retag_mode = retag_mode
         
-        self.__store_config = ConfigWrapper(self.__store_path)
+        self.__no_store_found = False
+
+        self.__item_path = item_path
+
+        self.__item_name = PathHelper.get_item_name_from_path(self.__item_path)
+        self.__store_path = None
+
         # the main application which has the translator installed
         self.__application = application
 
@@ -58,8 +77,8 @@ class TagController(QtCore.QObject):
         locale = unicode(QtCore.QLocale.system().name())[0:2]
         self.__translator = QtCore.QTranslator()
         if self.__translator.load("ts_" + locale + ".qm", "tsresources/"):
-#            tagstore_tag.installTranslator(self.__translator)
             self.__application.installTranslator(self.__translator)
+
         #get dir names for all available languages
         self.CURRENT_LANGUAGE = self.trUtf8("en")
         self.STORE_STORAGE_DIRS = []
@@ -70,14 +89,35 @@ class TagController(QtCore.QObject):
         self.__store_dict = {}
         
         self.__log = LogHelper.get_app_logger(self.LOG_LEVEL)
+        
+    def start(self):
+        """
+        call this method to actually start the tagging procedure
+        """
         self.__init_configuration()
         
+    
     def __init_configuration(self):
         """
         initializes the configuration. This method is called every time the config file changes
         """
         self.__log.info("initialize configuration")
+        
+        
         self.__main_config = ConfigWrapper(TsConstants.CONFIG_PATH)
+        
+        if self.__main_config is None:
+            self.__emit_not_retagable(self.trUtf8("No config file found for the given path"))
+            return
+        else:
+            self.__store_path = PathHelper.resolve_store_path(self.__item_path, self.__main_config.get_store_path_list())
+        
+        ## check if there has been found an appropriate store_path in the config 
+        if self.__store_path is None:
+            self.__emit_not_retagable(self.trUtf8("No store found for the given path"))
+            return
+        else:
+            self.__store_config = ConfigWrapper(self.__store_path)
         
         self.__prepare_store_params()
         
@@ -121,19 +161,43 @@ class TagController(QtCore.QObject):
         self.__tag_dialog.show_category_line(self.__store.get_show_category_line())
         self.__tag_dialog.set_category_mandatory(self.__store.get_category_mandatory()) 
         
+        ## check if the given item really exists in the store
+        if not self.__store.item_exists(self.__item_name):
+            self.__emit_not_retagable(self.trUtf8("%s: There is no such item recorded in the store" % self.__item_name))
+            return 
+
+        self.__set_tag_information_to_dialog(self.__store)
+        
         if self.__retag_mode:
             self.__handle_retag_mode()
-            
-        self.__set_tag_information_to_dialog(self.__store)
+        
         self.__tag_dialog.show_dialog()
+    
+    def __emit_not_retagable(self, err_msg):
+        self.__log.error(err_msg)
+        self.emit(QtCore.SIGNAL("retag_error"))
     
     def __handle_tag_rename(self, store_name, file_name, new_describing_tags, new_categorizing_tags):
         
         ## first of all remove the old references
         self.__store.remove_file(file_name)
         ## now create the new navigation structure
-        self.__store.add_item_with_tags(file_name, new_describing_tags, new_categorizing_tags)
-    
+        try:
+            self.__store.add_item_with_tags(file_name, new_describing_tags, new_categorizing_tags)
+        except InodeShortageException, e:
+            self.__tag_dialog.show_message(self.trUtf8("The Number of free inodes is below the threshold of %s%" % e.get_threshold()))
+            #raise
+        except Exception, e:
+            self.__tag_dialog.show_message(self.trUtf8("An error occurred while tagging"))
+            raise
+        else:
+            ## 2. remove the item in the gui
+            self.__tag_dialog.remove_item(item_name)
+            ## 3. refresh the tag information of the gui
+            self.__set_tag_information_to_dialog(self.__store)
+            
+            self.emit(QtCore.SIGNAL("tag_success"))
+        
     def set_application(self, application):
         """
         if the manager is called from another qt application (e.g. tagstore.py)
@@ -168,6 +232,8 @@ class TagController(QtCore.QObject):
         self.__tag_dialog.set_category_line_content(desc_content)
         
         self.__tag_dialog.add_pending_item(self.__item_name)
+        
+        return True
 
     def __set_tag_information_to_dialog(self, store):
         """
@@ -203,11 +269,8 @@ class TagController(QtCore.QObject):
             tag_list = tag_list[:num_pop_tags]
         self.__tag_dialog.set_popular_tags(tag_list)
         
-        self.__tag_dialog.set_item_list(store.get_pending_changes().get_items_by_event(EFileEvent.ADDED))
-        
-        #added_list = set(store.get_pending_changes().get_items_by_event(EFileEvent.ADDED))
-        #for item in added_list:
-        #    self.__tag_dialog.add_pending_item(item)
+        if not self.__retag_mode:
+            self.__tag_dialog.set_item_list(store.get_pending_changes().get_items_by_event(EFileEvent.ADDED))
 
         self.__tag_dialog.set_store_name(store.get_name())
     
@@ -301,14 +364,41 @@ class TagController(QtCore.QObject):
         ## update current language
 #        self.CURRENT_LANGUAGE = self.trUtf8("en")
         self.CURRENT_LANGUAGE = self.trUtf8(locale)
-    
+
+class ApplicationController(QtCore.QObject):
+    """
+    a small helper class to launch the retag-dialog as a standalone application
+    this helper connects to the signals emitted by the retag controller and does the handling
+    """
+    def __init__(self, application, path, retag_mode, verbose):
+        QtCore.QObject.__init__(self)
+        
+        ## create the object
+        self.__retag_widget = ReTagController(application, path, True, verbose_mode)
+        ## connect to the signal(s)
+        self.connect(self.__retag_widget, QtCore.SIGNAL("retag_error"), self.__handle_retag_error)
+        self.connect(self.__retag_widget, QtCore.SIGNAL("tag_success"), self.__handle_tag_success)
+        ## start the retagging
+        self.__retag_widget.start()
+        
+    def __handle_retag_error(self):
+        """
+        exit the program if there is an error
+        """
+        sys.exit(-1)
+        
+    def __handle_tag_success(self):
+        """
+        exit the application gracefully
+        """
+        sys.exit(0)
+   
 if __name__ == '__main__':  
   
     ## initialize and configure the optionparser
     usage = "\nThis program opens a dialog used for tagging an item placed in a tagstore directory."
     opt_parser = OptionParser("tagstore_tag.py -s <store> -i <itemname>")
     opt_parser.add_option("-s", "--store", dest="store_path", help="absolute path to the store home dir")
-    opt_parser.add_option("-i", "--item", dest="itemname", help="the name of the item to be tagged")
     #opt_parser.add_option("-r", "--retag", dest="retag", action="store_true", help="use this option if the item has to be retagged")
     opt_parser.add_option("-v", "--verbose", dest="verbose", action="store_true", help="start programm with detailed output")
 
@@ -331,27 +421,18 @@ if __name__ == '__main__':
         print "no store name given"
         opt_parser.print_help()
         sys.exit()
-    if options.itemname:
-        item_name = options.itemname
-    else:
-        print "no item name given"
-        opt_parser.print_help()
-        sys.exit()
-        #exit_application()
         
-    print "opening store: %s for item: %s" % (store_path, item_name)
-    
     tagstore_tag = QtGui.QApplication(sys.argv)
     tagstore_tag.setApplicationName("tagstore_retag")
     tagstore_tag.setOrganizationDomain("www.tagstore.org")
     tagstore_tag.UnicodeUTF8
     
-#    admin_widget = TagController(tagstore_tag, store_path, item_name, retag_mode, verbose_mode)
-    admin_widget = TagController(tagstore_tag, store_path, item_name, True, verbose_mode)
-    admin_widget.show_tag_dialog(True)
+    appcontroller = ApplicationController(tagstore_tag, store_path, True, verbose_mode)
+    #tagstore_tag.connect(retag_widget, QtCore.SIGNAL("retag_error"), print("retag error caught in main"))
+    
     tagstore_tag.exec_()
     
-def exit_application():
+def quit_application():
     opt_parser.print_help()
     sys.exit()
 ## end

@@ -319,6 +319,21 @@ class ConfigWrapper(QtCore.QObject):
         self.__settings.endGroup()
         return path.rstrip("/")
 
+    def get_store_path_list(self):
+        """
+        returns a list of all configured store paths
+        """
+        
+        store_path_list = []
+        
+        self.__settings.beginGroup("stores")
+        store_id_list = self.__settings.childKeys()
+        for id in store_id_list:
+            store_path_list.append(self.__settings.value(id, "").toString())
+        self.__settings.endGroup()
+        
+        return store_path_list
+
     def get_stores(self):
         """
         returns a list of store objects (directories) including the stores id and path
