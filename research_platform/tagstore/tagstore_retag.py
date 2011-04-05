@@ -33,7 +33,8 @@ class ReTagController(QtCore.QObject):
     object for calling the re-tag view.
     MANDATORY parameters: 
     * application -> the parent qt-application object ()for installing the translator properly
-    * item_path -> absolute OR relative path to the item to be retagged. the path to the item can also be a path to an item link in the tagtree
+    * store_path -> absolute OR relative path to the item to be retagged. the path to the item can also be a path to an item link in the tagtree
+    * item_name -> the name of the item to be renamed (exactly how it is defined in the tagfile)
     OPTIONAL parameters:
     * standalone_application -> default = False; set this to true if there
     * verbose -> set this to true for detailed output
@@ -43,7 +44,7 @@ class ReTagController(QtCore.QObject):
     the start() method must be called in order to begin with the tagging procedure
     """
 
-    def __init__(self, application, item_path, retag_mode = True, verbose = False):
+    def __init__(self, application, store_path, item_name, retag_mode = True, verbose = False):
         QtCore.QObject.__init__(self)
         
         self.__log = None
@@ -56,10 +57,8 @@ class ReTagController(QtCore.QObject):
         
         self.__no_store_found = False
 
-        self.__item_path = item_path
-
-        self.__item_name = PathHelper.get_item_name_from_path(self.__item_path)
-        self.__store_path = None
+        self.__item_name = item_name
+        self.__store_path = store_path
 
         # the main application which has the translator installed
         self.__application = application
@@ -109,8 +108,6 @@ class ReTagController(QtCore.QObject):
         if self.__main_config is None:
             self.__emit_not_retagable(self.trUtf8("No config file found for the given path"))
             return
-        else:
-            self.__store_path = PathHelper.resolve_store_path(self.__item_path, self.__main_config.get_store_path_list())
         
         ## check if there has been found an appropriate store_path in the config 
         if self.__store_path is None:
@@ -373,8 +370,25 @@ class ApplicationController(QtCore.QObject):
     def __init__(self, application, path, retag_mode, verbose):
         QtCore.QObject.__init__(self)
         
+        self.LOG_LEVEL = logging.INFO
+        if verbose:
+            self.LOG_LEVEL = logging.DEBUG
+        
+        self.__log = LogHelper.get_app_logger(self.LOG_LEVEL)
+        
+        ## create a config object to get the registered store paths
+        self.__main_config = ConfigWrapper(TsConstants.CONFIG_PATH)
+        
+        if self.__main_config is None:
+            self.__log("No config file found for the given path")
+            self.__handle_retag_error()
+        else:
+            self.__store_path = PathHelper.resolve_store_path(path, self.__main_config.get_store_path_list())
+        
+        self.__item_name = PathHelper.get_item_name_from_path(path)
+        
         ## create the object
-        self.__retag_widget = ReTagController(application, path, True, verbose_mode)
+        self.__retag_widget = ReTagController(application, self.__store_path, self.__item_name, True, verbose_mode)
         ## connect to the signal(s)
         self.connect(self.__retag_widget, QtCore.SIGNAL("retag_error"), self.__handle_retag_error)
         self.connect(self.__retag_widget, QtCore.SIGNAL("tag_success"), self.__handle_tag_success)

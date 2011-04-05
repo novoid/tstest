@@ -670,6 +670,12 @@ class ReTaggingController(MultipleStorePreferenceController):
     def _create_view(self):
         return ReTaggingView()
     
+    def _add_additional_settings(self):
+        """
+        dummy implementation
+        """
+        pass
+    
     def _handle_setting(self, store_name, setting_name, setting_value):
         if store_name == self._current_store:
             if setting_name == TsConstants.SETTING_ITEMS:
