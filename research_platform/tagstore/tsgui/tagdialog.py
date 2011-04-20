@@ -754,9 +754,9 @@ class TagDialogController(QtCore.QObject):
             completion_set = set(completion_list)
             ## if datestamps are allowed - remove the datestamp from the list
             ## before checking the tags
+            ## temporarily store all used datestamps in this set
+            datestamp_set = set()
             if show_datestamp:
-                ## temporarily store all used datestamps in this set
-                datestamp_set = set()
                 
                 for tag in category_list:
                     if SpecialCharHelper.is_datestamp(tag):
@@ -768,6 +768,10 @@ class TagDialogController(QtCore.QObject):
             if not category_list.issubset(completion_set):
                 self.__tag_dialog.set_not_suitable_categories_entered()
                 return
+            else:
+                ## re-merge the datestamps and the categries
+                category_list = category_list.union(datestamp_set)
+                
         if SpecialCharHelper.contains_special_chars(category_list):
             self.__tag_dialog.set_error_occured(ETagErrorEnum.NOT_ALLOWED_CHAR_CATEGORIZING_TAG)
             return

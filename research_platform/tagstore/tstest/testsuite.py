@@ -211,6 +211,20 @@ class Test(unittest.TestCase):
         assert(result == "/Users/chris/Documents/workspace/tagstore")
         item_name = PathHelper.get_item_name_from_path(item_path)
         assert(item_name == "__init__.py")
+    
+    def test_set_merge(self):
+        
+        set_1 = set(["hi", "you", "nerd"])
+        set_2 = set(["i'm", "a", "geek"])
+        
+        print set_1
+        print set_2
+        
+        set_3 = set_1.union(set_2)
+        
+        print set_3
+        
+        assert("geek" in set_3)
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

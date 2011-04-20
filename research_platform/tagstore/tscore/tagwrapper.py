@@ -276,6 +276,7 @@ class TagWrapper():
             self.__settings.setValue(self.KEY_CATEGORIES, unicode(self.TAG_SEPARATOR.join(category_list)))
         self.__settings.endGroup()
         self.__settings.endGroup()
+        self.__settings.sync()
 
     def __set_tags(self, file_name, tag_list, category_list=None):
         """
@@ -285,7 +286,7 @@ class TagWrapper():
         if not self.file_exists(file_name):
             self.set_file(file_name, tag_list, category_list)
         else:
-            self.__settings.beginGroup(self .GROUP_FILES_NAME)
+            self.__settings.beginGroup(self.GROUP_FILES_NAME)
             self.__settings.beginGroup(file_name)
             self.__settings.setValue(self.KEY_TAGS, self.TAG_SEPARATOR.join(tag_list))
             if category_list is not None:
@@ -310,9 +311,10 @@ class TagWrapper():
         """
         removes a given file from the config file
         """
-        self.__settings.beginGroup(self .GROUP_FILES_NAME)
+        self.__settings.beginGroup(self.GROUP_FILES_NAME)
         self.__settings.remove(file_name)
         self.__settings.endGroup()
+        self.__settings.sync()
     
     def file_exists(self, file_name):
         """ 

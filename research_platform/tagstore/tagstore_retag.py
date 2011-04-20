@@ -31,16 +31,27 @@ from tsgui.tagdialog import TagDialogController
 class ReTagController(QtCore.QObject):
     """
     object for calling the re-tag view.
+    ************************
     MANDATORY parameters: 
+    ************************
     * application -> the parent qt-application object ()for installing the translator properly
-    * store_path -> absolute OR relative path to the item to be retagged. the path to the item can also be a path to an item link in the tagtree
+    * store_path -> absolute path to the store of the item to be retagged (TIP: use the PathHelper object to resolve a relative path.)
     * item_name -> the name of the item to be renamed (exactly how it is defined in the tagfile)
+
+    ************************
+    TIP: use the PathHelper object to resolve a relative path AND to extract the item name out of it. 
+    ************************
+    
+    ************************
     OPTIONAL parameters:
+    ************************
     * standalone_application -> default = False; set this to true if there
     * verbose -> set this to true for detailed output
     (DEVEL * retag_mode -> this application could even be used for a normal tagging procedure as well.)
     
+    ************************
     IMPORTANT!!!
+    ************************
     the start() method must be called in order to begin with the tagging procedure
     """
 
@@ -84,8 +95,19 @@ class ReTagController(QtCore.QObject):
         self.STORE_DESCRIBING_NAV_DIRS = []
         self.STORE_CATEGORIZING_NAV_DIRS = []
         self.STORE_EXPIRED_DIRS = []
+        self.STORE_NAVIGATION_DIRS = []
         self.SUPPORTED_LANGUAGES = TsConstants.DEFAULT_SUPPORTED_LANGUAGES
         self.__store_dict = {}
+        
+        for lang in self.SUPPORTED_LANGUAGES: 
+            self.change_language(lang)
+            self.STORE_NAVIGATION_DIRS.append(self.trUtf8("navigation")) 
+            self.STORE_STORAGE_DIRS.append(self.trUtf8("storage"))#self.STORE_STORAGE_DIR_EN))  
+            self.STORE_DESCRIBING_NAV_DIRS.append(self.trUtf8("descriptions"))#self.STORE_DESCRIBING_NAVIGATION_DIR_EN))  
+            self.STORE_CATEGORIZING_NAV_DIRS.append(self.trUtf8("categories"))#self.STORE_CATEGORIZING_NAVIGATION_DIR_EN)) 
+            self.STORE_EXPIRED_DIRS.append(self.trUtf8("expired_items"))#STORE_EXPIRED_DIR_EN)) 
+        ## reset language 
+        self.change_language(self.CURRENT_LANGUAGE)
         
         self.__log = LogHelper.get_app_logger(self.LOG_LEVEL)
         
@@ -126,6 +148,7 @@ class ReTagController(QtCore.QObject):
               self.STORE_CONFIG_DIR + "/" + self.STORE_CONFIG_FILE_NAME,
               self.STORE_CONFIG_DIR + "/" + self.STORE_TAGS_FILE_NAME,
               self.STORE_CONFIG_DIR + "/" + self.STORE_VOCABULARY_FILE_NAME,
+              self.STORE_NAVIGATION_DIRS,
               self.STORE_STORAGE_DIRS, 
               self.STORE_DESCRIBING_NAV_DIRS,
               self.STORE_CATEGORIZING_NAV_DIRS,
@@ -174,7 +197,7 @@ class ReTagController(QtCore.QObject):
         self.__log.error(err_msg)
         self.emit(QtCore.SIGNAL("retag_error"))
     
-    def __handle_tag_rename(self, store_name, file_name, new_describing_tags, new_categorizing_tags):
+    def __handle_retag(self, store_name, file_name, new_describing_tags, new_categorizing_tags):
         
         ## first of all remove the old references
         self.__store.remove_file(file_name)
@@ -189,12 +212,11 @@ class ReTagController(QtCore.QObject):
             raise
         else:
             ## 2. remove the item in the gui
-            self.__tag_dialog.remove_item(item_name)
+            self.__tag_dialog.remove_item(file_name)
             ## 3. refresh the tag information of the gui
             self.__set_tag_information_to_dialog(self.__store)
-            
-            self.emit(QtCore.SIGNAL("tag_success"))
-        
+            self.emit(QtCore.SIGNAL("retag_success"))
+
     def set_application(self, application):
         """
         if the manager is called from another qt application (e.g. tagstore.py)
@@ -209,7 +231,7 @@ class ReTagController(QtCore.QObject):
         ## remove the tag command        
         self.__tag_dialog.disconnect(self.__tag_dialog, QtCore.SIGNAL("tag_item"), self.__tag_item_action)
         ## reconnect the signal to the re-tag action and not the default tag action
-        self.__tag_dialog.connect(self.__tag_dialog, QtCore.SIGNAL("tag_item"), self.__handle_tag_rename)
+        self.__tag_dialog.connect(self.__tag_dialog, QtCore.SIGNAL("tag_item"), self.__handle_retag)
         
         cat_content = ""
         cat_tags = self.__store.get_describing_tags_for_item(self.__item_name)
@@ -304,10 +326,14 @@ class ReTagController(QtCore.QObject):
         """
         the "postpone" button in the re-tag dialog has been clicked
         """
-        self.__tag_dialog.hide_dialog()
+        self.emit(QtCore.SIGNAL("retag_cancel"))
+        #self.__tag_dialog.hide_dialog()
     
-    def show_tag_dialog(self, show):
+    def show_tag_dialog(self):
         self.__tag_dialog.show_dialog()
+
+    def hide_tag_dialog(self):
+        self.__tag_dialog.hide_dialog()
     
     def set_parent(self, parent):
         """
@@ -390,8 +416,9 @@ class ApplicationController(QtCore.QObject):
         ## create the object
         self.__retag_widget = ReTagController(application, self.__store_path, self.__item_name, True, verbose_mode)
         ## connect to the signal(s)
+        self.connect(self.__retag_widget, QtCore.SIGNAL("retag_cancel"), self.__handle_retag_cancel)
         self.connect(self.__retag_widget, QtCore.SIGNAL("retag_error"), self.__handle_retag_error)
-        self.connect(self.__retag_widget, QtCore.SIGNAL("tag_success"), self.__handle_tag_success)
+        self.connect(self.__retag_widget, QtCore.SIGNAL("retag_success"), self.__handle_retag_success)
         ## start the retagging
         self.__retag_widget.start()
         
@@ -401,7 +428,13 @@ class ApplicationController(QtCore.QObject):
         """
         sys.exit(-1)
         
-    def __handle_tag_success(self):
+    def __handle_retag_success(self):
+        """
+        exit the application gracefully
+        """
+        sys.exit(0)
+
+    def __handle_retag_cancel(self):
         """
         exit the application gracefully
         """

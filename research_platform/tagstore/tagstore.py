@@ -64,9 +64,11 @@ class Tagstore(QtCore.QObject):
         self.STORE_DESCRIBING_NAV_DIRS = []
         self.STORE_CATEGORIZING_NAV_DIRS = []
         self.STORE_EXPIRED_DIRS = []
+        self.STORE_NAVIGATION_DIRS = []
 
         for lang in self.SUPPORTED_LANGUAGES: 
-            self.change_language(lang) 
+            self.change_language(lang)
+            self.STORE_NAVIGATION_DIRS.append(self.trUtf8("navigation")) 
             self.STORE_STORAGE_DIRS.append(self.trUtf8("storage"))#self.STORE_STORAGE_DIR_EN))  
             self.STORE_DESCRIBING_NAV_DIRS.append(self.trUtf8("descriptions"))#self.STORE_DESCRIBING_NAVIGATION_DIR_EN))  
             self.STORE_CATEGORIZING_NAV_DIRS.append(self.trUtf8("categories"))#self.STORE_CATEGORIZING_NAVIGATION_DIR_EN)) 
@@ -177,6 +179,7 @@ class Tagstore(QtCore.QObject):
                               self.STORE_CONFIG_DIR + "/" + self.STORE_CONFIG_FILE_NAME,
                               self.STORE_CONFIG_DIR + "/" + self.STORE_TAGS_FILE_NAME,
                               self.STORE_CONFIG_DIR + "/" + self.STORE_VOCABULARY_FILE_NAME,
+                              self.STORE_NAVIGATION_DIRS,
                               self.STORE_STORAGE_DIRS, 
                               self.STORE_DESCRIBING_NAV_DIRS,
                               self.STORE_CATEGORIZING_NAV_DIRS,

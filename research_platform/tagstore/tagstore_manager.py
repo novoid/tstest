@@ -27,6 +27,7 @@ from tscore.loghelper import LogHelper
 from tsgui.tagdialog import TagDialogController
 from tscore.enums import EDateStampFormat, EConflictType
 from tscore.exceptions import NameInConflictException, InodeShortageException
+from tagstore_retag import ReTagController
 
 class Administration(QtCore.QObject):
 
@@ -62,6 +63,7 @@ class Administration(QtCore.QObject):
         self.STORE_DESCRIBING_NAV_DIRS = []
         self.STORE_CATEGORIZING_NAV_DIRS = []
         self.STORE_EXPIRED_DIRS = []
+        self.STORE_NAVIGATION_DIRS = []
         self.SUPPORTED_LANGUAGES = TsConstants.DEFAULT_SUPPORTED_LANGUAGES
         self.__store_dict = {}
         
@@ -70,7 +72,8 @@ class Administration(QtCore.QObject):
             self.STORE_STORAGE_DIRS.append(self.trUtf8("storage"))#self.STORE_STORAGE_DIR_EN))  
             self.STORE_DESCRIBING_NAV_DIRS.append(self.trUtf8("descriptions"))#self.STORE_DESCRIBING_NAVIGATION_DIR_EN))  
             self.STORE_CATEGORIZING_NAV_DIRS.append(self.trUtf8("categories"))#self.STORE_CATEGORIZING_NAVIGATION_DIR_EN)) 
-            self.STORE_EXPIRED_DIRS.append(self.trUtf8("expired_items"))#STORE_EXPIRED_DIR_EN)) 
+            self.STORE_EXPIRED_DIRS.append(self.trUtf8("expired_items"))#STORE_EXPIRED_DIR_EN))
+            self.STORE_NAVIGATION_DIRS.append(self.trUtf8("navigation")) 
         
         self.__log = LogHelper.get_app_logger(self.LOG_LEVEL)
         self.__init_configuration()
@@ -138,17 +141,31 @@ class Administration(QtCore.QObject):
         """
         store = self.__store_dict[store_name]
         
-                
-        self.__log.info("retagging item %s at store %s..." % (item_name.text(), store_name))
-        if(self.__retag_dialog is None):
-            self.__retag_dialog = TagDialogController(store.get_name(), self.__main_config.get_max_tags(), self.__main_config.get_tag_seperator())
-            self.__retag_dialog.set_parent(self.__admin_dialog.get_view())
-            self.__retag_dialog.get_view().setModal(True)
-            #self.__retag_dialog.set_parent(self.sender().get_view())
-            self.__retag_dialog.connect(self.__retag_dialog, QtCore.SIGNAL("tag_item"), self.__retag_item_action)
-            self.__retag_dialog.connect(self.__retag_dialog, QtCore.SIGNAL("handle_cancel()"), self.__handle_retag_cancel)
-
-
+        ## make a string object of the QListWidgetItem, so other methods can use it
+        item_name = item_name.text()                
+        self.__log.info("retagging item %s at store %s..." % (item_name, store_name))
+        #if(self.__retag_dialog is None):
+            
+        ## create the object
+        self.__retag_dialog = ReTagController(self.__application, store.get_store_path(), item_name, True, verbose_mode)
+        ## connect to the signal(s)
+        self.connect(self.__retag_dialog, QtCore.SIGNAL("retag_error"), self.__handle_retag_error)
+        self.connect(self.__retag_dialog, QtCore.SIGNAL("retag_cancel"), self.__handle_retag_cancel)
+        self.connect(self.__retag_dialog, QtCore.SIGNAL("retag_success"), self.__handle_retag_success)
+        self.__retag_dialog.start()
+            
+        """
+        #self.__retag_dialog = TagDialogController(store.get_name(), self.__main_config.get_max_tags(), self.__main_config.get_tag_seperator())
+        self.__retag_dialog = TagDialogController(store.get_name(), self.__main_config.get_max_tags(), self.__main_config.get_tag_seperator())
+        self.__retag_dialog.set_parent(self.__admin_dialog.get_view())
+        self.__retag_dialog.get_view().setModal(True)
+        #self.__retag_dialog.set_parent(self.sender().get_view())
+        self.__retag_dialog.connect(self.__retag_dialog, QtCore.SIGNAL("tag_item"), self.__retag_item_action)
+        self.__retag_dialog.connect(self.__retag_dialog, QtCore.SIGNAL("handle_cancel()"), self.__handle_retag_cancel)
+        """
+        
+        
+        """
         ## configure the tag dialog with the according settings
         format_setting = store.get_datestamp_format()
 
@@ -189,7 +206,28 @@ class Administration(QtCore.QObject):
         self.__retag_dialog.set_retag_mode()
         self.__set_tag_information_to_dialog(store)
         self.__retag_dialog.show_dialog()
+        """
+
+    def __kill_tag_dialog(self):
+        self.__retag_dialog = None
         
+    
+    def __handle_retag_error(self):
+        self.__admin_dialog.show_tooltip(self.trUtf8("An error occurred while re-tagging"))
+        self.__kill_tag_dialog()
+    
+    def __handle_retag_success(self):
+        self.__retag_dialog.hide_tag_dialog()
+        self.__admin_dialog.show_tooltip(self.trUtf8("Re-tagging successful!"))
+        self.__kill_tag_dialog()
+    
+    def __handle_retag_cancel(self):
+        """
+        the "postpone" button in the re-tag dialog has been clicked
+        """
+        self.__retag_dialog.hide_tag_dialog()
+        self.__kill_tag_dialog()
+    
     def __set_tag_information_to_dialog(self, store):
         """
         convenience method for setting the tag data at the gui-dialog
@@ -256,12 +294,6 @@ class Administration(QtCore.QObject):
             ## 2 remove the item in the gui
             self.__retag_dialog.remove_item(item_name)
             self.__retag_dialog.hide_dialog()
-    
-    def __handle_retag_cancel(self):
-        """
-        the "postpone" button in the re-tag dialog has been clicked
-        """
-        self.__retag_dialog.hide_dialog()
     
     def show_admin_dialog(self, show):
         self.__admin_dialog.show_dialog()
@@ -335,6 +367,7 @@ class Administration(QtCore.QObject):
                   self.STORE_CONFIG_DIR + "/" + self.STORE_CONFIG_FILE_NAME,
                   self.STORE_CONFIG_DIR + "/" + self.STORE_TAGS_FILE_NAME,
                   self.STORE_CONFIG_DIR + "/" + self.STORE_VOCABULARY_FILE_NAME,
+                  self.STORE_NAVIGATION_DIRS,
                   self.STORE_STORAGE_DIRS, 
                   self.STORE_DESCRIBING_NAV_DIRS,
                   self.STORE_CATEGORIZING_NAV_DIRS,
@@ -354,6 +387,7 @@ class Administration(QtCore.QObject):
               self.STORE_CONFIG_DIR + "/" + self.STORE_CONFIG_FILE_NAME,
               self.STORE_CONFIG_DIR + "/" + self.STORE_TAGS_FILE_NAME,
               self.STORE_CONFIG_DIR + "/" + self.STORE_VOCABULARY_FILE_NAME,
+              self.STORE_NAVIGATION_DIRS,
               self.STORE_STORAGE_DIRS, 
               self.STORE_DESCRIBING_NAV_DIRS,
               self.STORE_CATEGORIZING_NAV_DIRS,

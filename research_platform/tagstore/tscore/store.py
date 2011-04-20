@@ -40,7 +40,7 @@ class Store(QtCore.QObject):
                        "file_removed(PyQt_PyObject, QString)",
                        "pending_operations_changed(PyQt_PyObject)")
 
-    def __init__(self, id, path, config_file_name, tags_file, vocabulary_file, storage_dir_list, describing_nav_dir_list, categorising_nav_dir_list, expiry_dir_list, expiry_prefix):
+    def __init__(self, id, path, config_file_name, tags_file, vocabulary_file, navigation_dir_list, storage_dir_list, describing_nav_dir_list, categorising_nav_dir_list, expiry_dir_list, expiry_prefix):
         """
         constructor
         """
@@ -55,6 +55,9 @@ class Store(QtCore.QObject):
         self.__store_config_wrapper = None
         self.__pending_changes = PendingChanges()
         
+        self.__tagline_config = None
+        self.__paths_to_maintain = []
+        
         self.__id = unicode(id)
         self.__path = unicode(path)
         self.__config_file_name = unicode(config_file_name)
@@ -68,6 +71,7 @@ class Store(QtCore.QObject):
         self.__expiry_prefix = unicode(expiry_prefix)
         
         self.__storage_dir_name = self.trUtf8("storage")
+        self.__navigation_dir_name = self.trUtf8("navigation")
         self.__describing_nav_dir_name = self.trUtf8("descriptions")
         self.__categorising_nav_dir_name = self.trUtf8("categories")
         self.__expiry_dir_name = self.trUtf8("expired_items")
@@ -102,6 +106,7 @@ class Store(QtCore.QObject):
             raise StoreInitError, self.trUtf8("The specified store directory does not exist!")
             return
         
+        
         ## look for store/describing_nav/categorising_nav/expire directories names (all languages) if they do not exist
         if not self.__file_system.path_exists(self.__path + "/" + self.__storage_dir_name):
             for dir in self.__storage_dir_list:
@@ -119,23 +124,52 @@ class Store(QtCore.QObject):
             for dir in self.__expiry_dir_list:
                 if self.__file_system.path_exists(self.__path + "/" + dir):
                     self.__expiry_dir_name = unicode(dir)
+        if not self.__file_system.path_exists(self.__path + "/" + self.__navigation_dir_name):
+            for dir in self.__expiry_dir_list:
+                if self.__file_system.path_exists(self.__path + "/" + dir):
+                    self.__navigation_dir_name = unicode(dir)
+        
+        
         
         ## built stores directories and config file if they currently not exist (new store)
         self.__file_system.create_dir(self.__path + "/" + self.__storage_dir_name)
-        self.__file_system.create_dir(self.__path + "/" + self.__describing_nav_dir_name)
-        self.__file_system.create_dir(self.__path + "/" + self.__categorising_nav_dir_name)
         self.__file_system.create_dir(self.__path + "/" + self.__expiry_dir_name)
         self.__file_system.create_dir(self.__path + "/" + self.__config_file_name.split("/")[0])
+
         ## create config/vocabulary files if they don't exist
         if not self.__file_system.path_exists(self.__path + "/" + self.__config_file_name):
             ConfigWrapper.create_store_config_file(self.__path + "/" + self.__config_file_name)
+            ## now create a new config_wrapper instance
+            self.__store_config_wrapper = ConfigWrapper(self.__path + "/" + self.__config_file_name)
         if not self.__file_system.path_exists(self.__path + "/" + self.__tags_file_name):
             TagWrapper.create_tags_file(self.__path + "/" + self.__tags_file_name)
+            ## now create a new tag_wrapper instance
+            self.__tag_wrapper = TagWrapper(self.__path + "/" + self.__tags_file_name)
         if not self.__file_system.path_exists(self.__path + "/" + self.__vocabulary_file_name):
             self.__vocabulary_wrapper = VocabularyWrapper.create_vocabulary_file(self.__path + "/" + self.__vocabulary_file_name)
 
-        self.__init_store()
 
+        ## 0 ... show just the describing tagline -> create the NAVIGATION dir 
+        ## 3 ... show just the categorizing tagline - only restricted vocabulary is allowed -> create the CATEGORIES dir
+        ## ELSE: two taglines with dirs: CATEGORIES/DESCRIPTIONS
+        self.__tagline_config = self.__store_config_wrapper.get_show_category_line()
+        
+        if self.__tagline_config == 0:
+            #self.__file_system.create_dir(self.__path + "/" + self.__navigation_dir_name)
+            self.__paths_to_maintain.append(self.__path + "/" + self.__navigation_dir_name)
+        elif self.__tagline_config == 3:
+            #self.__file_system.create_dir(self.__path + "/" + self.__categorising_nav_dir_name)
+            self.__paths_to_maintain.append(self.__path + "/" + self.__categorising_nav_dir_name)
+        else:
+            #self.__file_system.create_dir(self.__path + "/" + self.__categorising_nav_dir_name)
+            self.__paths_to_maintain.append(self.__path + "/" + self.__categorising_nav_dir_name)
+            #self.__file_system.create_dir(self.__path + "/" + self.__describing_nav_dir_name)
+            self.__paths_to_maintain.append(self.__path + "/" + self.__describing_nav_dir_name)
+
+        for path in self.__paths_to_maintain:
+            self.__file_system.create_dir(path)
+
+        self.__init_store()
         
     def __init_store(self):
         """
@@ -147,6 +181,7 @@ class Store(QtCore.QObject):
         self.__config_path = self.__path + "/" + self.__config_file_name
         self.__vocabulary_path = self.__path + "/" + self.__vocabulary_file_name #TsConstants.STORE_CONFIG_DIR + "/" + TsConstants.STORE_VOCABULARY_FILENAME
         self.__watcher_path = self.__path + "/" + self.__storage_dir_name
+        self.__navigation_path = self.__path + "/" + self.__navigation_dir_name
         self.__describing_nav_path = self.__path + "/" + self.__describing_nav_dir_name
         self.__categorising_nav_path = self.__path + "/" + self.__categorising_nav_dir_name
         config_file_name = unicode(self.__config_path.split("/")[-1])
@@ -227,6 +262,7 @@ class Store(QtCore.QObject):
             self.emit(QtCore.SIGNAL("removed(PyQt_PyObject)"), self)
         else:                   ## renamed
             self.__path = self.__parent_path + "/" + new_name
+            self.__navigation_path = self.__path + "/" + self.__navigation_dir_name
             self.__describing_nav_path = self.__path + "/" + self.__describing_nav_dir_name
             self.__categorising_nav_path = self.__path + "/" + self.__categorising_nav_dir_name
             ## update all links in windows: absolute links only
@@ -346,6 +382,9 @@ class Store(QtCore.QObject):
         return self.__store_config_wrapper.get_max_tags()
     def get_tag_separator(self):
         return self.__store_config_wrapper.get_tag_seperator()
+
+    def get_store_path(self):
+        return self.__path
     
     def get_pending_changes(self):
         """
@@ -357,8 +396,8 @@ class Store(QtCore.QObject):
         """
         removes all directories and links in the stores describing_nav path
         """
-        self.__file_system.delete_dir_content(self.__describing_nav_path)
-        self.__file_system.delete_dir_content(self.__categorising_nav_path)
+        for path in self.__paths_to_maintain:
+            self.__file_system.delete_dir_content(path)
     
     def rebuild(self):
         """
@@ -403,8 +442,13 @@ class Store(QtCore.QObject):
         if self.__tag_wrapper.file_exists(file_name):
             describing_tag_list = self.__tag_wrapper.get_file_tags(file_name)
             categorising_tag_list = self.__tag_wrapper.get_file_categories(file_name)
-            self.__delete_links(file_name, describing_tag_list, self.__describing_nav_path)
-            self.__delete_links(file_name, categorising_tag_list, self.__categorising_nav_path)
+            for path in self.__paths_to_maintain:
+                if path == self.__describing_nav_path:
+                    self.__delete_links(file_name, describing_tag_list, self.__describing_nav_path)
+                if path == self.__categorising_nav_path:
+                    self.__delete_links(file_name, categorising_tag_list, self.__categorising_nav_path)
+                if path == self.__navigation_path:
+                    self.__delete_links(file_name, categorising_tag_list, self.__navigation_path)
             self.__tag_wrapper.remove_file(file_name)
         else:
             self.emit(QtCore.SIGNAL("pending_operations_changed(PyQt_PyObject)"), self)
@@ -568,8 +612,13 @@ class Store(QtCore.QObject):
         ## start = time.clock()
         #try:
         self.__create_inprogress_file()
-        self.__build_store_navigation(file_name, describing_tags, self.__describing_nav_path)
-        self.__build_store_navigation(file_name, categorising_tags, self.__categorising_nav_path)
+        for path in self.__paths_to_maintain:
+            if path == self.__describing_nav_path:
+                self.__build_store_navigation(file_name, describing_tags, self.__describing_nav_path)
+            elif path == self.__categorising_nav_path:
+                self.__build_store_navigation(file_name, categorising_tags, self.__categorising_nav_path)
+            elif path == self.__navigation_path:
+                self.__build_store_navigation(file_name, describing_tags, self.__navigation_path)
         #except:
         #    raise Exception, self.trUtf8("An error occurred during building the navigation path(s) and links!")
         #try:
@@ -626,8 +675,13 @@ class Store(QtCore.QObject):
             ##get all affected files per tag
             files = self.__tag_wrapper.get_files_with_tag(tag_name)
             for file in files:
-                self.__delete_tag_folders(tag_name, file["tags"], self.__describing_nav_path)
-                self.__delete_tag_folders(tag_name, file["category"], self.__categorising_nav_path)
+                for path in self.__paths_to_maintain:
+                    if path == self.__describing_nav_path:
+                        self.__delete_tag_folders(tag_name, file["tags"], self.__describing_nav_path)
+                    if path == self.__categorising_nav_path:
+                        self.__delete_tag_folders(tag_name, file["category"], self.__categorising_nav_path)
+                    if path == self.__navigation_path:
+                        self.__delete_tag_folders(tag_name, file["tags"], self.__navigation_path)
             ##remove tag from config file
             self.__tag_wrapper.remove_tag(tag_name)
         self.__remove_inprogress_file()
