@@ -31,6 +31,8 @@ class TagDialog(QtGui.QDialog):
         
         QtGui.QDialog.__init__(self, parent)
         
+        #self.setWindowFlags(QtCore.Qt.WindowTitleHint | QtCore.Qt.WindowCloseButtonHint)
+        
         self.APP_NAME = "tagstore"
         
         self.__log = logging.getLogger("TagStoreLogger")
@@ -315,7 +317,8 @@ class TagDialog(QtGui.QDialog):
         ## pass the signal to the normal parent chain
     
     def closeEvent(self, event):
-        pass
+        event.ignore()
+        self.hide()
     
     def set_category_line_content(self, content):
         self.__cat_line_widget.set_text(content)
