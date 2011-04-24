@@ -607,6 +607,13 @@ class TagDialog(QtGui.QDialog):
         self.__tag_line_widget.clear_line()
         if not self.__show_datestamp:
             self.__tag_line_widget.set_text("write your tags here")
+
+    def clear_tag_lines(self):
+        self.__tag_line_widget.clear_line()
+        self.__cat_line_widget.clear_line()
+        if not self.__show_datestamp:
+            self.__tag_line_widget.set_text(self.trUtf8("write your tags here"))
+            self.__tag_line_widget.set_text(self.trUtf8("write your categories here"))
         
     def clear_item_view(self):
         self.__item_list_view.clear()
@@ -849,6 +856,10 @@ class TagDialogController(QtCore.QObject):
 
     def set_datestamp_format(self, format):
         self.__tag_dialog.set_datestamp_format(format)
+
+    def clear_tagdialog(self):
+        self.clear_all_items()
+        self.__tag_dialog.clear_tag_lines();
 
     def clear_all_items(self):
         """

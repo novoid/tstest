@@ -21,6 +21,7 @@ from tscore.pendingchanges import PendingChanges
 from tscore.configwrapper import ConfigWrapper
 from tscore import pathhelper
 from tscore.pathhelper import PathHelper
+import datetime
 
 class Test(unittest.TestCase):
 
@@ -225,6 +226,25 @@ class Test(unittest.TestCase):
         print set_3
         
         assert("geek" in set_3)
+        
+    def test_exiry_rename(self):
+        """
+        looks for expired items and moves & renames them to filename including tags in the expiry_directory
+        """
+        
+        file_list = []
+        
+        file_list.append(dict(filename="my expired file.txt", tags=["hallo", "test"], category=["category"], timestamp=""))
+        
+        now = datetime.datetime.now()
+        for file in file_list:
+            file_extension = "." + file["filename"].split(".")[-1]
+            file_name = file["filename"]
+            file_name = file_name[:len(file_name)-len(file_extension)]
+            new_filename = file_name + " - " + "; ".join(file["category"]) + " - " + "; ".join(file["tags"]) + file_extension
+            
+            assert(new_filename == "my expired file - category - hallo; test.txt")
+            
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

@@ -153,79 +153,26 @@ class Administration(QtCore.QObject):
         self.connect(self.__retag_dialog, QtCore.SIGNAL("retag_cancel"), self.__handle_retag_cancel)
         self.connect(self.__retag_dialog, QtCore.SIGNAL("retag_success"), self.__handle_retag_success)
         self.__retag_dialog.start()
-            
-        """
-        #self.__retag_dialog = TagDialogController(store.get_name(), self.__main_config.get_max_tags(), self.__main_config.get_tag_seperator())
-        self.__retag_dialog = TagDialogController(store.get_name(), self.__main_config.get_max_tags(), self.__main_config.get_tag_seperator())
-        self.__retag_dialog.set_parent(self.__admin_dialog.get_view())
-        self.__retag_dialog.get_view().setModal(True)
-        #self.__retag_dialog.set_parent(self.sender().get_view())
-        self.__retag_dialog.connect(self.__retag_dialog, QtCore.SIGNAL("tag_item"), self.__retag_item_action)
-        self.__retag_dialog.connect(self.__retag_dialog, QtCore.SIGNAL("handle_cancel()"), self.__handle_retag_cancel)
-        """
-        
-        
-        """
-        ## configure the tag dialog with the according settings
-        format_setting = store.get_datestamp_format()
-
-        ## check if auto datestamp is enabled
-        if format_setting != EDateStampFormat.DISABLED:
-            self.__retag_dialog.show_datestamp(True)
-            ## set the format
-            format = None
-            if format_setting == EDateStampFormat.DAY:
-                format = TsConstants.DATESTAMP_FORMAT_DAY
-            elif format_setting == EDateStampFormat.MONTH:
-                format = TsConstants.DATESTAMP_FORMAT_MONTH
-            self.__retag_dialog.set_datestamp_format(format)
-        
-        ## prepare the content of the taglines 
-        cat_content = ""
-        cat_tags = store.get_describing_tags_for_item(item_name.text())
-        for tag in cat_tags:
-            if cat_content == "":
-                cat_content = tag
-            else:
-                cat_content = "%s%s%s" %(cat_content,", ", tag) 
-        self.__retag_dialog.set_describing_line_content(cat_content)
-        desc_content = ""
-        desc_tags = store.get_categorizing_tags_for_item(item_name.text())
-        for tag in desc_tags:
-            if desc_content == "":
-                desc_content = tag
-            else:
-                desc_content = "%s%s%s" %(desc_content,", ", tag) 
-        self.__retag_dialog.set_category_line_content(desc_content)
-        
-        self.__retag_dialog.add_pending_item(item_name.text())
-             
-        self.__retag_dialog.show_category_line(store.get_show_category_line())
-        self.__retag_dialog.set_category_mandatory(store.get_category_mandatory()) 
-        
-        self.__retag_dialog.set_retag_mode()
-        self.__set_tag_information_to_dialog(store)
-        self.__retag_dialog.show_dialog()
-        """
 
     def __kill_tag_dialog(self):
+        """
+        hide the dialog and set it to None
+        """
+        self.__retag_dialog.hide_tag_dialog()
         self.__retag_dialog = None
-        
     
     def __handle_retag_error(self):
-        self.__admin_dialog.show_tooltip(self.trUtf8("An error occurred while re-tagging"))
         self.__kill_tag_dialog()
+        self.__admin_dialog.show_tooltip(self.trUtf8("An error occurred while re-tagging"))
     
     def __handle_retag_success(self):
-        self.__retag_dialog.hide_tag_dialog()
-        self.__admin_dialog.show_tooltip(self.trUtf8("Re-tagging successful!"))
         self.__kill_tag_dialog()
+        self.__admin_dialog.show_tooltip(self.trUtf8("Re-tagging successful!"))
     
     def __handle_retag_cancel(self):
         """
         the "postpone" button in the re-tag dialog has been clicked
         """
-        self.__retag_dialog.hide_tag_dialog()
         self.__kill_tag_dialog()
     
     def __set_tag_information_to_dialog(self, store):

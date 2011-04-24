@@ -287,7 +287,8 @@ class Tagstore(QtCore.QObject):
         dialog_controller = self.DIALOGS[store.get_id()]
         
         #dialog_controller.clear_store_children(store.get_name())
-        dialog_controller.clear_all_items()
+#        dialog_controller.clear_all_items()
+        dialog_controller.clear_tagdialog()
         
         added_list = set(store.get_pending_changes().get_items_by_event(EFileEvent.ADDED))
         added_renamed_list = set(store.get_pending_changes().get_items_by_event(EFileEvent.ADDED_OR_RENAMED))

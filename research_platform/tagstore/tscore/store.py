@@ -314,7 +314,8 @@ class Store(QtCore.QObject):
         now = datetime.datetime.now()
         for file in expiry_date_files:
             file_extension = "." + file["filename"].split(".")[-1]
-            file_name = file["filename"][:len(file_extension)]
+            file_name = file["filename"]
+            file_name = file_name[:len(file_name)-len(file_extension)]
             if int(file["exp_year"]) < now.year or (int(file["exp_year"]) == now.year and int(file["exp_month"]) < now.month):
                 new_filename = file_name + " - " + "; ".join(file["category"]) + " - " + "; ".join(file["tags"]) + file_extension
                 self.__file_system.rename_file(self.__watcher_path + "/" + file["filename"], self.__path + "/" + self.__expiry_dir_name + "/" + new_filename)
