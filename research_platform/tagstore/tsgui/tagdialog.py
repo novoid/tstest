@@ -434,6 +434,8 @@ class TagDialog(QtGui.QDialog):
         current_text = str(self.__tag_line.text()).strip()
         if current_text == "":
             self.__tag_line.setText(clicked_text)
+        elif current_text == QtGui.QApplication.translate("tagstore", "write your tags here", None, QtGui.QApplication.UnicodeUTF8):
+            self.__tag_line.setText(clicked_text)
         elif current_text[len(current_text)-1] == ",":
             self.__tag_line.setText("%s %s" % (current_text, clicked_text))
         else:
