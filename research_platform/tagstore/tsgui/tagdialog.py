@@ -436,7 +436,7 @@ class TagDialog(QtGui.QDialog):
             self.__tag_line.setText(clicked_text)
         elif current_text == QtGui.QApplication.translate("tagstore", "write your tags here", None, QtGui.QApplication.UnicodeUTF8):
             self.__tag_line.setText(clicked_text)
-        elif current_text[len(current_text)-1] == ",":
+        elif current_text[len(current_text)-1] == self.__tag_separator:
             self.__tag_line.setText("%s %s" % (current_text, clicked_text))
         else:
             self.__tag_line.setText("%s%s %s" % (current_text, self.__tag_separator, clicked_text))
@@ -445,7 +445,7 @@ class TagDialog(QtGui.QDialog):
         current_text = str(self.__category_line.text()).strip()
         if current_text == "":
             self.__category_line.setText(clicked_text)
-        elif current_text[len(current_text)-1] == ",":
+        elif current_text[len(current_text)-1] == self.__tag_separator:
             self.__category_line.setText("%s %s" % (current_text, clicked_text))
         else:
             self.__category_line.setText("%s%s %s" % (current_text, self.__tag_separator, clicked_text))
