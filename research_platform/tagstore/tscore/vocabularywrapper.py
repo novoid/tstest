@@ -18,6 +18,7 @@
 Created on Oct 13, 2010
 '''
 import sys
+import codecs
 from PyQt4 import QtCore
 
 class VocabularyWrapper(QtCore.QObject):
@@ -43,7 +44,7 @@ class VocabularyWrapper(QtCore.QObject):
         this  method has to be used in a static way
         the file must be opened with write permission
         """
-        file = open(file_path, "w")
+        file = codecs.open(file_path, "w", "utf-8")
         file.close()
         
     def __file_changed(self):
@@ -59,9 +60,9 @@ class VocabularyWrapper(QtCore.QObject):
         """
         voc_list = []
         
-        voc_file = open(self.__file_path,"r")
+        voc_file = codecs.open(self.__file_path,"r", "utf-8")
         for line in voc_file:
-            voc_list.append(unicode(line.strip("\n")))
+            voc_list.append(line.strip("\n"))
         voc_file.close()
         
         return voc_list
@@ -71,15 +72,15 @@ class VocabularyWrapper(QtCore.QObject):
         add a single word to the vocabulary file
         """
         ## using "a" (APPEND) as open parameter   
-        voc_file = open(self.__file_path,"a")
+        voc_file = codecs.open(self.__file_path,"a", "utf-8")
         voc_file.write("%s\n" % single_vocable)
         voc_file.close()
 
     def add_vocabulary(self, vocable_set):
         """
-        add a single word to the vocabulary file
+        add a set of words to the vocabulary file
         """
-        voc_file = open(self.__file_path,"a")
+        voc_file = codecs.open(self.__file_path,"a", "utf-8")
         for vocable in vocable_set:
             voc_file.write("%s\n" % vocable)
         voc_file.close()
@@ -89,7 +90,7 @@ class VocabularyWrapper(QtCore.QObject):
         replace the current vocabulary and add the provided list of new vocabulary 
         """
         ## opening in write mode means the existing file content will be over-written
-        voc_file = open(self.__file_path,"w")
+        voc_file = codecs.open(self.__file_path,"w", "utf-8")
         for vocable in vocable_set:
             voc_file.write("%s\n" % vocable)
         voc_file.close()

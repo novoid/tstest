@@ -38,6 +38,7 @@ class TagWrapper():
         #if store_id is not None:
         #    self.__create_file_structure(file_path, store_id)
         self.__settings = QSettings(file_path, QSettings.IniFormat)
+        self.__settings.setIniCodec("utf-8")
         self.__path = file_path
 #    def __create_file_structure(self, file_path, store_id):
 #        """
@@ -269,7 +270,7 @@ class TagWrapper():
         for lower case upper case inconsistencies 
         """
         self.__settings.beginGroup(self.GROUP_FILES_NAME)
-        self.__settings.beginGroup(file_name)
+        self.__settings.beginGroup(unicode(file_name, "utf-8"))
         self.__settings.setValue(self.KEY_TAGS, unicode(self.TAG_SEPARATOR.join(tag_list)))
         self.__settings.setValue(self.KEY_TIMESTAMP, timestamp)
         if category_list is not None:
