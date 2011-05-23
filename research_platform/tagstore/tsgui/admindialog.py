@@ -765,8 +765,10 @@ class TagAdminView(MultipleStorePreferenceView):
         
         ## the second element of the result list is True if the OK button has been clicked 
         if result[1]:
-            new_tag = unicode(result[0])
-            if self.__check_special_chars(new_tag):
+            # 
+            new_tag = result[0]
+            #new_tag = unicode(result[0])
+            if self.__check_special_chars(unicode(new_tag)):
                 return ""
             return new_tag
         return ""

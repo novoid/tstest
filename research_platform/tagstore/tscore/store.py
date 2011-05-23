@@ -576,7 +576,9 @@ class Store(QtCore.QObject):
         existing_files = self.__tag_wrapper.get_files()
         existing_tags = self.__tag_wrapper.get_all_tags()
         tag_list = list(set(describing_tag_list) | set(categorising_tag_list))
-        
+
+        file_name = unicode(file_name, "utf-8")        
+
         if file_name in existing_tags:
             return [file_name, EConflictType.FILE]
         for tag in tag_list:

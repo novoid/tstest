@@ -792,7 +792,10 @@ class TagDialogController(QtCore.QObject):
             return
             
         self.__item_to_remove = item
-        self.emit(QtCore.SIGNAL("tag_item"), self.__store_name, item.text(), tag_list, category_list)
+        item_ba = item.text().toUtf8()
+        item_str = str(item_ba)
+        #item_utf8 = unicode(item_str, "utf-8")
+        self.emit(QtCore.SIGNAL("tag_item"), self.__store_name, item_str, tag_list, category_list)
         
     def remove_item(self, item_name):
         """

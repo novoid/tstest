@@ -70,7 +70,7 @@ class PendingChanges:
         self.remove(unicode(new_file_name))      
         for item in self.__queue:
             if item["file"] == old_file_name:
-                item["file"] = unicode(new_file_name)
+                item["file"] = unicode(new_file_name, "utf-8")
     
     def remove(self, file_name):
         """

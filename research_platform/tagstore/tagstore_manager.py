@@ -126,7 +126,13 @@ class Administration(QtCore.QObject):
     
     def __handle_tag_rename(self, old_tag, new_tag, store_name):
         store = self.__store_dict[store_name]
-        store.rename_tag(str(old_tag), str(new_tag))
+
+        old_ba = old_tag.toUtf8()
+        old_str = str(old_ba)
+        
+        new_ba = new_tag.toUtf8()
+        new_str = str(new_ba)
+        store.rename_tag(unicode(old_str, "utf-8"), unicode(new_str, "utf-8"))
     
     def set_application(self, application):
         """
