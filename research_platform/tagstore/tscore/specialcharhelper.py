@@ -44,7 +44,7 @@ class SpecialCharHelper(object):
         elif isinstance(any_string_object, QtCore.QString):
             #file_name is a QString object
             filename_ba = any_string_object.toUtf8()
-            #now make a normal string ou‚t of it
+            #now make a normal string out of it
             return str(filename_ba)
 
     @staticmethod
