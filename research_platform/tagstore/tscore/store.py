@@ -30,6 +30,7 @@ from tscore.configwrapper import ConfigWrapper
 from tscore.vocabularywrapper import VocabularyWrapper
 from tscore.tsconstants import TsConstants
 from tscore.loghelper import LogHelper
+from tscore.specialcharhelper import SpecialCharHelper
 #from tscore.tsconstants import TsConstants
 
 class Store(QtCore.QObject):
@@ -593,14 +594,7 @@ class Store(QtCore.QObject):
         #TODO: if file_name already in config, delete missing tags and recreate whole link structure
         #existing tags will not be recreated in windows-> linux, osx???
          
-        if isinstance(file_name, unicode):
-            file_name = str(file_name) 
-        elif isinstance(file_name, QtCore.QString):
-            #file_name is a QString object
-            filename_ba = file_name.toUtf8()
-            #now make a normal string ou‚t of it
-            file_name = str(filename_ba)
-        
+        file_name = SpecialCharHelper.get_string_object(file_name)
                
         self.__log.info("add item with tags to navigation: itemname: %s" % file_name)
         self.__log.info("describing tags: %s" % describing_tag_list)
