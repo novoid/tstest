@@ -115,8 +115,12 @@ class TagCompleterWidget(QObject):
         self.__tag_line.setFocus(QtCore.Qt.OtherFocusReason)
 
     def __text_changed(self, text):
-        all_text = unicode(text)
-        
+        # create a QByteArray in utf8
+        all_text = text.toUtf8()
+        # make a python string out of it
+        all_text = str(all_text)
+        # convert the python string tu unicode utf-8
+        all_text = unicode(all_text, "utf-8")
         if self.__check_not_empty:
             if all_text is not None and all_text != "":
                 self.emit(QtCore.SIGNAL("line_empty"), False)
@@ -185,7 +189,7 @@ class TagCompleterWidget(QObject):
         
         not_allowed_tags_count = 0
         no_completion_found = False
-        stripped_text = str(self.__tag_line.text()).strip()
+        stripped_text = unicode(self.__tag_line.text()).strip()
         ##when a tag separator is on the last position, there should have been entered a new tag
         ##check this tag for its correctness
         if len(stripped_text) > 0:
