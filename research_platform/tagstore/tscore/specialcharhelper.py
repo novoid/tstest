@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from PyQt4 import QtCore
 
 # -*- coding: iso-8859-15 -*-
 ## this file is part of tagstore, an alternative way of storing and retrieving information
@@ -32,6 +33,20 @@ class SpecialCharHelper(object):
         Constructor
         '''
     
+    @staticmethod
+    def get_string_object(any_string_object):
+        """
+        convert the parameter to a python string object
+        the param can be a normal unicode object OR a QString object 
+        """
+        if isinstance(any_string_object, unicode):
+            return str(any_string_object) 
+        elif isinstance(any_string_object, QtCore.QString):
+            #file_name is a QString object
+            filename_ba = any_string_object.toUtf8()
+            #now make a normal string ou‚t of it
+            return str(filename_ba)
+
     @staticmethod
     def get_not_allowed_strings_list():
         """
