@@ -800,7 +800,8 @@ class TagDialogController(QtCore.QObject):
         """
         should be called after a successful tag-operation at the store
         """
-        tmp_item = str(self.__item_to_remove.text())
+        tmp_item = unicode(self.__item_to_remove.text())
+        item_name = unicode(item_name)
         if item_name == tmp_item:
             self.__tag_dialog.remove_item_from_list(self.__item_to_remove)
             self.__tag_dialog.remove_all_infos()
