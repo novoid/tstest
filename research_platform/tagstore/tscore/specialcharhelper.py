@@ -42,10 +42,8 @@ class SpecialCharHelper(object):
             ascii_text = str(obj).encode("string_escape")
             return unicode(ascii_text)
 
-        
-    
     @staticmethod
-    def get_string_object(obj):
+    def safe_str(obj):
         """
         convert the parameter to a python string object
         the param can be a normal unicode object OR a QString object 

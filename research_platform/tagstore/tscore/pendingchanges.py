@@ -17,7 +17,6 @@
 
 import time
 from tscore.enums import EFileEvent
-from tscore.specialcharhelper import SpecialCharHelper
 
 class PendingChanges:
     def __init__(self):
@@ -55,7 +54,6 @@ class PendingChanges:
         adds/registers file with type, timestamp and event
         overwrites items with the same file name if they exist
         """
-        file_name = SpecialCharHelper.get_string_object(file_name)
         timestamp = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
         for item in self.__queue:
             if item["file"] == file_name:
@@ -68,8 +66,6 @@ class PendingChanges:
         """
         edits an existing file object: needed to keep the objects storage position during rename
         """
-        old_file_name = SpecialCharHelper.get_string_object(old_file_name)
-        new_file_name = SpecialCharHelper.get_string_object(new_file_name)
         ## delete file before rename
         self.remove(unicode(new_file_name))      
         for item in self.__queue:
@@ -80,7 +76,6 @@ class PendingChanges:
         """
         removes file from instance
         """
-        file_name = SpecialCharHelper.get_string_object(file_name)
         for item in self.__queue:
             if item["file"] == file_name:
                 self.__queue.remove(item)

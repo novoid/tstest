@@ -578,7 +578,7 @@ class Store(QtCore.QObject):
         existing_tags = self.__tag_wrapper.get_all_tags()
         tag_list = list(set(describing_tag_list) | set(categorising_tag_list))
 
-        file_name = unicode(file_name, "utf-8")        
+        file_name = unicode(file_name)        
 
         if file_name in existing_tags:
             return [file_name, EConflictType.FILE]
@@ -594,8 +594,6 @@ class Store(QtCore.QObject):
         #TODO: if file_name already in config, delete missing tags and recreate whole link structure
         #existing tags will not be recreated in windows-> linux, osx???
          
-        file_name = SpecialCharHelper.get_string_object(file_name)
-               
         self.__log.info("add item with tags to navigation: itemname: %s" % file_name)
         self.__log.info("describing tags: %s" % describing_tag_list)
         self.__log.info("categorizing tags: %s" % categorising_tag_list)

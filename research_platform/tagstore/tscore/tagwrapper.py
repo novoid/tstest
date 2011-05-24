@@ -270,7 +270,7 @@ class TagWrapper():
         for lower case upper case inconsistencies 
         """
         self.__settings.beginGroup(self.GROUP_FILES_NAME)
-        self.__settings.beginGroup(unicode(file_name, "utf-8"))
+        self.__settings.beginGroup(unicode(file_name))
         self.__settings.setValue(self.KEY_TAGS, unicode(self.TAG_SEPARATOR.join(tag_list)))
         self.__settings.setValue(self.KEY_TIMESTAMP, timestamp)
         if category_list is not None:

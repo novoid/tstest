@@ -792,8 +792,7 @@ class TagDialogController(QtCore.QObject):
             return
             
         self.__item_to_remove = item
-        item_ba = item.text().toUtf8()
-        item_str = str(item_ba)
+        item_str = unicode(item.text())
         #item_utf8 = unicode(item_str, "utf-8")
         self.emit(QtCore.SIGNAL("tag_item"), self.__store_name, item_str, tag_list, category_list)
         
@@ -801,7 +800,8 @@ class TagDialogController(QtCore.QObject):
         """
         should be called after a successful tag-operation at the store
         """
-        if item_name == self.__item_to_remove.text():
+        tmp_item = str(self.__item_to_remove.text())
+        if item_name == tmp_item:
             self.__tag_dialog.remove_item_from_list(self.__item_to_remove)
             self.__tag_dialog.remove_all_infos()
             self.__item_to_remove = None
