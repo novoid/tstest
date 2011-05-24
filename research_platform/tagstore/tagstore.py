@@ -300,7 +300,7 @@ class Tagstore(QtCore.QObject):
             return
         self.__log.debug("store: %s, item: %s " % (store.get_id(), store.get_pending_changes().to_string()))
         
-        for item in added_list:
+        for item in whole_list:
             dialog_controller.add_pending_item(item)
             
         self.__set_tag_information_to_dialog(store)
