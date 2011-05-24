@@ -32,20 +32,29 @@ class SpecialCharHelper(object):
         '''
         Constructor
         '''
+
+    @staticmethod
+    def safe_unicode(obj, *args):
+        try:
+            return unicode(obj, *args)
+        except UnicodeDecodeError:
+            #obj is byte string
+            ascii_text = str(obj).encode("string_escape")
+            return unicode(ascii_text)
+
+        
     
     @staticmethod
-    def get_string_object(any_string_object):
+    def get_string_object(obj):
         """
         convert the parameter to a python string object
         the param can be a normal unicode object OR a QString object 
         """
-        if isinstance(any_string_object, unicode):
-            return str(any_string_object) 
-        elif isinstance(any_string_object, QtCore.QString):
-            #file_name is a QString object
-            filename_ba = any_string_object.toUtf8()
-            #now make a normal string out of it
-            return str(filename_ba)
+        try:
+            return str(obj)
+        except UnicodeEncodeError:
+            # obj is unicode
+            return unicode(obj).encode("unicode_escape")
 
     @staticmethod
     def get_not_allowed_strings_list():
