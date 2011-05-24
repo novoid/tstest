@@ -14,8 +14,10 @@
 ## You should have received a copy of the GNU General Public License along with this program;
 ## if not, see <http://www.gnu.org/licenses/>.
 
+import os
 import logging
 import shutil
+from stat import *
 from PyQt4 import QtCore
 from tscore.tsconstants import TsConstants
 from tscore.enums import EDateStampFormat, ECategorySetting
@@ -33,6 +35,10 @@ class ConfigWrapper(QtCore.QObject):
         constructor
         """
         QtCore.QObject.__init__(self)
+        
+        self.__config_file_path = config_file_path
+        #this is the time of the last modification of the configfile
+        self.__config_mtime = None
         
         self.__watcher = QtCore.QFileSystemWatcher(self)
         self.__watcher.addPath(config_file_path)
@@ -145,8 +151,28 @@ class ConfigWrapper(QtCore.QObject):
         event handler: called when file was changed
         """
         self.__settings.sync()
-        self.__log.debug("configwrapper: file changed ... %s" % signal_param)
-        self.emit(QtCore.SIGNAL("changed()"))
+        
+        # somehow, the config file to be watched gets lost in the self.__watcher object
+        # so check everytime if there is a file to be watched
+        # if not, just add it again to the watchlist 
+        files = str(self.__watcher.files().join(","))
+        if files == "":
+            self.__watcher.addPath(self.__config_file_path)
+            
+        config_file_props = os.stat(self.__config_file_path)
+        tmp_mtime = config_file_props[ST_MTIME]
+        
+        # in case of the first start
+        if self.__config_mtime is None:
+            self.__config_mtime = tmp_mtime 
+            return 
+        
+        if tmp_mtime != self.__config_mtime:
+            self.__log.debug("configwrapper: file changed ... %s" % signal_param)
+            self.__log.debug("old modified-time: %s, new: %s" % (self.__config_mtime, tmp_mtime))
+            self.__config_mtime = tmp_mtime 
+        
+            self.emit(QtCore.SIGNAL("changed()"))
     
     def get_current_language(self):
         return self.__get_setting(TsConstants.SETTING_CURRENT_LANGUAGE)
