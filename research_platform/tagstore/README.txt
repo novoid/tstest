@@ -3,7 +3,7 @@ README FOR TAGSTORE
 ####################################################
 
 this file is part of tagstore, an alternative way of storing and retrieving information
-Copyright (C) 2010  Karl Voit, Christoph Friedl, Wolfgang Wintersteller
+Copyright (C) 2010-2011  Karl Voit, Christoph Friedl, Wolfgang Wintersteller
 
 
 this is a short description of how to configure and start the tagstore software 
@@ -51,8 +51,6 @@ storage
 navigation
 categorization
 expired_items
-TODO: what to do if not?
-TODO: translations?
 
 d) close the manager by clicking the "Save" button in the bottom right corner. 
 
@@ -60,12 +58,6 @@ d) close the manager by clicking the "Save" button in the bottom right corner.
 STEP 2: start the daemon
 ***************************
 just run the tagstore.py file in the same way you ran the tagstore-manager file ($tagstore.py)
-
-***************************
-STEP 3: begin with tagging
-***************************
-TODO: explain the tagging process
-
 
 ***************************
 INFO - manually editing the store config file
@@ -106,24 +98,6 @@ WARNING: using higher numbers of tags can lead to incredible high computation ti
 * num_popular_tags
 
 set the number of recent/popular describing tags which should be shown as decision help
-
-***************************
-INFO - what are these directories in my tagstore folder? 
-***************************
-in your store-dir you can find these sub-dirs:
-
-* storage
-* navigation
-* categorization
-* expired_items
-
-* storage
-this dir is just for storing files. put all the files in there, you want to be tagged and be part of the tagstore hierarchy.
-use this dir just as a drop-box. everything else is handled by the tagstore software.
-
-* navigation
-this dir is managed automatically by tagstore connecting all files with their corresponding tags.
-please do not make changes in this dir. this can cause software malfunction.  
 
 in the same directory where this file lies, there is a file called tagstore.py. 
 run "tagstore.py -h" for displaying optional starting parameters.
