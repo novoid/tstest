@@ -28,7 +28,7 @@ class LogHelper(object):
 
     def __init__(self, params):
         self.__log = None
-    
+
     @staticmethod
     def get_app_logger(level):
         '''
@@ -37,10 +37,14 @@ class LogHelper(object):
         # TODO create a class for doing this
         LOG_FILENAME = TsConstants.LOG_FILENAME
         log = logging.getLogger(TsConstants.LOGGER_NAME)
-        log.setLevel(logging.DEBUG)
+        ## if this is a fresh not yet configured logger, continue with configuring
+        ## otherwise just return the already existing logger
+        if log.level != logging.NOTSET:
+            return log
+        log.setLevel(level)
 
         #logging.basicConfig(level=logging.INFO)
-        formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+        formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(filename)s - %(lineno)d - %(message)s")
 
         ## create console handler and set level
         console_handler = logging.StreamHandler()
@@ -56,8 +60,10 @@ class LogHelper(object):
         log.addHandler(console_handler)
         log.addHandler(file_handler)
         
+        log.info("APPlogger does not exist - created a new one")
         return log
 
+    
     @staticmethod
     def get_store_logger(path, level):
         '''
@@ -75,8 +81,9 @@ class LogHelper(object):
         
         log.setLevel(level)
 
+
         #logging.basicConfig(level=logging.INFO)
-        formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+        formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(filename)s - %(lineno)d - %(message)s")
 
         ## create console handler and set level
         console_handler = logging.StreamHandler()
@@ -95,5 +102,6 @@ class LogHelper(object):
         log.addHandler(console_handler)
         log.addHandler(file_handler)
         
+        log.info("STORElogger for %s does not exist - created a new one" % store_name)
         return log
         

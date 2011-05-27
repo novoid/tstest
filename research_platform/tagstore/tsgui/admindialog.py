@@ -1070,7 +1070,7 @@ class StorePreferencesController(QtCore.QObject):
         super(StorePreferencesController, self).__init__(parent)
         #TODO: @CF: config wrapper should be passed from administration.py later on, same with store configs
         self.__log = logging.getLogger(TsConstants.LOGGER_NAME)
-      
+        self.__log.info(self.__log.name)
         self.__store_config_dict = {}
         self.__store_vocabulary_wrapper_dict = {}
         self.__store_names = []
@@ -1229,6 +1229,7 @@ class StorePreferencesController(QtCore.QObject):
         self.__log.info("**** CONFIG CHANGES ****")
         self.__log.info("writing to the config files:")
         self.__log.info("**** **** **** **** ****")
+    
         for controller in self.__preference_controller_list.values():
             ## iterate the properties of the controller
             for property in controller.get_settings():

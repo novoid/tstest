@@ -38,7 +38,9 @@ class TagWrapper():
         """
         constructor
         """
-        self.__log = LogHelper.get_app_logger(logging.INFO)
+        path_list = str(file_path).split("/")[:-2]
+        logging_path = unicode("/").join(path_list)
+        self.__log = LogHelper.get_store_logger(logging_path, logging.INFO)
         
         #if store_id is not None:
         #    self.__create_file_structure(file_path, store_id)
