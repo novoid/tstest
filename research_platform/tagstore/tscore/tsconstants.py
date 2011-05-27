@@ -73,6 +73,7 @@ class TsConstants(object):
     DEFAULT_MAX_TAGS = 3
     DEFAULT_TAG_SEPARATOR = ","
     DEFAULT_SUPPORTED_LANGUAGES = ["en", "de"]
+    DEFAULT_ENCODING = "UTF-8"
     DEFAULT_FIRST_START = "true"
     DEFAULT_SHOW_WIZARD = "true"
     

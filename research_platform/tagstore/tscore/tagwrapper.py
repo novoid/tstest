@@ -19,6 +19,9 @@ import re
 import shutil
 from PyQt4.QtCore import QSettings
 from tscore.tsconstants import TsConstants
+import logging
+from tscore import loghelper
+from tscore.loghelper import LogHelper
 
 
 class TagWrapper():
@@ -35,10 +38,14 @@ class TagWrapper():
         """
         constructor
         """
+        self.__log = LogHelper.get_app_logger(logging.INFO)
+        
         #if store_id is not None:
         #    self.__create_file_structure(file_path, store_id)
         self.__settings = QSettings(file_path, QSettings.IniFormat)
-        self.__settings.setIniCodec("utf-8")
+        self.__settings.setIniCodec(TsConstants.DEFAULT_ENCODING)
+        if self.__settings.iniCodec() is None:
+            self.__log.info("no such encoding: " + TsConstants.DEFAULT_ENCODING)
         self.__path = file_path
 #    def __create_file_structure(self, file_path, store_id):
 #        """

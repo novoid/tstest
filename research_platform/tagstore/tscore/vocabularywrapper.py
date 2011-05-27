@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from tscore.tsconstants import TsConstants
 
 # -*- coding: iso-8859-15 -*-
 ## this file is part of tagstore, an alternative way of storing and retrieving information
@@ -44,7 +45,7 @@ class VocabularyWrapper(QtCore.QObject):
         this  method has to be used in a static way
         the file must be opened with write permission
         """
-        file = codecs.open(file_path, "w", "utf-8")
+        file = codecs.open(file_path, "w", TsConstants.DEFAULT_ENCODING)
         file.close()
         
     def __file_changed(self):
@@ -60,7 +61,7 @@ class VocabularyWrapper(QtCore.QObject):
         """
         voc_list = []
         
-        voc_file = codecs.open(self.__file_path,"r", "utf-8")
+        voc_file = codecs.open(self.__file_path,"r", TsConstants.DEFAULT_ENCODING)
         for line in voc_file:
             voc_list.append(line.strip("\n"))
         voc_file.close()
@@ -72,7 +73,7 @@ class VocabularyWrapper(QtCore.QObject):
         add a single word to the vocabulary file
         """
         ## using "a" (APPEND) as open parameter   
-        voc_file = codecs.open(self.__file_path,"a", "utf-8")
+        voc_file = codecs.open(self.__file_path,"a", TsConstants.DEFAULT_ENCODING)
         voc_file.write("%s\n" % single_vocable)
         voc_file.close()
 
@@ -80,7 +81,7 @@ class VocabularyWrapper(QtCore.QObject):
         """
         add a set of words to the vocabulary file
         """
-        voc_file = codecs.open(self.__file_path,"a", "utf-8")
+        voc_file = codecs.open(self.__file_path,"a", TsConstants.DEFAULT_ENCODING)
         for vocable in vocable_set:
             voc_file.write("%s\n" % vocable)
         voc_file.close()
@@ -90,7 +91,7 @@ class VocabularyWrapper(QtCore.QObject):
         replace the current vocabulary and add the provided list of new vocabulary 
         """
         ## opening in write mode means the existing file content will be over-written
-        voc_file = codecs.open(self.__file_path,"w", "utf-8")
+        voc_file = codecs.open(self.__file_path,"w", TsConstants.DEFAULT_ENCODING)
         for vocable in vocable_set:
             voc_file.write("%s\n" % vocable)
         voc_file.close()
