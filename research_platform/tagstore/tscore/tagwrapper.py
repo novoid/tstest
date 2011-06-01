@@ -333,8 +333,12 @@ class TagWrapper():
         self.__settings.beginGroup(self.GROUP_FILES_NAME)
         files = self.__settings.childGroups()
         self.__settings.endGroup()
-        if file_name in files:
-            return True
+        for file_name in files:
+            name = unicode(file_name)
+            if name == file_name:
+                return True
+        #if file_name in files:
+        #    return True
         return False
     
 #    def rename_tag(self, old_tag_name, new_tag_name):

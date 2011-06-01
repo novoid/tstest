@@ -68,7 +68,7 @@ class ReTagController(QtCore.QObject):
         
         self.__no_store_found = False
 
-        self.__item_name = item_name
+        self.__item_name = unicode(item_name)
         self.__store_path = store_path
 
         # the main application which has the translator installed
@@ -444,9 +444,8 @@ if __name__ == '__main__':
   
     ## initialize and configure the optionparser
     usage = "\nThis program opens a dialog used for tagging an item placed in a tagstore directory."
-    opt_parser = OptionParser("tagstore_tag.py -s <store> -i <itemname>")
-    opt_parser.add_option("-s", "--store", dest="store_path", help="absolute path to the store home dir")
-    #opt_parser.add_option("-r", "--retag", dest="retag", action="store_true", help="use this option if the item has to be retagged")
+    opt_parser = OptionParser("tagstore_tag.py -s <item_path>")
+    opt_parser.add_option("-s", "--store", dest="store_path", help="absolute  or relative path to the item to be retagged")
     opt_parser.add_option("-v", "--verbose", dest="verbose", action="store_true", help="start programm with detailed output")
 
     (options, args) = opt_parser.parse_args()
