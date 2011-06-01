@@ -40,19 +40,16 @@ class PathHelper(object):
         """
         LOG = LogHelper.get_app_logger(logging.INFO)
 
-        item_name = ""
-
         if path is None or path == "":
             LOG.error("there is no path given")
             return None
-
-        slash_pos = path.rfind("/")
-        if slash_pos == len(path)-1:
+        
+        item_name = os.path.split(path)[1]
+        print item_name
+        if item_name is None or item_name == "":
             LOG.error("there is no item name given: %s" % path)
-            return None 
-        else:
-            item_name = path[slash_pos+1:]
-            
+            return None
+        
         return item_name
 
     @staticmethod

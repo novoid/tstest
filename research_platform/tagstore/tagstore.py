@@ -425,7 +425,7 @@ if __name__ == '__main__':
         verbose_mode = True
     if options.dry_run:
         dry_run = True
-    
+
     tagstore = QtGui.QApplication(sys.argv)
     tagstore.setApplicationName("tagstore")
     tagstore.setOrganizationDomain("www.tagstore.org")

@@ -30,8 +30,9 @@ class FileSystem():
         """
         creates a .lnk link with given link_name using an absolute path to the source
         """
-        name = unicode(link_name.replace("/", "\\") + ".lnk")
-        source = unicode(source.replace("/", "\\"))
+        
+        name = unicode(link_name + ".lnk")
+        source = unicode(source)
         
         shortcut = self.__shell.CreateShortCut(name)
         shortcut.Targetpath = source
@@ -41,11 +42,12 @@ class FileSystem():
         """
         removes a windows .lnk link from file system and empty folders as well
         """
-        file_path = unicode(link.replace("/", "\\") + ".lnk")
+        file_path = unicode(link+".lnk")
         if os.path.exists(file_path):
             os.remove(file_path)
+
         ## delete folder if empty
-        parent_path = "\\".join(file_path.split("\\")[:-1])
+        parent_path = os.path.dirname(link)         
         if len(os.listdir(parent_path)) == 0: #empty
             os.rmdir(parent_path)        
         
