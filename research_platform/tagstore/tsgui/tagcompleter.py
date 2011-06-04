@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-from tscore.specialcharhelper import SpecialCharHelper
 
 # -*- coding: iso-8859-15 -*-
 ## this file is part of tagstore, an alternative way of storing and retrieving information
@@ -29,11 +28,10 @@ The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
 '''
 import time
-import logging
-import re
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import Qt, QObject, SIGNAL
 from PyQt4.QtGui import QLineEdit, QCompleter, QStringListModel, QWidget
+from tscore.specialcharhelper import SpecialCharHelper
 from tscore.tsconstants import TsConstants
 
 class TagCompleterWidget(QObject):
@@ -44,11 +42,13 @@ class TagCompleterWidget(QObject):
         
         QWidget.__init__(self, parent)
         
+        self.__completer_active = False
         self.__max_tags = max_tags
         self.__tag_separator = separator
         self.__tag_list = tag_list
         self.__parent = parent
         self.__tag_line = QLineEdit(self.__parent)
+        #self.__tag_line = TagLineEdit(self.__parent)
         self.__show_datestamp = show_datestamp
         self.__datestamp_format = TsConstants.DATESTAMP_FORMAT_DAY
         
@@ -61,14 +61,25 @@ class TagCompleterWidget(QObject):
         ## the latest activated suggestion 
         self.__activated_text = None
         
-        self.__completer = QCompleter(self.__tag_list, self);    
+        self.__completer = QCompleter(self.__tag_list, self);
         self.__completer.setCaseSensitivity(Qt.CaseInsensitive)
         self.__completer.setWidget(self.__tag_line)
         
         self.__handle_datestamp()
         
-        self.connect(self.__tag_line, SIGNAL("textChanged(QString)"), self.__text_changed)
+        self.connect(self.__tag_line, SIGNAL("textChanged(QString)"), self.__text_changed_by_user)
         self.connect(self.__completer, SIGNAL("activated(QString)"), self.__text_activated)
+        self.connect(self.__completer, SIGNAL("highlighted(QString)"), self.__text_highlighted)
+
+    def __text_highlighted(self, item_name):
+        """
+        a suggestion has been selected in the dropdownbox
+        """
+        # set this variable to True just to know, that 
+        # this value comes from the completer and not from the user 
+        self.__completer_active = True
+        self.__text_selected(item_name)
+        self.__completer_active = False
 
     def __handle_datestamp(self):
         """
@@ -114,7 +125,7 @@ class TagCompleterWidget(QObject):
         self.__tag_line.selectAll()
         self.__tag_line.setFocus(QtCore.Qt.OtherFocusReason)
 
-    def __text_changed(self, text):
+    def __text_changed_by_user(self, text):
         # create a QByteArray in utf8
         all_text = text.toUtf8()
         # make a python string out of it
@@ -147,7 +158,8 @@ class TagCompleterWidget(QObject):
                 self.__check_tag_limit = False
         
         prefix = text.split(self.__tag_separator)[-1].strip()
-        self.__update_completer(tag_set, prefix)
+        if not self.__completer_active:
+            self.__update_completer(tag_set, prefix)
     
     def __update_completer(self, tag_set, completion_prefix):
         if self.__tag_list is None:
@@ -186,6 +198,11 @@ class TagCompleterWidget(QObject):
         return tag in self.__tag_list
     
     def __check_vocabulary(self, tag_set, completion_prefix):
+        """
+        have a look at the entered tag to be completed.
+        if restricted vocabulary is turned on:
+        datestamps do not have to be checked. 
+        """
         
         not_allowed_tags_count = 0
         no_completion_found = False
@@ -240,8 +257,7 @@ class TagCompleterWidget(QObject):
         ## in this case everything is fine
         self.emit(QtCore.SIGNAL("no_completion_found"), False)
     
-    def __text_activated(self, text):
-        
+    def __text_selected(self, text):
         self.__activated_text = text
         
         cursor_pos = self.__tag_line.cursorPosition()
@@ -251,6 +267,12 @@ class TagCompleterWidget(QObject):
 
         self.__tag_line.setText("%s%s" % (before_text[:cursor_pos - prefix_len], text))
         self.__tag_line.setCursorPosition(cursor_pos - prefix_len + len(text) + 2)
+        
+    def __text_activated(self, text):
+        """
+        a suggestion has been choosen by the user
+        """
+        self.__text_selected(text)
         self.emit(QtCore.SIGNAL("activated"))
 
     def get_tag_list(self):
@@ -292,6 +314,7 @@ class TagCompleterWidget(QObject):
     #    self.setGeometry(qrect)
     #    self.__tag_line.setGeometry(qrect)
 
+'''
 class TsListWidget(QtGui.QListWidget):
     
     def __init__(self, parent=None):
@@ -370,4 +393,5 @@ class ComboboxCompleter(QtGui.QWidget):
         sets the controls lookup list (completer)
         """
         self.__completer.setModel(QtGui.QStringListModel(QtCore.QStringList(list)))
+'''
 ## end

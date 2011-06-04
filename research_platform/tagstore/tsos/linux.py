@@ -43,13 +43,13 @@ class FileSystem():
 
     def remove_link(self, link_path):
         """
-        removes a windows .lnk link from file system and empty folders as well
+        removes a link from file system and empty folders as well
         """
         link = unicode(link_path)
         if os.path.islink(link):
             os.unlink(link)
         ## delete folder if empty
-        parent_path = "/".join(link.split("/")[:-1])
+        parent_path = os.path.dirname(link)
         if len(os.listdir(parent_path)) == 0: #empty
             os.rmdir(parent_path)        
         
