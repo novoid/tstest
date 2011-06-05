@@ -45,8 +45,11 @@ class TsConstants(object):
     
     SETTING_DATESTAMP_FORMAT = "datestamp_format"
     
-    SETTING_CATEGORY_MANDATORY = "category_mandatory"
+    #SETTING_CATEGORY_MANDATORY = "category_mandatory"
     SETTING_SHOW_CATEGORY_LINE = "show_category_line"
+    SETTING_CATEGORY_MANDATORY = "category_mandatory"
+    
+    SETTING_VOCABULARY_CONFIGURABLE = "vocabulary_configurable"
     
     ## these constants are NOT used at the config file - it is a "gui setting name"
     SETTING_CATEGORY_VOCABULARY = "category_vocabulary"
@@ -76,6 +79,8 @@ class TsConstants(object):
     DEFAULT_ENCODING = "UTF-8"
     DEFAULT_FIRST_START = "true"
     DEFAULT_SHOW_WIZARD = "true"
+    DEFAULT_VOCABULARY_CONFIGURABLE = "false"
+    DEFAULT_SHOW_CATEGORY_LINE = 1
     
     def __init__(self):
         pass

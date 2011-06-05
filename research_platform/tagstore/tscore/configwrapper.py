@@ -89,6 +89,8 @@ class ConfigWrapper(QtCore.QObject):
         file.write("tag_separator=\"%s\"\n" % TsConstants.DEFAULT_TAG_SEPARATOR)
         file.write("supported_languages=\"en,de\"\n")
         file.write("current_language=de\n")
+        file.write("show_category_line=%d\n" % TsConstants.DEFAULT_SHOW_CATEGORY_LINE)
+        file.write("vocabulary_configurable=%d\n" % TsConstants.DEFAULT_VOCABULARY_CONFIGURABLE)
         file.write("expiry_prefix=expiration\n")
         file.write("max_tags=5\n")
         file.write("num_popular_tags=5\n")
@@ -121,6 +123,8 @@ class ConfigWrapper(QtCore.QObject):
         self.__log.info("supported_languages=%s" % self.get_supported_languages())
         self.__log.info("datestamp_format=%s" % self.get_datestamp_format())
         self.__log.info("current_language=%s" % self.get_current_language())
+        self.__log.info("show_category_line=%s" % self.get_show_category_line())
+        self.__log.info("vocabulary_configurable=%s" % self.get_vocabulary_configurable())
         self.__log.info("expiry_prefix=%s" % self.get_expiry_prefix())
         self.__log.info("max_tags=%s" % self.get_max_tags())
         self.__log.info("num_popular_tags=%s" % self.get_num_popular_tags())
@@ -236,6 +240,16 @@ class ConfigWrapper(QtCore.QObject):
             return True
         else:    
             return False
+
+    def get_vocabulary_configurable(self):
+        """
+        returns "True" or "False" in case date-stamps are requested
+        """
+        setting = self.__get_setting(TsConstants.SETTING_VOCABULARY_CONFIGURABLE)
+        if setting == "true":
+            return True
+        else:    
+            return False
     
     def get_datestamp_format(self):
         """
@@ -269,11 +283,12 @@ class ConfigWrapper(QtCore.QObject):
         """
         returns True if the category line should be enabled in the tag dialog
         """
-        if self.__get_setting(TsConstants.SETTING_CATEGORY_MANDATORY) == "true":
+        setting = self.__get_setting(TsConstants.SETTING_CATEGORY_MANDATORY)
+        if setting == "true":
             return True
         else:    
             return False
-    
+
     def __put_setting(self, setting_name, setting_value):
         """
         writes a new value to a specified setting
@@ -287,7 +302,7 @@ class ConfigWrapper(QtCore.QObject):
         helper method to switch directly to the settings group of the config file
         """
         self.__settings.beginGroup("settings")
-        value = unicode(self.__settings.value(setting_name, "").toString())
+        value = unicode(self.__settings.value(setting_name).toString())
         self.__settings.endGroup()
         return value.strip()
     

@@ -874,18 +874,19 @@ class TagAdminController(MultipleStorePreferenceController):
                 self.get_view().set_describing_tags(setting_value)
             elif setting_name == TsConstants.SETTING_CAT_TAGS:
                 self.get_view().set_categorizing_tags(setting_value)
-            elif setting_name == TsConstants.SETTING_SHOW_CATEGORY_LINE:
-                    if setting_value == ECategorySetting.DISABLED:
-                        self.get_view().enable_desc_widgets(True)
-                        self.get_view().enable_cat_widgets(False)
-                        ## clear the list because it is not needed
-                        self.get_view().clear_categorizing_tags()
-                    if setting_value == ECategorySetting.ENABLED_SINGLE_CONTROLLED_TAGLINE:
-                        self.get_view().enable_desc_widgets(False)
-                        ## clear the list because it is not needed
-                        self.get_view().clear_describing_tags()
-                        self.get_view().enable_cat_widgets(True)
-                        self.get_view().set_describing_tags(None)
+                
+    def handle_tagline_setting(self, setting_value):
+        if setting_value == ECategorySetting.DISABLED:
+            self.get_view().enable_desc_widgets(True)
+            self.get_view().enable_cat_widgets(False)
+            ## clear the list because it is not needed
+            self.get_view().clear_categorizing_tags()
+        if setting_value == ECategorySetting.ENABLED_SINGLE_CONTROLLED_TAGLINE:
+            self.get_view().enable_desc_widgets(False)
+            ## clear the list because it is not needed
+            self.get_view().clear_describing_tags()
+            self.get_view().enable_cat_widgets(True)
+            self.get_view().set_describing_tags(None)
     
 class DatestampAdminView(MultipleStorePreferenceView):
 
@@ -1158,11 +1159,11 @@ class StorePreferencesController(QtCore.QObject):
             self.__controller_vocabulary.add_setting(TsConstants.SETTING_SHOW_CATEGORY_LINE, config.get_show_category_line(), store_name)
             self.__controller_vocabulary.add_setting(TsConstants.SETTING_CATEGORY_VOCABULARY, voc_wrapper.get_vocabulary(), store_name)
             ## TODO: create a method to switch this from outside
-            self.__controller_vocabulary.set_settings_editable(False)
+            self.__controller_vocabulary.set_settings_editable(self.__main_config.get_vocabulary_configurable())
             
             self.__controller_tag_admin.add_setting(TsConstants.SETTING_DESC_TAGS, store["desc_tags"], store_name)
             self.__controller_tag_admin.add_setting(TsConstants.SETTING_CAT_TAGS, store["cat_tags"], store_name)
-            self.__controller_tag_admin.add_setting(TsConstants.SETTING_SHOW_CATEGORY_LINE, config.get_show_category_line(), store_name)
+            self.__controller_tag_admin.handle_tagline_setting(config.get_show_category_line())
             
             self.__controller_retag.add_setting(TsConstants.SETTING_ITEMS, tagfile_wrapper.get_files(), store_name)
             
