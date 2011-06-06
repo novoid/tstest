@@ -474,7 +474,6 @@ if __name__ == '__main__':
             else:
                 raise
     pid_file.close()
-    
 
     tag_widget = Tagstore(tagstore,verbose=verbose_mode, dryrun=dry_run)
     tagstore.exec_()
