@@ -435,45 +435,47 @@ if __name__ == '__main__':
     tagstore.setOrganizationDomain("www.tagstore.org")
     tagstore.UnicodeUTF8
 
-    pid = os.getpid()
-    old_pid = None
-    # open or create a pid file
-    pid_file = open(TsConstants.CONFIG_DIR + "PID_FILE", "r")
+    if sys.platform[:3] != "win":
     
-    for line in pid_file.readlines():
-        old_pid = line
-
-    pid_file.close()
-    # re-open the file in write mode
+        pid = os.getpid()
+        old_pid = None
+        # open or create a pid file
+        pid_file = open(TsConstants.CONFIG_DIR + "PID_FILE", "r")
+        
+        for line in pid_file.readlines():
+            old_pid = line
     
-    if old_pid is None or old_pid == "":
-        # there is no old pid number in the PID_FILE
-        # -> so we do not have to check if there is tagstore running
-        pid_file = open(TsConstants.CONFIG_DIR + "PID_FILE", "w")
-        pid_file.write(str(pid))
-    else:
-        # it could be there is another tagstore process already running
-        # check it
-        try:
-            # the second parameter is the signal code
-            # If sig is 0, then no signal is sent, but error checking is still performed.
-            # if "os.kill" throws no exception, the process exists
-            os.kill(int(old_pid), 0)
-            # if no exception is thrown kill the current process
-            print "EXIT - a tagstore process is already is running, so"
-            sys.exit(-2) 
-        except OSError, e:
-            # the process with the provided pid does not exist enymore
-            # so an exception is thrown
-            # ESRCH means "no such process"
-            print errno.ESRCH 
-            if e.errno == errno.ESRCH:
-                # write the new pid to the file
-                pid_file = open(TsConstants.CONFIG_DIR + "PID_FILE", "w")
-                pid_file.write(str(pid))
-            else:
-                raise
-    pid_file.close()
+        pid_file.close()
+        # re-open the file in write mode
+        
+        if old_pid is None or old_pid == "":
+            # there is no old pid number in the PID_FILE
+            # -> so we do not have to check if there is tagstore running
+            pid_file = open(TsConstants.CONFIG_DIR + "PID_FILE", "w")
+            pid_file.write(str(pid))
+        else:
+            # it could be there is another tagstore process already running
+            # check it
+            try:
+                # the second parameter is the signal code
+                # If sig is 0, then no signal is sent, but error checking is still performed.
+                # if "os.kill" throws no exception, the process exists
+                os.kill(int(old_pid), 0)
+                # if no exception is thrown kill the current process
+                print "EXIT - a tagstore process is already is running, so"
+                sys.exit(-2) 
+            except OSError, e:
+                # the process with the provided pid does not exist enymore
+                # so an exception is thrown
+                # ESRCH means "no such process"
+                print errno.ESRCH 
+                if e.errno == errno.ESRCH:
+                    # write the new pid to the file
+                    pid_file = open(TsConstants.CONFIG_DIR + "PID_FILE", "w")
+                    pid_file.write(str(pid))
+                else:
+                    raise
+        pid_file.close()
 
     tag_widget = Tagstore(tagstore,verbose=verbose_mode, dryrun=dry_run)
     tagstore.exec_()
