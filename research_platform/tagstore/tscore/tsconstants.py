@@ -30,6 +30,7 @@ class TsConstants(object):
     ## the percentage of inodes which must be left free 
     INODE_THRESHOLD = 10
     
+    CONFIG_DIR = "./tsresources/conf/"
     CONFIG_PATH = "./tsresources/conf/tagstore.cfg"
     STORE_CONFIG_TEMPLATE_PATH = "./tsresources/conf/store.cfg.template"
     STORE_TAGFILE_TEMPLATE_PATH = "./tsresources/conf/store.tgs.template"

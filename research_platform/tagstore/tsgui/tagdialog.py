@@ -54,7 +54,7 @@ class TagDialog(QtGui.QDialog):
         self.__info_tag_limit_shown = False
         self.__tag_state = TagDialogState()
         
-        self.__selected_item = None
+        self.__selected_item_list = None
         
         self.__info_palette = None
         ## a list to hold all tag labels - that they can be accessed and removed later on
@@ -81,6 +81,7 @@ class TagDialog(QtGui.QDialog):
         self.__tag_button = QtGui.QPushButton()
         self.__close_button = QtGui.QPushButton()
         self.__item_list_view = QtGui.QListWidget()
+        self.__item_list_view.setSelectionMode(QtGui.QAbstractItemView.ExtendedSelection)
         
         self.__cat_line_widget = TagCompleterWidget(self.__max_tags, separator=self.__tag_separator, 
             parent=self)
@@ -162,7 +163,7 @@ class TagDialog(QtGui.QDialog):
         #self.connect(self, QtCore.SIGNAL("returnPressed()"), self.__handle_enter) 
         self.connect(self.__category_line, QtCore.SIGNAL("returnPressed()"), self.__defer_categoryline_enter) 
         self.connect(self.__tag_line, QtCore.SIGNAL("returnPressed()"), self.__defer_tagline_enter) 
-        self.connect(self.__item_list_view, QtCore.SIGNAL("currentRowChanged(int)"), self.__handle_selection_changed)
+        self.connect(self.__item_list_view, QtCore.SIGNAL("itemSelectionChanged()"), self.__handle_selection_changed)
         self.connect(self.__close_button, QtCore.SIGNAL("clicked()"), QtCore.SIGNAL("cancel_clicked()"))
         self.connect(self.__help_button, QtCore.SIGNAL("clicked()"), QtCore.SIGNAL("help_clicked()"))
         self.connect(self.__property_button, QtCore.SIGNAL("clicked()"), QtCore.SIGNAL("property_clicked()"))
@@ -412,23 +413,29 @@ class TagDialog(QtGui.QDialog):
         self.__tag_button.setToolTip(QtGui.QApplication.translate("tagstore", "Tag the selected item", None, QtGui.QApplication.UnicodeUTF8))
         self.__tag_button.setText(QtGui.QApplication.translate("tagstore", "Tag!", None, QtGui.QApplication.UnicodeUTF8))
         
-    def __handle_selection_changed(self, row):
-        self.__set_selected_item(self.__item_list_view.item(row))
+    def __handle_selection_changed(self):
+        self.__set_selected_item_list(self.__item_list_view.selectedItems())
 
-    def __get_selected_item(self):
-        if self.__selected_item is None:
+    def __get_selected_item_list(self):
+        if self.__selected_item_list is None:
             self.__log.error("_TagDialog.__get_selected_item(): no item selected")
             return None
-        return self.__selected_item
+        return self.__selected_item_list
 
     def __set_selected_item(self, item):
+        self.__selected_item_list = [item]
+        
+        if item is not None:
+            item.setSelected(True)
+        
+    def __set_selected_item_list(self, item_list):
         """
         save the selected item as field and handle the selection in the list_widget as well
         """
-        self.__selected_item = item
-        if  item is not None:
-            item.setSelected(True)
-            self.__log.debug("set_selected_item: %s" % self.__selected_item.text())
+        self.__selected_item_list = item_list
+        
+        if  item_list is not None:
+            self.__log.debug("set_selected_item_list: %s" % self.__selected_item_list)
         
     def __handle_tag_label_clicked(self, clicked_text):
         current_text = str(self.__tag_line.text()).strip()
@@ -449,6 +456,10 @@ class TagDialog(QtGui.QDialog):
             self.__category_line.setText("%s %s" % (current_text, clicked_text))
         else:
             self.__category_line.setText("%s%s %s" % (current_text, self.__tag_separator, clicked_text))
+
+    def remove_items_from_list(self, item_list):
+        for item in item_list:
+            self.remove_item_from_list(item)
 
     def remove_item_from_list(self, item):
         if item is None:
@@ -487,7 +498,7 @@ class TagDialog(QtGui.QDialog):
         self.remove_not_suitable_categories_entered()
 
     def __handle_tag_action(self):
-        self.emit(QtCore.SIGNAL("tag_button_pressed"), self.__get_selected_item(), self.__tag_line_widget.get_tag_list())
+        self.emit(QtCore.SIGNAL("tag_button_pressed"), self.__get_selected_item_list(), self.__tag_line_widget.get_tag_list())
 
     def select_tag_line(self):
         self.__tag_line_widget.select_line()
@@ -560,7 +571,10 @@ class TagDialog(QtGui.QDialog):
         """
         item = QtGui.QListWidgetItem(item_name, self.__item_list_view)
         self.__item_list_view.sortItems()
-        self.__set_selected_item(item)
+        # if there is already an item selected - de-select it.
+        self.__item_list_view.clearSelection()
+        
+        self.__set_selected_item_list([item])
         #self.__item_list_view.addItem(item_name)
         self.__tag_line.setEnabled(True)
         self.__tag_line_widget.select_line()
@@ -711,7 +725,7 @@ class TagDialogController(QtCore.QObject):
         self.__tag_separator = tag_separator
         self.__tag_dialog = TagDialog(self.__max_tags, self.__tag_separator)
         
-        self.__item_to_remove = None
+        self.__items_to_remove = []
         
         self.__is_shown = False
         
@@ -730,7 +744,7 @@ class TagDialogController(QtCore.QObject):
         """
         self.hide_dialog()
     
-    def tag_item(self, item, tag_list):
+    def tag_item(self, item_list, tag_list):
         """
         pre-check if all necessary data is available for storing tags to an item 
         """
@@ -742,7 +756,7 @@ class TagDialogController(QtCore.QObject):
         if (tag_list is None or len(tag_list) == 0) and category_setting != ECategorySetting.ENABLED_SINGLE_CONTROLLED_TAGLINE:
             self.__tag_dialog.set_no_tag_entered_info(self.trUtf8("Please enter at least one tag for the selected item"))
             return
-        if item is None:
+        if item_list is None:
             self.__tag_dialog.set_item_info(self.trUtf8("Please select an Item, to which the tags should be added"))
             return
 
@@ -791,21 +805,21 @@ class TagDialogController(QtCore.QObject):
             self.__tag_dialog.set_error_occured(ETagErrorEnum.NOT_ALLOWED_CATEGORIZING_TAG_NAME)
             return
             
-        self.__item_to_remove = item
-        item_str = unicode(item.text())
+        self.__items_to_remove = item_list
+        item_str_list = []
+        for item in item_list:
+            item_str_list.append(unicode(item.text()))
         #item_utf8 = unicode(item_str, "utf-8")
-        self.emit(QtCore.SIGNAL("tag_item"), self.__store_name, item_str, tag_list, category_list)
+        self.emit(QtCore.SIGNAL("tag_item"), self.__store_name, item_str_list, tag_list, category_list)
         
-    def remove_item(self, item_name):
+    def remove_item_list(self, item_name_list):
         """
         should be called after a successful tag-operation at the store
         """
-        tmp_item = unicode(self.__item_to_remove.text())
-        item_name = unicode(item_name)
-        if item_name == tmp_item:
-            self.__tag_dialog.remove_item_from_list(self.__item_to_remove)
+        if len(item_name_list) == len(self.__items_to_remove):
+            self.__tag_dialog.remove_items_from_list(self.__items_to_remove)
             self.__tag_dialog.remove_all_infos()
-            self.__item_to_remove = None
+            self.__items_to_remove = None
             self.__tag_dialog.select_tag_line()
             
     def get_view(self):

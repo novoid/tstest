@@ -590,6 +590,10 @@ class Store(QtCore.QObject):
                 return [tag, EConflictType.TAG]
         return ["", None]
          
+    def add_item_list_with_tags(self, file_name_list, describing_tag_list, categorising_tag_list=None):
+        for item in file_name_list:
+            self.add_item_with_tags(item, describing_tag_list, categorising_tag_list)
+        
     def add_item_with_tags(self, file_name, describing_tag_list, categorising_tag_list=None):
         """
         adds tags to the given file, resets existing tags

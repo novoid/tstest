@@ -17,6 +17,7 @@
 ## if not, see <http://www.gnu.org/licenses/>.
 
 import sys
+import os
 import logging.handlers
 from optparse import OptionParser
 from PyQt4 import QtCore, QtGui
@@ -29,7 +30,9 @@ from tscore.exceptions import NameInConflictException,\
     InodeShortageException
 from tagstore_manager import Administration
 from tscore.loghelper import LogHelper
-
+from tscore.tsconstants import TsConstants
+from tsos.filesystem import FileSystemWrapper
+import errno
     
 class Tagstore(QtCore.QObject):
 
@@ -218,6 +221,7 @@ class Tagstore(QtCore.QObject):
         """
         
         format_setting = store.get_datestamp_format()
+        is_hidden = store.get_datestamp_hidden()
 
         ##check if auto datestamp is enabled
         if format_setting != EDateStampFormat.DISABLED:
@@ -228,7 +232,7 @@ class Tagstore(QtCore.QObject):
                 format = TsConstants.DATESTAMP_FORMAT_DAY
             elif format_setting == EDateStampFormat.MONTH:
                 format = TsConstants.DATESTAMP_FORMAT_MONTH
-            tmp_dialog.set_datestamp_format(format)
+            tmp_dialog.set_datestamp_format(format, is_hidden)
                 
         tmp_dialog.show_category_line(store.get_show_category_line())
         tmp_dialog.set_category_mandatory(store.get_category_mandatory())
@@ -350,7 +354,7 @@ class Tagstore(QtCore.QObject):
         #if len(self.DIALOGS) > 1:
         dialog_controller.set_store_name(store.get_name())
     
-    def tag_item_action(self, store_name, item_name, tag_list, category_list):
+    def tag_item_action(self, store_name, item_name_list, tag_list, category_list):
         """
         write the tags for the given item to the store
         """
@@ -364,8 +368,8 @@ class Tagstore(QtCore.QObject):
         dialog_controller = self.DIALOGS[store.get_id()]
         try:
             ## 1. write the data to the store-file
-            store.add_item_with_tags(item_name, tag_list, category_list)
-            self.__log.debug("added item %s to store-file", item_name)
+            store.add_item_list_with_tags(item_name_list, tag_list, category_list)
+            self.__log.debug("added items %s to store-file", item_name_list)
         except NameInConflictException, e:
             c_type = e.get_conflict_type()
             c_name = e.get_conflicted_name()
@@ -384,7 +388,7 @@ class Tagstore(QtCore.QObject):
             raise
         else:
             ## 2. remove the item in the gui
-            dialog_controller.remove_item(item_name)
+            dialog_controller.remove_item_list(item_name_list)
             ## 3. refresh the tag information of the gui
             self.__set_tag_information_to_dialog(store)
         
@@ -430,7 +434,48 @@ if __name__ == '__main__':
     tagstore.setApplicationName("tagstore")
     tagstore.setOrganizationDomain("www.tagstore.org")
     tagstore.UnicodeUTF8
+
+    pid = os.getpid()
+    old_pid = None
+    # open or create a pid file
+    pid_file = open(TsConstants.CONFIG_DIR + "PID_FILE", "r")
     
+    for line in pid_file.readlines():
+        old_pid = line
+
+    pid_file.close()
+    # re-open the file in write mode
+    
+    if old_pid is None or old_pid == "":
+        # there is no old pid number in the PID_FILE
+        # -> so we do not have to check if there is tagstore running
+        pid_file = open(TsConstants.CONFIG_DIR + "PID_FILE", "w")
+        pid_file.write(str(pid))
+    else:
+        # it could be there is another tagstore process already running
+        # check it
+        try:
+            # the second parameter is the signal code
+            # If sig is 0, then no signal is sent, but error checking is still performed.
+            # if "os.kill" throws no exception, the process exists
+            os.kill(int(old_pid), 0)
+            # if no exception is thrown kill the current process
+            print "EXIT - a tagstore process is already is running, so"
+            sys.exit(-2) 
+        except OSError, e:
+            # the process with the provided pid does not exist enymore
+            # so an exception is thrown
+            # ESRCH means "no such process"
+            print errno.ESRCH 
+            if e.errno == errno.ESRCH:
+                # write the new pid to the file
+                pid_file = open(TsConstants.CONFIG_DIR + "PID_FILE", "w")
+                pid_file.write(str(pid))
+            else:
+                raise
+    pid_file.close()
+    
+
     tag_widget = Tagstore(tagstore,verbose=verbose_mode, dryrun=dry_run)
     tagstore.exec_()
     #sys.exit(tagstore.exec_())
