@@ -40,10 +40,11 @@ class TsConstants(object):
     #STORE_EXPIRED_DIR_EN = "expired_items"#abgelaufene_Daten"
     
     SETTING_SUPPORTED_LANGUAGES = "supported_languages"
-    SETTING_AUTO_DATESTAMP = "automatic_datestamp"
     SETTING_TAG_SEPARATOR = "tag_separator"
     
     SETTING_DATESTAMP_FORMAT = "datestamp_format"
+    SETTING_DATESTAMP_HIDDEN = "datestamp_hidden"
+    #SETTING_AUTO_DATESTAMP = "automatic_datestamp"
     
     #SETTING_CATEGORY_MANDATORY = "category_mandatory"
     SETTING_SHOW_CATEGORY_LINE = "show_category_line"
@@ -81,6 +82,8 @@ class TsConstants(object):
     DEFAULT_SHOW_WIZARD = "true"
     DEFAULT_VOCABULARY_CONFIGURABLE = "false"
     DEFAULT_SHOW_CATEGORY_LINE = 1
+    DEFAULT_DATESTAMP_FORMAT = 1
+    DEFAULT_DATESTAMP_HIDDEN = "false"
     
     def __init__(self):
         pass

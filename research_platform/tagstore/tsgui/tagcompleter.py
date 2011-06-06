@@ -60,12 +60,15 @@ class TagCompleterWidget(QObject):
         
         ## the latest activated suggestion 
         self.__activated_text = None
+        # value of the actual datestamp
+        self.__datestamp = None
+        self.__datestamp_hidden = False
         
         self.__completer = QCompleter(self.__tag_list, self);
         self.__completer.setCaseSensitivity(Qt.CaseInsensitive)
         self.__completer.setWidget(self.__tag_line)
         
-        self.__handle_datestamp()
+        #self.__handle_datestamp()
         
         self.connect(self.__tag_line, SIGNAL("textChanged(QString)"), self.__text_changed_by_user)
         self.connect(self.__completer, SIGNAL("activated(QString)"), self.__text_activated)
@@ -81,21 +84,24 @@ class TagCompleterWidget(QObject):
         self.__text_selected(item_name)
         self.__completer_active = False
 
-    def __handle_datestamp(self):
+    def __handle_datestamp(self, is_hidden):
         """
         if the show_datestamp flag is set to True, provide an automatic datestamp on the tagline 
         """
         if self.__show_datestamp:
-            self.__tag_line.clear()
-            self.__tag_line.setText(time.strftime(self.__datestamp_format))
+            self.__datestamp = time.strftime(self.__datestamp_format)
+            if not is_hidden:
+                self.__tag_line.clear()
+                self.__tag_line.setText(self.__datestamp)
 
-    def set_datestamp_format(self, format):
+    def set_datestamp_format(self, format, is_hidden):
         self.__datestamp_format = format
-        self.__handle_datestamp()
-        
+        self.__datestamp_hidden = is_hidden
+        self.__handle_datestamp(is_hidden)
+    
     def show_datestamp(self, show):
         self.__show_datestamp = show
-        self.__handle_datestamp()
+        self.__handle_datestamp(show)
 
     def clear_line(self):
         """
@@ -104,7 +110,7 @@ class TagCompleterWidget(QObject):
         """
         self.__tag_line.clear()
         if self.__show_datestamp:
-            self.__handle_datestamp()
+            self.__handle_datestamp(self.__datestamp_hidden)
     def set_check_not_empty(self, check_necessary):
         """
         set this to True, if there should be sent a signal that indicates 
@@ -283,6 +289,9 @@ class TagCompleterWidget(QObject):
             strip_tag = tag.strip()
             if strip_tag != "":
                 result.add(strip_tag)
+        # if the datestamp is hidden, add it manually to the taglist
+        if self.__datestamp_hidden:
+            result.add(self.__datestamp)
         return result
     
     def get_tag_line(self):

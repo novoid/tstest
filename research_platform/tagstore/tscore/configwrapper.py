@@ -91,6 +91,8 @@ class ConfigWrapper(QtCore.QObject):
         file.write("current_language=de\n")
         file.write("show_category_line=%d\n" % TsConstants.DEFAULT_SHOW_CATEGORY_LINE)
         file.write("vocabulary_configurable=%d\n" % TsConstants.DEFAULT_VOCABULARY_CONFIGURABLE)
+        file.write("datestamp_format=%s\n" % TsConstants.DEFAULT_DATESTAMP_FORMAT)
+        file.write("datestamp_hidden=%d\n" % TsConstants.DEFAULT_DATESTAMP_HIDDEN)
         file.write("expiry_prefix=expiration\n")
         file.write("max_tags=5\n")
         file.write("num_popular_tags=5\n")
@@ -122,6 +124,7 @@ class ConfigWrapper(QtCore.QObject):
         self.__log.info("tag_separator=\"%s\"" % self.get_tag_seperator())
         self.__log.info("supported_languages=%s" % self.get_supported_languages())
         self.__log.info("datestamp_format=%s" % self.get_datestamp_format())
+        self.__log.info("datestamp_hidden=%s" % self.get_datestamp_hidden())
         self.__log.info("current_language=%s" % self.get_current_language())
         self.__log.info("show_category_line=%s" % self.get_show_category_line())
         self.__log.info("vocabulary_configurable=%s" % self.get_vocabulary_configurable())
@@ -232,11 +235,11 @@ class ConfigWrapper(QtCore.QObject):
         return self.__get_setting(TsConstants.SETTING_EXPIRY_PREFIX)
         
         
-    def get_show_datestamp(self):
+    def get_datestamp_hidden(self):
         """
         returns "True" or "False" in case date-stamps are requested
         """
-        if self.__get_setting(TsConstants.SETTING_AUTO_DATESTAMP) == "true":
+        if self.__get_setting(TsConstants.SETTING_DATESTAMP_HIDDEN) == "true":
             return True
         else:    
             return False
@@ -262,6 +265,9 @@ class ConfigWrapper(QtCore.QObject):
     
     def set_datestamp_format(self, setting_value):
         self.__put_setting(TsConstants.SETTING_DATESTAMP_FORMAT, setting_value)
+
+    def set_datestamp_hidden(self, setting_value):
+        self.__put_setting(TsConstants.SETTING_DATESTAMP_HIDDEN, setting_value)
 
     def get_show_category_line(self):
         """

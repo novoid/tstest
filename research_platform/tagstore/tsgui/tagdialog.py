@@ -631,9 +631,9 @@ class TagDialog(QtGui.QDialog):
     def is_show_datestamp(self):
         return self.__show_datestamp
         
-    def set_datestamp_format(self, format):
-        self.__tag_line_widget.set_datestamp_format(format)
-        self.__cat_line_widget.set_datestamp_format(format)
+    def set_datestamp_format(self, format, is_hidden):
+        self.__tag_line_widget.set_datestamp_format(format, is_hidden)
+        self.__cat_line_widget.set_datestamp_format(format, is_hidden)
         
     def show_tooltip(self, message, parent=None):
         """
@@ -863,8 +863,8 @@ class TagDialogController(QtCore.QObject):
     def set_category_mandatory(self, mandatory):
         self.__tag_dialog.set_category_mandatory(mandatory)
 
-    def set_datestamp_format(self, format):
-        self.__tag_dialog.set_datestamp_format(format)
+    def set_datestamp_format(self, format, is_hidden):
+        self.__tag_dialog.set_datestamp_format(format, is_hidden)
 
     def clear_tagdialog(self):
         self.clear_all_items()

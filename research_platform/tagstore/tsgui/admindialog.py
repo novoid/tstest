@@ -900,9 +900,12 @@ class DatestampAdminView(MultipleStorePreferenceView):
         self.__radio_activated_m = QtGui.QRadioButton(self.trUtf8("automatic datestamp: 2010-12"))
         self.__radio_activated_d = QtGui.QRadioButton(self.trUtf8("automatic datestamp: 2010-12-31"))
         
+        self.__checkbox_hidden_datestamp = QtGui.QCheckBox(self.trUtf8("Do not show the datestamp, if activated"))
+        
         self.__radio_layout.addWidget(self.__radio_deactivated)
         self.__radio_layout.addWidget(self.__radio_activated_m)
         self.__radio_layout.addWidget(self.__radio_activated_d)
+        self.__radio_layout.addWidget(self.__checkbox_hidden_datestamp)
         
         self.__radio_panel = QtGui.QWidget()
         self.__radio_panel.setLayout(self.__radio_layout)
@@ -912,21 +915,29 @@ class DatestampAdminView(MultipleStorePreferenceView):
         self.connect(self.__radio_deactivated, QtCore.SIGNAL("toggled(bool)"), self.__datestamp_deactivated)
         self.connect(self.__radio_activated_m, QtCore.SIGNAL("toggled(bool)"), self.__datestamp_activated_m)
         self.connect(self.__radio_activated_d, QtCore.SIGNAL("toggled(bool)"), self.__datestamp_activated_d)
+        self.connect(self.__checkbox_hidden_datestamp, QtCore.SIGNAL("toggled(bool)"), self.__hidden_datestamp_checked)
     
     def __datestamp_deactivated(self, checked):
         if checked:
             self._promote_setting_changed(self._store_combo.currentText(), 
                       TsConstants.SETTING_DATESTAMP_FORMAT, EDateStampFormat.DISABLED)
+            self.__checkbox_hidden_datestamp.setEnabled(False)
             
     def __datestamp_activated_m(self, checked):
         if checked:
             self._promote_setting_changed(self._store_combo.currentText(), 
                       TsConstants.SETTING_DATESTAMP_FORMAT, EDateStampFormat.MONTH)
+            self.__checkbox_hidden_datestamp.setEnabled(True)
             
     def __datestamp_activated_d(self, checked):
         if checked:
             self._promote_setting_changed(self._store_combo.currentText(), 
                       TsConstants.SETTING_DATESTAMP_FORMAT, EDateStampFormat.DAY)
+            self.__checkbox_hidden_datestamp.setEnabled(True)
+    
+    def __hidden_datestamp_checked(self, checked):
+        self._promote_setting_changed(self._store_combo.currentText(),
+                    TsConstants.SETTING_DATESTAMP_HIDDEN, checked)
     
     def set_datestamp_disabled(self):
         self.__radio_deactivated.setChecked(True)
@@ -936,6 +947,9 @@ class DatestampAdminView(MultipleStorePreferenceView):
         
     def set_datestamp_day(self):
         self.__radio_activated_d.setChecked(True)
+
+    def set_datestamp_hidden(self, is_hidden):
+        self.__checkbox_hidden_datestamp.setChecked(is_hidden)
         
 class DatestampAdminController(MultipleStorePreferenceController):
     
@@ -956,6 +970,8 @@ class DatestampAdminController(MultipleStorePreferenceController):
                     self.get_view().set_datestamp_month()
                 elif setting_value == EDateStampFormat.DAY:
                         self.get_view().set_datestamp_day()
+            if setting_name == TsConstants.SETTING_DATESTAMP_HIDDEN:
+                self.get_view().set_datestamp_hidden(setting_value)
     
     def _add_additional_settings(self):
         pass
@@ -1168,6 +1184,7 @@ class StorePreferencesController(QtCore.QObject):
             self.__controller_retag.add_setting(TsConstants.SETTING_ITEMS, tagfile_wrapper.get_files(), store_name)
             
             self.__controller_datestamp.add_setting(TsConstants.SETTING_DATESTAMP_FORMAT, config.get_datestamp_format(), store_name)
+            self.__controller_datestamp.add_setting(TsConstants.SETTING_DATESTAMP_HIDDEN, config.get_datestamp_hidden(), store_name)
 
         self.connect(self.__controller_store_admin, QtCore.SIGNAL("new"), self.__handle_new_store)
 #        self.connect(self.__controller_store_admin, QtCore.SIGNAL("new"), QtCore.SIGNAL("create_new_store"))
@@ -1240,6 +1257,8 @@ class StorePreferencesController(QtCore.QObject):
                     store_config = self.__get_store_config_by_name(property["STORE_NAME"])
                     if property["SETTING_NAME"] == TsConstants.SETTING_DATESTAMP_FORMAT:
                         store_config.set_datestamp_format(property["SETTING_VALUE"])
+                    elif property["SETTING_NAME"] == TsConstants.SETTING_DATESTAMP_HIDDEN:
+                        store_config.set_datestamp_hidden(property["SETTING_VALUE"])
                     elif property["SETTING_NAME"] == TsConstants.SETTING_SHOW_CATEGORY_LINE:
                         store_config.set_show_category_line(property["SETTING_VALUE"])
                     elif property["SETTING_NAME"] == TsConstants.SETTING_CATEGORY_VOCABULARY:
@@ -1273,7 +1292,7 @@ class StorePreferencesController(QtCore.QObject):
             
     def select_tab(self, tab_name):
         """
-        method to programmatically set the selected tab
+        set the tab with the provided name as active
         """
         if tab_name is not None and tab_name != "":
             self.__dialog.select_preference_tab(self.__preference_controller_list[str(tab_name)].get_view())

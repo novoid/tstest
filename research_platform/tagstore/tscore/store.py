@@ -565,6 +565,9 @@ class Store(QtCore.QObject):
     
     def get_datestamp_format(self):
         return self.__store_config_wrapper.get_datestamp_format()
+
+    def get_datestamp_hidden(self):
+        return self.__store_config_wrapper.get_datestamp_hidden()
     
     def get_category_mandatory(self):
         return self.__store_config_wrapper.get_category_mandatory()

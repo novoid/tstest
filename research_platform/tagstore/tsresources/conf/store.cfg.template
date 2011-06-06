@@ -2,7 +2,8 @@
 store_id=0
 
 [settings]
-config_format = 1
+config_format = 3
 datestamp_format=1
-show_category_line=0
+datestamp_hidden=false
+show_category_line=2
 category_mandatory=false
