@@ -43,7 +43,7 @@ class FileSystemWrapper():
         self.file_system = FileSystem()
         self.__IGNORED_FILE_PREFIXES = ["~$", "."]
         self.__IGNORED_DIR_PREFIXES = ["."]
-        self.__IGNORED_EXTENTIONS = [".lnk"]
+        self.__IGNORED_EXTENTIONS = [".lnk", ".crdownload"]
     
     def get_os(self):
         """
