@@ -87,6 +87,7 @@ class ConfigWrapper(QtCore.QObject):
         file.write("store_tags_filename=%s\n" % TsConstants.DEFAULT_STORE_TAGS_FILENAME)
         file.write("store_vocabulary_filename=%s\n" % TsConstants.DEFAULT_STORE_VOCABULARY_FILENAME)
         file.write("tag_separator=\"%s\"\n" % TsConstants.DEFAULT_TAG_SEPARATOR)
+        file.write("facet_separator=\"%s\"\n" % TsConstants.DEFAULT_FACET_SEPARATOR)
         file.write("supported_languages=\"en,de\"\n")
         file.write("current_language=de\n")
         file.write("show_category_line=%d\n" % TsConstants.DEFAULT_SHOW_CATEGORY_LINE)
@@ -122,6 +123,7 @@ class ConfigWrapper(QtCore.QObject):
         self.__log.info("store_vocabulary_filename=%s" % self.get_store_vocabularyfile_name())
         
         self.__log.info("tag_separator=\"%s\"" % self.get_tag_seperator())
+        self.__log.info("facet_separator=\"%s\"" % self.get_facet_seperator())
         self.__log.info("supported_languages=%s" % self.get_supported_languages())
         self.__log.info("datestamp_format=%s" % self.get_datestamp_format())
         self.__log.info("datestamp_hidden=%s" % self.get_datestamp_hidden())
@@ -217,6 +219,12 @@ class ConfigWrapper(QtCore.QObject):
         returns the parameter: tag separator for user interface 
         """
         return self.__get_setting("tag_separator")
+
+    def get_facet_seperator(self):
+        """
+        returns the parameter: facet separator for user interface 
+        """
+        return self.__get_setting("facet_separator")
 
     def get_supported_languages(self):
         """

@@ -42,6 +42,7 @@ class TsConstants(object):
     
     SETTING_SUPPORTED_LANGUAGES = "supported_languages"
     SETTING_TAG_SEPARATOR = "tag_separator"
+    SETTING_FACET_SEPARATOR = "facet_separator"
     
     SETTING_DATESTAMP_FORMAT = "datestamp_format"
     SETTING_DATESTAMP_HIDDEN = "datestamp_hidden"
@@ -77,6 +78,7 @@ class TsConstants(object):
     DEFAULT_POPULAR_TAGS = 5
     DEFAULT_MAX_TAGS = 3
     DEFAULT_TAG_SEPARATOR = ","
+    DEFAULT_FACET_SEPARATOR = "="
     DEFAULT_SUPPORTED_LANGUAGES = ["en", "de"]
     DEFAULT_ENCODING = "UTF-8"
     DEFAULT_FIRST_START = "true"
