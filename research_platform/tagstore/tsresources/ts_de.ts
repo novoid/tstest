@@ -9,8 +9,8 @@
     </message>
     <message>
         <location filename="../tsgui/admindialog.py" line="896"/>
-        <source>deactivated</source>
-        <translation>Deaktiviert</translation>
+        <source>no automatic datestamp</source>
+        <translation>kein automatischer Datumseintrag</translation>
     </message>
     <message>
         <location filename="../tsgui/admindialog.py" line="897"/>
@@ -40,8 +40,8 @@
     </message>
     <message>
         <location filename="../tsgui/admindialog.py" line="970"/>
-        <source>deactivated</source>
-        <translation>Deaktiviert</translation>
+        <source>no automatic expiry</source>
+        <translation>kein automatischer Ablauf von Daten</translation>
     </message>
     <message>
         <location filename="../tsgui/admindialog.py" line="971"/>
@@ -211,8 +211,8 @@
     </message>
     <message>
         <location filename="../tsgui/admindialog.py" line="1083"/>
-        <source>Vocabulary</source>
-        <translation>Woerterverzeichnis</translation>
+        <source>My Tags</source>
+        <translation>Meine Tags</translation>
     </message>
     <message>
         <location filename="../tsgui/admindialog.py" line="1084"/>
@@ -424,33 +424,33 @@
     <name>VocabularyAdminView</name>
     <message>
         <location filename="../tsgui/admindialog.py" line="419"/>
-        <source>Define your own vocabulary to be used as categorizing tags</source>
-        <translation>Erstellen Sie Ihr eigenes Wörterbuch für Ihre Kategorie-Tags</translation>
+        <source>Avoid similar tags (uni, university, ...) by resticting yourself to your set of tags</source>
+        <translation>Verhindern von ähnlichen Tags (Uni, Universität, ...) durch Einschränken auf eigene Tags</translation>
     </message>
     <message>
         <location filename="../tsgui/admindialog.py" line="425"/>
-        <source>deactivated</source>
-        <translation>Deaktiviert</translation>
+        <source>one tag-line; no restrictions for tags</source>
+        <translation>eine Tag-Zeile; keine Einschränkungen für Tags</translation>
     </message>
     <message>
         <location filename="../tsgui/admindialog.py" line="428"/>
-        <source>activated, without restrictions</source>
-        <translation>Aktiviert, keine Einschränkungen</translation>
+        <source>two tag-lines; no restrictions</source>
+        <translation>zwei Tag-Zeilen; keine Einschränkungen</translation>
     </message>
     <message>
         <location filename="../tsgui/admindialog.py" line="431"/>
-        <source>activated, restricted to personal categories</source>
-        <translation>Aktiviert, beschränkt auf persönliche Kategorien</translation>
+        <source>two tag-lines; only «My Tags» allowed in second one</source>
+        <translation>zwei Tag-Zeilen; nur »Meine Tags« in zweiter erlaubt</translation>
     </message>
     <message>
         <location filename="../tsgui/admindialog.py" line="434"/>
-        <source>activated, restricted to personal categories, only one tagline</source>
-        <translation>Aktiviert, beschränkt auf persönliche Kategorien, nur ein Eingabefeld</translation>
+        <source>one tag-line; only «My Tags» allowed</source>
+        <translation>eine Tag-Zeile; nur »Meine Tags« erlaubt</translation>
     </message>
     <message>
         <location filename="../tsgui/admindialog.py" line="437"/>
-        <source>At least one category is mandatory</source>
-        <translation>Zumindest eine Kategorie ist erforderlich</translation>
+        <source>if second tag-line is shown: at least one category is mandatory</source>
+        <translation>sofern zweite Tag-Zeile sichtbar: zumindest eine Kategorie ist erforderlich</translation>
     </message>
     <message>
         <location filename="../tsgui/admindialog.py" line="450"/>

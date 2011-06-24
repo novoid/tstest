@@ -416,25 +416,26 @@ class VocabularyAdminView(MultipleStorePreferenceView):
     def __init__(self, store_list=None, parent=None):
         MultipleStorePreferenceView.__init__(self, store_list)
         
-        self.set_description(self.trUtf8("Define your own vocabulary to be used as categorizing tags"))
+        self.set_description(self.trUtf8("Avoid similar tags (uni, university, ...) by resticting yourself to your set of tags"))
 
         self.__selected_vocabulary = None
 
         self.__radio_layout = QtGui.QVBoxLayout()
 
-        self.__radio_deactivated = QtGui.QRadioButton(self.trUtf8("deactivated"))
+        self.__radio_deactivated = QtGui.QRadioButton(self.trUtf8("one tag-line; no restrictions for tags"))
         self.__radio_deactivated.setProperty("value", QtCore.QVariant(ECategorySetting.DISABLED))
-        
-        self.__radio_activated = QtGui.QRadioButton(self.trUtf8("activated, without restrictions"))
-        self.__radio_activated.setProperty("value", QtCore.QVariant(ECategorySetting.ENABLED))
-        
-        self.__radio_activated_restricted = QtGui.QRadioButton(self.trUtf8("activated, restricted to personal categories"))
-        self.__radio_activated_restricted.setProperty("value", QtCore.QVariant(ECategorySetting.ENABLED_ONLY_PERSONAL))
-        
-        self.__radio_single_restricted = QtGui.QRadioButton(self.trUtf8("activated, restricted to personal categories, only one tagline"))
+
+        self.__radio_single_restricted = QtGui.QRadioButton(self.trUtf8("one tag-line; only «My Tags» allowed"))
         self.__radio_single_restricted.setProperty("value", QtCore.QVariant(ECategorySetting.ENABLED_SINGLE_CONTROLLED_TAGLINE))
         
-        self.__checkbox_mandatory = QtGui.QCheckBox(self.trUtf8("At least one category is mandatory"))
+        self.__radio_activated = QtGui.QRadioButton(self.trUtf8("two tag-lines; no restrictions"))
+        self.__radio_activated.setProperty("value", QtCore.QVariant(ECategorySetting.ENABLED))
+        
+        self.__radio_activated_restricted = QtGui.QRadioButton(self.trUtf8("two tag-lines; only «My Tags» allowed in second one"))
+        self.__radio_activated_restricted.setProperty("value", QtCore.QVariant(ECategorySetting.ENABLED_ONLY_PERSONAL))
+        
+        
+        self.__checkbox_mandatory = QtGui.QCheckBox(self.trUtf8("if second tag-line is shown: at least one category is mandatory"))
         
         self.__radio_layout.addWidget(self.__radio_deactivated)
         self.__radio_layout.addWidget(self.__radio_activated)
@@ -896,11 +897,11 @@ class DatestampAdminView(MultipleStorePreferenceView):
         
         self.__radio_layout = QtGui.QVBoxLayout()
 
-        self.__radio_deactivated = QtGui.QRadioButton(self.trUtf8("deactivated"))
+        self.__radio_deactivated = QtGui.QRadioButton(self.trUtf8("no automatic datestamp"))
         self.__radio_activated_m = QtGui.QRadioButton(self.trUtf8("automatic datestamp: 2010-12"))
         self.__radio_activated_d = QtGui.QRadioButton(self.trUtf8("automatic datestamp: 2010-12-31"))
         
-        self.__checkbox_hidden_datestamp = QtGui.QCheckBox(self.trUtf8("Do not show the datestamp, if activated"))
+        self.__checkbox_hidden_datestamp = QtGui.QCheckBox(self.trUtf8("Hide activated datestamp in tag-line"))
         
         self.__radio_layout.addWidget(self.__radio_deactivated)
         self.__radio_layout.addWidget(self.__radio_activated_m)
@@ -986,7 +987,7 @@ class ExpiryAdminView(BasePreferenceView):
         
         self.__radio_layout = QtGui.QVBoxLayout()
 
-        self.__radio_deactivated = QtGui.QRadioButton(self.trUtf8("deactivated"))
+        self.__radio_deactivated = QtGui.QRadioButton(self.trUtf8("no automatic expiry"))
         self.__radio_activated = QtGui.QRadioButton(self.trUtf8("activated, with prefix"))
         
         self.__radio_layout.addWidget(self.__radio_deactivated)
@@ -1099,7 +1100,7 @@ class StorePreferencesController(QtCore.QObject):
         self.TAB_NAME_STORE = self.trUtf8("Store Management")
         self.TAB_NAME_DATESTAMP = self.trUtf8("Datestamps")
         self.TAB_NAME_EXPIRY = self.trUtf8("Expiry Date")
-        self.TAB_NAME_VOCABULARY = self.trUtf8("Vocabulary")
+        self.TAB_NAME_VOCABULARY = self.trUtf8("My Tags")
         self.TAB_NAME_TAGS = self.trUtf8("Rename Tags")
         self.TAB_NAME_RETAG = self.trUtf8("Re-Tagging")
         ## a list with all controllers used at the preference view
