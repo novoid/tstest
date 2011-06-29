@@ -27,7 +27,7 @@ class TagDialog(QtGui.QDialog):
     """
     __NO_OF_ITEMS_STRING = "untagged item(s)"
     
-    def __init__(self, max_tags, tag_separator, parent=None):
+    def __init__(self, max_tags, tag_separator, expiry_prefix, parent=None):
         
         QtGui.QDialog.__init__(self, parent)
         
@@ -39,6 +39,7 @@ class TagDialog(QtGui.QDialog):
         
         self.__max_tags = max_tags
         self.__tag_separator = tag_separator
+        self.__expiry_prefix = expiry_prefix
         ## flag to recognize the current visibility state 
         self.__is_shown = False
         self.__show_datestamp = False
@@ -83,7 +84,7 @@ class TagDialog(QtGui.QDialog):
         self.__item_list_view = QtGui.QListWidget()
         self.__item_list_view.setSelectionMode(QtGui.QAbstractItemView.ExtendedSelection)
         
-        self.__cat_line_widget = TagCompleterWidget(self.__max_tags, separator=self.__tag_separator, 
+        self.__cat_line_widget = TagCompleterWidget(self.__max_tags, self.__expiry_prefix, separator=self.__tag_separator, 
             parent=self)
         self.__TAG_LINE_2_NAME = "_tag_line_2_"
         self.__cat_line_widget.setObjectName(self.__TAG_LINE_2_NAME)
@@ -714,16 +715,17 @@ class TagDialogController(QtCore.QObject):
     __pyqtSignals__ = ("tag_item",
                        "handle_cancel") 
     """
-    def __init__(self, store_name, max_tags, tag_separator):
+    def __init__(self, store_name, max_tags, tag_separator, expiry_prefix):
         
         QtCore.QObject.__init__(self)
 
         self.__max_tags = max_tags
         self.__store_name = store_name
+        self.__expiry_prefix = expiry_prefix
         
         self.__log = logging.getLogger("TagStoreLogger")
         self.__tag_separator = tag_separator
-        self.__tag_dialog = TagDialog(self.__max_tags, self.__tag_separator)
+        self.__tag_dialog = TagDialog(self.__max_tags, self.__tag_separator, self.__expiry_prefix)
         
         self.__items_to_remove = []
         
@@ -781,11 +783,17 @@ class TagDialogController(QtCore.QObject):
             ## if datestamps are allowed - remove the datestamp from the list
             ## before checking the tags
             ## temporarily store all used datestamps in this set
+            ## expiry tags should be allowed as well
             datestamp_set = set()
             if show_datestamp:
                 
                 for tag in category_list:
+                    ## check if it is a datestamp
                     if SpecialCharHelper.is_datestamp(tag):
+                        ## union of two sets
+                        datestamp_set |= set([tag])
+                    ## check if it is an expiry tag
+                    elif SpecialCharHelper.is_expiry_tag(self.__expiry_prefix, tag):
                         ## union of two sets
                         datestamp_set |= set([tag])
                 ## delete the datestamps from the list
@@ -795,7 +803,7 @@ class TagDialogController(QtCore.QObject):
                 self.__tag_dialog.set_not_suitable_categories_entered()
                 return
             else:
-                ## re-merge the datestamps and the categries
+                ## re-merge the datestamps/expiry_tags and the categories
                 category_list = category_list.union(datestamp_set)
                 
         if SpecialCharHelper.contains_special_chars(category_list):

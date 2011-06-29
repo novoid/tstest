@@ -157,7 +157,7 @@ class ReTagController(QtCore.QObject):
         self.__store.init()
         
         if self.__tag_dialog is None:
-            self.__tag_dialog = TagDialogController(self.__store.get_name(), self.__main_config.get_max_tags(), self.__main_config.get_tag_seperator())
+            self.__tag_dialog = TagDialogController(self.__store.get_name(), self.__main_config.get_max_tags(), self.__main_config.get_tag_seperator(), self.__main_config.get_expiry_prefix())
             self.__tag_dialog.get_view().setModal(True)
             #self.__tag_dialog.set_parent(self.sender().get_view())
             self.__tag_dialog.connect(self.__tag_dialog, QtCore.SIGNAL("tag_item"), self.__tag_item_action)

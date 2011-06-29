@@ -98,5 +98,60 @@ class SpecialCharHelper(object):
         if match:
             return True
         return False
+    
+    @staticmethod
+    def is_partial_expiry_tag(prefix, tag):
+        """
+        returns TRUE if the tag is part of a valid expiry timestamp
+        """
+        match = None
+        tag_length = len(tag);
+        prefix_length = len(prefix)
+        
+        #if the give tag is shorter than the actual prefix
+        if prefix_length >= tag_length:
+            prefix = prefix[:len(tag)]
+            match = re.match(prefix, tag)
+        #this is the case when it comes to validate the date pattern
+        else:
+            post_expression = ""
+            pre_expression = "^("+prefix+")"
+            
+            post_length = tag_length - prefix_length 
+            if post_length == 1:
+                post_expression = "[0-9]"
+            elif post_length == 2:
+                post_expression = "([0-9]{2})"
+            elif post_length == 3:
+                post_expression = "([0-9]{3})"
+            elif post_length == 4:
+                post_expression = "([0-9]{4})"
+            elif post_length == 5:
+                post_expression = "([0-9]{4})-"
+            elif post_length == 6:
+                post_expression = "([0-9]{4})-([0-1])"
+            elif post_length == 7:
+                post_expression = "([0-9]{4})-(0[0-9]|1[0-2])"
+            else:
+                # the tag is too long 
+                return False
+            match = re.match(pre_expression+post_expression, tag)
+    
+        if match: 
+            return True
+        else:
+            return False
+        
+    @staticmethod
+    def is_expiry_tag(prefix, tag):
+        """
+        returns TRUE if the tag contains a valid expiry timestamp
+        """
+        match = re.match("^("+prefix+")([0-9]{4})(-)([0-9]{2})", tag)
+            
+        if match: 
+            return True
+        else:
+            return False
 
 ## end     

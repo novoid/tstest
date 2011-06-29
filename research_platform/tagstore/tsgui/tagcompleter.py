@@ -38,7 +38,7 @@ class TagCompleterWidget(QObject):
     """
     widget in lineEdit-style with integrated qcompleter
     """ 
-    def __init__(self, max_tags, tag_list=None, parent=None, separator=",", show_datestamp=False):
+    def __init__(self, max_tags, expiry_prefix=None, tag_list=None, parent=None, separator=",", show_datestamp=False):
         
         QWidget.__init__(self, parent)
         
@@ -51,6 +51,7 @@ class TagCompleterWidget(QObject):
         #self.__tag_line = TagLineEdit(self.__parent)
         self.__show_datestamp = show_datestamp
         self.__datestamp_format = TsConstants.DATESTAMP_FORMAT_DAY
+        self.__expiry_prefix = expiry_prefix
         
         ## flag, if the line should be checked of emptiness
         self.__check_not_empty = False
@@ -216,11 +217,15 @@ class TagCompleterWidget(QObject):
         ##when a tag separator is on the last position, there should have been entered a new tag
         ##check this tag for its correctness
         if len(stripped_text) > 0:
-            ##check if all written tags are allowed
+            ##check if all written tags are allowed (incl. datestamps an expiry tags)
             for tag in tag_set:
+                ## tag can be a datestamp -> OK
                 if not SpecialCharHelper.is_datestamp(tag) and tag != "":
-                    if unicode(tag) not in self.__tag_list:
-                        not_allowed_tags_count += 1
+                    ## tag can be an expiry tag -> OK
+#                    if self.__expiry_prefix is not None and not SpecialCharHelper.is_expiry_tag(self.__expiry_prefix, tag):
+                    if self.__expiry_prefix is None or not SpecialCharHelper.is_partial_expiry_tag(self.__expiry_prefix, tag):
+                        if unicode(tag) not in self.__tag_list:
+                            not_allowed_tags_count += 1
                          
         if(completion_prefix.strip() == ""):
             ## if the prefix is an empty string - manually set the completion_count to 0
@@ -236,7 +241,8 @@ class TagCompleterWidget(QObject):
             if completion_prefix is not None and len(completion_prefix) > 0 and completion_prefix.strip() != "":
                 ## just send the signal if the tag is no datestamp AND if it is no full tag
                 if not SpecialCharHelper.is_datestamp(completion_prefix) and not self.__check_in_completion_list(completion_prefix):
-                    no_completion_found = True
+                    if not SpecialCharHelper.is_partial_expiry_tag(self.__expiry_prefix, completion_prefix):
+                        no_completion_found = True
 
         ## there are tags (terminated with comma) which are not in the allowed tag_list 
         if not_allowed_tags_count > 1:

@@ -202,7 +202,7 @@ class Tagstore(QtCore.QObject):
                 self.__log.debug("init store: %s", store.get_name())
                 
                 ## create a dialogcontroller for each store ...
-                tmp_dialog = TagDialogController(store.get_name(), self.MAX_TAGS, self.TAG_SEPERATOR)
+                tmp_dialog = TagDialogController(store.get_name(), self.MAX_TAGS, self.TAG_SEPERATOR, self.EXPIRY_PREFIX)
                 
                 tmp_dialog.connect(tmp_dialog, QtCore.SIGNAL("tag_item"), self.tag_item_action)
                 tmp_dialog.connect(tmp_dialog, QtCore.SIGNAL("handle_cancel()"), self.handle_cancel)
@@ -462,7 +462,9 @@ if __name__ == '__main__':
                 # if "os.kill" throws no exception, the process exists
                 os.kill(int(old_pid), 0)
                 # if no exception is thrown kill the current process
-                print "EXIT - a tagstore process is already is running, so"
+                print "EXIT - A tagstore process is already running with PID %s. So this time I just quit." % old_pid
+                print "Please note that tagstore is only watching for new files in the stores. If you want to modify tagstore settings,"
+                print "please start tagstore_manager"
                 sys.exit(-2) 
             except OSError, e:
                 # the process with the provided pid does not exist enymore
