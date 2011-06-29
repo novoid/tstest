@@ -438,9 +438,9 @@ class VocabularyAdminView(MultipleStorePreferenceView):
         self.__checkbox_mandatory = QtGui.QCheckBox(self.trUtf8("if second tag-line is shown: at least one category is mandatory"))
         
         self.__radio_layout.addWidget(self.__radio_deactivated)
+        self.__radio_layout.addWidget(self.__radio_single_restricted)
         self.__radio_layout.addWidget(self.__radio_activated)
         self.__radio_layout.addWidget(self.__radio_activated_restricted)
-        self.__radio_layout.addWidget(self.__radio_single_restricted)
         #self.__radio_layout.addWidget(self.__checkbox_mandatory)
         
         self.__radio_panel = QtGui.QWidget()
