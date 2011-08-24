@@ -30,7 +30,7 @@ class TsConstants(object):
     ## the percentage of inodes which must be left free 
     INODE_THRESHOLD = 10
     
-    IGNORED_EXTENSIONS = [".lnk", ".crdownload", "Thumbs.db"]
+    IGNORED_EXTENSIONS = [".lnk", ".crdownload", "Thumbs.db", "~"]
     
     CONFIG_DIR = "./tsresources/conf/"
     CONFIG_PATH = "./tsresources/conf/tagstore.cfg"
