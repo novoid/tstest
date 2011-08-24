@@ -15,7 +15,7 @@
 ## if not, see <http://www.gnu.org/licenses/>.
 import os
 import logging
-from PyQt4 import QtGui, QtCore
+from PyQt4 import QtGui, QtCore, Qt
 from tscore.configwrapper import ConfigWrapper
 from tscore.tsconstants import TsConstants
 from tscore.enums import ECategorySetting, EDateStampFormat
@@ -241,6 +241,11 @@ class MultipleStorePreferenceView(BasePreferenceView):
         """
         self._store_name_list.append(store_name)
         self._store_combo.addItem(store_name)
+    
+    def remove_store_name(self, store_name):
+        #self._store_name_list.remove(str(store_name))
+        index = self._store_combo.findText(store_name)
+        self._store_combo.removeItem(index)
 
 class MultipleStorePreferenceController(BasePreferenceController):
     
@@ -270,7 +275,12 @@ class MultipleStorePreferenceController(BasePreferenceController):
         self.get_view().set_store_names(store_name_list)
         if store_name_list is not None and len(store_name_list) > 0:
             ## take the first store in the list to be selected in the gui
-            self._set_selected_store(store_name_list[0]) 
+            self._set_selected_store(store_name_list[0])
+    def remove_store_name(self, store_name):
+        self.get_view().remove_store_name(store_name)
+
+    def add_store_name(self, store_name):
+        self.get_view().add_store_name(store_name)
     
 class StoreAdminView(BasePreferenceView):
 
@@ -330,9 +340,15 @@ class StoreAdminView(BasePreferenceView):
         """
         set the store paths to be shown in the list view
         """
-        
+        self.__store_list_view.clear()
         for store_name in store_names:
             self.__store_list_view.addItem(QtGui.QListWidgetItem(store_name))
+    
+    def remove_store_item(self, store_name):
+        found = self.__store_list_view.findItems(store_name, QtCore.Qt.MatchExactly)
+        if len(found) > 0:
+            row_to_remove = self.__store_list_view.row(found[0])
+            self.__store_list_view.takeItem(row_to_remove)
     
     def get_selected_store(self):
         return self.__selected_store
@@ -380,8 +396,8 @@ class StoreAdminController(BasePreferenceController):
             self.get_view().show_tooltip(self.trUtf8("A store with this name already exists. Please choose another store"))
             return 
         
+        self.add_store_name(store_name)
         self.emit(QtCore.SIGNAL("new"), dir)
-        self.get_view().add_store_name(store_name)
     
     def __rebuild_store(self):
         
@@ -402,12 +418,22 @@ class StoreAdminController(BasePreferenceController):
     def __rename_store(self):
         store_name = self.get_view().get_selected_store().text()
         new_store_name = QtGui.QInputDialog.getText(self.get_view(), self.trUtf8("Rename a tagstore"), self.trUtf8("new name:"), text=store_name)
+        new_store_name = new_store_name[0]
         if new_store_name is not None and new_store_name != "":
             self.emit(QtCore.SIGNAL("rename"), store_name, new_store_name)
     
     def _create_view(self):
         return StoreAdminView(None)
-        
+    
+    def set_store_names(self, store_names):
+        self.get_view().set_store_names(store_names);
+
+    def add_store_name(self, store_name):
+        self.get_view().add_store_name(store_name);
+    
+    def remove_store_item(self, store_name):
+        self.get_view().remove_store_item(store_name)
+    
     def _add_additional_settings(self):
         pass
     
@@ -1092,10 +1118,12 @@ class StorePreferencesController(QtCore.QObject):
         self.__store_config_dict = {}
         self.__store_vocabulary_wrapper_dict = {}
         self.__store_names = []
+        self.__multiple_store_controllers = []
         self.__store_dict = {}
         self._store_list = None
         self.__first_time_init = True
         self.__first_start = False
+        self.__progressbar = None
         
         self.TAB_NAME_STORE = self.trUtf8("Store Management")
         self.TAB_NAME_DATESTAMP = self.trUtf8("Datestamps")
@@ -1130,18 +1158,22 @@ class StorePreferencesController(QtCore.QObject):
         ## initialize the controllers for each preference tab
         if self.__first_time_init:
             self.__controller_vocabulary = VocabularyAdminController(self.__store_names)
+            self.__multiple_store_controllers.append(self.__controller_vocabulary)
             self.__register_controller(self.__controller_vocabulary, self.TAB_NAME_VOCABULARY)
             
             self.__controller_datestamp = DatestampAdminController(self.__store_names)
+            self.__multiple_store_controllers.append(self.__controller_datestamp)
             self.__register_controller(self.__controller_datestamp, self.TAB_NAME_DATESTAMP)
     
             self.__controller_expiry_admin = ExpiryAdminController()
             self.__register_controller(self.__controller_expiry_admin, self.TAB_NAME_EXPIRY)
 
             self.__controller_retag = ReTaggingController(self.__store_names)
+            self.__multiple_store_controllers.append(self.__controller_retag)
             self.__register_controller(self.__controller_retag, self.TAB_NAME_RETAG)
 
             self.__controller_tag_admin = TagAdminController(self.__store_names)
+            self.__multiple_store_controllers.append(self.__controller_tag_admin)
             self.__register_controller(self.__controller_tag_admin, self.TAB_NAME_TAGS)
 
             self.__controller_store_admin = StoreAdminController(self.__store_dict)
@@ -1153,9 +1185,11 @@ class StorePreferencesController(QtCore.QObject):
             self.__controller_datestamp.set_store_names(self.__store_names)
             self.__controller_tag_admin.set_store_names(self.__store_names)
             self.__controller_retag.set_store_names(self.__store_names)
+            self.__controller_store_admin.set_store_names(self.__store_names)
         
 
         ## create a list with one config wrapper for each store
+        self.__store_config_dict = {}
         for store in store_list:
             store_path = store["path"]
             store_name = store_path.split("/").pop()
@@ -1188,10 +1222,9 @@ class StorePreferencesController(QtCore.QObject):
             self.__controller_datestamp.add_setting(TsConstants.SETTING_DATESTAMP_HIDDEN, config.get_datestamp_hidden(), store_name)
 
         self.connect(self.__controller_store_admin, QtCore.SIGNAL("new"), self.__handle_new_store)
-#        self.connect(self.__controller_store_admin, QtCore.SIGNAL("new"), QtCore.SIGNAL("create_new_store"))
-        self.connect(self.__controller_store_admin, QtCore.SIGNAL("rebuild"), self.__handle_rebuild)
-        self.connect(self.__controller_store_admin, QtCore.SIGNAL("rename"), self.__handle_rename)
-        self.connect(self.__controller_store_admin, QtCore.SIGNAL("delete"), self.__handle_delete)
+        self.connect(self.__controller_store_admin, QtCore.SIGNAL("rebuild"), QtCore.SIGNAL("rebuild_store"))
+        self.connect(self.__controller_store_admin, QtCore.SIGNAL("rename"), QtCore.SIGNAL("rename_store"))
+        self.connect(self.__controller_store_admin, QtCore.SIGNAL("delete"), QtCore.SIGNAL("delete_store"))
 #        self.connect(controller_tag_admin, QtCore.SIGNAL("rename_desc_tag"), self.__handle_desc_tag_rename)
 #        self.connect(controller_tag_admin, QtCore.SIGNAL("rename_cat_tag"), self.__handle_cat_tag_rename)
         self.connect(self.__controller_tag_admin, QtCore.SIGNAL("rename_desc_tag"), QtCore.SIGNAL("rename_desc_tag"))
@@ -1219,16 +1252,6 @@ class StorePreferencesController(QtCore.QObject):
     def __handle_new_store(self, path):
         self.emit(QtCore.SIGNAL("create_new_store"), path)
     
-    def __handle_rebuild(self, store_name):
-        # TODO: 
-        pass
-    
-    def __handle_rename(self, store_name, new_store_name):
-        pass
-    
-    def __handle_delete(self, store_name):
-        pass
-
     def __get_config_for_store(self, store_path):
         """
         returns the config file 
@@ -1284,6 +1307,24 @@ class StorePreferencesController(QtCore.QObject):
     def __handle_cancel(self):
         self.__dialog.close()
     
+    def remove_store_item(self, store_name):
+        # remove it from the store admin tab
+        self.__controller_store_admin.remove_store_item(store_name)
+        # remove it from the dropdown boxes in the other tabs
+        for controller in self.__multiple_store_controllers:
+            controller.remove_store_name(store_name)
+
+    def add_store_item(self, store_name):
+        # remove it from the store admin tab
+        self.__controller_store_admin.add_store_name(store_name)
+        # remove it from the dropdown boxes in the other tabs
+        for controller in self.__multiple_store_controllers:
+            controller.add_store_name(store_name)
+    
+    def rename_store_item(self, store_name, new_store_name):
+        self.remove_store_item(store_name)
+        self.add_store_item(new_store_name)
+    
     def remove_tab(self, tab_name):
         """
         set to true if the controlled vocabulary tab should be shown
@@ -1314,6 +1355,24 @@ class StorePreferencesController(QtCore.QObject):
     
     def show_tooltip(self, message, parent=None):
         self.__dialog.show_tooltip(message, parent)
+    
+    def start_progressbar(self, info_text):
+        """
+        starts a progressbar with the provided info_text
+        the max and min value are set to 0 so this is just a 'busy indicator'
+        the cancel button is disabled because the operation cannot be canceled or undone 
+        """
+        if self.__progressbar is None:
+            self.__progressbar= QtGui.QProgressDialog(self.__dialog)
+            
+            self.__progressbar.setCancelButton(None)
+            self.__progressbar.setMaximum(0)
+            self.__progressbar.setMinimum(0)
+        self.__progressbar.setLabelText(info_text)
+        self.__progressbar.show()
+        
+    def stop_progressbar(self):
+        self.__progressbar.reset()
     
     def show_dialog(self):
         self.__dialog.show()

@@ -18,6 +18,7 @@ import sys
 import os
 import logging.handlers
 from tscore.tsconstants import TsConstants
+import shutil
 if sys.platform[:3] == "win":
     from windows import FileSystem
 elif sys.platform == "darwin":
@@ -28,7 +29,7 @@ else:
 
 class FileSystemWrapper():
 
-    def __init__(self, logger=None):
+    def __init__(self, logger=None, ignored_extensions=None):
         """
         constructor
         """
@@ -43,7 +44,14 @@ class FileSystemWrapper():
         self.file_system = FileSystem()
         self.__IGNORED_FILE_PREFIXES = ["~$", "."]
         self.__IGNORED_DIR_PREFIXES = ["."]
-        self.__IGNORED_EXTENTIONS = [".lnk", ".crdownload"]
+        
+        if ignored_extensions is None:
+            self.__IGNORED_EXTENSIONS = TsConstants.IGNORED_EXTENSIONS
+        else:
+            self.__IGNORED_EXTENSIONS = ignored_extensions
+    
+    def set_ignored_extensions(self, extension_list):
+        self.__IGNORED_EXTENSIONS = extension_list
     
     def get_os(self):
         """
@@ -85,7 +93,7 @@ class FileSystemWrapper():
             if os.path.isfile(directory + "/" + item):
                 files.append(item)
                 ## handle ignore-list
-                for ext in self.__IGNORED_EXTENTIONS:
+                for ext in self.__IGNORED_EXTENSIONS:
                     if item.endswith(ext):
                         ignored.append(item)
                 for prefix in self.__IGNORED_FILE_PREFIXES:
@@ -127,7 +135,7 @@ class FileSystemWrapper():
 
     def delete_dir_content(self, path_name):
         """
-        deletes the directories content without deleting the root folder as well
+        deletes the directories content without deleting the root folder
         """
         path_name = unicode(path_name)
         if self.path_exists(path_name):
@@ -201,6 +209,14 @@ class FileSystemWrapper():
         file_path = unicode(file_path)
         file = open(file_path, "w")
         file.close()
+        
+    def move(self, old_path, new_path):
+        """
+        move the whole old path with its contents to the new path
+        """
+        if self.path_exists(old_path):
+            shutil.move(old_path, new_path)
+            #os.rename(old_path, new_path)
         
     def remove_file(self, file_path):
         """

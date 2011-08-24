@@ -15,19 +15,19 @@
 ##
 ## You should have received a copy of the GNU General Public License along with this program;
 ## if not, see <http://www.gnu.org/licenses/>.
-import sys
-import logging.handlers
-from optparse import OptionParser
 from PyQt4 import QtCore, QtGui
-from tscore.store import Store
+from optparse import OptionParser
+from tagstore_retag import ReTagController
 from tscore.configwrapper import ConfigWrapper
-from tscore.tsconstants import TsConstants
-from tsgui.admindialog import StorePreferencesController
-from tscore.loghelper import LogHelper
-from tsgui.tagdialog import TagDialogController
 from tscore.enums import EDateStampFormat, EConflictType
 from tscore.exceptions import NameInConflictException, InodeShortageException
-from tagstore_retag import ReTagController
+from tscore.loghelper import LogHelper
+from tscore.store import Store
+from tscore.tsconstants import TsConstants
+from tsgui.admindialog import StorePreferencesController
+from tsgui.tagdialog import TagDialogController
+import logging.handlers
+import sys
 
 class Administration(QtCore.QObject):
 
@@ -38,7 +38,7 @@ class Administration(QtCore.QObject):
         self.__main_config = None
         self.__admin_dialog = None
         self.__retag_dialog = None
-
+        self.__verbose_mode = verbose
         # the main application which has the translator installed
         self.__application = application
 
@@ -83,7 +83,9 @@ class Administration(QtCore.QObject):
         initializes the configuration. This method is called every time the config file changes
         """
         self.__log.info("initialize configuration")
-        self.__main_config = ConfigWrapper(TsConstants.CONFIG_PATH)
+        if self.__main_config is None:
+            self.__main_config = ConfigWrapper(TsConstants.CONFIG_PATH)
+            #self.connect(self.__main_config, QtCore.SIGNAL("changed()"), self.__init_configuration)
         
         self.CURRENT_LANGUAGE = self.__main_config.get_current_language();
         
@@ -91,7 +93,6 @@ class Administration(QtCore.QObject):
             self.CURRENT_LANGUAGE = self.__get_locale_language()
         
         self.change_language(self.CURRENT_LANGUAGE)
-        #self.__main_config.connect(self.__main_config, QtCore.SIGNAL("changed()"), self.__init_configuration)
 
         if self.__admin_dialog is None:
             self.__admin_dialog = StorePreferencesController()
@@ -99,6 +100,11 @@ class Administration(QtCore.QObject):
             self.connect(self.__admin_dialog, QtCore.SIGNAL("rename_desc_tag"), self.__handle_tag_rename)
             self.connect(self.__admin_dialog, QtCore.SIGNAL("rename_cat_tag"), self.__handle_tag_rename)
             self.connect(self.__admin_dialog, QtCore.SIGNAL("retag"), self.__handle_retagging)
+            
+            self.connect(self.__admin_dialog, QtCore.SIGNAL("rebuild_store"), self.__handle_store_rebuild)
+            self.connect(self.__admin_dialog, QtCore.SIGNAL("rename_store"), self.__handle_store_rename)
+            self.connect(self.__admin_dialog, QtCore.SIGNAL("delete_store"), self.__handle_store_delete)
+            
         self.__admin_dialog.set_main_config(self.__main_config)
         
         
@@ -117,6 +123,57 @@ class Administration(QtCore.QObject):
         self.__admin_dialog.set_store_list(tmp_store_list)
         if self.__main_config.get_first_start():
             self.__admin_dialog.set_first_start(True)
+    
+    def __handle_store_delete(self, store_name):
+        self.__admin_dialog.start_progressbar(self.trUtf8("Deleting store ..."))
+        store = self.__store_dict[str(store_name)]
+        self.__store_to_be_deleted = store_name
+        self.connect(store, QtCore.SIGNAL("store_delete_end"), self.__handle_store_deleted)
+        ## remove the directories 
+        store.remove()
+        ## remove the config entry 
+        self.__main_config.remove_store(store.get_id())
+    
+    def __handle_store_deleted(self, id):
+        #the files and dirs of the store have been deleted now.
+        #so at first remove the store entry in the config  
+        #self.__main_config.remove_store(id)
+        #second remove the item in the admin_dialog 
+        self.__admin_dialog.remove_store_item(self.__store_to_be_deleted)
+        
+    def __handle_store_rename(self, store_name, new_store_name):
+        """
+        1. rename (move) store base dir
+        2. update the main config with the new path
+        3. update the admin dialog
+        """
+        store = self.__store_dict.pop(str(store_name))        
+        # 2
+        self.__main_config.rename_store(store.get_id(), new_store_name)
+        store.move(new_store_name)
+        self.__init_configuration()
+        
+        #self.__create_new_store_object(store.get_id(), new_store_name)
+        # 3.
+        # split the store path that just the store name is used
+        ## prepare path for a split("/"); remove a trailing "/"
+        #if new_store_name[-1] == "/":
+        #    new_store_name = new_store_name[:-1]
+        ## check if new store name is a duplicate
+        #new_store_name = new_store_name.split("/")[-1]
+        # rewrite in the store dict
+        #self.__store_dict[str(new_store_name)] = store
+        #self.__admin_dialog.rename_store_item(store_name, new_store_name)
+        #self.__init_configuration()
+        
+    def __handle_store_rebuild(self, store_name):
+        self.__admin_dialog.start_progressbar(self.trUtf8("Rebuilding store ..."))
+        store = self.__store_dict[str(store_name)]
+        store.rebuild()
+    
+    def __hide_progress_dialog(self, store_name):
+        self.__admin_dialog.stop_progressbar()
+        
     
     def __get_locale_language(self):
         """
@@ -153,7 +210,7 @@ class Administration(QtCore.QObject):
         #if(self.__retag_dialog is None):
             
         ## create the object
-        self.__retag_dialog = ReTagController(self.__application, store.get_store_path(), item_name, True, verbose_mode)
+        self.__retag_dialog = ReTagController(self.__application, store.get_store_path(), item_name, True, self.__verbose_mode)
         ## connect to the signal(s)
         self.connect(self.__retag_dialog, QtCore.SIGNAL("retag_error"), self.__handle_retag_error)
         self.connect(self.__retag_dialog, QtCore.SIGNAL("retag_cancel"), self.__handle_retag_cancel)
@@ -328,6 +385,9 @@ class Administration(QtCore.QObject):
                   self.__main_config.get_expiry_prefix())
             tmp_store.init()
             self.__store_dict[store_name] = tmp_store
+            self.connect(tmp_store, QtCore.SIGNAL("store_rebuild_end"), self.__hide_progress_dialog)
+            self.connect(tmp_store, QtCore.SIGNAL("store_delete_end"), self.__hide_progress_dialog)
+            self.connect(tmp_store, QtCore.SIGNAL("store_rename_end"), self.__hide_progress_dialog)
     
     def __handle_new_store(self, dir):
         """
@@ -335,8 +395,12 @@ class Administration(QtCore.QObject):
         """
         store_id = self.__main_config.add_new_store(dir)
         
+        self.__create_new_store_object(store_id, dir)
+        
+    def __create_new_store_object(self, store_id, path):
+        
         ## create a store object since it builds its own structure 
-        tmp_store = Store(store_id, dir, 
+        tmp_store = Store(store_id, path, 
               self.STORE_CONFIG_DIR + "/" + self.STORE_CONFIG_FILE_NAME,
               self.STORE_CONFIG_DIR + "/" + self.STORE_TAGS_FILE_NAME,
               self.STORE_CONFIG_DIR + "/" + self.STORE_VOCABULARY_FILE_NAME,

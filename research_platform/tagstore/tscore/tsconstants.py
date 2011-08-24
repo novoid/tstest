@@ -30,6 +30,8 @@ class TsConstants(object):
     ## the percentage of inodes which must be left free 
     INODE_THRESHOLD = 10
     
+    IGNORED_EXTENSIONS = [".lnk", ".crdownload", "Thumbs.db"]
+    
     CONFIG_DIR = "./tsresources/conf/"
     CONFIG_PATH = "./tsresources/conf/tagstore.cfg"
     STORE_CONFIG_TEMPLATE_PATH = "./tsresources/conf/store.cfg.template"
@@ -64,6 +66,8 @@ class TsConstants(object):
     SETTING_SHOW_WIZARD = "show_wizard"
     SETTING_CURRENT_LANGUAGE = "current_language"
     
+    SETTING_IGNORED_EXTENSIONS = "ignored_extensions"
+    
     SETTING_EXPIRY_PREFIX = "expiry_prefix"
     
     DATESTAMP_FORMAT_DAY = "%Y-%m-%d"
@@ -87,6 +91,7 @@ class TsConstants(object):
     DEFAULT_SHOW_CATEGORY_LINE = 1
     DEFAULT_DATESTAMP_FORMAT = 1
     DEFAULT_DATESTAMP_HIDDEN = "false"
+    DEFAULT_IGNORED_EXTENSIONS = ".lnk,.crdownload,Thumbs.db"
     
     def __init__(self):
         pass

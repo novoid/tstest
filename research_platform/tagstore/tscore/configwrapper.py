@@ -22,6 +22,7 @@ from PyQt4 import QtCore
 from tscore.tsconstants import TsConstants
 from tscore.enums import EDateStampFormat, ECategorySetting
 from tscore.loghelper import LogHelper
+from tsos.filesystem import FileSystemWrapper
 
 class ConfigWrapper(QtCore.QObject):
 
@@ -167,7 +168,13 @@ class ConfigWrapper(QtCore.QObject):
         files = str(self.__watcher.files().join(","))
         if files == "":
             self.__watcher.addPath(self.__config_file_path)
-            
+        
+        filesystem = FileSystemWrapper()
+        if not filesystem.path_exists(self.__config_file_path):
+            self.__log.debug("configwrapper - cannot find file anymore: %s" % self.__config_file_path)
+            self.__watcher.removePath(self.__config_file_path)
+            return
+        
         config_file_props = os.stat(self.__config_file_path)
         tmp_mtime = config_file_props[ST_MTIME]
         
@@ -233,6 +240,13 @@ class ConfigWrapper(QtCore.QObject):
         lang_string = self.__get_setting(TsConstants.SETTING_SUPPORTED_LANGUAGES)
         return lang_string.split(",")
 
+    def get_ignored_extension(self):
+        """
+        returns a list of all ignored file extensions
+        """
+        lang_string = self.__get_setting(TsConstants.SETTING_IGNORED_EXTENSIONS)
+        return lang_string.split(",")
+
     def set_expiry_prefix(self, setting_value):
         self.__put_setting(TsConstants.SETTING_EXPIRY_PREFIX, setting_value)
         
@@ -254,7 +268,7 @@ class ConfigWrapper(QtCore.QObject):
 
     def get_vocabulary_configurable(self):
         """
-        returns "True" or "False" in case date-stamps are requested
+        returns "True" or "False" in case the vocabulary options are configurable
         """
         setting = self.__get_setting(TsConstants.SETTING_VOCABULARY_CONFIGURABLE)
         if setting == "true":

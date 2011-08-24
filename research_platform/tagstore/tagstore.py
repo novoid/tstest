@@ -45,6 +45,8 @@ class Tagstore(QtCore.QObject):
         
         self.__application = application
         
+        self.__admin_widget = None
+        
         self.DRY_RUN = dryrun        
         ## initialize localization
         self.__system_locale = unicode(QtCore.QLocale.system().name())[0:2]
@@ -197,6 +199,8 @@ class Tagstore(QtCore.QObject):
                 store.connect(store, QtCore.SIGNAL("vocabulary_changed"), self.__handle_vocabulary_changed)
                 store.connect(store, QtCore.SIGNAL("store_config_changed"), self.__handle_store_config_changed)
 
+                store.set_ignored_extensions(self.__app_config_wrapper.get_ignored_extension())
+
                 self.STORES.append(store)
 
                 self.__log.debug("init store: %s", store.get_name())
@@ -246,11 +250,11 @@ class Tagstore(QtCore.QObject):
         self.__configure_tag_dialog(store, dialog_controller)
     
     def show_admin_dialog(self):
-        admin_widget = Administration(tagstore, verbose=verbose_mode)
-        admin_widget.set_modal(True)
-        admin_widget.set_parent(self.sender().get_view())
-        #admin_widget.set_application(tagstore)
-        admin_widget.show_admin_dialog(True)
+        self.__admin_widget = Administration(self.__application, verbose=verbose_mode)
+        self.__admin_widget.set_modal(True)
+        self.__admin_widget.set_parent(self.sender().get_view())
+        #admin_widget.set_parent(self.__tag_dialog)
+        self.__admin_widget.show_admin_dialog(True)
     
     def store_removed(self, store):
         """
@@ -401,13 +405,13 @@ class Tagstore(QtCore.QObject):
         """
         
         ## delete current translation to switch to default strings
-        tagstore.removeTranslator(self.__translator)
+        self.__application.removeTranslator(self.__translator)
 
         ## load new translation file        
         self.__translator = QtCore.QTranslator()
         language = unicode(locale)
         if self.__translator.load("ts_" + language + ".qm", "tsresources/"):
-            tagstore.installTranslator(self.__translator)
+            self.__application.installTranslator(self.__translator)
             
         ## update current language
 #        self.CURRENT_LANGUAGE = self.trUtf8("en")

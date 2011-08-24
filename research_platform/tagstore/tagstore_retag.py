@@ -166,7 +166,7 @@ class ReTagController(QtCore.QObject):
 
         ## configure the tag dialog with the according settings
         format_setting = self.__store.get_datestamp_format()
-
+        datestamp_hidden = self.__store.get_datestamp_hidden()
         ## check if auto datestamp is enabled
         if format_setting != EDateStampFormat.DISABLED:
             self.__tag_dialog.show_datestamp(True)
@@ -176,7 +176,8 @@ class ReTagController(QtCore.QObject):
                 format = TsConstants.DATESTAMP_FORMAT_DAY
             elif format_setting == EDateStampFormat.MONTH:
                 format = TsConstants.DATESTAMP_FORMAT_MONTH
-            self.__tag_dialog.set_datestamp_format(format)
+            
+            self.__tag_dialog.set_datestamp_format(format, datestamp_hidden)
         
         self.__tag_dialog.show_category_line(self.__store.get_show_category_line())
         self.__tag_dialog.set_category_mandatory(self.__store.get_category_mandatory()) 
@@ -197,25 +198,26 @@ class ReTagController(QtCore.QObject):
         self.__log.error(err_msg)
         self.emit(QtCore.SIGNAL("retag_error"))
     
-    def __handle_retag(self, store_name, file_name, new_describing_tags, new_categorizing_tags):
+    def __handle_retag(self, store_name, file_name_list, new_describing_tags, new_categorizing_tags):
         
-        ## first of all remove the old references
-        self.__store.remove_file(file_name)
-        ## now create the new navigation structure
-        try:
-            self.__store.add_item_with_tags(file_name, new_describing_tags, new_categorizing_tags)
-        except InodeShortageException, e:
-            self.__tag_dialog.show_message(self.trUtf8("The Number of free inodes is below the threshold of %s%" % e.get_threshold()))
-            #raise
-        except Exception, e:
-            self.__tag_dialog.show_message(self.trUtf8("An error occurred while tagging"))
-            raise
-        else:
-            ## 2. remove the item in the gui
-            self.__tag_dialog.remove_item(file_name)
-            ## 3. refresh the tag information of the gui
-            self.__set_tag_information_to_dialog(self.__store)
-            self.emit(QtCore.SIGNAL("retag_success"))
+        for file_name in file_name_list:
+            ## first of all remove the old references
+            self.__store.remove_file(file_name)
+            ## now create the new navigation structure
+            try:
+                self.__store.add_item_with_tags(file_name, new_describing_tags, new_categorizing_tags)
+            except InodeShortageException, e:
+                self.__tag_dialog.show_message(self.trUtf8("The Number of free inodes is below the threshold of %s%" % e.get_threshold()))
+                #raise
+            except Exception, e:
+                self.__tag_dialog.show_message(self.trUtf8("An error occurred while tagging"))
+                raise
+            else:
+                ## 2. remove the item in the gui
+                self.__tag_dialog.remove_item_list(list(file_name))
+                ## 3. refresh the tag information of the gui
+                self.__set_tag_information_to_dialog(self.__store)
+        self.emit(QtCore.SIGNAL("retag_success"))
 
     def set_application(self, application):
         """

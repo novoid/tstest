@@ -84,15 +84,19 @@ class Store(QtCore.QObject):
         #self.__config_path = self.__path + "/" + self.__config_file_name
         #self.__watcher_path = self.__path + "/" + self.__storage_dir_name
         #self.__describing_nav_path = self.__path + "/" + self.__describing_nav_dir_name
-        if self.__file_system.path_exists(self.__path + "/" + self.__tags_file_name):
-            self.__tag_wrapper = TagWrapper(self.__path + "/" + self.__tags_file_name)
-        if self.__file_system.path_exists(self.__path + "/" + self.__config_file_name):
-            self.__store_config_wrapper = ConfigWrapper(self.__path + "/" + self.__config_file_name)
 
+        self.__create_wrappers()
+        
         if self.__path.find(":/") == -1:
             self.__path = self.__path.replace(":", ":/")
         self.__name = unicode(self.__path.split("/")[-1])
         self.__parent_path = unicode(self.__path[:len(self.__path)-len(self.__name)-1])
+
+    def __create_wrappers(self):
+        if self.__file_system.path_exists(self.__path + "/" + self.__tags_file_name):
+            self.__tag_wrapper = TagWrapper(self.__path + "/" + self.__tags_file_name)
+        if self.__file_system.path_exists(self.__path + "/" + self.__config_file_name):
+            self.__store_config_wrapper = ConfigWrapper(self.__path + "/" + self.__config_file_name)
 
     def init(self):
         """
@@ -155,6 +159,9 @@ class Store(QtCore.QObject):
         ## ELSE: two taglines with dirs: CATEGORIES/DESCRIPTIONS
         self.__tagline_config = self.__store_config_wrapper.get_show_category_line()
         
+        # clear the old list (if there is already one)
+        self.__paths_to_maintain = []
+        
         if self.__tagline_config == 0:
             #self.__file_system.create_dir(self.__path + "/" + self.__navigation_dir_name)
             self.__paths_to_maintain.append(self.__path + "/" + self.__navigation_dir_name)
@@ -177,7 +184,7 @@ class Store(QtCore.QObject):
         initializes the store paths, config reader, file system watcher without instantiation of a new object
         """
         self.__name = self.__path.split("/")[-1]
-        self.__parent_path = self.__path[:len(self.__path)-len(self.__name)-1]
+        self.__parent_path = self.__path[:len(self.__path)-len(self.__name)]
         self.__tags_file_path = self.__path + "/" + self.__tags_file_name
         self.__config_path = self.__path + "/" + self.__config_file_name
         self.__vocabulary_path = self.__path + "/" + self.__vocabulary_file_name #TsConstants.STORE_CONFIG_DIR + "/" + TsConstants.STORE_VOCABULARY_FILENAME
@@ -220,6 +227,9 @@ class Store(QtCore.QObject):
 #        called after store and event-handler are created to handle (offline) modifications
 #        """
 #        self.__handle_file_changes(self.__watcher_path)
+
+    def set_ignored_extensions(self, ignored_list):
+        self.__file_system.set_ignored_extensions(ignored_list)
 
     def set_path(self, path, config_file=None, tags_file=None, vocabulary_file=None):
         """
@@ -394,25 +404,37 @@ class Store(QtCore.QObject):
         """
         return self.__pending_changes
     
+    def move(self, new_path):
+        """
+        moves the whole path to the specified place 
+        """
+        self.__file_system.move(self.__path, new_path)
+        #re-set the path
+        self.__path = new_path
+        self.init()
+
     def remove(self):
         """
         removes all directories and links in the stores describing_nav path
         """
         for path in self.__paths_to_maintain:
             self.__file_system.delete_dir_content(path)
+        
+        self.emit(QtCore.SIGNAL("store_delete_end"), self.__id)
     
     def rebuild(self):
         """
         removes and rebuilds all links in the describing_nav path
         """
-        self.__log.info("START rebuild progress")
         self.__create_inprogress_file()
+        self.__log.info("START rebuild progress")
         self.remove()
         for file in self.__tag_wrapper.get_files():
             describing_tag_list = self.__tag_wrapper.get_file_tags(file)
             categorising_tag_list = self.__tag_wrapper.get_file_categories(file)
             self.add_item_with_tags(file, describing_tag_list, categorising_tag_list)
         self.__remove_inprogress_file()
+        self.emit(QtCore.SIGNAL("store_rebuild_end"), self.__name)
         self.__log.info("rebuild progress END")
     
     def rename_file(self, old_file_name, new_file_name):
@@ -450,7 +472,10 @@ class Store(QtCore.QObject):
                 if path == self.__categorising_nav_path:
                     self.__delete_links(file_name, categorising_tag_list, self.__categorising_nav_path)
                 if path == self.__navigation_path:
-                    self.__delete_links(file_name, categorising_tag_list, self.__navigation_path)
+                    #changed fron cat -> do desc tags because there are just descrbing tags when
+                    #there is just the "navigation" folder
+                    #self.__delete_links(file_name, categorising_tag_list, self.__navigation_path)
+                    self.__delete_links(file_name, describing_tag_list, self.__navigation_path)
             self.__tag_wrapper.remove_file(file_name)
         else:
             self.emit(QtCore.SIGNAL("pending_operations_changed(PyQt_PyObject)"), self)

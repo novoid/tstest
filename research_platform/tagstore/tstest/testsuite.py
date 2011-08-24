@@ -22,10 +22,13 @@ from tscore.configwrapper import ConfigWrapper
 from tscore import pathhelper
 from tscore.pathhelper import PathHelper
 import datetime
+from tscore.tsconstants import TsConstants
+from tsos.filesystem import FileSystemWrapper
+from tscore.store import Store
 
 class Test(unittest.TestCase):
 
-    TAGFILE_NAME = "../../test/.TESTSUITE_TAGFILE"
+    TAGFILE_NAME = "./.TESTSUITE_TAGFILE"
 
     def setUp(self):
         pass
@@ -108,7 +111,10 @@ class Test(unittest.TestCase):
         
 
     def test_configreader(self):
-        pass
+        config = ConfigWrapper("../tsresources/conf/tagstore.cfg")
+        extensions = config.get_ignored_extension()
+        
+        assert(extensions == TsConstants.IGNORED_EXTENSIONS)
     
     def get_fresh_tagwrapper(self):
         ## at first create a new and clean tagfile in the current directory ...
@@ -218,12 +224,7 @@ class Test(unittest.TestCase):
         set_1 = set(["hi", "you", "nerd"])
         set_2 = set(["i'm", "a", "geek"])
         
-        print set_1
-        print set_2
-        
         set_3 = set_1.union(set_2)
-        
-        print set_3
         
         assert("geek" in set_3)
         
@@ -245,6 +246,153 @@ class Test(unittest.TestCase):
             
             assert(new_filename == "my expired file - category - hallo; test.txt")
             
+    def test_create_store_move_and_delete_dir(self):
+        
+        """
+        1. create a new store
+        2. store a new item in the store - manually
+        3. move the store to a new location
+        4. delete the whole directory
+        """
+        
+        filesystem = FileSystemWrapper()
+        
+        NEW_ITEM_NAME = "test_item"
+        
+        STORE_PATH = "./test_store/"
+        STORAGE_DIR = "storage"
+        
+        store = self.create_new_store_object(STORE_PATH, STORAGE_DIR)
+        
+        ## place a new item in the store
+        file_path = "%s%s/%s" % (STORE_PATH, STORAGE_DIR, NEW_ITEM_NAME)
+        filesystem.create_file(file_path)
+        config = ConfigWrapper("../tsresources/conf/tagstore.cfg")
+        ## write the new store also to the config
+        store_id = config.add_new_store(STORE_PATH)
+        
+        ## now tag it manually
+        store.add_item_with_tags(NEW_ITEM_NAME, ["should", "not"], ["get", "this"])
+        
+        ## now the tag "should" must be a folde in the describing dir
+#        path_to_check = "%sdescribing/should" % STORE_PATH
+        path_to_check = "%sdescriptions/should" % STORE_PATH
+        print path_to_check 
+        assert(filesystem.is_directory(path_to_check))
+        
+        self.move_store("./test_store/", store_id, "./new_test_store/")
+        self.remove_dir("./new_test_store/", store_id)
+    
+    def move_store(self, store_path, store_id, new_store_path):
+        store = self.create_new_store_object(store_path, "storage")
+        
+        store.move(new_store_path)
+        ## rewrite the config with the new store dir
+        config = ConfigWrapper("../tsresources/conf/tagstore.cfg")
+        config.rename_store(store_id, new_store_path)
+        
+        filesystem = FileSystemWrapper()
+        
+        assert(filesystem.is_directory(new_store_path))
+    
+    def remove_dir(self, store_path, store_id):
+        
+        filesystem = FileSystemWrapper()
+        
+        filesystem.delete_dir(store_path)
+        
+        config = ConfigWrapper("../tsresources/conf/tagstore.cfg")
+        config.remove_store(store_id)
+
+        assert(not filesystem.is_directory(store_path))
+
+    def test_remove_store(self):
+        """
+        create a store
+        create an item with tags in the store
+        place a "not allowed" item in the navigation hierarchy
+        call the "remove" method of the store
+        check if everything has been removed properly
+        """
+        
+        STORE_PATH = "./test_store/"
+        STORAGE_DIR = "storage"
+        NEW_ITEM_NAME = "test_item"
+        
+        store = self.create_new_store_object(STORE_PATH, STORAGE_DIR)
+        
+        filesystem = FileSystemWrapper()
+
+         ## place a new item in the store
+        file_path = "%s%s/%s" % (STORE_PATH, STORAGE_DIR, NEW_ITEM_NAME)
+        filesystem.create_file(file_path)
+        config = ConfigWrapper("../tsresources/conf/tagstore.cfg")
+        ## write the new store also to the config
+        store_id = config.add_new_store(STORE_PATH)
+        ## now tag it manually
+        store.add_item_with_tags(NEW_ITEM_NAME, ["should", "not"], ["get", "this"])
+        
+        ## create a new file in a tag-dir to test if it is removed as well
+        file_path = "%s%s/%s" % (STORE_PATH, "descriptions/should", "i_should_not_be_here.file")
+        filesystem.create_file(file_path)
+        
+        ## now remove the store 
+        store.remove()
+        ##check if this is done properly
+        ##this one should not exist ...
+        assert(not filesystem.path_exists(file_path))
+        ## this path should still exist
+        assert(filesystem.path_exists(STORE_PATH))
+
+        self.remove_dir(STORE_PATH, store_id)
+        assert(not filesystem.path_exists(STORE_PATH))
+
+        config.remove_store(store_id)
+        
+    def test_split_path(self):
+        dir = "/Users/chris/test_store/"
+         ## prepare path for a split("/")        
+        if dir[-1] == "/":
+            dir = dir[:-1]
+        ## check if new store name is a duplicate
+        store_name = dir.split("/")[-1]
+        
+        assert(store_name == "test_store")
+
+    def create_new_store_object(self, path, storage_dir_name):
+        
+        STORE_CONFIG_DIR = TsConstants.DEFAULT_STORE_CONFIG_DIR
+        STORE_CONFIG_FILE_NAME = TsConstants.DEFAULT_STORE_CONFIG_FILENAME
+        STORE_TAGS_FILE_NAME = TsConstants.DEFAULT_STORE_TAGS_FILENAME
+        STORE_VOCABULARY_FILE_NAME = TsConstants.DEFAULT_STORE_VOCABULARY_FILENAME
+        
+        STORE_STORAGE_DIRS = [storage_dir_name]
+#        STORE_DESCRIBING_NAV_DIRS = ["describing"]
+        STORE_DESCRIBING_NAV_DIRS = []
+#        STORE_CATEGORIZING_NAV_DIRS = ["categorizing"]
+        STORE_CATEGORIZING_NAV_DIRS = []
+        STORE_EXPIRED_DIRS = []
+        STORE_NAVIGATION_DIRS = []
+        
+        filesystem = FileSystemWrapper()
+        
+        if not filesystem.is_directory(path):
+            filesystem.create_dir(path)
+       
+        
+        ## create a new store just in the test dir
+        store = Store(5, path, 
+              STORE_CONFIG_DIR + "/" + STORE_CONFIG_FILE_NAME,
+              STORE_CONFIG_DIR + "/" + STORE_TAGS_FILE_NAME,
+              STORE_CONFIG_DIR + "/" + STORE_VOCABULARY_FILE_NAME,
+              STORE_NAVIGATION_DIRS,
+              STORE_STORAGE_DIRS, 
+              STORE_DESCRIBING_NAV_DIRS,
+              STORE_CATEGORIZING_NAV_DIRS,
+              STORE_EXPIRED_DIRS,
+              "")
+        store.init()
+        return store
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
