@@ -199,7 +199,10 @@ class Tagstore(QtCore.QObject):
                 store.connect(store, QtCore.SIGNAL("vocabulary_changed"), self.__handle_vocabulary_changed)
                 store.connect(store, QtCore.SIGNAL("store_config_changed"), self.__handle_store_config_changed)
 
-                store.set_ignored_extensions(self.__app_config_wrapper.get_ignored_extension())
+                extensions = self.__app_config_wrapper.get_additional_ignored_extension()
+                ##if there comes a value from the config -> set it
+                if len(extensions) > 0 and extensions[0] != "":
+                    store.add_ignored_extensions(extensions)
 
                 self.STORES.append(store)
 

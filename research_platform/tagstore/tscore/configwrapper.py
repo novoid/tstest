@@ -240,11 +240,11 @@ class ConfigWrapper(QtCore.QObject):
         lang_string = self.__get_setting(TsConstants.SETTING_SUPPORTED_LANGUAGES)
         return lang_string.split(",")
 
-    def get_ignored_extension(self):
+    def get_additional_ignored_extension(self):
         """
         returns a list of all ignored file extensions
         """
-        lang_string = self.__get_setting(TsConstants.SETTING_IGNORED_EXTENSIONS)
+        lang_string = self.__get_setting(TsConstants.SETTING_ADDITIONAL_IGNORED_EXTENSIONS)
         return lang_string.split(",")
 
     def set_expiry_prefix(self, setting_value):

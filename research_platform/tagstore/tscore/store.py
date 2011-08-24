@@ -228,8 +228,8 @@ class Store(QtCore.QObject):
 #        """
 #        self.__handle_file_changes(self.__watcher_path)
 
-    def set_ignored_extensions(self, ignored_list):
-        self.__file_system.set_ignored_extensions(ignored_list)
+    def add_ignored_extensions(self, ignored_list):
+        self.__file_system.add_ignored_extensions(ignored_list)
 
     def set_path(self, path, config_file=None, tags_file=None, vocabulary_file=None):
         """

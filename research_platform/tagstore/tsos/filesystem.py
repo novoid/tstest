@@ -50,8 +50,8 @@ class FileSystemWrapper():
         else:
             self.__IGNORED_EXTENSIONS = ignored_extensions
     
-    def set_ignored_extensions(self, extension_list):
-        self.__IGNORED_EXTENSIONS = extension_list
+    def add_ignored_extensions(self, extension_list):
+        self.__IGNORED_EXTENSIONS = self.__IGNORED_EXTENSIONS + extension_list
     
     def get_os(self):
         """
