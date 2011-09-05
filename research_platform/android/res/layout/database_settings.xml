@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent">
+    <TextView 
+    	android:layout_marginTop="20dp"
+    	android:layout_width="wrap_content" 
+    	android:layout_alignParentLeft="true" 
+    	android:layout_height="wrap_content" 
+    	android:id="@+id/label_reset_factory_settings" 
+    	android:text="@string/reset_factory_settings">
+    </TextView>
+
+    <Button
+    	android:layout_marginLeft="10dp" 
+    	android:layout_marginTop="10dp"    
+    	android:layout_width="wrap_content" 
+    	android:id="@+id/button_reset" 
+    	android:layout_toRightOf="@id/label_reset_factory_settings" 
+    	android:layout_height="wrap_content" 
+    	android:layout_alignParentTop="true" 
+    	android:text="@string/reset">
+    </Button>
+
+    <TextView 
+    	android:layout_marginTop="30dp"
+    	android:layout_marginLeft="30dp"
+		android:layout_marginRight="30dp"
+    	android:layout_below="@id/label_reset_factory_settings"
+    	android:layout_width="wrap_content" 
+    	android:layout_alignParentLeft="true" 
+    	android:layout_height="wrap_content" 
+    	android:id="@+id/label_reset_factory_settings_text" android:text="@string/reset_factory_setting">
+    </TextView>
+
+    <Button 
+    	android:layout_alignParentBottom="true" 
+    	android:layout_alignParentLeft="true"
+    	android:layout_height="wrap_content" 
+        android:layout_marginLeft="30dp"
+        android:layout_width="100dp"
+		android:layout_marginBottom="30dp" android:id="@+id/button_back" android:text="@string/string_back">
+    </Button>
+
+</RelativeLayout>

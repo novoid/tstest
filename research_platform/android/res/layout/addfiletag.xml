@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:stretchColumns="*"
+    
+    android:layout_height="wrap_content">
+    
+  <TableRow>
+    		<TextView android:layout_height="wrap_content" android:layout_span="3" android:text="Blabla" android:textSize="13dp" android:id="@+id/pending_file_list" android:layout_width="wrap_content" android:layout_toRightOf="@+id/pending_file_list_label"></TextView>
+    		
+  </TableRow>
+  
+    <TableRow>
+        <Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/button_tag_one" android:textSize="13dp" android:layout_weight="1" android:text="Tag1"></Button>
+        <Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/button_tag_two" android:textSize="13dp" android:layout_weight="1" android:text="Tag2"></Button>
+        <Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/button_tag_three" android:textSize="13dp" android:layout_weight="1" android:text="Tag3"></Button>
+    </TableRow>
+    
+    <TableRow>
+        <Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/button_tag_five" android:textSize="13dp" android:layout_weight="1" android:text="Tag5"></Button>
+        <Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/button_tag_four" android:textSize="13dp" android:layout_weight="1" android:text="Tag4"></Button>
+        <Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/button_tag_six" android:textSize="13dp" android:layout_weight="1" android:text="Tag6"></Button>
+    </TableRow>
+    
+    <TableRow>
+        <AutoCompleteTextView 
+    		android:text="" 
+    		android:layout_height="wrap_content" 
+    		android:layout_width="fill_parent" 
+    		android:id="@+id/tag_field" 
+			android:layout_span="3"
+    		android:lines="1">
+    </AutoCompleteTextView>
+        
+    </TableRow>
+    
+        <TableRow>
+            <Button android:layout_width="wrap_content" android:visibility="invisible" android:layout_height="wrap_content" android:id="@+id/dummy1_button1" android:text="Tag me"></Button>
+            <Button android:layout_width="wrap_content" android:visibility="invisible" android:layout_height="wrap_content" android:id="@+id/dummy2_button" android:text="Tag me"></Button>
+            <Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/button_tag_done" android:text="Tag me"></Button>
+        </TableRow>
+    
+    </TableLayout>

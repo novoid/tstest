@@ -1,0 +1,77 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/layout_root"
+              android:orientation="horizontal"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+              android:padding="10dp"
+              >
+ 	
+ 	<TextView android:id="@+id/file_name_label"
+ 			  android:text="Name:"
+ 			  android:layout_alignParentLeft="true"
+ 			  android:layout_alignParentTop="true" 			  
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:textColor="#FFF"/>
+ 	
+ 	<TextView android:id="@+id/file_name_value"
+ 			  android:text="Tag1"
+ 			  android:layout_marginLeft="40dp"
+			  android:layout_toRightOf="@+id/file_name_label"
+ 			  android:layout_alignParentTop="true"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:textColor="#FFF"/>
+ 	
+ 	<TextView android:id="@+id/file_folder_label"
+ 			  android:text="Folder"
+ 			  android:layout_alignParentLeft="true"
+ 			  android:layout_below="@+id/file_name_label"  
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:textColor="#FFF"/>
+ 	
+ 	<TextView android:id="@+id/file_folder_value"
+ 			  android:text="/mnt/folder"
+ 			  android:layout_marginLeft="45dp"
+			  android:layout_toRightOf="@+id/file_folder_label"
+ 			  android:layout_below="@id/file_name_value"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:textColor="#FFF"/>
+ 	
+ 	 <TextView android:id="@+id/file_size_label"
+ 			  android:text="Size:"
+ 			  android:layout_alignParentLeft="true"
+ 			  android:layout_below="@+id/file_folder_label"  
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:textColor="#FFF"/>
+ 	
+ 	<TextView android:id="@+id/file_size_value"
+ 			  android:text="1 KB"
+ 			  android:layout_marginLeft="52dp"
+			  android:layout_toRightOf="@+id/file_size_label"
+ 			  android:layout_below="@id/file_folder_value"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:textColor="#FFF"/>
+
+ 	<TextView android:id="@+id/file_type_label"
+ 			  android:text="Type:"
+ 			  android:layout_alignParentLeft="true"
+ 			  android:layout_below="@+id/file_size_label"  
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:textColor="#FFF"/>
+ 	
+ 	<TextView android:id="@+id/file_type_value"
+ 			  android:text="image/jpeg"
+ 			  android:layout_marginLeft="50dp"
+			  android:layout_toRightOf="@+id/file_type_label"
+ 			  android:layout_below="@id/file_size_value"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:textColor="#FFF"/>
+              
+</RelativeLayout>

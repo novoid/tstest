@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_height="match_parent" android:id="@+id/label_num_columns" android:layout_width="wrap_content">
+    <RadioButton 
+    	android:layout_height="wrap_content" 
+    	android:layout_alignParentLeft="true" 
+    	android:layout_width="wrap_content" 
+    	android:id="@+id/button_icon_list_view" 
+    	android:text="@string/icon_list_view">
+    	</RadioButton>
+   
+    <TextView 
+    	android:layout_height="wrap_content" 
+    	android:layout_width="wrap_content" 
+    	android:layout_marginLeft="10dp"
+    	android:layout_below="@id/button_icon_list_view" 
+    	android:layout_alignParentLeft="true" 
+    	android:id="@+id/label_num_rows" 
+    	android:text="@string/num_columns"></TextView>
+
+    <TextView 
+    	android:id="@+id/text_num_rows" 
+    	android:layout_height="wrap_content" 
+    	android:layout_width="wrap_content" 
+    	android:layout_below="@id/button_icon_list_view" 
+    	android:layout_alignParentRight="true" 
+    	android:layout_marginRight="20dp"
+    	android:text="4" />
+
+    <SeekBar 
+    	android:layout_height="wrap_content" 
+    	android:id="@+id/seekbar_list_view" 
+    	android:layout_width="wrap_content" 
+    	android:layout_below="@+id/button_icon_list_view" 
+    	android:layout_toRightOf="@id/label_num_rows"
+		android:layout_toLeftOf="@id/text_num_rows"
+		android:layout_marginRight="10dp"  
+    	android:layout_marginLeft="10dp"></SeekBar>
+
+    
+    <TextView 
+    	android:id="@+id/label_sort_mode" 
+		android:layout_marginLeft="10dp"
+    	android:layout_marginTop="20dp" 
+    	android:layout_height="wrap_content" 
+    	android:layout_width="wrap_content" 
+    	android:layout_below="@id/label_num_rows" 
+    	android:layout_alignParentLeft="true" 
+    	android:text="Tag sort mode:" />
+    	
+    <RadioButton 
+		android:layout_marginTop="20dp" 
+    	android:layout_height="wrap_content" 
+    	android:layout_toRightOf="@id/label_sort_mode"
+    	android:layout_below="@id/label_num_rows"     	
+		android:layout_width="wrap_content" 
+    	android:id="@+id/button_alphabetic_sort_mode" 
+    	android:text="Alphabetic">
+    </RadioButton>
+
+    <RadioButton 
+    	android:layout_height="wrap_content" 
+    	android:layout_toRightOf="@id/label_sort_mode"
+    	android:layout_below="@id/button_alphabetic_sort_mode"     	
+		android:layout_width="wrap_content" 
+    	android:id="@+id/button_popular_sort_mode" 
+    	android:text="Popular">
+    </RadioButton>
+    
+    <!-- 
+    
+    <RadioButton 
+    	android:layout_height="wrap_content" 
+    	android:layout_toRightOf="@id/label_sort_mode"
+    	android:layout_below="@id/button_popular_sort_mode"     	
+		android:layout_width="wrap_content" 
+    	android:id="@+id/button_recent_sort_mode" 
+    	android:text="Recent">
+    </RadioButton>
+    
+     -->
+    
+    <RadioButton 
+    	android:layout_marginTop="30dp" 
+    	android:layout_below="@id/button_popular_sort_mode" 
+    	android:layout_height="wrap_content" 
+    	android:layout_alignParentLeft="true" 
+    	android:layout_width="wrap_content" 
+    	android:id="@+id/button_cloud_list_view" 
+    	android:text="Cloud View" 
+    	android:enabled="true"/>
+
+    <Button 
+    	android:id="@+id/button_cancel"
+    	android:layout_alignParentBottom="true" 
+    	android:layout_alignParentLeft="true"
+    	android:layout_height="wrap_content" 
+        android:text="@string/cancel"
+        android:layout_marginLeft="30dp"
+        android:layout_width="100dp"
+		android:layout_marginBottom="30dp">
+    </Button>
+
+    <Button 
+    	android:id="@+id/button_done"
+		android:layout_marginRight="30dp"
+		android:layout_marginBottom="30dp"		
+    	android:layout_centerVertical="true"
+    	android:layout_alignParentBottom="true"
+		android:layout_alignParentRight="true"
+    	android:layout_alignRight="@id/button_cancel" 
+    	android:layout_height="wrap_content"
+        android:layout_width="100dp"    	 
+        android:text="@string/done">
+    </Button>
+
+
+
+    
+</RelativeLayout>

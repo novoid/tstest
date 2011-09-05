@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="fill_parent"
+  android:layout_height="wrap_content"
+  android:padding="10px" android:orientation="vertical">
+  
+    <TextView 
+    	android:id="@+id/synchronization_state_label" 
+    	android:layout_width="fill_parent" 
+    	android:layout_height="wrap_content"
+		android:text="@string/synchronization_state"
+		android:textSize="30dp"
+		android:layout_alignParentTop="true">
+    </TextView>
+   
+
+    <TextView 
+    	android:id="@+id/synchronization_state"
+		android:layout_below="@id/synchronization_state_label"    	 
+    	android:layout_width="fill_parent"
+    	android:layout_height="wrap_content"
+    	android:textSize="25dp"
+    	android:text="@string/disconnected">
+    </TextView>
+
+
+ 
+    <TextView android:text="@string/last_synchronization" 
+    	android:textSize="30dp" 
+    	android:layout_height="wrap_content" 
+    	android:layout_width="fill_parent" 
+    	android:id="@+id/synchronization_history_label" 
+    	android:layout_below="@id/synchronization_state">
+    </TextView>
+ 
+        <TextView 
+    	android:id="@+id/synchronization_history"
+		android:layout_below="@id/synchronization_history_label"    	 
+    	android:layout_width="fill_parent"
+    	android:layout_height="wrap_content"
+		android:textSize="20dp" 
+		android:text="@string/unknown">
+    </TextView>
+
+    <Button 
+    	android:id="@+id/button1" 
+    	android:layout_width="fill_parent" 
+    	android:layout_height="wrap_content"
+    	android:text="@string/synchronize"
+    	android:layout_alignParentBottom="true">
+    </Button>
+    
+</RelativeLayout>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AbsoluteLayout
+android:layout_width="fill_parent"
+android:layout_height="fill_parent"
+xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/pid_text_view">
+<ImageButton android:layout_height="wrap_content" android:src="@drawable/tagstore" android:id="@+id/widget34" android:layout_width="wrap_content" android:layout_x="64dip" android:layout_y="56dip"></ImageButton>
+<TextView android:layout_height="wrap_content" android:id="@+id/widget33" android:text="Version 0.0.1" android:textStyle="bold" android:layout_width="wrap_content" android:layout_x="90dip" android:layout_y="294dip"></TextView>
+<TextView android:layout_height="wrap_content" android:id="@+id/widget30" android:text="TagStore" android:textStyle="bold" android:layout_width="115px" android:layout_x="88dip" android:layout_y="262dip"></TextView>
+</AbsoluteLayout>
