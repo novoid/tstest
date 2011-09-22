@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent">
+  
+    <CheckBox 
+    	android:layout_width="wrap_content" 
+    	android:id="@+id/button_enable_notification" 
+    	android:layout_height="wrap_content"
+    	android:layout_alignParentTop="true" 
+		android:layout_marginLeft="30dp"
+    	android:layout_alignParentLeft="true" android:text="@string/enable_notification_string">
+    </CheckBox>
+    <TextView 
+    	android:layout_width="wrap_content" 
+    	android:id="@+id/enable_notification_label" 
+    	android:layout_below="@+id/button_enable_notification" 
+    	android:layout_height="wrap_content" 
+    	android:layout_marginLeft="40dp"
+    	android:layout_alignParentLeft="true" android:text="@string/enable_notification_description">
+    </TextView>
+  
+  
+  
+      <Button 
+    	android:id="@+id/button_cancel"
+    	android:layout_alignParentBottom="true" 
+    	android:layout_alignParentLeft="true"
+    	android:layout_height="wrap_content" 
+        android:text="@string/cancel"
+        android:layout_marginLeft="30dp"
+        android:layout_width="100dp"
+		android:layout_marginBottom="30dp">
+    </Button>
+
+    <Button 
+    	android:id="@+id/button_done"
+		android:layout_marginRight="30dp"
+		android:layout_marginBottom="30dp"		
+    	android:layout_centerVertical="true"
+    	android:layout_alignParentBottom="true"
+		android:layout_alignParentRight="true"
+    	android:layout_alignRight="@id/button_cancel" 
+    	android:layout_height="wrap_content"
+        android:layout_width="100dp"    	 
+        android:text="@string/done">
+    </Button>
+  
+  
+</RelativeLayout>

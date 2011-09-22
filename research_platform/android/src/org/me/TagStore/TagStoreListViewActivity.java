@@ -5,17 +5,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
+import java.util.Iterator;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ListActivity;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -27,12 +26,13 @@ import android.webkit.MimeTypeMap;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class TagStoreListViewActivity extends ListActivity {
+public class TagStoreListViewActivity extends ListActivity implements FileDialogBuilder.GeneralDialogCallback {
 
 	/**
 	 * reference to database manager
@@ -54,14 +54,11 @@ public class TagStoreListViewActivity extends ListActivity {
 	 */
 	protected final static String ITEM_PATH = "item_path";
 
-	private enum MENU_ITEM_ENUM {
-		MENU_ITEM_DETAILS, MENU_ITEM_SEND, MENU_ITEM_DELETE
-	};
-
 	/**
 	 * stores stack of the visited items
 	 */
-	LinkedHashSet<String> m_tag_stack;
+	TagStackManager m_tag_stack;
+
 
 	/**
 	 * list view contents
@@ -74,10 +71,10 @@ public class TagStoreListViewActivity extends ListActivity {
 	ArrayList<String> m_tag_list;
 
 	/**
-	 * stores tag list ui element
+	 * stores the tag navigation button adapter
 	 */
-	TextView m_tag_list_view;
-
+	TagStackAdapter m_tag_list_view;
+	
 	/**
 	 * stores the tag reference count
 	 */
@@ -148,13 +145,17 @@ public class TagStoreListViewActivity extends ListActivity {
 		//
 		super.onResume();
 
-		Logger.i("TagStoreListViewActivity::onResume tag stacksize "
-				+ m_tag_stack.size());
+		Logger.i("TagStoreListViewActivity::onResume");
 
+		//
+		// verify the tag stack
+		//
+		m_tag_stack.verifyTags();
+		
 		//
 		// check if tag stack is empty
 		//
-		if (m_tag_stack.size() > 0) {
+		if (!m_tag_stack.isEmpty()) {
 			//
 			// refresh view
 			//
@@ -173,6 +174,11 @@ public class TagStoreListViewActivity extends ListActivity {
 				// failed to fill list map
 				//
 				Logger.e("Error: TagStoreListActivity::onResume failed to fill list map");
+				
+				//
+				// update tag tree
+				//
+				buildTagTreeForUI();				
 				return;
 			}
 
@@ -183,6 +189,33 @@ public class TagStoreListViewActivity extends ListActivity {
 		}
 	}
 
+	protected void onPrepareDialog (int id, Dialog dialog) {
+		
+		//
+		// get map entry
+		//
+		HashMap<String, Object> map_entry = m_list_map
+				.get(m_selected_item_index);
+
+		//
+		// get item path
+		//
+		String file_name = (String) map_entry.get(ITEM_PATH);		
+
+		Logger.i("TagStoreListViewActivity::onPrepareDialog dialog id: " + id + " file_name: " + file_name);
+		
+		//
+		// check which dialog is requested
+		//
+		switch (id) {
+			case DIALOG_DETAILS:
+				FileDialogBuilder.updateDetailDialogFileView(dialog, TagActivityGroup.s_Instance, file_name);
+				break;
+				
+
+		}
+	}
+	
 	/**
 	 * called when there is a need to construct a dialog
 	 */
@@ -190,6 +223,18 @@ public class TagStoreListViewActivity extends ListActivity {
 
 		Logger.i("TagStoreListViewActivity::onCreateDialog dialog id: " + id);
 
+		//
+		// get map entry
+		//
+		HashMap<String, Object> map_entry = m_list_map
+				.get(m_selected_item_index);
+
+		//
+		// get item path
+		//
+		String file_name = (String) map_entry.get(ITEM_PATH);		
+		
+		
 		//
 		// construct dialog
 		//
@@ -201,10 +246,10 @@ public class TagStoreListViewActivity extends ListActivity {
 		switch (id) {
 
 		case DIALOG_GENERAL_FILE_MENU:
-			dialog = buildGeneralDialogFile(m_selected_item_index);
+			dialog = FileDialogBuilder.buildGeneralDialogFile(TagActivityGroup.s_Instance, file_name, this);
 			break;
 		case DIALOG_DETAILS:
-			dialog = buildDetailDialogFile(m_selected_item_index);
+			dialog = FileDialogBuilder.buildDetailDialogFile(TagActivityGroup.s_Instance, file_name);
 			break;
 		case DIALOG_AUDIO:
 			dialog = buildAudioDialogFile(m_selected_item_index);
@@ -235,118 +280,6 @@ public class TagStoreListViewActivity extends ListActivity {
 		return null;
 	}
 
-	private Dialog buildDetailDialogFile(int selected_item_index) {
-
-		//
-		// get layout inflater service
-		//
-		LayoutInflater inflater = (LayoutInflater) TagActivityGroup.s_Instance
-				.getSystemService(LAYOUT_INFLATER_SERVICE);
-
-		//
-		// construct view
-		//
-		View layout = inflater.inflate(R.layout.details_dialog,
-				(ViewGroup) findViewById(R.id.layout_root));
-
-		//
-		// get map entry
-		//
-		HashMap<String, Object> map_entry = m_list_map.get(selected_item_index);
-
-		//
-		// get item name
-		//
-		String item_name = (String) map_entry.get(ITEM_NAME);
-
-		//
-		// get text field for name
-		//
-		TextView text = (TextView) layout.findViewById(R.id.file_name_value);
-		if (text != null) {
-			//
-			// set file name
-			//
-			text.setText(item_name);
-		}
-
-		//
-		// get item directory
-		//
-		String item_path = (String) map_entry.get(ITEM_PATH);
-
-		//
-		// create file object
-		//
-		File file = new File(item_path);
-
-		//
-		// remove file name part
-		//
-		String item_directory = file.getParent();
-
-		//
-		// get text field for folder
-		//
-		text = (TextView) layout.findViewById(R.id.file_folder_value);
-		if (text != null) {
-			//
-			// set file name
-			//
-			text.setText(item_directory);
-		}
-
-		//
-		// get file size
-		//
-		long length = file.length();
-
-		//
-		// get text field for size
-		//
-		text = (TextView) layout.findViewById(R.id.file_size_value);
-		if (text != null) {
-			//
-			// set file name
-			// FIXME: non-nls
-			//
-			text.setText(Long.toString(length) + " Bytes");
-		}
-
-		//
-		// get mime type map instance
-		//
-		MimeTypeMap mime_map = MimeTypeMap.getSingleton();
-
-		//
-		// get file extension
-		//
-		String file_extension = item_name
-				.substring(item_name.lastIndexOf(".") + 1);
-
-		//
-		// guess mime from extension extension
-		//
-		String mime_type = mime_map.getMimeTypeFromExtension(file_extension);
-		//
-		// get text field for size
-		//
-		text = (TextView) layout.findViewById(R.id.file_type_value);
-		if (text != null) {
-			//
-			// set file name
-			// FIXME: non-nls
-			//
-			text.setText(mime_type);
-		}
-
-		AlertDialog.Builder builder = new AlertDialog.Builder(
-				TagActivityGroup.s_Instance);
-		builder.setView(layout);
-		AlertDialog alertDialog = builder.create();
-
-		return alertDialog;
-	}
 
 	protected void onCreate(Bundle savedInstanceState) {
 
@@ -366,9 +299,9 @@ public class TagStoreListViewActivity extends ListActivity {
 		setContentView(R.layout.tagstore_list_view);
 
 		//
-		// construct tag stack
+		// acquire instance of tag stack
 		//
-		m_tag_stack = new LinkedHashSet<String>();
+		m_tag_stack = TagStackManager.getInstance();
 
 		//
 		// construct list map
@@ -385,18 +318,15 @@ public class TagStoreListViewActivity extends ListActivity {
 	/**
 	 * refresh current view
 	 */
-	public void refreshView() {
-
-		//
-		// get all objects stored on the stack
-		//
-		String[] object_stack = m_tag_stack.toArray(new String[1]);
+	private void refreshView() {
 
 		//
 		// this is a bit retarded ;)
 		//
-		String last_element = object_stack[object_stack.length - 1];
+		String last_element = m_tag_stack.getLastTag();
 
+		assert(last_element != null);
+		
 		//
 		// clear the map
 		//
@@ -414,24 +344,52 @@ public class TagStoreListViewActivity extends ListActivity {
 	}
 
 	/**
+	 * refreshes view and displays all associated tags and files in respect to the given tag
+	 * @param tag 
+	 */
+	public void refreshViewWithTag(String tag) {
+		
+		//
+		// clear tag stack
+		//
+		m_tag_stack.clearTags();
+		
+		//
+		// clear the map
+		//
+		m_list_map.clear();
+		
+		//
+		// add the tag
+		//
+		m_tag_stack.addTag(tag);
+		
+		//
+		// fill list map with this tag
+		//
+		fillListMapWithTag(tag);
+
+		//
+		// now rebuild list
+		//
+		buildListView();
+	}
+	
+	
+	/**
 	 * removes the last tag from the tag stack
 	 */
 	private void removeLastTagFromTagStack() {
 
 		//
-		// get all objects stored on the stack
-		//
-		String[] object_stack = m_tag_stack.toArray(new String[1]);
-
-		//
 		// this is a bit retarded ;)
 		//
-		String last_element = object_stack[object_stack.length - 1];
+		String last_element = m_tag_stack.getLastTag();
 
 		//
 		// remove last element
 		//
-		m_tag_stack.remove(last_element);
+		m_tag_stack.removeTag(last_element);
 
 	}
 
@@ -447,13 +405,12 @@ public class TagStoreListViewActivity extends ListActivity {
 			return super.onKeyDown(keyCode, event);
 		}
 
-		Logger.i("TagStoreListViewActivity::onKeyDown tag stack size: "
-				+ m_tag_stack.size());
+		Logger.i("TagStoreListViewActivity::onKeyDown");
 
 		//
 		// check if object stack is empty
 		//
-		if (m_tag_stack.size() == 0) {
+		if (m_tag_stack.isEmpty()) {
 			//
 			// exit application
 			//
@@ -461,7 +418,7 @@ public class TagStoreListViewActivity extends ListActivity {
 			return true;
 		}
 
-		if (m_tag_stack.size() == 1) {
+		if (m_tag_stack.getSize() == 1) {
 			//
 			// back to the roots
 			//
@@ -470,7 +427,7 @@ public class TagStoreListViewActivity extends ListActivity {
 			//
 			// clear tag stack
 			//
-			m_tag_stack.clear();
+			m_tag_stack.clearTags();
 
 			//
 			// fill list map
@@ -651,10 +608,23 @@ public class TagStoreListViewActivity extends ListActivity {
 		//
 		m_db = DBManager.getInstance();
 
+		
+		//
+		// create button array
+		//
+		Button[] buttons = new Button[5];
+		buttons[0] = (Button) findViewById(R.id.navigation_button_one);
+		buttons[1] = (Button) findViewById(R.id.navigation_button_two);
+		buttons[2] = (Button) findViewById(R.id.navigation_button_three);
+		buttons[3] = (Button) findViewById(R.id.navigation_button_four);
+		buttons[4] = (Button) findViewById(R.id.navigation_button_five);
+		
+		
 		//
 		// acquire tag text list element
 		//
-		m_tag_list_view = (TextView) findViewById(R.id.navigation_tag_list);
+		m_tag_list_view = new TagStackAdapter(this, buttons);
+				
 
 		if (!fillListMap()) {
 			//
@@ -677,37 +647,10 @@ public class TagStoreListViewActivity extends ListActivity {
 	protected void buildTagTreeForUI() {
 
 		//
-		// check if it is empty
-		//
-		if (m_tag_stack.size() == 0) {
-			//
-			// set empty tag list
-			//
-			if (m_tag_list_view != null) {
-				m_tag_list_view.setText("");
-			}
-			return;
-		}
-
-		//
-		// get all tags in an array
-		//
-		String[] tag_list = m_tag_stack.toArray(new String[1]);
-
-		String tag_tree = "";
-
-		for (String current_tag : tag_list) {
-			//
-			// append to line
-			//
-			tag_tree += current_tag + " ";
-		}
-
-		//
 		// set empty tag list
 		//
 		if (m_tag_list_view != null) {
-			m_tag_list_view.setText(tag_tree);
+			m_tag_list_view.refresh();
 		}
 	}
 
@@ -769,7 +712,7 @@ public class TagStoreListViewActivity extends ListActivity {
 		/**
 		 * old toast position
 		 */
-		int m_item_offset;
+		int m_item_offset = 0;
 
 		/**
 		 * cancels the active toast if any
@@ -789,7 +732,7 @@ public class TagStoreListViewActivity extends ListActivity {
 		public void onScroll(AbsListView view, int firstVisibleItem,
 				int visibleItemCount, int totalItemCount) {
 
-			Logger.i("onScroll: item " + firstVisibleItem);
+			Logger.i("onScroll: item " + firstVisibleItem + " visibleItemCount: " + visibleItemCount + " totalItemCount: " + totalItemCount);
 
 			//
 			// acquire shared settings
@@ -824,7 +767,7 @@ public class TagStoreListViewActivity extends ListActivity {
 				return;
 			}
 
-			if (m_toast != null && m_item_offset == offset) {
+			if (m_item_offset == offset) {
 				//
 				// superflous scroll event
 				//
@@ -912,7 +855,7 @@ public class TagStoreListViewActivity extends ListActivity {
 		//
 		return map_entry.containsKey(ITEM_PATH) == false;
 	}
-
+	
 	/**
 	 * launches an item
 	 * 
@@ -920,6 +863,33 @@ public class TagStoreListViewActivity extends ListActivity {
 	 */
 	private void launchItem(int position) {
 
+		//
+		// get current storage state
+		//
+		String storage_state = Environment.getExternalStorageState();
+		if (!storage_state.equals(Environment.MEDIA_MOUNTED) && !storage_state.equals(Environment.MEDIA_MOUNTED_READ_ONLY))
+		{
+			//
+			// the media is currently not accessible
+			//
+			String media_available = getApplicationContext().getString(R.string.error_media_not_mounted);
+			
+			//
+			// create toast
+			//
+			Toast toast = Toast.makeText(getApplicationContext(), media_available, Toast.LENGTH_SHORT);
+			
+			//
+			// display toast
+			//
+			toast.show();
+			
+			//
+			// done
+			//
+			return;
+		}
+		
 		//
 		// get hash map entry
 		//
@@ -936,11 +906,22 @@ public class TagStoreListViewActivity extends ListActivity {
 		File file = new File(item_path);
 
 		if (file.exists() == false) {
+			
 			//
-			// FIXME: non-nls compatible
+			// get localized error format
+			//
+			String error_format = getApplicationContext().getString(R.string.error_format_file_removed);
+			
+			//
+			// format the error
+			//
+			String msg = String.format(error_format, item_path);
+			
+			//
+			// create the toast
 			//
 			Toast toast = Toast.makeText(getApplicationContext(),
-					"Error: file " + item_path + " no longer exists",
+					msg,
 					Toast.LENGTH_SHORT);
 
 			//
@@ -1051,7 +1032,7 @@ public class TagStoreListViewActivity extends ListActivity {
 		} else if (sort_mode
 				.compareTo(ConfigurationSettings.LIST_VIEW_SORT_MODE_RECENT) == 0) {
 			//
-			// FIXME: implement me
+			// TODO: implement me recent mode
 			//
 			Logger.e("TagStoreListViewActivity::applySortMethodToTagList recent mode is not implemented yet");
 		}
@@ -1087,7 +1068,7 @@ public class TagStoreListViewActivity extends ListActivity {
 				//
 				// check if tag has already been visited
 				//
-				if (m_tag_stack.contains(linked_tag)) {
+				if (m_tag_stack.containsTag(linked_tag)) {
 					//
 					// tag already present in stack
 					//
@@ -1106,7 +1087,7 @@ public class TagStoreListViewActivity extends ListActivity {
 
 		//
 		// get associated files
-		//
+		// m_tag_stack.toArray(new String[1])
 		ArrayList<String> linked_files = m_db.getLinkedFiles(item_name);
 
 		if (linked_files != null) {
@@ -1127,8 +1108,9 @@ public class TagStoreListViewActivity extends ListActivity {
 	 * @param action_id
 	 *            what the user has selected
 	 */
-	protected void processMenuFileSelection(MENU_ITEM_ENUM action_id) {
+	public void processMenuFileSelection(String item_path, FileDialogBuilder.MENU_ITEM_ENUM action_id) {
 
+		
 		//
 		// get map entry
 		//
@@ -1138,84 +1120,32 @@ public class TagStoreListViewActivity extends ListActivity {
 		//
 		// get item path
 		//
-		String item_path = (String) map_entry.get(ITEM_PATH);
-
+		item_path = (String) map_entry.get(ITEM_PATH);
+		
 		Logger.i("TagStoreListViewActivity::processMenuFileSelection item_path "
 				+ item_path + " action: " + action_id);
 
-		if (action_id == MENU_ITEM_ENUM.MENU_ITEM_DETAILS) {
+		if (action_id == FileDialogBuilder.MENU_ITEM_ENUM.MENU_ITEM_DETAILS) {
 			//
 			// launch details view
 			//
 			showDialog(DIALOG_DETAILS);
-		} else if (action_id == MENU_ITEM_ENUM.MENU_ITEM_DELETE) {
+		} else if (action_id == FileDialogBuilder.MENU_ITEM_ENUM.MENU_ITEM_DELETE) {
+			
 			//
-			// FIXME: should display confirmation dialog
+			// remove the file
 			//
-			File file = new File(item_path);
+			FileTagUtility.removeFile(item_path, this);
 
 			//
-			// lets delete the file from the database
+			// now verify the tag stack
 			//
-			DBManager db_man = DBManager.getInstance();
+			m_tag_stack.verifyTags();
 
 			//
-			// FIXME: this should be the job of file watch dog service...
+			// is the tag stack now empty
 			//
-			db_man.removeFile(item_path, false, true);
-
-			//
-			// delete file
-			//
-			boolean file_deleted = file.delete();
-
-			//
-			// check for success
-			//
-			String msg;
-			if (file_deleted) {
-				//
-				// FIXME: non-nls
-				//
-				msg = "Deleted " + item_path;
-			} else {
-				//
-				// FIXME: non-nls
-				//
-				msg = "Error: failed to delete " + item_path;
-			}
-
-			//
-			// create toast
-			//
-			Toast toast = Toast.makeText(getApplicationContext(), msg,
-					Toast.LENGTH_SHORT);
-
-			//
-			// display toast
-			//
-			toast.show();
-
-			Logger.i("file_deleted " + file_deleted + " list map size "
-					+ m_list_map.size() + " tag stack: " + m_tag_stack);
-
-			//
-			// check if file was deleted
-			//
-			if (file_deleted) {
-				//
-				// was this the only entry
-				//
-				if (m_list_map.size() == 1) {
-					//
-					// the only entry was deleted
-					// pop off last item from tag stack and refresh view
-					//
-					removeLastTagFromTagStack();
-				}
-			}
-
-			if (m_tag_stack.size() > 0) {
+			if (!m_tag_stack.isEmpty()) {
 				//
 				// refresh view
 				//
@@ -1237,19 +1167,30 @@ public class TagStoreListViewActivity extends ListActivity {
 				}
 
 				//
-				// now build the list the view
+				// now build the list view
 				//
 				buildListView();
 			}
-		} else if (action_id == MENU_ITEM_ENUM.MENU_ITEM_SEND) {
+		} else if (action_id == FileDialogBuilder.MENU_ITEM_ENUM.MENU_ITEM_SEND) {
 			File file = new File(item_path);
 
 			if (file.exists() == false) {
+				
 				//
-				// FIXME: non-nls compatible
+				// get localized error format
+				//
+				String error_format = getApplicationContext().getString(R.string.error_format_file_removed);
+				
+				//
+				// format the error
+				//
+				String msg = String.format(error_format, item_path);
+				
+				//
+				// create the toast
 				//
 				Toast toast = Toast.makeText(getApplicationContext(),
-						"Error: file " + item_path + " no longer exists",
+						msg,
 						Toast.LENGTH_SHORT);
 
 				//
@@ -1314,95 +1255,7 @@ public class TagStoreListViewActivity extends ListActivity {
 
 	}
 
-	/**
-	 * constructs a menu for a file item
-	 * 
-	 * @param pos
-	 *            position of file in list map
-	 */
-	protected Dialog buildGeneralDialogFile(int pos) {
 
-		//
-		// construct new alert builder
-		//
-		AlertDialog.Builder builder = new AlertDialog.Builder(
-				TagActivityGroup.s_Instance);
-
-		//
-		// FIXME: non-nls compatible
-		//
-		builder.setTitle("Options");
-
-		//
-		// construct array list for options
-		//
-		ArrayList<String> menu_options = new ArrayList<String>();
-		ArrayList<MENU_ITEM_ENUM> action_ids = new ArrayList<MENU_ITEM_ENUM>();
-
-		//
-		// add default menu items
-		// FIXME: non-nls compatible
-		//
-		menu_options.add("Details");
-		action_ids.add(MENU_ITEM_ENUM.MENU_ITEM_DETAILS);
-
-		menu_options.add("Delete");
-		action_ids.add(MENU_ITEM_ENUM.MENU_ITEM_DELETE);
-
-		menu_options.add("Send");
-		action_ids.add(MENU_ITEM_ENUM.MENU_ITEM_SEND);
-
-		//
-		// FIXME: implement mime options
-		//
-		Logger.i("Should TagStoreListViewActivity::processMenuForFile process mime types options for file ");
-
-		//
-		// convert to string array
-		//
-		String[] menu_option_list = menu_options.toArray(new String[1]);
-
-		//
-		// set menu options and click handler
-		//
-		builder.setItems(menu_option_list,
-				new FileMenuClickListener(action_ids));
-
-		//
-		// create dialog
-		//
-		Dialog dialog = builder.create();
-
-		dialog.setOwnerActivity(this);
-
-		return dialog;
-	}
-
-	private class FileMenuClickListener implements
-			DialogInterface.OnClickListener {
-
-		/**
-		 * stores the menu item actions
-		 */
-		private ArrayList<MENU_ITEM_ENUM> m_action_ids;
-
-		FileMenuClickListener(ArrayList<MENU_ITEM_ENUM> action_ids) {
-
-			//
-			// store members
-			//
-			m_action_ids = action_ids;
-		}
-
-		@Override
-		public void onClick(DialogInterface dialog, int which) {
-			//
-			// perform callback
-			//
-
-			processMenuFileSelection(m_action_ids.get(which));
-		}
-	};
 
 	protected boolean onLongListItemClick(View v, int pos, long id) {
 
@@ -1484,7 +1337,7 @@ public class TagStoreListViewActivity extends ListActivity {
 		//
 		// add item to visited tag stack
 		//
-		m_tag_stack.add(item_name);
+		m_tag_stack.addTag(item_name);
 
 		//
 		// now clear the list map
@@ -1618,7 +1471,6 @@ public class TagStoreListViewActivity extends ListActivity {
 			// calculate number of elements present in this row
 			//
 			int offset = position * m_num_items_per_row;
-			;
 
 			//
 			// calculate item length
@@ -2021,4 +1873,138 @@ public class TagStoreListViewActivity extends ListActivity {
 			}
 		}
 	};
+	
+
+	/**
+	 * This class manages the stack of tag items which have been used
+	 * @author Johnseyii
+	 *
+	 */
+	private class TagStackAdapter
+	{
+		/**
+		 * stores the buttons
+		 */
+		Button[] m_buttons;
+		
+		/**
+		 * stores the activity
+		 */
+		private TagStoreListViewActivity m_activity;
+		
+		/**
+		 * constructor of class TagStackAdapter
+		 */
+		public TagStackAdapter(TagStoreListViewActivity activity, Button[] buttons) {
+			
+			//
+			// allocate button array
+			//
+			m_buttons = buttons;
+			
+			m_activity = activity;
+			
+			//
+			// initialize buttons
+			//
+			initialize();
+		}
+		
+		/**
+		 * refreshes the available tag navigation button
+		 */
+		public void refresh() {
+			
+			//
+			// get iterator
+			//
+			Iterator<String> it = TagStackManager.getInstance().getIterator();
+			
+			//
+			// iterate until 5 buttons have been set or set is empty
+			//
+			int index = 0;
+			
+			while(it.hasNext() && index < m_buttons.length)
+			{
+				//
+				// get tag
+				//
+				String tag = it.next();
+				
+				//
+				// set button text
+				//
+				if (m_buttons[index] != null)
+				{
+					m_buttons[index].setText(tag);
+					m_buttons[index].setVisibility(View.VISIBLE);
+				}
+				
+				//
+				// update index
+				//
+				index++;
+			}
+			
+			//
+			// hide rest of the buttons
+			//
+			if (index < m_buttons.length)
+			{
+				for(; index < m_buttons.length; index++)
+				{
+					if (m_buttons[index] != null)
+					{
+						m_buttons[index].setText("");
+						m_buttons[index].setVisibility(View.INVISIBLE);
+					}
+				}
+			}
+		}
+		
+		/**
+		 * initialize the members
+		 */
+		private void initialize() {
+			
+			//
+			// set all empty
+			//
+			for(Button button : m_buttons)
+			{
+				if (button != null)
+				{
+					//
+					// clear text and hide
+					//
+					button.setText("");
+					button.setVisibility(View.INVISIBLE);
+					
+					button.setOnClickListener(new OnClickListener() {
+
+						@Override
+						public void onClick(View arg0) {
+							
+							//
+							// get button
+							//
+							Button button = (Button)arg0;
+							
+							//
+							// get button text
+							//
+							String tag = (String)button.getText();
+							
+							//
+							// refresh view
+							//
+							m_activity.refreshViewWithTag(tag);
+						}
+					});
+					
+				}
+			}
+		}
+	}
 }

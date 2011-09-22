@@ -2,18 +2,56 @@
 <RelativeLayout
   xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="match_parent"
+  android:id="@+id/tagstore_list_view_id"
   android:layout_height="match_parent">
   
-        <TextView android:text="" android:layout_width="wrap_content"
-        		android:layout_alignParentLeft="true"   
-        		android:layout_alignParentTop="true"              
-                android:layout_height="30dp"
-                android:layout_marginLeft="10dp"
-                android:textSize="20dp" 
-                android:id="@+id/navigation_tag_list">
-        </TextView>
+        <Button android:text="haha" android:layout_width ="wrap_content"
+        		android:layout_alignParentTop="true"
+				android:layout_alignParentLeft="true"   
+        		android:layout_height="50dp"
+        		android:layout_marginLeft="10dp"
+        		android_textSize="30dp"
+        		android:id="@+id/navigation_button_one">
+        </Button>
+        
+                <Button android:text="haha1" android:layout_width ="wrap_content"
+        		android:layout_alignParentTop="true"
+        		android:layout_height="50dp"
+        		android:layout_marginLeft="10dp"
+        		android_textSize="30dp"
+        		android:id="@+id/navigation_button_two"
+        		android:layout_toRightOf="@id/navigation_button_one">
+        </Button>
+        
+                <Button android:text="haha2" android:layout_width ="wrap_content"
+        		android:layout_alignParentTop="true"
+        		android:layout_height="50dp"
+        		android:layout_marginLeft="10dp"
+        		android_textSize="30dp"
+        		android:id="@+id/navigation_button_three"
+        		android:layout_toRightOf="@id/navigation_button_two">
+        </Button>
+        
+                <Button android:text="haha3" android:layout_width ="wrap_content"
+        		android:layout_alignParentTop="true"
+        		android:layout_height="50dp"
+        		android:layout_marginLeft="10dp"
+        		android_textSize="30dp"
+        		android:id="@+id/navigation_button_four"
+        		android:layout_toRightOf="@id/navigation_button_three">
+        </Button>
+        
+        <Button android:text="haha4" android:layout_width ="wrap_content"
+        		android:layout_alignParentTop="true"
+        		android:layout_height="50dp"
+        		android:layout_marginLeft="10dp"
+        		android_textSize="30dp"
+        		android:id="@+id/navigation_button_five"
+        		android:layout_toRightOf="@id/navigation_button_four">
+        </Button>
+        
                 <ListView android:id="@android:id/list" android:layout_width="fill_parent"
-                android:layout_below="@id/navigation_tag_list"
+                android:layout_below="@id/navigation_button_one"
                         android:layout_height="fill_parent" />
  
 </RelativeLayout>

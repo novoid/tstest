@@ -3,6 +3,7 @@ package org.me.TagStore;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +16,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.ArrayList;
 
@@ -130,10 +132,10 @@ public class DirectoryListActivity extends ListActivity {
 		if (is_deleted.booleanValue() == false) {
 			//
 			// inform user that the entry was already present
-			// FIXME non-nls compatible
 			//
+			String message = getApplicationContext().getString(R.string.directory_present);
 			Toast toast = Toast.makeText(getApplicationContext(),
-					"Directory already in list", Toast.LENGTH_SHORT);
+					message, Toast.LENGTH_SHORT);
 
 			//
 			// display toast
@@ -144,10 +146,6 @@ public class DirectoryListActivity extends ListActivity {
 			// add item for user convenience on the end of list
 			//
 			addItem(new_directory, true, false);
-
-			// FIXME
-			// scroll if required
-			//
 		}
 	}
 
@@ -219,9 +217,15 @@ public class DirectoryListActivity extends ListActivity {
 		});
 
 		//
-		// TODO: non-nls
+		// get localized directory
 		//
-		addItem("Add directory...", false, false);
+		String add_directory_string = getApplicationContext().getString(R.string.add_directory);
+		
+		
+		//
+		// add directory button
+		//
+		addItem(add_directory_string, false, false);
 
 		//
 		// read directories from database
@@ -343,8 +347,14 @@ public class DirectoryListActivity extends ListActivity {
 					db_man.removeDirectory(directory_path);
 
 					//
-					// FIXME remove pending items
+					// remove pending items
 					//
+					removePendingFilesfromDirectory(directory_path);
+					
+					//
+					// TODO: should files which are in the tagstore also be removed?
+					//
+					
 				}
 			} else if (is_deleted.booleanValue() == false) {
 				//
@@ -355,6 +365,46 @@ public class DirectoryListActivity extends ListActivity {
 		}
 	}
 
+	/**
+	 * removes all pending files which are placed in that directory
+	 * @param directory_path
+	 */
+	private void removePendingFilesfromDirectory(String directory_path) {
+		
+		//
+		// acquire instance
+		//
+		DBManager db_man = DBManager.getInstance();
+		
+		//
+		// get pending files
+		//
+		ArrayList<String> pending_files = db_man.getPendingFiles();
+		if (pending_files == null)
+		{
+			//
+			// no pending files
+			//
+			return;
+		}
+		//
+		// loop all files and remove pending files
+		//
+		for(String current_file : pending_files)
+		{
+			File cfile = new File(current_file);
+			if (cfile.getParent().compareTo(directory_path) == 0)
+			{
+				//
+				// file is directory which got removed
+				//
+				db_man.removeFile(current_file, true, false);
+			}
+		}
+	}
+	
+	
+	
 	/**
 	 * adds an item to the list view
 	 * 
@@ -388,13 +438,13 @@ public class DirectoryListActivity extends ListActivity {
 
 		if (is_directory) {
 			//
-			// TODO: add remove button
+			// add remove button
 			//
 			map_entry.put(DIRECTORY_IMAGE,
 					new Integer(R.drawable.remove_button));
 		} else {
 			//
-			// TODO: add "add directory" button
+			// add "add directory" button
 			//
 			map_entry.put(DIRECTORY_IMAGE,
 					new Integer(R.drawable.add_directory));
@@ -456,6 +506,33 @@ public class DirectoryListActivity extends ListActivity {
 		}
 
 		//
+		// get current storage state
+		//
+		String storage_state = Environment.getExternalStorageState();
+		if (!storage_state.equals(Environment.MEDIA_MOUNTED) && !storage_state.equals(Environment.MEDIA_MOUNTED_READ_ONLY))
+		{
+			//
+			// the media is currently not accessible
+			//
+			String media_available = getApplicationContext().getString(R.string.error_media_not_mounted);
+			
+			//
+			// create toast
+			//
+			Toast toast = Toast.makeText(getApplicationContext(), media_available, Toast.LENGTH_SHORT);
+			
+			//
+			// display toast
+			//
+			toast.show();
+			
+			//
+			// done
+			//
+			return;
+		}
+		
+		//
 		// time to start new activity
 		//
 		Intent new_intent = new Intent(getBaseContext(),
@@ -464,8 +541,11 @@ public class DirectoryListActivity extends ListActivity {
 		//
 		// get SD card directory
 		//
-		String sd_card_directory = android.os.Environment
-				.getExternalStorageDirectory().getAbsolutePath();
+		String sd_card_directory = Environment.getExternalStorageDirectory().getAbsolutePath();
+
+		
+		
+		
 
 		//
 		// add start directory

@@ -1,6 +1,7 @@
 package org.me.TagStore;
 
 import java.io.File;
+import java.io.FileFilter;
 
 import android.app.ListActivity;
 import android.os.Bundle;
@@ -12,6 +13,8 @@ import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.ArrayList;
 
@@ -221,25 +224,44 @@ public class FileDialogBrowser extends ListActivity {
 		}
 
 		//
-		// collect list of directories
-		//
-		File[] cur_files = cur_file.listFiles();
-
-		//
 		// now construct adapter for list view
 		//
 		SimpleAdapter adapter = new SimpleAdapter(this, m_ListViewMap,
 				R.layout.file_dialog_browser_row, new String[] {
 						DIRECTORY_NAME, DIRECTORY_IMAGE }, new int[] {
-						R.id.directory_name_text, R.id.directory_image });
+						R.id.directory_name_text, R.id.directory_image });		
+		
 		//
-		// enumerate all directories
+		// construct file filter
 		//
-		for (File file : cur_files) {
+		FileFilter fileFilter = new FileFilter() {
+		    public boolean accept(File file) {
+		        return file.isDirectory();
+		    }
+		};
+		
+		//
+		// collect list of directories
+		//
+		File[] cur_files = cur_file.listFiles(fileFilter);
+		
+		if (cur_files != null)
+		{
 			//
-			// is entry a directory
+			// now sort the directories
 			//
-			if (file.isDirectory()) {
+			Arrays.sort(cur_files, new Comparator<File>() {
+
+				public int compare(File arg0, File arg1) {
+					return arg0.getName().toLowerCase().compareTo(arg1.getName().toLowerCase());
+				}
+			});
+		
+
+			//
+			// enumerate all directories
+			//
+			for (File file : cur_files) {
 				//
 				// get directory name
 				//
@@ -263,7 +285,7 @@ public class FileDialogBrowser extends ListActivity {
 				m_ListViewMap.add(map_entry);
 			}
 		}
-
+			
 		//
 		// notify data changed
 		//

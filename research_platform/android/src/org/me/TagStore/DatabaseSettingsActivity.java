@@ -1,6 +1,9 @@
 package org.me.TagStore;
 
 import android.app.Activity;
+import android.app.NotificationManager;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -93,27 +96,129 @@ public class DatabaseSettingsActivity extends Activity {
 		//
 		// reset the database
 		//
-		boolean reset_database = db_man.resetDatabase();
+		boolean reset_database = db_man.resetDatabase(getApplicationContext());
 
 		Toast toast;
-
+		
 		if (reset_database) {
 			//
 			// successfully deleted database
 			//
+			String text = getApplicationContext().getString(R.string.reset_database);
 			toast = Toast.makeText(getApplicationContext(),
-					"Successfully reset database", Toast.LENGTH_SHORT);
+					text, Toast.LENGTH_SHORT);
 		} else {
 			//
 			// failed to reset database
 			//
+			String text = getApplicationContext().getString(R.string.error_reset_database);			
 			toast = Toast.makeText(getApplicationContext(),
-					"Failed to reset database", Toast.LENGTH_SHORT);
+					text, Toast.LENGTH_SHORT);
 		}
 
+		//
+		// get localized new file
+		//
+		String new_file = getApplicationContext().getString(R.string.new_file);
+		
+		//
+		// is the new file tab being shown
+		//
+		if (MainActivity.s_Instance.isTabVisible(new_file))
+		{
+			//
+			// the database was cleaned, there are no more pending files
+			//
+			MainActivity.s_Instance.showTab(new_file, false);
+		
+
+			//
+			// clear file settings
+			//
+			clearCurrentFile();
+			
+			//
+			// clear notification settings
+			//
+			clearNotification();
+		}
+		
 		//
 		// display toast
 		//
 		toast.show();
 	}
+
+	/**
+	 * clears any active status bar notification when enabled
+	 */
+	private void clearNotification()
+	{
+		//
+		// get settings
+		//
+		SharedPreferences settings = getSharedPreferences(
+				ConfigurationSettings.TAGSTORE_PREFERENCES_NAME,
+				Context.MODE_PRIVATE);
+		
+		//
+		// are notification settings enabled
+		//
+		boolean enable_notifications = settings.getBoolean(ConfigurationSettings.SHOW_TOOLBAR_NOTIFICATIONS, true);
+		
+		//
+		// check notification settings are enabled
+		//
+		if (!enable_notifications)
+			return;
+		
+		//
+		// get notification service name
+		//
+		String ns_name = Context.NOTIFICATION_SERVICE;
+
+		//
+		// get notification service manager instance
+		//
+		NotificationManager notification_manager = (NotificationManager) getSystemService(ns_name);
+
+		//
+		// clear notification
+		//
+		notification_manager.cancel(ConfigurationSettings.NOTIFICATION_ID);
+	}
+	
+	/**
+	 * clears the current file setting, which is used to determine which file was last tagged / started to be tagged
+	 */
+	private void clearCurrentFile() {
+		
+		//
+		// get settings
+		//
+		SharedPreferences settings = getSharedPreferences(
+				ConfigurationSettings.TAGSTORE_PREFERENCES_NAME,
+				Context.MODE_PRIVATE);
+
+		//
+		// get settings editor
+		//
+		SharedPreferences.Editor editor = settings.edit();
+
+		//
+		// set current file
+		//
+		editor.putString(ConfigurationSettings.CURRENT_FILE_TO_TAG, "");
+
+		//
+		// set current tag line
+		//
+		editor.putString(ConfigurationSettings.CURRENT_TAG_LINE, "");
+		
+		//
+		// and commit the changes
+		//
+		editor.commit();
+	}
+	
 }

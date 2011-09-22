@@ -11,6 +11,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.IBinder;
 
 public class FileWatchdogService extends Service {
@@ -144,11 +145,17 @@ public class FileWatchdogService extends Service {
 			return;
 		}
 
+		
+		//
+		// get hash sum
+		//
+		String hash_sum = FileHashsumGenerator.generateFileHashsum(this, file_name);
+		
 		//
 		// file is new and it is in observed directory list
 		// put it into pending file list
 		//
-		db_man.addPendingFile(file_name);
+		db_man.addPendingFile(file_name, hash_sum);
 
 		//
 		// notify external observers
@@ -160,10 +167,25 @@ public class FileWatchdogService extends Service {
 			notification.notify(file_name, type);
 		}
 
+		
 		//
-		// FIXME: check if notifications are not activated
+		// get settings
 		//
-		addStatusBarNotification(file_name);
+		SharedPreferences settings = getSharedPreferences(
+				ConfigurationSettings.TAGSTORE_PREFERENCES_NAME,
+				Context.MODE_PRIVATE);
+		
+		//
+		// are notification settings enabled
+		//
+		boolean enable_notifications = settings.getBoolean(ConfigurationSettings.SHOW_TOOLBAR_NOTIFICATIONS, true);
+		if (enable_notifications)
+		{
+			//
+			// add tool bar notification
+			//
+			addStatusBarNotification(file_name);
+		}
 	}
 
 	/**
@@ -186,14 +208,24 @@ public class FileWatchdogService extends Service {
 		Context context = getApplicationContext();
 
 		//
+		// get new file localized
+		//
+		String new_file = context.getString(R.string.new_file);
+		
+		//
+		// get notification description localized
+		//
+		String description = context.getString(R.string.status_bar);
+		
+		//
 		// set notification title
 		//
-		CharSequence contentTitle = "New file";
+		CharSequence contentTitle = new_file;
 
 		//
 		// set notification text
 		//
-		CharSequence contentText = "Click on file to handle event";
+		CharSequence contentText = description;
 
 		//
 		// construct new intent

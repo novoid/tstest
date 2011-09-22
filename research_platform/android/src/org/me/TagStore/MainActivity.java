@@ -11,6 +11,7 @@ import android.content.ServiceConnection;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.view.View;
 import android.widget.TabHost;
 import android.widget.Toast;
 import android.widget.TabHost.TabSpec;
@@ -40,16 +41,6 @@ public class MainActivity extends TabActivity {
 	public final static String TAG_TAB_SPEC_NAME = "TagStore";
 
 	/**
-	 * name of configuration tab spec
-	 */
-	public final static String CONFIGURATION_TAB_SPEC_NAME = "Configuration";
-
-	/**
-	 * name of pending file tab spec
-	 */
-	public final static String PENDING_FILE_TAB_SPEC_NAME = "Pending";
-
-	/**
 	 * stores the tab specs
 	 */
 	private ArrayList<TabSpec> m_tab_spec_list;
@@ -69,41 +60,19 @@ public class MainActivity extends TabActivity {
 		Logger.e("MainActivity::onResume");
 
 		//
-		// clear spec list
+		// show pending file tab if necessary
 		//
-		m_tab_spec_list.clear();
-
-		//
-		// HACK for android 2.2
-		// looks like tab host is not updating the last view index when removing
-		// all tabs
-		//
-		m_tab_host.setCurrentTab(0);
-
-		//
-		// remove all tabs
-		//
-		m_tab_host.clearAllTabs();
-
-		//
-		// build prime tabs
-		//
-		buildPrimeTabs();
-
-		//
-		// add pending file tab if necessary
-		//
-		addPendingFileTab();
+		showPendingFileTab();
 	}
 
 	/**
-	 * returns true if the tab with that name is present
+	 * returns true if the tab with that name is visible
 	 * 
 	 * @param tab_spec_name
 	 *            name of the tab
 	 * @return boolean
 	 */
-	public boolean isTabPresent(String tab_spec_name) {
+	public boolean isTabVisible(String tab_spec_name) {
 
 		for (TabSpec current_spec : m_tab_spec_list) {
 			//
@@ -112,10 +81,21 @@ public class MainActivity extends TabActivity {
 			String tag_name = current_spec.getTag();
 
 			if (tag_name.compareTo(tab_spec_name) == 0) {
+				
 				//
-				// tag is already present
+				// tab exists
 				//
-				return true;
+				int tab_index = m_tab_spec_list.indexOf(current_spec);
+				
+				
+				//
+				// get view
+				//
+				View view = m_tab_host.getTabWidget().getChildAt(tab_index);
+				if (view != null && view.getVisibility() != View.GONE)
+					return true;
+				else
+					return false;
 			}
 
 		}
@@ -127,30 +107,68 @@ public class MainActivity extends TabActivity {
 	}
 
 	/**
-	 * removes the tab with the name from the list
+	 * toggles the visibility of the tab
 	 * 
 	 * @param tab_spec_name
 	 *            name of tab
-	 * @return true if successfull
+	 * @param show true if the view should be made active
+	 * @return true if successful
 	 */
-	public boolean removeTab(String tab_spec_name) {
+	public boolean showTab(String tab_spec_name, boolean show) {
 
 		for (TabSpec current_spec : m_tab_spec_list) {
+			
 			//
 			// get tag name
 			//
 			String tag_name = current_spec.getTag();
 
 			if (tag_name.compareTo(tab_spec_name) == 0) {
+				
 				//
 				// found tab
 				//
-				boolean removed = m_tab_spec_list.remove(current_spec);
-				Logger.i("MainActivity::removed tab: " + removed + " name: "
-						+ tab_spec_name + " spec: " + current_spec);
-				return true;
+				int tab_index = m_tab_spec_list.indexOf(current_spec);
+				
+				//
+				// get view
+				//
+				View view = m_tab_host.getTabWidget().getChildAt(tab_index);
+				if (view != null)
+				{
+					if (show)
+					{
+						//
+						// show view
+						//
+						view.setVisibility(View.VISIBLE);
+						
+						//
+						// display it
+						//
+						m_tab_host.setCurrentTab(tab_index);
+					}
+					else
+					{
+						//
+						// hide view
+						//
+						view.setVisibility(View.GONE);
+						
+						if (m_tab_host.getCurrentTab() == tab_index)
+						{
+							//
+							// select first tab if the current tab is being removed
+							//
+							m_tab_host.setCurrentTab(0);
+						}
+						
+						Logger.e("hiding view....");
+						
+					}
+					return true;
+				}
 			}
-
 		}
 
 		//
@@ -158,140 +176,6 @@ public class MainActivity extends TabActivity {
 		//
 		return false;
 
-	}
-
-	/**
-	 * rebuilds the tabs
-	 * 
-	 * @return
-	 */
-	public void rebuildTabs() {
-
-		//
-		// HACK for android 2.2
-		// looks like tab host is not updating the last view index when removing
-		// all tabs
-		//
-		m_tab_host.setCurrentTab(0);
-
-		//
-		// remove all tabs
-		//
-		m_tab_host.clearAllTabs();
-
-		//
-		// re-add all tabs
-		//
-		for (TabSpec current_spec : m_tab_spec_list) {
-			//
-			// add to tab host
-			//
-			m_tab_host.addTab(current_spec);
-		}
-	}
-
-	/**
-	 * returns the tab index
-	 * 
-	 * @param tab_spec_name
-	 *            name of the spec
-	 * @return int
-	 */
-	public int getTabIndex(String tab_spec_name) {
-
-		//
-		// go through all tabs and find the index
-		//
-		for (int index = 0; index < m_tab_spec_list.size(); index++) {
-			//
-			// get current tab spec
-			//
-			TabSpec current_spec = m_tab_spec_list.get(index);
-
-			if (current_spec.getTag().compareTo(tab_spec_name) == 0) {
-				//
-				// found index
-				//
-				return index;
-
-			}
-		}
-
-		//
-		// error: tab not present
-		//
-		return -1;
-	}
-
-	/**
-	 * selects the tab with that index
-	 * 
-	 * @param tab_index
-	 *            index of tab
-	 */
-	public void selectTabIndex(int tab_index) {
-
-		if (tab_index < 0 || tab_index >= m_tab_spec_list.size()) {
-
-			//
-			// invalid parameter
-			//
-			return;
-		}
-
-		//
-		// select index
-		//
-		m_tab_host.setCurrentTab(tab_index);
-
-	}
-
-	/**
-	 * adds the specified tab to the list
-	 * 
-	 * @param tab_name
-	 *            name of the tab
-	 * @return true if successful
-	 */
-	public boolean addTab(String tab_name, TabSpec tab_spec) {
-
-		//
-		// check if tab is not already present
-		//
-		if (isTabPresent(tab_name)) {
-
-			//
-			// error: same tab already exists
-			//
-			Logger.e("Error: MainActivity::addTab tab " + tab_name
-					+ " already present");
-			return false;
-		}
-
-		//
-		// store in tab list
-		//
-		m_tab_spec_list.add(tab_spec);
-
-		//
-		// done
-		//
-		return true;
-	}
-
-	/**
-	 * creates a tab spec with the provided name
-	 * 
-	 * @param tab_spec_name
-	 *            name of tab spec
-	 * @return TabSpec
-	 */
-	public TabSpec createTabSpec(String tab_spec_name) {
-
-		//
-		// create tab spec
-		//
-		return m_tab_host.newTabSpec(tab_spec_name);
 	}
 
 	@Override
@@ -363,12 +247,14 @@ public class MainActivity extends TabActivity {
 		//
 		// build prime tabs
 		//
-		buildPrimeTabs();
+		addTagStoreTab();
+		addConfigurationTab();
+		addPendingFileTab();
 
 		//
-		// add pending file tab if necessary
+		// show pending file tab if necessary
 		//
-		addPendingFileTab();
+		showPendingFileTab();
 
 		//
 		// launch file watch dog service asynchronously
@@ -382,8 +268,11 @@ public class MainActivity extends TabActivity {
 
 	}
 
-	private void buildPrimeTabs() {
-
+	/**
+	 * adds the tagstore tab
+	 */
+	private void addTagStoreTab() {
+		
 		//
 		// get resources
 		//
@@ -408,13 +297,46 @@ public class MainActivity extends TabActivity {
 		// set content for tag
 		//
 		tag_tab.setContent(tag_intent);
+		
+		//
+		// now add the tab to the host
+		//
+		m_tab_host.addTab(tag_tab);
+		
+		//
+		// store in tab spec list
+		//
+		m_tab_spec_list.add(tag_tab);
+	}
+	
+	/**
+	 * adds the configuration tab
+	 */
+	private void addConfigurationTab() {
 
+		//
+		// get resources
+		//
+		Resources res = getResources();
+
+		//
+		// get localized 'configuration' name
+		//
+		String config_name = getApplicationContext().getString(R.string.configuration);
+		
 		//
 		// now construct configuration tag
 		//
 		TabSpec configuration_tab = m_tab_host
-				.newTabSpec(CONFIGURATION_TAB_SPEC_NAME);
+				.newTabSpec(config_name);
 
+		//
+		// set name and icon
+		//
+		configuration_tab.setIndicator(config_name,
+				res.getDrawable(R.drawable.options_unselected));		
+		
+		
 		//
 		// create intent to launch configuration tab
 		//
@@ -427,11 +349,7 @@ public class MainActivity extends TabActivity {
 		configuration_intent.putExtra(ConfigurationActivityGroup.CLASS_NAME,
 				"org.me.TagStore.ConfigurationTabActivity");
 
-		//
-		// set name and icon
-		//
-		configuration_tab.setIndicator(CONFIGURATION_TAB_SPEC_NAME,
-				res.getDrawable(R.drawable.options_unselected));
+
 
 		//
 		// set content for configuration tab
@@ -439,15 +357,13 @@ public class MainActivity extends TabActivity {
 		configuration_tab.setContent(configuration_intent);
 
 		//
-		// now add the tabs to the host
+		// now add the tab to the host
 		//
-		m_tab_host.addTab(tag_tab);
 		m_tab_host.addTab(configuration_tab);
 
 		//
 		// store in tab spec list
 		//
-		m_tab_spec_list.add(tag_tab);
 		m_tab_spec_list.add(configuration_tab);
 
 	}
@@ -457,6 +373,55 @@ public class MainActivity extends TabActivity {
 	 */
 	private void addPendingFileTab() {
 
+		//
+		// get resources
+		//
+		Resources res = getResources();
+
+		//
+		// get localized new file string
+		//
+		String new_file = getApplicationContext().getString(R.string.new_file);
+		
+		
+		//
+		// now create the pending file tab
+		//
+		TabSpec tab_spec = m_tab_host
+				.newTabSpec(new_file);
+
+		//
+		// create intent to launch configuration tab
+		//
+		Intent tab_intent = new Intent(this, PendingFileActivityGroup.class);
+
+		//
+		// set name and icon
+		//
+		tab_spec.setIndicator(new_file,
+				res.getDrawable(R.drawable.file));
+
+		//
+		// set content for configuration tab
+		//
+		tab_spec.setContent(tab_intent);
+
+		//
+		// now add the tab
+		//
+		m_tab_host.addTab(tab_spec);
+
+		//
+		// put tab spec list
+		//
+		m_tab_spec_list.add(tab_spec);
+	}
+
+	/**
+	 * displays the pending file tab if necessary
+	 */
+	private void showPendingFileTab() {
+		
 		//
 		// acquire instance of database manager
 		//
@@ -477,54 +442,31 @@ public class MainActivity extends TabActivity {
 			Logger.i("MainActivitiy::addPendingFileTab no pending files found");
 
 			//
+			// hide pending file tab
+			//
+			m_tab_host.getTabWidget().getChildAt(2).setVisibility(View.GONE);
+			
+			//
 			// done
 			//
+			
+			
 			return;
 		}
-
+		
 		//
-		// get resources
+		// show pending file tab
 		//
-		Resources res = getResources();
-
-		//
-		// now create the pending file tab
-		//
-		TabSpec tab_spec = m_tab_host
-				.newTabSpec(MainActivity.PENDING_FILE_TAB_SPEC_NAME);
-
-		//
-		// create intent to launch configuration tab
-		//
-		Intent tab_intent = new Intent(this, PendingFileActivityGroup.class);
-
-		//
-		// set name and icon
-		//
-		tab_spec.setIndicator(MainActivity.PENDING_FILE_TAB_SPEC_NAME,
-				res.getDrawable(R.drawable.file));
-
-		//
-		// set content for configuration tab
-		//
-		tab_spec.setContent(tab_intent);
-
-		//
-		// now add the tab
-		//
-		m_tab_host.addTab(tab_spec);
-
-		//
-		// put tab spec list
-		//
-		m_tab_spec_list.add(tab_spec);
-
+		m_tab_host.getTabWidget().getChildAt(2).setVisibility(View.VISIBLE);
+		
 		//
 		// set current tab
 		//
 		m_tab_host.setCurrentTab(2);
-	}
 
+		
+	}
+	
 	/**
 	 * starts the file watchdog service
 	 */
@@ -607,10 +549,16 @@ public class MainActivity extends TabActivity {
 			// check notification type
 			//
 			if (type == NotificationType.FILE_CREATED) {
+				
+				//
+				// get localized new file
+				//
+				String new_file = getApplicationContext().getString(R.string.new_file);
+				
 				//
 				// new file arrived, is there already a file queued
 				//
-				boolean file_tab_pending_present = isTabPresent(MainActivity.PENDING_FILE_TAB_SPEC_NAME);
+				boolean file_tab_pending_present = isTabVisible(new_file);
 				if (file_tab_pending_present) {
 					//
 					// nothing to do
@@ -624,19 +572,9 @@ public class MainActivity extends TabActivity {
 					public void run() {
 
 						//
-						// add pending file tab if necessary
-						//
-						addPendingFileTab();
-
-						//
 						// rebuild tabs
 						//
-						rebuildTabs();
-
-						//
-						// set current tab
-						//
-						m_tab_host.setCurrentTab(2);
+						showPendingFileTab();
 					}
 				});
 

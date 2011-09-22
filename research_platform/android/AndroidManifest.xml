@@ -18,7 +18,7 @@
 		<activity android:name="TagActivityGroup" />
 		<activity android:name=".ConfigurationTabActivity" />
 		<activity android:name=".ConfigurationActivityGroup" />
-		<activity android:name=".AddFileTagActivity"/>
+		<activity android:name=".AddFileTagActivity" />
 		<activity android:name=".FileDialogBrowser" />
 		<activity android:name=".DirectoryListActivity" />		
 		<activity android:name=".SynchronizeTagStoreActivity" />
@@ -29,5 +29,6 @@
 		<activity android:name=".PendingFileActivityGroup" />		
 		<activity android:name=".ListViewSettingsActivity" />
 		<activity android:name=".DatabaseSettingsActivity" />
+		<activity android:name=".NotificationSettingsActivity" />
     </application>
 </manifest>

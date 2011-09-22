@@ -76,9 +76,14 @@ public class ConfigurationTabActivity extends ListActivity {
 		HashMap<String, Object> directory_map_entry = new HashMap<String, Object>();
 
 		//
-		// FIXME: non-nls compatible
+		// get localized string
 		//
-		directory_map_entry.put(ITEM_NAME, "TagStore Directories");
+		String item_name = getApplicationContext().getString(R.string.tagstore_directories);
+		
+		//
+		// set name
+		//
+		directory_map_entry.put(ITEM_NAME, item_name);
 
 		//
 		// TODO: make image
@@ -108,9 +113,14 @@ public class ConfigurationTabActivity extends ListActivity {
 		HashMap<String, Object> synchronize_map_entry = new HashMap<String, Object>();
 
 		//
-		// FIXME: non-nls compatible
+		// get localized string
 		//
-		synchronize_map_entry.put(ITEM_NAME, "Sync TagStore");
+		String item_name = getApplicationContext().getString(R.string.sync_tagstore);
+		
+		//
+		// set name
+		//
+		synchronize_map_entry.put(ITEM_NAME, item_name);
 
 		//
 		// FIXME: hard coded class name
@@ -137,10 +147,15 @@ public class ConfigurationTabActivity extends ListActivity {
 		HashMap<String, Object> info_map_entry = new HashMap<String, Object>();
 
 		//
-		// FIXME: non-nls compatible
+		// get localized string
 		//
-		info_map_entry.put(ITEM_NAME, "About TagStore");
-
+		String item_name = getApplicationContext().getString(R.string.about_tagstore);
+		
+		//
+		// set name
+		//
+		info_map_entry.put(ITEM_NAME, item_name);
+		
 		//
 		// FIXME: hard coded class name
 		//
@@ -164,11 +179,17 @@ public class ConfigurationTabActivity extends ListActivity {
 		//
 		HashMap<String, Object> info_map_entry = new HashMap<String, Object>();
 
+		
 		//
-		// FIXME: non-nls compatible
+		// get localized string
 		//
-		info_map_entry.put(ITEM_NAME, "List View Settings");
-
+		String item_name = getApplicationContext().getString(R.string.listview_settings);
+		
+		//
+		// set name
+		//
+		info_map_entry.put(ITEM_NAME, item_name);
+		
 		//
 		// FIXME: hard coded class name
 		//
@@ -197,10 +218,15 @@ public class ConfigurationTabActivity extends ListActivity {
 		HashMap<String, Object> info_map_entry = new HashMap<String, Object>();
 
 		//
-		// FIXME: non-nls compatible
+		// get localized string
 		//
-		info_map_entry.put(ITEM_NAME, "Database Options");
-
+		String item_name = getApplicationContext().getString(R.string.database_options);
+		
+		//
+		// set name
+		//
+		info_map_entry.put(ITEM_NAME, item_name);
+		
 		//
 		// FIXME: hard coded class name
 		//
@@ -218,6 +244,43 @@ public class ConfigurationTabActivity extends ListActivity {
 		m_ListMap.add(info_map_entry);
 	}
 
+	/**
+	 * adds database configuration item
+	 */
+	private void addNotificationConfigurationItem() {
+
+		//
+		// construct synchronize setting
+		//
+		HashMap<String, Object> info_map_entry = new HashMap<String, Object>();
+
+		//
+		// get localized string
+		//
+		String item_name = getApplicationContext().getString(R.string.notification_settings);
+		
+		//
+		// set name
+		//
+		info_map_entry.put(ITEM_NAME, item_name);
+		
+		//
+		// FIXME: hard coded class name
+		//
+		info_map_entry.put(ITEM_CLASS_NAME,
+				"org.me.TagStore.NotificationSettingsActivity");
+
+		//
+		// TODO: make image
+		//
+		info_map_entry.put(ITEM_IMAGE, R.drawable.options_selected);
+
+		//
+		// add entry
+		//
+		m_ListMap.add(info_map_entry);
+	}
+	
 	/**
 	 * called to initialize the list view
 	 */
@@ -243,6 +306,11 @@ public class ConfigurationTabActivity extends ListActivity {
 		//
 		addDatabaseConfigurationItem();
 
+		//
+		// add notification configuration item
+		//
+		addNotificationConfigurationItem();
+		
 		//
 		// add synchronization configuration item
 		//
@@ -304,7 +372,6 @@ public class ConfigurationTabActivity extends ListActivity {
 			//
 			class_object = (Class<Activity>) Class.forName(class_name);
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
 			Logger.d("Failed to get class" + class_name);
 			return;
 		}

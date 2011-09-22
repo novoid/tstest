@@ -241,5 +241,4 @@ public class TagActivityGroup extends ActivityGroup {
 		s_Instance.back();
 		return;
 	}
-
 }

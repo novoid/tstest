@@ -47,7 +47,7 @@ public class DBManager {
 	/**
 	 * version of the database
 	 */
-	private final static int DATABASE_VERSION = 9;
+	private final static int DATABASE_VERSION = 12;
 
 	/**
 	 * table name for the observed directory table
@@ -67,8 +67,13 @@ public class DBManager {
 	/**
 	 * name of field for pending file paths
 	 */
-	private final static String PENDING_FILE_PATH = "file_path";
-
+	private final static String PENDING_FILE_PATH = "pending_file_path";
+	
+	/**
+	 * pending file hash sum
+	 */
+	private final static String PENDING_FILE_HASH_SUM = "pending_file_hash";
+	
 	/**
 	 * pending create date of file
 	 */
@@ -103,6 +108,12 @@ public class DBManager {
 	 * stores the creation date of the file
 	 */
 	private final static String FILE_FIELD_CREATE_DATE = "file_creation_date";
+	
+	/**
+	 * stores the hash sum of the file
+	 */
+	private final static String FILE_FIELD_HASH_SUM = "file_hash_sum";
+	
 
 	/**
 	 * name of table tag
@@ -158,6 +169,7 @@ public class DBManager {
 		return instance;
 	}
 
+	@SuppressWarnings("unused")
 	private void constructTestDatabase() {
 
 		addDirectory("/mnt/sdcard/download");
@@ -177,10 +189,10 @@ public class DBManager {
 		//
 		// add 3 files
 		//
-		addFile("/mnt/data/file1", "text/plain", date);
-		addFile("/mnt/data/file2", "text/plain", date);
-		addFile("/mnt/data/file3", "text/plain", date);
-		addFile("/mnt/data/file4", "text/plain", date);
+		addFile("/mnt/data/file1", "text/plain", date, "no hash");
+		addFile("/mnt/data/file2", "text/plain", date, "no hash");
+		addFile("/mnt/data/file3", "text/plain", date, "no hash");
+		addFile("/mnt/data/file4", "text/plain", date, "no hash");
 
 		//
 		// add 3 tags
@@ -190,15 +202,14 @@ public class DBManager {
 		addTag("tag3");
 
 		char[] current_tag = { 'A' };
-		for (int index = 4; index < 27; index++) {
-			int rest = index % 20;
+		for (int index = 4; index < 27*10; index++) {
 
-			// if (rest == 0)
-			current_tag[0]++;
+			if (index % 10 == 0)
+				current_tag[0]++;
 
 			String tag = new String(current_tag);
 
-			addTag(tag + Integer.toString(index));
+			addTag(tag + Integer.toString(index % 10));
 		}
 
 		long tag1_id = getTagId("tag1");
@@ -281,12 +292,51 @@ public class DBManager {
 	 *            name of tag to be queried
 	 * @return ArrayList<String>
 	 */
-	public ArrayList<String> getLinkedFiles(String tag_name) {
+	public ArrayList<String> getLinkedFiles(String tag_names) {
 
+/*		
+		//
+		// construct array
+		//
+		String [] tag_ids = new String[tag_names.length];
+		int index = 0;
+		String query = "SELECT " + FILE_FIELD_PATH + " FROM " + FILE_TABLE_NAME
+		+ " WHERE " + FILE_FIELD_ID + " IN " + "( SELECT "
+		+ FILE_FIELD_ID + " FROM " + MAP_TABLE_NAME + " WHERE ";
+		
+		for(String tag_name : tag_names)
+		{
+			long tag_id = getTagId(tag_name);
+			if (tag_id < 0)
+			{
+				//
+				// invalid tag
+				//
+				return null;
+			}
+
+			if (index == 0)
+				query += TAG_FIELD_ID + " = ?"; 
+			else
+				query += " or " + TAG_FIELD_ID + " = ?";
+			
+			tag_ids[index++] = Long.toString(tag_id);
+			
+			
+		}
+		
+		query += ") ORDER BY " + FILE_FIELD_PATH + " ASC";
+		
+		Logger.e(query);
+		
+		Cursor cursor = m_db.rawQuery(query, tag_ids);
+*/		
+		
+		
 		//
 		// first get tag id
 		//
-		long tag_id = getTagId(tag_name);
+		long tag_id = getTagId(tag_names);
 		if (tag_id < 0) {
 			//
 			// invalid tag specified
@@ -697,6 +747,57 @@ public class DBManager {
 	}
 
 	/**
+	 * returns the hash sum of the pending file
+	 * @param file_name path of the file
+	 * @return hash sum of the file in the database
+	 */
+	public String getPendingFileHashsum(String file_name) {
+		
+		//
+		// query database
+		//
+		Cursor cursor = m_db.query(PENDING_FILE_TABLE_NAME,
+				new String[] { PENDING_FILE_HASH_SUM}, PENDING_FILE_PATH + "=?",
+				new String[] { file_name }, null, null, null);
+
+		//
+		// was the entry found
+		//
+		if (cursor.moveToFirst() == false) {
+			//
+			// no entries
+			//
+			cursor.close();
+			return null;
+		}
+
+		//
+		// get date
+		//
+		String hash_sum = cursor.getString(0);
+
+		//
+		// there should not be more than one entry
+		//
+		boolean duplicate_entry = cursor.moveToNext();
+		if (duplicate_entry) {
+			//
+			// corrupt database
+			//
+			Logger.e("Error: DBManager::getPendingFileHashsum duplicate entries for file "
+					+ file_name + " found!!!");
+		}
+
+		//
+		// close cursor
+		//
+		cursor.close();
+
+		return hash_sum;
+	}
+	
+	
+	/**
 	 * returns the create date of a pending file. A pending file is a file which
 	 * has not yet been tagged.
 	 * 
@@ -1032,9 +1133,10 @@ public class DBManager {
 	 * 
 	 * @param file_name
 	 *            to be added
+	 * @param hash_sum 
 	 * @return true
 	 */
-	public void addPendingFile(String file_name) {
+	public void addPendingFile(String file_name, String hash_sum) {
 
 		//
 		// construct new content values
@@ -1045,7 +1147,7 @@ public class DBManager {
 		// put file path into it
 		//
 		values.put(PENDING_FILE_PATH, file_name);
-
+		
 		//
 		// construct date format
 		//
@@ -1062,6 +1164,12 @@ public class DBManager {
 		//
 		values.put(PENDING_CREATE_DATE, date);
 
+		
+		//
+		// add hash sum
+		//
+		values.put(PENDING_FILE_HASH_SUM, hash_sum);
+		
 		//
 		// now execute the insert
 		//
@@ -1083,10 +1191,11 @@ public class DBManager {
 	 *            mime type of file
 	 * @param file_create_date
 	 *            create date of file
+	 * @param hash_sum 
 	 * @return row id of inserted file
 	 */
 	public long addFile(String file_name, String file_type,
-			String file_create_date) {
+			String file_create_date, String hash_sum) {
 
 		//
 		// construct content values
@@ -1107,6 +1216,11 @@ public class DBManager {
 		// add create date
 		//
 		values.put(FILE_FIELD_CREATE_DATE, file_create_date);
+		
+		//
+		// add file hash sum
+		//
+		values.put(FILE_FIELD_HASH_SUM, hash_sum);
 
 		//
 		// now execute the insert
@@ -1251,12 +1365,7 @@ public class DBManager {
 		}
 	}
 
-	public boolean resetDatabase() {
-
-		//
-		// get application context
-		//
-		Context ctx = MainActivity.s_Instance;
+	public boolean resetDatabase(Context ctx) {
 
 		//
 		// now close the database
@@ -1281,7 +1390,7 @@ public class DBManager {
 		//
 		// construct test database
 		//
-		// constructTestDatabase();
+		//constructTestDatabase();
 
 		//
 		// return result
@@ -1344,6 +1453,7 @@ public class DBManager {
 		layout.addFieldToSQLTableLayout(FILE_FIELD_TYPE, "TEXT", "type of file");
 		layout.addFieldToSQLTableLayout(FILE_FIELD_CREATE_DATE, "TEXT",
 				"creation date of file");
+		layout.addFieldToSQLTableLayout(FILE_FIELD_HASH_SUM, "TEXT", "hash sum of file");
 		m_layouts.add(layout);
 
 		//
@@ -1374,6 +1484,7 @@ public class DBManager {
 				"pending path of file");
 		layout.addFieldToSQLTableLayout(PENDING_CREATE_DATE, "TEXT",
 				"pending create date of file");
+		layout.addFieldToSQLTableLayout(PENDING_FILE_HASH_SUM, "TEXT", "pending file hash sum");
 		m_layouts.add(layout);
 	}
 
@@ -1549,7 +1660,7 @@ public class DBManager {
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 
 			//
-			// FIXME upgrade is not supported yet
+			// TODO: upgrade is not supported yet
 			//
 			Logger.i("Upgrade not yet supported");
 

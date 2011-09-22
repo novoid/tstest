@@ -46,8 +46,8 @@
     	android:layout_height="wrap_content" 
     	android:layout_width="wrap_content" 
     	android:layout_below="@id/label_num_rows" 
-    	android:layout_alignParentLeft="true" 
-    	android:text="Tag sort mode:" />
+    	android:layout_alignParentLeft="true"
+    	android:text="@string/sort_mode"/>
     	
     <RadioButton 
 		android:layout_marginTop="20dp" 
@@ -56,7 +56,7 @@
     	android:layout_below="@id/label_num_rows"     	
 		android:layout_width="wrap_content" 
     	android:id="@+id/button_alphabetic_sort_mode" 
-    	android:text="Alphabetic">
+    	android:text="@string/sort_mode_alphabetic">
     </RadioButton>
 
     <RadioButton 
@@ -65,21 +65,8 @@
     	android:layout_below="@id/button_alphabetic_sort_mode"     	
 		android:layout_width="wrap_content" 
     	android:id="@+id/button_popular_sort_mode" 
-    	android:text="Popular">
+    	android:text="@string/sort_mode_popular">
     </RadioButton>
-    
-    <!-- 
-    
-    <RadioButton 
-    	android:layout_height="wrap_content" 
-    	android:layout_toRightOf="@id/label_sort_mode"
-    	android:layout_below="@id/button_popular_sort_mode"     	
-		android:layout_width="wrap_content" 
-    	android:id="@+id/button_recent_sort_mode" 
-    	android:text="Recent">
-    </RadioButton>
-    
-     -->
     
     <RadioButton 
     	android:layout_marginTop="30dp" 
@@ -88,7 +75,7 @@
     	android:layout_alignParentLeft="true" 
     	android:layout_width="wrap_content" 
     	android:id="@+id/button_cloud_list_view" 
-    	android:text="Cloud View" 
+    	android:text="@string/cloud_view" 
     	android:enabled="true"/>
 
     <Button 

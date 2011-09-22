@@ -87,11 +87,6 @@ public class ConfigurationSettings {
 	 */
 
 	/**
-	 * determines if pending file tag should be displayed
-	 */
-	protected final static String PENDING_FILE_TAB = "display_pending_file_tab";
-
-	/**
 	 * notification message id
 	 */
 	protected final static int NOTIFICATION_ID = 1;
@@ -107,4 +102,25 @@ public class ConfigurationSettings {
 	 */
 	public static final String CURRENT_TAG_LINE = "current_tag_line";
 
+	/**
+	 * current hash algorithm
+	 */
+	public static final String CURRENT_HASH_SUM_ALGORITHM = "current_hash_algorithm";
+
+	/**
+	 * default hash sum algorithm
+	 */
+	public static final String DEFAULT_HASH_SUM_ALGORITHM = "SHA1";
+
+	/**
+	 * stores the synchronization history
+	 */
+	public static final String SYNCHRONIZATION_HISTORY = "synch_date";
+
+	/**
+	 * boolean setting if tool bar notifications should be enabled
+	 */
+	public static final String SHOW_TOOLBAR_NOTIFICATIONS = "toolbar_notifications";
+
+	
 }

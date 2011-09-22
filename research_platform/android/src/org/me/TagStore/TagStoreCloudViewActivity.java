@@ -3,14 +3,17 @@ package org.me.TagStore;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.Random;
+
+import org.me.TagStore.FileDialogBuilder.MENU_ITEM_ENUM;
+
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.SurfaceView;
@@ -21,10 +24,14 @@ import android.widget.Toast;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Paint.Style;
 import android.graphics.Rect;
 import android.graphics.RectF;
 
-public class TagStoreCloudViewActivity extends Activity {
+public class TagStoreCloudViewActivity extends Activity implements FileDialogBuilder.GeneralDialogCallback{
+
+	private static final int DIALOG_GENERAL_FILE_MENU = 1;
+	private static final int DIALOG_DETAILS = 2;
 
 	/**
 	 * stores the cloud view
@@ -39,7 +46,10 @@ public class TagStoreCloudViewActivity extends Activity {
 	/**
 	 * stores all tags
 	 */
-	LinkedHashSet<String> m_tag_stack;
+	TagStackManager m_tag_stack;
+	
+	protected static TagStoreCloudViewActivity s_Instance;
+	
 
 	@Override
 	public void onResume() {
@@ -49,8 +59,77 @@ public class TagStoreCloudViewActivity extends Activity {
 		//
 		super.onResume();
 
+		if (m_tag_stack != null)
+		{
+			//
+			// verify the tag stack
+			//
+			m_tag_stack.verifyTags();
+			
+			//
+			// refresh the view
+			//
+			m_view.initializeView();			
+			m_view.invalidate();
+		}
+		
 	}
 
+	protected void onPrepareDialog (int id, Dialog dialog) {
+		
+		//
+		// get the current tag
+		//
+		String file_name = m_view.getCurrentTag();	
+
+		Logger.i("TagStoreListViewActivity::onPrepareDialog dialog id: " + id + " file_name: " + file_name);
+		
+		//
+		// check which dialog is requested
+		//
+		switch (id) {
+			case DIALOG_DETAILS:
+				FileDialogBuilder.updateDetailDialogFileView(dialog, TagActivityGroup.s_Instance, file_name);
+				break;
+		}
+	}
+
+	
+	/**
+	 * called when there is a need to construct a dialog
+	 */
+	protected Dialog onCreateDialog(int id) {
+
+		Logger.i("TagStoreListViewActivity::onCreateDialog dialog id: " + id);
+		
+		//
+		// construct dialog
+		//
+		Dialog dialog = null;
+
+		//
+		// get the current tag
+		//
+		String file_name = m_view.getCurrentTag();
+		Logger.e("onCreateDialog: " + file_name);
+		
+		//
+		// check which dialog is requested
+		//
+		switch (id) {
+
+		case DIALOG_GENERAL_FILE_MENU:
+			dialog = FileDialogBuilder.buildGeneralDialogFile(TagActivityGroup.s_Instance, file_name, this);
+			break;
+		case DIALOG_DETAILS:
+			dialog = FileDialogBuilder.buildDetailDialogFile(TagActivityGroup.s_Instance, file_name);
+			break;
+			
+		}
+		return dialog;
+	}
+	
+	
 	protected void onCreate(Bundle savedInstanceState) {
 
 		//
@@ -63,25 +142,34 @@ public class TagStoreCloudViewActivity extends Activity {
 		//
 		super.onCreate(savedInstanceState);
 
+		s_Instance = this;
+		
 		//
 		// construct new tag stack
 		//
-		m_tag_stack = new LinkedHashSet<String>();
+		m_tag_stack = TagStackManager.getInstance();
 
 		//
 		// refresh view
 		//
-		refreshView();
+		initView();
 	}
 
 	/**
 	 * refreshes the view
 	 */
-	private void refreshView() {
+	private void initView() {
+		
+		
 		//
 		// construct cloud view
 		//
 		m_view = new CloudView(this, m_tag_stack);
+		
+		//
+		// initialize view
+		//		
+		m_view.initializeView();
 
 		//
 		// construct cloud touch listener
@@ -97,12 +185,20 @@ public class TagStoreCloudViewActivity extends Activity {
 		// set content view of activity
 		//
 		setContentView(m_view);
+		
+		//
+		// http://stackoverflow.com/questions/974680/android-onkeydown-problem
+		// we need to be focusable otherwise we don't receive key events
+		//
+		m_view.requestFocus();
+		m_view.setFocusableInTouchMode(true);
+		
 	}
 
 	@Override
 	public void onBackPressed() {
 		Logger.i("TagStoreCloudViewActivity::onBackPressed tag stack size: "
-				+ m_tag_stack.size());
+				+ m_tag_stack.getSize());
 	}
 
 	private class CloudTouchListener implements OnTouchListener {
@@ -112,7 +208,7 @@ public class TagStoreCloudViewActivity extends Activity {
 			public float m_y;
 			public float m_current_x;
 			public float m_current_y;
-
+			public long m_time;
 			private int m_id;
 		};
 
@@ -195,7 +291,9 @@ public class TagStoreCloudViewActivity extends Activity {
 				pointer.m_x = pointer.m_current_x = event.getX(pointer_id);
 				pointer.m_y = pointer.m_current_y = event.getY(pointer_id);
 				pointer.m_id = pointer_id;
-
+				pointer.m_time = System.currentTimeMillis();
+				Logger.e("m_time:" + pointer.m_time);
+				
 				//
 				// add to pointer list
 				//
@@ -275,7 +373,8 @@ public class TagStoreCloudViewActivity extends Activity {
 					// single button press
 					//
 					Pointer p1 = m_pointers.get(0);
-					m_view.buttonPressed(p1.m_current_x, p1.m_current_y);
+					Logger.e("m_time:" + p1.m_time + " now: " + System.currentTimeMillis());
+					m_view.buttonPressed(p1.m_current_x, p1.m_current_y, System.currentTimeMillis() - p1.m_time);
 				}
 
 				//
@@ -326,7 +425,7 @@ public class TagStoreCloudViewActivity extends Activity {
 		}
 	}
 
-	class CloudView extends SurfaceView {
+	public class CloudView extends SurfaceView {
 
 		/**
 		 * stores all information related to a tag in the cloud
@@ -336,7 +435,6 @@ public class TagStoreCloudViewActivity extends Activity {
 		 */
 		private class CloudTag {
 			public String m_tag;
-			public int m_ref_count;
 			public Rect m_rect;
 			public int m_font_size;
 			public int m_color;
@@ -351,13 +449,12 @@ public class TagStoreCloudViewActivity extends Activity {
 			 *            tag usage count
 			 * @param color
 			 */
-			public CloudTag(String tag, int ref_count, int font_size,
+			public CloudTag(String tag, int font_size,
 					int color, boolean is_tag) {
 				//
 				// initialize tag
 				//
 				m_tag = tag;
-				m_ref_count = ref_count;
 				m_font_size = font_size;
 				m_color = color;
 				m_is_tag = is_tag;
@@ -395,7 +492,7 @@ public class TagStoreCloudViewActivity extends Activity {
 		/**
 		 * stores the tags
 		 */
-		private LinkedHashSet<String> m_tag_stack;
+		private TagStackManager m_tag_stack;
 
 		/**
 		 * stores the font sizes of the tags / file objects
@@ -428,22 +525,27 @@ public class TagStoreCloudViewActivity extends Activity {
 		public int FILE_ITEM_FONT_SIZE = 30;
 
 		/**
+		 * screen  box manager
+		 */
+		private ScreenBoxManager m_boxmgr = null;
+		
+		/**
+		 * currently selected tag
+		 */
+		private CloudTag m_selected_tag;
+		
+		/**
 		 * constructor of class CloudView
 		 * 
 		 * @param context
 		 * @param m_tag_stack
 		 */
-		public CloudView(Context context, LinkedHashSet<String> tag_stack) {
+		public CloudView(Context context, TagStackManager tag_stack) {
 
 			//
 			// construct base class
 			//
 			super(context);
-
-			//
-			// construct cloud tag list
-			//
-			m_tags = new ArrayList<CloudTag>();
 
 			//
 			// store tag stack
@@ -461,22 +563,9 @@ public class TagStoreCloudViewActivity extends Activity {
 			m_font_size[3] = MAX_FONT_SIZE - FONT_STEP_SIZE * 3;
 
 			//
-			// initialize the view
-			//
-			initializeView();
-
-			//
 			// change background
 			//
 			changeBG(0, 0, 0);
-
-			//
-			// http://stackoverflow.com/questions/974680/android-onkeydown-problem
-			// we need to be focusable otherwise we dont receive key events
-			//
-			this.requestFocus();
-			this.setFocusableInTouchMode(true);
-
 		}
 
 		@Override
@@ -492,12 +581,12 @@ public class TagStoreCloudViewActivity extends Activity {
 			}
 
 			Logger.i("CloudView::onKeyDown tag stack size: "
-					+ m_tag_stack.size());
+					+ m_tag_stack.getSize());
 
 			//
 			// check if object stack is empty
 			//
-			if (m_tag_stack.size() == 0) {
+			if (m_tag_stack.isEmpty()) {
 				//
 				// exit application
 				//
@@ -505,11 +594,11 @@ public class TagStoreCloudViewActivity extends Activity {
 				return true;
 			}
 
-			if (m_tag_stack.size() == 1) {
+			if (m_tag_stack.getSize() == 1) {
 				//
 				// clear tag stack
 				//
-				m_tag_stack.clear();
+				m_tag_stack.clearTags();
 
 				//
 				// clear tags
@@ -531,7 +620,9 @@ public class TagStoreCloudViewActivity extends Activity {
 			//
 			// pop last tag from tag stack
 			//
-			String last_element = removeLastTagFromTagStack();
+			String last_element = m_tag_stack.getLastTag();
+			m_tag_stack.removeTag(last_element);
+			
 
 			//
 			// clear tags
@@ -555,32 +646,6 @@ public class TagStoreCloudViewActivity extends Activity {
 		}
 
 		/**
-		 * removes the last tag from the tag stack
-		 */
-		private String removeLastTagFromTagStack() {
-
-			//
-			// get all objects stored on the stack
-			//
-			String[] object_stack = m_tag_stack.toArray(new String[1]);
-
-			//
-			// this is a bit retarded ;)
-			//
-			String last_element = object_stack[object_stack.length - 1];
-
-			//
-			// remove last element
-			//
-			m_tag_stack.remove(last_element);
-
-			//
-			// return last element
-			//
-			return last_element;
-		}
-
-		/**
 		 * launches an item
 		 * 
 		 * @param position
@@ -588,16 +653,54 @@ public class TagStoreCloudViewActivity extends Activity {
 		private void launchItem(String item_path) {
 
 			//
+			// get current storage state
+			//
+			String storage_state = Environment.getExternalStorageState();
+			if (!storage_state.equals(Environment.MEDIA_MOUNTED) && !storage_state.equals(Environment.MEDIA_MOUNTED_READ_ONLY))
+			{
+				//
+				// the media is currently not accessible
+				//
+				String media_available = getApplicationContext().getString(R.string.error_media_not_mounted);
+				
+				//
+				// create toast
+				//
+				Toast toast = Toast.makeText(getApplicationContext(), media_available, Toast.LENGTH_SHORT);
+				
+				//
+				// display toast
+				//
+				toast.show();
+				
+				//
+				// done
+				//
+				return;
+			}
+			
+			//
 			// construct file object
 			//
 			File file = new File(item_path);
 
 			if (file.exists() == false) {
+				
 				//
-				// FIXME: non-nls compatible
+				// get localized error format
+				//
+				String error_format = getApplicationContext().getString(R.string.error_format_file_removed);
+				
+				//
+				// format the error
+				//
+				String msg = String.format(error_format, item_path);
+				
+				//
+				// create the toast
 				//
 				Toast toast = Toast.makeText(getApplicationContext(),
-						"Error: file " + item_path + " no longer exists",
+						msg,
 						Toast.LENGTH_SHORT);
 
 				//
@@ -654,7 +757,24 @@ public class TagStoreCloudViewActivity extends Activity {
 			TagActivityGroup.s_Instance.startActivity(intent);
 		}
 
-		public void buttonPressed(float current_x, float current_y) {
+		/**
+		 * returns the current selected tag
+		 * @return String
+		 */
+		public String getCurrentTag() {
+			
+			if (m_selected_tag != null)
+				return m_selected_tag.m_tag;
+			else
+				return null;
+		}
+		/**
+		 * This is the call-back function for the CloudTouchlistener
+		 * @param current_x x coordinate of the key press
+		 * @param current_y y coordinate of the key press
+		 * @param time
+		 */
+		public void buttonPressed(float current_x, float current_y, long time) {
 
 			int x = (int) current_x;
 			int y = (int) current_y;
@@ -675,7 +795,7 @@ public class TagStoreCloudViewActivity extends Activity {
 					//
 					// add tag to tag stack
 					//
-					m_tag_stack.add(tag.m_tag);
+					m_tag_stack.addTag(tag.m_tag);
 
 					//
 					// clear tags
@@ -693,6 +813,23 @@ public class TagStoreCloudViewActivity extends Activity {
 					invalidate();
 
 				} else {
+					
+					//
+					// if key press is longer than 300ms, it is a long press
+					//
+					if (time > 300)
+					{
+						//
+						// set as active tag
+						//
+						m_selected_tag = tag;
+						//
+						// display dialog
+						//
+						showDialog(DIALOG_GENERAL_FILE_MENU);
+						return;
+					}
+					
 					//
 					// launch file
 					//
@@ -727,7 +864,7 @@ public class TagStoreCloudViewActivity extends Activity {
 					//
 					// check if tag has already been visited
 					//
-					if (m_tag_stack.contains(linked_tag) == false) {
+					if (m_tag_stack.containsTag(linked_tag) == false) {
 
 						//
 						// add tag
@@ -755,7 +892,7 @@ public class TagStoreCloudViewActivity extends Activity {
 
 			//
 			// get associated files
-			//
+			// m_tag_stack.toArray(new String[1])
 			ArrayList<String> linked_files = db_man.getLinkedFiles(item_name);
 
 			if (linked_files != null) {
@@ -830,7 +967,7 @@ public class TagStoreCloudViewActivity extends Activity {
 			//
 			// construct new cloud tag
 			//
-			CloudTag cloud_tag = new CloudTag(tag, ref_count, font_size, color,
+			CloudTag cloud_tag = new CloudTag(tag, font_size, color,
 					is_tag);
 
 			//
@@ -853,7 +990,7 @@ public class TagStoreCloudViewActivity extends Activity {
 				//
 				// divide range into four partitions
 				//
-				ref_span /= 4;
+				ref_span /= 2;
 
 			}
 
@@ -863,14 +1000,12 @@ public class TagStoreCloudViewActivity extends Activity {
 			if (ref_span < 1)
 				ref_span = 1;
 
-			//
-			// compute tag reference array
-			//
-			for (int index = 0; index < 4; index++) {
-				m_tag_refs[index] = m_max_ref
-						- (index > 0 ? index * ref_span : 0);
-			}
-
+			
+			m_tag_refs[0] = m_max_ref;
+			m_tag_refs[1] = m_max_ref - ref_span;
+			m_tag_refs[2] = m_max_ref - ref_span * 2;
+			m_tag_refs[3] = m_min_ref;
+			
 		}
 
 		/**
@@ -902,8 +1037,9 @@ public class TagStoreCloudViewActivity extends Activity {
 					int tag_index = 0;
 					while (tag_index < 4
 							&& tag_ref.intValue() < m_tag_refs[tag_index])
+					{
 						tag_index++;
-
+					}
 					//
 					// add tag
 					//
@@ -921,7 +1057,13 @@ public class TagStoreCloudViewActivity extends Activity {
 		/**
 		 * initializes the view
 		 */
-		protected void initializeView() {
+		public void initializeView() {
+			
+			//
+			// construct cloud tag list
+			//
+			m_tags = new ArrayList<CloudTag>();
+			
 			//
 			// acquire instance of database manager
 			//
@@ -962,9 +1104,32 @@ public class TagStoreCloudViewActivity extends Activity {
 			calculateTagReferenceArray();
 
 			//
-			// add those tags
+			// check if tag stack is empty
 			//
-			addTags(popular_tags, true);
+			if (!m_tag_stack.isEmpty())
+			{
+				//
+				// pop last tag from tag stack
+				//
+				String last_element = m_tag_stack.getLastTag();
+
+				//
+				// clear tags
+				//
+				m_tags.clear();
+
+				//
+				// fill list map with tags and files
+				//
+				fillListMapWithTag(last_element);
+			}
+			else
+			{
+				//
+				// add those tags
+				//
+				addTags(popular_tags, true);
+			}
 		}
 
 		@Override
@@ -981,6 +1146,7 @@ public class TagStoreCloudViewActivity extends Activity {
 			//
 			m_width = width;
 			m_height = height;
+			
 		}
 
 		/**
@@ -1082,26 +1248,8 @@ public class TagStoreCloudViewActivity extends Activity {
 		 * @param y
 		 *            height to start painting
 		 */
-		protected void paintTag(Canvas canvas, Paint paint, CloudTag tag,
+		protected void paintTag(Canvas canvas, Paint paint, CloudTag tag, String text,
 				int offset_x, int offset_y, boolean elipse) {
-
-			//
-			// get tag
-			//
-			String text = tag.m_tag;
-
-			if (tag.m_is_tag == false) {
-				//
-				// find last positionof '/'
-				//
-				int pos = text.lastIndexOf("/");
-				if (pos > 0) {
-					//
-					// truncate directory
-					//
-					text = text.substring(pos + 1);
-				}
-			}
 
 			//
 			// set text size
@@ -1166,9 +1314,13 @@ public class TagStoreCloudViewActivity extends Activity {
 
 		}
 
-		protected void paintFirstTag(Canvas canvas, Paint paint, CloudTag tag,
-				boolean elipse) {
-
+		/**
+		 * returns the cloud item text
+		 * @param tag cloud item
+		 * @return String
+		 */
+		protected String getCloudItemText(CloudTag tag) {
+			
 			//
 			// get tag
 			//
@@ -1186,12 +1338,22 @@ public class TagStoreCloudViewActivity extends Activity {
 					text = text.substring(pos + 1);
 				}
 			}
-
+			return text;
+		}
+		
+		
+		protected void paintCloudTag(Canvas canvas, Paint paint, CloudTag tag) {
+			
 			//
 			// create rectangle
 			//
 			Rect rect = new Rect();
 
+			//
+			// get cloud text
+			//
+			String text = getCloudItemText(tag);
+			
 			//
 			// get text bounds
 			//
@@ -1200,25 +1362,26 @@ public class TagStoreCloudViewActivity extends Activity {
 			//
 			// get text dimension in absolute coordinates
 			//
-			int width = Math.abs(rect.right - rect.left);
-			int height = Math.abs(rect.bottom - rect.top);
-
-			Logger.i("Tag: " + text + " length: " + text + " width: " + width
-					+ " m_width: " + m_width + " heigth: " + height
-					+ " m_heigth: " + m_height);
-
-			//
-			// calculate offset where to start painting
-			//
-			int start_x = (m_width / 2) - (width / 2);
-			int start_y = (m_height / 2) + (height / 2);
-
-			//
-			// paint the tag
-			//
-			paintTag(canvas, paint, tag, start_x, start_y, elipse);
+			int min_width = Math.abs(rect.right - rect.left) + 10;
+			int min_height = Math.abs(rect.bottom - rect.top) + 10;
+			
+			rect = m_boxmgr.getRectangleWithDimension(min_width, min_height);
+			if (rect != null)
+			{
+				//
+				// paint the tag
+				//
+				paintTag(canvas, paint, tag, text, rect.left, rect.top + 40, false);
+				//Logger.e("painting tag: " + text + " left : " + rect.left + " top: " + rect.top);
+			}
+			else
+			{
+				Logger.e("No place for box with dimension " + min_width + "/" + min_height + " text : " + text);
+			}
 		}
-
+		
+		
+		
 		@Override
 		protected void onDraw(Canvas canvas) {
 
@@ -1227,76 +1390,32 @@ public class TagStoreCloudViewActivity extends Activity {
 			//
 			super.onDraw(canvas);
 
+			//
+			// construct new paint
+			//
 			Paint paint = new Paint();
-			paint.setColor(android.graphics.Color.WHITE);
-			paint.setTextSize(30);
 
-			boolean first_tag = true;
-
-			Random rand = new Random();
-			int collision_count = 0;
-
-			for (CloudTag tag : m_tags) {
-				if (first_tag) {
-					//
-					// first tag
-					//
-					paintFirstTag(canvas, paint, m_tags.get(0), true);
-					first_tag = false;
-					continue;
-				}
-				do {
-					int width = rand.nextInt(m_width);
-					int height = rand.nextInt(m_height);
-
-					Rect rect = new Rect();
-
-					String text = tag.m_tag;
-					if (tag.m_is_tag == false) {
-						//
-						// find last positionof '/'
-						//
-						int pos = text.lastIndexOf("/");
-						if (pos > 0) {
-							//
-							// truncate directory
-							//
-							text = text.substring(pos + 1);
-						}
-					}
-
-					//
-					// get text bounds
-					//
-					paint.getTextBounds(text, 0, text.length(), rect);
-
-					//
-					// add offsets
-					//
-					rect.left += width;
-					rect.right += width;
-					rect.top += height;
-					rect.bottom += height;
-
-					Logger.i("rect: " + rect);
-
-					if (rect.right >= m_width || rect.bottom >= m_height
-							|| rect.left <= 0 || rect.top <= 0)
-						continue;
-
-					ArrayList<CloudTag> intersects = getIntersectingTags(
-							rect.left, rect.right, rect.top, rect.bottom);
-					if (intersects.size() == 0) {
-						paintTag(canvas, paint, tag, width, height, false);
-						break;
-					}
-					collision_count++;
-				} while (true);
+			//
+			// construct new box screen manager
+			//
+			m_boxmgr = new ScreenBoxManager(m_width, m_height, MAX_FONT_SIZE+10);
+			
+			//
+			// paint all tags
+			//
+			for(CloudTag tag : m_tags)
+			{
+				paint.setColor(tag.m_color);
+				paint.setTextSize(tag.m_font_size);
+				paintCloudTag(canvas, paint, tag);
 			}
-
-			Logger.e("TagCount: " + m_tags.size() + " Collisions: "
-					+ collision_count);
-
+			
+			//
+			// set color
+			//
+			paint.setColor(Color.RED);
+			paint.setStyle(Style.STROKE);
+			m_boxmgr.paintFreeRect(canvas, paint);
 		}
 
 		public void changeBG(int r, int g, int b) {
@@ -1307,6 +1426,194 @@ public class TagStoreCloudViewActivity extends Activity {
 
 			invalidate();
 
+		}
+		
+		/**
+		 * This class is used to manage the free space on the screen. It divides the free space into rectangles which can be consumed by tags
+		 * @author Johannes Anderwald
+		 *
+		 */
+		private class ScreenBoxManager
+		{
+			/**
+			 * width of the screen
+			 */
+			private int m_width;
+			
+			/**
+			 * height of the screen
+			 */
+			private int m_height;
+			
+			/**
+			 * max font size
+			 */
+			int m_max_font_size;
+			
+			/**
+			 * holds free space rectangles
+			 */
+			private ArrayList<Rect> m_free_rect;
+			
+			/**
+			 * constructor of class ScreenBox Manager
+			 * @param width width of the screen
+			 * @param height height of the screen
+			 */
+			public ScreenBoxManager(int width, int height, int max_font_size)
+			{
+				m_width = width;
+				m_height = height;
+				m_max_font_size = max_font_size;
+				m_free_rect = new ArrayList<Rect>();
+				
+				//
+				// split the drawing area into boxes of maximum font size width
+				//
+				for(int y = 0; y < m_height; y+= m_max_font_size)
+				{
+					//
+					// create bounding rectangle
+					//
+					Rect rect = new Rect();
+					rect.left = 0;
+					rect.right = m_width;
+					rect.top = y;
+					rect.bottom = Math.min(m_max_font_size, m_height - y) + y;
+				
+					//
+					// add the rectangle
+					//
+					m_free_rect.add(rect);
+				}
+			}
+			
+			public void paintFreeRect(Canvas canvas, Paint paint) {
+				for(Rect rect : m_free_rect)
+				{
+					canvas.drawRect(rect, paint);
+				}
+				
+			}
+
+			/**
+			 * returns a rectangle which has the minimum dimension given
+			 * @param min_width minimum width of the rectangle
+			 * @param min_height minimum height of the rectangle
+			 * @return Rect object when successful
+			 */
+			public Rect getRectangleWithDimension(int min_width, int min_height) {
+				
+				//
+				// find a free rectangle first
+				//
+				Rect free_rect = findFreeRectangle(min_width, min_height);
+			
+				if (free_rect != null)
+				{
+					//
+					// the rectangle has already been split once
+					//
+					Rect new_rect1 = new Rect(free_rect);
+					new_rect1.left = free_rect.left + min_width;
+					
+					//
+					// get old index
+					//
+					int old_index = m_free_rect.indexOf(free_rect);
+					
+					
+					//
+					// remove old rectangle
+					//
+					m_free_rect.remove(free_rect);
+					
+					//
+					// add new rectangles to the free list
+					//
+					m_free_rect.add(old_index, new_rect1);
+
+					//
+					// done
+					//
+					return free_rect;
+				}
+				
+				//
+				// no free rectangle found
+				//
+				Logger.e("no rectangle");
+				return null;
+			}
+			
+			/**
+			 * scans the list of free rectangle to find a rectangle which has the given dimensions
+			 * @param min_width
+			 * @param min_height
+			 * @return
+			 */
+			private Rect findFreeRectangle(int min_width, int min_height) {
+				
+				int min_diff = Integer.MAX_VALUE;
+				Rect cur_rect = null;
+				
+				for(Rect rect : m_free_rect)
+				{
+					//
+					// get width
+					//
+					int current_width = Math.abs(rect.width());
+					
+					if (current_width >= min_width)
+					{
+						//
+						// calculate difference
+						//
+						int cur_diff = (current_width - min_width);
+						if (cur_diff < min_diff)
+						{
+							cur_rect = rect;
+							min_diff = cur_diff;
+						}
+					}
+				}
+
+				//
+				// return rectangle which has the best fit
+				//
+				return cur_rect;
+			}
+		}
+	}
+
+	@Override
+	public void processMenuFileSelection(String file_name,
+			MENU_ITEM_ENUM action_id) {
+
+		if (action_id == FileDialogBuilder.MENU_ITEM_ENUM.MENU_ITEM_DETAILS) {
+			//
+			// launch details view
+			//
+			showDialog(DIALOG_DETAILS);
+		} 
+		else if (action_id == FileDialogBuilder.MENU_ITEM_ENUM.MENU_ITEM_DELETE)
+			
+		{
+			//
+			// remove the file
+			//
+			FileTagUtility.removeFile(m_view.getCurrentTag(), this);			
+			
+			//
+			// verify the tag stack
+			//
+			m_tag_stack.verifyTags();
+			
+			//
+			// refresh the view
+			//
+			m_view.initializeView();			
+			m_view.invalidate();	
 		}
 	}
 }
