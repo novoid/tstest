@@ -153,8 +153,25 @@ public class FileTagUtility {
 		// add tokens to list
 		//
 		while (tokenizer.hasMoreTokens())
-			tag_list.add(tokenizer.nextToken());
-
+		{
+			//
+			// get current token
+			//
+			String current_tag = tokenizer.nextToken();
+			
+			//
+			// trim whitespaces
+			//
+			current_tag = current_tag.trim();
+			
+			if (current_tag.isEmpty() == false)
+			{
+				//
+				// add to list
+				//
+				tag_list.add(current_tag);
+			}
+		}
 		//
 		// done
 		//
@@ -409,7 +426,77 @@ public class FileTagUtility {
 		// display toast
 		//
 		toast.show();
+	}
+
+	/**
+	 * This function compares the entered tag line
+	 * @param tags to be checked
+	 * @return true
+	 */
+	public static boolean validateTags(String tags, Context ctx) {
 		
+		//
+		// first split the tags
+		//
+		Set<String> tag_list = splitTagText(tags);
+		if (tag_list.isEmpty())
+		{
+			if (ctx != null)
+			{
+				//
+				// must be at least one tag
+				//
+				String message = ctx.getString(R.string.one_tag_minimum);
+			
+				Toast toast = Toast.makeText(ctx,
+						message,
+						Toast.LENGTH_SHORT);
+
+				//
+				// display toast
+				//
+				toast.show();
+			}
+			
+			//
+			// failed
+			//
+			return false;
+		}
+		
+		
+		//
+		// now check that all tags are valid
+		//
+		for(String current_tag : tag_list) {
+			
+			if (TagValidator.isReservedKeyword(current_tag))
+			{
+				if (ctx != null)
+				{
+					//
+					// the tag line has at least one reserved keyword in use
+					//
+					String message = ctx.getString(R.string.reserved_keyword);
+				
+					Toast toast = Toast.makeText(ctx,
+							message,
+							Toast.LENGTH_SHORT);
+
+					//
+					// display toast
+					//
+					toast.show();				
+				}
+
+				return false;
+			}
+		}
+		
+		//
+		// tags appear to be o.k.
+		//
+		return true;
 	}
 	
 	

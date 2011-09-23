@@ -52,4 +52,6 @@
     <string name="error_reset_database">Konnte die Werkseinstellungen nicht wiederherstellen!</string>
     <string name="status_bar">Klicken Sie hier um das Ereigniss zu behandlen</string>
     <string name="error_media_not_mounted">Die Speicherkarte ist derzeit ausgeworfen oder wird von USB verwendet.</string>
+    <string name="reserved_character">Dieses Zeichen kann nicht für einen Tag verwendet werden!</string>
+    <string name="reserved_keyword">Zumindest ein beschreibender Tag entspricht einem reservierten Schlüsselwort!</string>
 </resources>

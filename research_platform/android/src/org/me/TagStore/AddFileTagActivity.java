@@ -8,9 +8,12 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.TextWatcher;
+import android.text.method.KeyListener;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnKeyListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -66,6 +69,12 @@ public class AddFileTagActivity extends Activity {
 	 */
 	public final static String DELIMITER = ",";
 
+	/**
+	 * displays toast for user notifications
+	 */
+	private Toast m_toast;
+	
+	
 	public void onPause() {
 
 		//
@@ -107,6 +116,15 @@ public class AddFileTagActivity extends Activity {
 		// commit changes
 		//
 		editor.commit();
+		
+		if (m_toast != null)
+		{
+			//
+			// cancel any on-going toast when switching the view
+			//
+			m_toast.cancel();
+		}
+		
 	}
 
 	/**
@@ -328,6 +346,73 @@ public class AddFileTagActivity extends Activity {
 			}
 		});
 
+		//
+		// add text changed listener
+		//
+		m_text_view.addTextChangedListener(new TextWatcher() {
+
+			
+			@Override
+			public void afterTextChanged(Editable s) {
+
+				//
+				// convert to string
+				//
+				String tag_text = s.toString();
+				
+				//
+				// check if it contains reserved characters
+				//
+				if (TagValidator.containsReservedCharacters(tag_text))
+				{
+					if (m_toast == null)
+					{
+						//
+						// get reserved character string localized
+						//
+						String reserved_characters = getApplicationContext().getString(R.string.reserved_character);
+						
+						//
+						// create the toast
+						//
+						m_toast = Toast.makeText(getApplicationContext(), reserved_characters, Toast.LENGTH_SHORT);
+					}
+					
+					
+					//
+					// now display the toast
+					//
+					m_toast.show();
+					
+					//
+					// clear the old text
+					//
+					s.clear();
+					
+					//
+					// append the 'cleaned' text
+					//
+					s.append(TagValidator.removeReservedCharacters(tag_text));
+					
+					//
+					// done
+					//
+					return;
+				}
+			}
+
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count,
+					int after) {
+			}
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before,
+					int count) {
+			}
+		});
+		
+		
 		//
 		// get the tag me button
 		//
@@ -558,10 +643,29 @@ public class AddFileTagActivity extends Activity {
 				//
 				m_text_view.setText(button_text + DELIMITER);
 			} else {
+				
 				//
-				// separate the item
+				// get button text
 				//
-				m_text_view.append(button_text + DELIMITER);
+				String tag_text = m_text_view.getText().toString();
+				
+				//
+				// is there a delimiter at the end
+				//
+				if (tag_text.endsWith(DELIMITER))
+				{
+					//
+					// no need to put a separator before the tag is appended
+					//
+					m_text_view.append(button_text + DELIMITER);
+				}
+				else
+				{
+					//
+					// add delimiter before appending the tag
+					//
+					m_text_view.append(DELIMITER + button_text + DELIMITER);
+				}
 			}
 
 			m_text_view.setSelection(m_text_view.length());
@@ -682,20 +786,10 @@ public class AddFileTagActivity extends Activity {
 			tag_text = m_text_view.getText().toString();
 		}
 
-		if (tag_text.length() == 0) {
-			//
-			// must be at least one tag
-			//
-			String message = getApplicationContext().getString(R.string.one_tag_minimum);
-			
-			Toast toast = Toast.makeText(getApplicationContext(),
-					message,
-					Toast.LENGTH_SHORT);
-
-			//
-			// display toast
-			//
-			toast.show();
+		//
+		// first validate the tags
+		//
+		if (!FileTagUtility.validateTags(tag_text, this)) {
 
 			//
 			// done for now

@@ -1413,9 +1413,9 @@ public class TagStoreCloudViewActivity extends Activity implements FileDialogBui
 			//
 			// set color
 			//
-			paint.setColor(Color.RED);
-			paint.setStyle(Style.STROKE);
-			m_boxmgr.paintFreeRect(canvas, paint);
+			//paint.setColor(Color.RED);
+			//paint.setStyle(Style.STROKE);
+			//m_boxmgr.paintFreeRect(canvas, paint);
 		}
 
 		public void changeBG(int r, int g, int b) {

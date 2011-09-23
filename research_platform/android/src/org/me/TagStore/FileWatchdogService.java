@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 
 import org.me.TagStore.FileSystemObserverNotification.NotificationType;
+import org.me.TagStore.StorageTimerTask.TimerTaskCallback;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -14,7 +15,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.IBinder;
 
-public class FileWatchdogService extends Service {
+public class FileWatchdogService extends Service implements TimerTaskCallback {
 
 	/**
 	 * file system observer class
@@ -276,35 +277,10 @@ public class FileWatchdogService extends Service {
 	 */
 	private void internalServiceStartup() {
 
-		if (m_registered == false) {
-			//
-			// get path to be observed (external disk)
-			//
-			String path = android.os.Environment.getExternalStorageDirectory()
-					.getAbsolutePath();
-
-			//
-			// register path
-			//
-			m_registered = m_observer.addObserver(path,
-					new FileSystemObserverNotification() {
-
-						@Override
-						public void notify(String file_name,
-								NotificationType type) {
-							notificationCallback(file_name, type);
-
-						}
-					});
-
-			Logger.i("Logging path: " + path + " first time: " + m_registered);
-
-		} else {
-			//
-			// another superflous registration request
-			//
-			Logger.e("FileWatchdogService::onStartCommand another registration request");
-		}
+		//
+		// register with the storage timer task
+		//
+		StorageTimerTask.acquireInstance().addCallback(this);
 	}
 
 	@Override
@@ -359,4 +335,61 @@ public class FileWatchdogService extends Service {
 
 		return new FileWatchdogServiceBinder<FileWatchdogService>(this);
 	}
+
+	@Override
+	public void diskAvailable() {
+
+		//
+		// informal debug print
+		//
+		Logger.i("diskAvailable(): " + m_registered);
+		
+		if (!m_registered)
+		{
+			//
+			// get path to be observed (external disk)
+			//
+			String path = android.os.Environment.getExternalStorageDirectory()
+					.getAbsolutePath();
+
+			//
+			// register path
+			//
+			m_registered = m_observer.addObserver(path,
+					new FileSystemObserverNotification() {
+
+						@Override
+						public void notify(String file_name,
+								NotificationType type) {
+							notificationCallback(file_name, type);
+
+						}
+					});
+		}
+	}
+
+	@Override
+	public void diskNotAvailable() {
+
+		//
+		// informal debug print
+		//
+		Logger.i("diskAvailable(): " + m_registered);
+		
+		if (m_registered)
+		{
+			//
+			// FIXME: unregisters all available observers
+			//
+			m_observer.removeAllObservers();
+			
+			//
+			// set to unregistered
+			//
+			m_registered = false;
+		}
+	}
+	
+
+	
 }

@@ -52,4 +52,6 @@
     <string name="error_reset_database">Failed to restore factory settings!</string>
     <string name="status_bar">Click on file to handle event</string>
     <string name="error_media_not_mounted">The SD card is currently ejected or in use by USB</string>
+    <string name="reserved_character">The character is reserved for a tag!</string>
+    <string name="reserved_keyword">At least one tag is a reserved keyword!</string>
 </resources>
