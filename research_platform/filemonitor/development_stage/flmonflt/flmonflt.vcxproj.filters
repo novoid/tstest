@@ -1,0 +1,113 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Quelldateien">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Headerdateien">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Ressourcendateien">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="build">
+      <UniqueIdentifier>{fedaab05-1c16-4ad7-b7a0-49493a7201f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="build\x64">
+      <UniqueIdentifier>{bc4f2bae-732d-43d6-80b8-0af8dfb48c1f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="build\Win32">
+      <UniqueIdentifier>{4f8f1741-3210-4641-8026-f0359162c294}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="readme.txt" />
+    <None Include="builddrv_x64.cmd">
+      <Filter>build\x64</Filter>
+    </None>
+    <None Include="cleandrv_chk_x64.cmd">
+      <Filter>build\x64</Filter>
+    </None>
+    <None Include="cleandrv_x64.cmd">
+      <Filter>build\x64</Filter>
+    </None>
+    <None Include="rebuilddrv_chk_x64.cmd">
+      <Filter>build\x64</Filter>
+    </None>
+    <None Include="rebuilddrv_x64.cmd">
+      <Filter>build\x64</Filter>
+    </None>
+    <None Include="builddrv_chk_x86.cmd">
+      <Filter>build\Win32</Filter>
+    </None>
+    <None Include="rebuilddrv_x86.cmd">
+      <Filter>build\Win32</Filter>
+    </None>
+    <None Include="builddrv_x86.cmd">
+      <Filter>build\Win32</Filter>
+    </None>
+    <None Include="cleandrv_chk_x86.cmd">
+      <Filter>build\Win32</Filter>
+    </None>
+    <None Include="cleandrv_x86.cmd">
+      <Filter>build\Win32</Filter>
+    </None>
+    <None Include="rebuilddrv_chk_x86.cmd">
+      <Filter>build\Win32</Filter>
+    </None>
+    <None Include="Sources" />
+    <None Include="flmonflt.inf" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="FileMon.c">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="FlDirectoryList.c">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="fldebug.c">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="FlMutex.c">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="FlUcFilename.c">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="FlTimerThread.c">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="FlTracker.c">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="fldebug.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="FlDirectoryList.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="FileMon.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Version.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="FlMutex.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="FlUcFilename.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="FlTimerThread.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="FlTracker.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
