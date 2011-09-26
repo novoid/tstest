@@ -1,0 +1,38 @@
+TARGETNAME = flmon
+TARGETTYPE = PROGRAM
+UMTYPE=console
+UMENTRY = main
+
+USE_RTTI = 1
+USE_MSVCRT = 1
+USE_STL = 1
+STL_VER = 70
+USE_IOSTREAM = 1
+
+
+QTPATH=C:\Qt\4.7.0gpl
+
+
+C_DEFINES=$(C_DEFINES) -DUNICODE -D_UNICODE
+
+LINKLIBS=$(SDK_LIB_PATH)\shell32.lib \
+		 $(QTPATH)\lib\qtcore4.lib \
+		 $(QTPATH)\lib\qtgui4.lib
+
+INCLUDES=$(INCLUDES);         \
+         $(IFSKIT_INC_PATH);  \
+         $(DDK_INC_PATH); \
+		 $(QTPATH)\include;
+
+TARGETLIBS = \
+        $(SDK_LIB_PATH)\user32.lib \
+        $(SDK_LIB_PATH)\gdi32.lib \
+        $(SDK_LIB_PATH)\kernel32.lib \
+        $(SDK_LIB_PATH)\fltlib.lib
+
+SOURCES = \
+		FlMonIPC.cpp  \
+		FlTest.cpp \
+		FlMonitor.cpp \
+        main.cpp
+
