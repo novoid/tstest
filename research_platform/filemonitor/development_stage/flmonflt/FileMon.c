@@ -9,7 +9,9 @@
 #include "FlDirectoryList.h"
 #include "FlTimerThread.h"
 #include "FlUcFilename.h"
+#include "FlIpc.h"
 #include "fldebug.h"
+
 
 
 
@@ -364,7 +366,7 @@ NTSTATUS DriverUnload (
 	FlTrackerPrintListDbg(&OcDirectoryTracker);
 
 	FlTrackerClean(&OcDirectoryTracker);
-	DirectoriesToWatchClear();
+	DirectoriesToWatchClear(TRUE);
 
 
 	DriverInfoData->TrackerLastPath.MaximumLength = 0;
@@ -817,7 +819,10 @@ NTSTATUS
 		OUT PULONG ReturnOutputBufferLength
 	)
 {
-	UNREFERENCED_PARAMETER(InputBuffer);
+	unsigned char * InputBufferC = InputBuffer;
+	UNICODE_STRING Path;
+
+	//UNREFERENCED_PARAMETER(InputBuffer);
 	UNREFERENCED_PARAMETER(OutputBuffer);
 	UNREFERENCED_PARAMETER(OutputBufferLength);
 	UNREFERENCED_PARAMETER(PortCookie);
@@ -825,9 +830,49 @@ NTSTATUS
 
 	PAGED_CODE();
 
-	//DBGPRINT("[flmonflt] Userspace notify.\n");
-	DBGPRINT_ARG1("[flmonflt] Userspace notify, size=%d.\n", InputBufferLength);
+	
 
+
+	if (InputBufferLength < 2
+		|| InputBufferC == NULL
+		|| InputBufferC[0] != MAGIC_MESSAGE_PREFIX)
+	{
+		DBGPRINT("[flmonflt] Userspace notify, Invalid message format.\n");
+		return STATUS_INVALID_PARAMETER;
+	}
+
+	//DBGPRINT("[flmonflt] Userspace notify.\n");
+	DBGPRINT_ARG1("[flmonflt] Userspace notify, size=%d, CMD='%c'.\n", InputBufferLength, (int)InputBufferC[1]);
+
+
+	if (InputBufferC[1] == MESSAGE_CMD_ADD_WATCHDIR)
+	{
+		Path.Length = InputBufferLength-2;
+		Path.MaximumLength = InputBufferLength-2;
+		Path.Buffer = InputBufferC+2;
+
+
+		if (Path.Length == 0)
+		{
+			DBGPRINT_ARG1("[flmonflt] Userspace notify, Invalid path length. LEN=%d\n", Path.Length);
+			return STATUS_INVALID_PARAMETER;
+		}
+
+		if (!DirectoriesToWatchAdd(&Path))
+			return STATUS_SUCCESS;
+		else
+			return STATUS_OBJECTID_EXISTS;
+
+	}
+	else if (InputBufferC[1] == MESSAGE_CMD_CLEAR_WATCHDIR)
+	{
+		DirectoriesToWatchClear(FALSE);
+	}
+	else
+	{
+		DBGPRINT("[flmonflt] Userspace notify, Invalid command format.\n");
+		return STATUS_INVALID_PARAMETER;
+	}
 
 	return STATUS_SUCCESS;
 }

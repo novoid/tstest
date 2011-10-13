@@ -178,16 +178,19 @@ unsigned int
 
 */
 void
-	DirectoriesToWatchClear(void)
+	DirectoriesToWatchClear(BOOLEAN freepool)
 {
 	unsigned int i;
 
 
 	DBGPRINT("[flmonflt] Clearing directory list.\n");
 
-	for (i=0; i < MAX_MONITOR_PATH_COUNT; i++)
+	if (freepool)
 	{
-		ExFreePool(DriverInfoData->PathsToMonitor[i].Buffer); 
+		for (i=0; i < MAX_MONITOR_PATH_COUNT; i++)
+		{
+			ExFreePool(DriverInfoData->PathsToMonitor[i].Buffer);
+		}
 	}
 
 	DriverInfoData->PathsToMonitorCount = 0;

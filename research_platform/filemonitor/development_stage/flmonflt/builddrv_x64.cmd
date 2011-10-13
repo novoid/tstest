@@ -1,7 +1,7 @@
 @echo on
 
 set CHK=
-set WDM_ROOT=C:\WinDDK\7600.16385.1\
+set WDM_ROOT=D:\WinDDK\7600.16385.1\
 set REMOTE_IP=192.168.0.201
 set BASE_PROJ_DRIVE=d:
 set BASE_PROJ_PATH=D:\Daten\Projekte\Diplomarbeit\filemonwdm

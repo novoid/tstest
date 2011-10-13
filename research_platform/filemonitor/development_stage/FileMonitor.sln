@@ -5,9 +5,14 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "flmonflt", "flmonflt\flmonf
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "flmon", "flmon\flmon.vcxproj", "{EC2839AE-4E8B-4F8D-937E-1173368F2F6B}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "flmongui", "flmongui\flmongui.vcxproj", "{7408A4FC-3C30-44AE-98ED-E75CFC63187F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{EC2839AE-4E8B-4F8D-937E-1173368F2F6B} = {EC2839AE-4E8B-4F8D-937E-1173368F2F6B}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 3
+		SccNumberOfProjects = 4
 		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 		SccTeamFoundationServer = http://ftfs01.artificial-intelligence.at:8080/tfs/myprojects
 		SccLocalPath0 = .
@@ -17,6 +22,9 @@ Global
 		SccProjectUniqueName2 = flmon\\flmon.vcxproj
 		SccProjectName2 = flmon
 		SccLocalPath2 = flmon
+		SccProjectUniqueName3 = flmongui\\flmongui.vcxproj
+		SccProjectName3 = flmongui
+		SccLocalPath3 = flmongui
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -40,6 +48,13 @@ Global
 		{EC2839AE-4E8B-4F8D-937E-1173368F2F6B}.Release|Win32.ActiveCfg = Release|Win32
 		{EC2839AE-4E8B-4F8D-937E-1173368F2F6B}.Release|Win32.Build.0 = Release|Win32
 		{EC2839AE-4E8B-4F8D-937E-1173368F2F6B}.Release|x64.ActiveCfg = Release|Win32
+		{7408A4FC-3C30-44AE-98ED-E75CFC63187F}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7408A4FC-3C30-44AE-98ED-E75CFC63187F}.Debug|Win32.Build.0 = Debug|Win32
+		{7408A4FC-3C30-44AE-98ED-E75CFC63187F}.Debug|x64.ActiveCfg = Debug|Win32
+		{7408A4FC-3C30-44AE-98ED-E75CFC63187F}.Debug|x64.Build.0 = Debug|Win32
+		{7408A4FC-3C30-44AE-98ED-E75CFC63187F}.Release|Win32.ActiveCfg = Release|Win32
+		{7408A4FC-3C30-44AE-98ED-E75CFC63187F}.Release|Win32.Build.0 = Release|Win32
+		{7408A4FC-3C30-44AE-98ED-E75CFC63187F}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

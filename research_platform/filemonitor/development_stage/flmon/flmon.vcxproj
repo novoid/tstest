@@ -44,12 +44,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <CustomBuildAfterTargets>Build</CustomBuildAfterTargets>
-    <IncludePath>$(WINDDK_DIR)\inc\ddk\;$(IncludePath)</IncludePath>
+    <IncludePath>$(WINDDK_DIR)\inc\ddk\;$(WINDDK_DIR)\inc\api\;$(IncludePath)</IncludePath>
     <ExecutablePath>$(WINDDK_DIR)\bin\;$(ExecutablePath)</ExecutablePath>
     <LibraryPath>$(WINDDK_DIR)\lib\;$(LibraryPath)</LibraryPath>
-    <NMakeBuildCommandLine>buildus_dbg_x64.cmd</NMakeBuildCommandLine>
-    <NMakeReBuildCommandLine>rebuildus_dbg_x64.cmd</NMakeReBuildCommandLine>
-    <NMakeCleanCommandLine>cleanus_dbg_x64.cmd</NMakeCleanCommandLine>
+    <NMakeBuildCommandLine>buildus_dbg_x86.cmd</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine>rebuildus_dbg_x86.cmd</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine>cleanus_dbg_x86.cmd</NMakeCleanCommandLine>
     <NMakePreprocessorDefinitions>X64;DBG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -98,25 +98,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="FlMonIPC.h" />
-    <ClInclude Include="FlMonitor.h" />
-    <ClInclude Include="FlTest.h" />
-    <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="FlMonIPC.cpp" />
-    <ClCompile Include="FlMonitor.cpp" />
-    <ClCompile Include="FlTest.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="FlMonIPC.c" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\flmonflt\builddrv_chk_x64.cmd">
-      <FileType>Document</FileType>
-    </None>
-    <None Include="buildus_dbg_x64.cmd" />
-    <None Include="cleanus_dbg_x64.cmd" />
+    <None Include="buildus_dbg_x86.cmd" />
+    <None Include="cleanus_dbg_x86.cmd" />
+    <None Include="flmon.def" />
     <None Include="postbuild.cmd" />
-    <None Include="rebuildus_dbg_x64.cmd" />
+    <None Include="rebuildus_dbg_x86.cmd" />
     <None Include="Sources" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

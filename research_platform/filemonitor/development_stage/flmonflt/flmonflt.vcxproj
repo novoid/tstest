@@ -94,6 +94,9 @@
   <ItemDefinitionGroup>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <None Include="builddrv_chk_x64.cmd">
+      <FileType>Document</FileType>
+    </None>
     <None Include="builddrv_chk_x86.cmd" />
     <None Include="builddrv_x64.cmd" />
     <None Include="builddrv_x86.cmd" />
@@ -122,6 +125,7 @@
     <ClInclude Include="FileMon.h" />
     <ClInclude Include="fldebug.h" />
     <ClInclude Include="FlDirectoryList.h" />
+    <ClInclude Include="FlIpc.h" />
     <ClInclude Include="FlMutex.h" />
     <ClInclude Include="FlTracker.h" />
     <ClInclude Include="FlTimerThread.h" />

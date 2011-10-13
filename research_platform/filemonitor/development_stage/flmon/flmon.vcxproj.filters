@@ -16,55 +16,32 @@
     <Filter Include="build">
       <UniqueIdentifier>{9fcc6d8e-7bf0-47b7-a1ef-1a432a8f06d9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="build\x64">
+    <Filter Include="build\x86">
       <UniqueIdentifier>{88d288ea-dbc7-4059-8932-4169aca8d637}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="FlTest.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
     <ClInclude Include="FlMonIPC.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="stdafx.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="FlMonitor.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="FlTest.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="main.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="FlMonIPC.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="stdafx.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="FlMonitor.cpp">
+    <ClCompile Include="FlMonIPC.c">
       <Filter>Quelldateien</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Sources" />
-    <None Include="buildus_dbg_x64.cmd">
-      <Filter>build\x64</Filter>
-    </None>
     <None Include="postbuild.cmd" />
-    <None Include="cleanus_dbg_x64.cmd">
-      <Filter>build\x64</Filter>
+    <None Include="flmon.def" />
+    <None Include="buildus_dbg_x86.cmd">
+      <Filter>build\x86</Filter>
     </None>
-    <None Include="rebuildus_dbg_x64.cmd">
-      <Filter>build\x64</Filter>
+    <None Include="cleanus_dbg_x86.cmd">
+      <Filter>build\x86</Filter>
     </None>
-    <None Include="..\flmonflt\builddrv_chk_x64.cmd">
-      <Filter>Headerdateien</Filter>
+    <None Include="rebuildus_dbg_x86.cmd">
+      <Filter>build\x86</Filter>
     </None>
   </ItemGroup>
 </Project>

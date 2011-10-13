@@ -60,6 +60,9 @@
     </None>
     <None Include="Sources" />
     <None Include="flmonflt.inf" />
+    <None Include="builddrv_chk_x64.cmd">
+      <Filter>build\x64</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FileMon.c">
@@ -107,6 +110,9 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="FlTracker.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="FlIpc.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>
