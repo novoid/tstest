@@ -2,6 +2,9 @@ package org.me.TagStore;
 
 import java.util.ArrayList;
 
+import org.me.TagStore.core.ConfigurationSettings;
+import org.me.TagStore.core.Logger;
+
 import android.app.Activity;
 import android.app.ActivityGroup;
 import android.content.Context;

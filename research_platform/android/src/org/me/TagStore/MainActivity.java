@@ -2,6 +2,11 @@ package org.me.TagStore;
 
 import java.util.ArrayList;
 import org.me.TagStore.R;
+import org.me.TagStore.core.DBManager;
+import org.me.TagStore.core.FileWatchdogService;
+import org.me.TagStore.core.FileWatchdogServiceBinder;
+import org.me.TagStore.core.Logger;
+import org.me.TagStore.interfaces.FileSystemObserverNotification;
 
 import android.app.TabActivity;
 import android.content.ComponentName;

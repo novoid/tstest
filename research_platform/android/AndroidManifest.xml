@@ -6,7 +6,7 @@
 
 
     <application android:icon="@drawable/icon" android:label="@string/app_name">
-    	<service android:enabled="true" android:name=".FileWatchdogService" />
+    	<service android:enabled="true" android:name="org.me.TagStore.core.FileWatchdogService" />
         <activity android:name=".MainActivity"
                   android:label="@string/app_name">
             <intent-filter>
@@ -15,7 +15,7 @@
             </intent-filter>
         </activity>
 		<activity android:name=".InfoTab" />
-		<activity android:name="TagActivityGroup" />
+		<activity android:name=".TagActivityGroup" />
 		<activity android:name=".ConfigurationTabActivity" />
 		<activity android:name=".ConfigurationActivityGroup" />
 		<activity android:name=".AddFileTagActivity" />

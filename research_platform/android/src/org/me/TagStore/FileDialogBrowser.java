@@ -18,6 +18,9 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.ArrayList;
 
+import org.me.TagStore.R;
+import org.me.TagStore.core.Logger;
+
 /**
  * This class is used selecting directories to be monitored
  * 

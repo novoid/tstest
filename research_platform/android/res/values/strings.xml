@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">TagStore</string>
     <string name="edit_text_field"></string>
-    <string name="directory_name_string">Directory: </string>
+    <string name="directory_name_string">Directory:</string>
     <string name="tag_accept">TagMe!</string>
     <string name="file_name">File name:</string>
     <string name="cancel">Cancel</string>
@@ -52,6 +52,30 @@
     <string name="error_reset_database">Failed to restore factory settings!</string>
     <string name="status_bar">Click on file to handle event</string>
     <string name="error_media_not_mounted">The SD card is currently ejected or in use by USB</string>
-    <string name="reserved_character">The character is reserved for a tag!</string>
+    <string name="reserved_character_tag">The character is reserved for a tag!</string>
     <string name="reserved_keyword">At least one tag is a reserved keyword!</string>
+    <string name="choose_one">Choose one:</string>
+    <string name="ignore">Ignore</string>
+    <string name="rename">Rename</string>
+    <string name="help_file_options">Help: ignore means that the file stays on the disk but it is excluded from the TagStore</string>
+    <string name="old_tags">Old tags:</string>
+    <string name="error_no_file_name">No file name entered!</string>
+    <string name="error_same_file_name">The new file name is the same as the old file name</string>
+    <string name="error_file_name_not_unique">Another file with that name already exists in the TagStore</string>
+    <string name="error_file_name_present">A file with that name already exists</string>
+    <string name="error_failed_rename">Failed to rename</string>
+    <string name="tag_me">Tag me!</string>
+    <string name="old_file_name">Old file name:</string>
+    <string name="reserved_character_file_name">The character is reserved for a file name</string>
+    <string name="reserved_keyword_file_name">The entered file name is a reserved keyword</string>
+    <string name="retag">Retag</string>
+    <string name="hashsum">Hash sum:</string>
+    <string name="file_type">Type:</string>
+    <string name="file_size">Size:</string>
+    <string name="error_tag_exists">The tag already exists!</string>
+    <string name="error_one_tag_maximum">Can´t rename tag to multiple tags!</string>
+    <string name="tag_name">Name of tag:</string>
+    <string name="tag_files">Num. of files:</string>
+    <string name="tag_link">Num. of linked tags:</string>
+    <string name="file_date">Date:</string>
 </resources>

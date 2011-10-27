@@ -20,6 +20,10 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.ArrayList;
 
+import org.me.TagStore.R;
+import org.me.TagStore.core.DBManager;
+import org.me.TagStore.core.Logger;
+
 public class DirectoryListActivity extends ListActivity {
 
 	/**

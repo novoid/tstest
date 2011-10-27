@@ -1,5 +1,9 @@
 package org.me.TagStore;
 
+import org.me.TagStore.R;
+import org.me.TagStore.core.ConfigurationSettings;
+import org.me.TagStore.core.Logger;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;

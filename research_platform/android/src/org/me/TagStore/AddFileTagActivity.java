@@ -2,38 +2,73 @@ package org.me.TagStore;
 
 import java.io.File;
 import java.util.ArrayList;
+
+import org.me.TagStore.R;
+import org.me.TagStore.core.ConfigurationSettings;
+import org.me.TagStore.core.DBManager;
+import org.me.TagStore.core.FileTagUtility;
+import org.me.TagStore.core.Logger;
+import org.me.TagStore.interfaces.OptionsDialogCallback;
+import org.me.TagStore.interfaces.RenameDialogCallback;
+import org.me.TagStore.ui.FileDialogBuilder;
+import org.me.TagStore.ui.UIEditorActionListener;
+import org.me.TagStore.ui.UITagTextWatcher;
+
 import android.app.Activity;
+import android.app.Dialog;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
-import android.text.TextWatcher;
-import android.text.method.KeyListener;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnKeyListener;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
-public class AddFileTagActivity extends Activity {
+public class AddFileTagActivity extends Activity implements OptionsDialogCallback, RenameDialogCallback{
 
+	/**
+	 * stores the dialog id of options dialog
+	 */
+	private static final int DIALOG_OPTIONS = 1;
+	
+	/**
+	 * stores the dialog id of the rename dialog
+	 */
+	private static final int DIALOG_RENAME = 2;
+	
+	
 	/**
 	 * stores the file name of the new file passed as parameter of intent
 	 */
 	private String m_file_name = "";
+	
+	/**
+	 * stores the file path of the file which has the same file name and is already present in the tag store
+	 */
+	private String m_duplicate_file_name ="";
+	
+	/**
+	 * stores the file path of the file which is being re-named
+	 */
+	private String m_rename_file_name = "";
 
 	/**
 	 * stores the last tags used passed as parameter of intent
 	 */
 	private String m_last_settings = "";
 
+	/**
+	 * stores the button ids
+	 */
+	static int[] s_tag_button_ids = new int[] { R.id.button_tag_one,
+			R.id.button_tag_two, R.id.button_tag_three,
+			R.id.button_tag_four, R.id.button_tag_five, R.id.button_tag_six };
+	
 	/**
 	 * stores popular tags
 	 */
@@ -74,6 +109,164 @@ public class AddFileTagActivity extends Activity {
 	 */
 	private Toast m_toast;
 	
+	@Override
+	public Dialog onCreateDialog(int dialog_id) {
+		
+		Dialog dialog = null;
+		switch(dialog_id)
+		{
+		case DIALOG_OPTIONS:
+			dialog = FileDialogBuilder.buildOptionsDialogFile(TagActivityGroup.s_Instance);
+			break;	
+		case DIALOG_RENAME:
+			dialog = FileDialogBuilder.buildRenameDialogFile(TagActivityGroup.s_Instance);
+			break;
+		}
+		
+		//
+		// done
+		//
+		return dialog;
+	}
+	
+	protected void onPrepareDialog (int id, Dialog dialog) {
+		
+		//
+		// check which dialog is requested
+		//
+		switch (id) {
+			case DIALOG_OPTIONS:
+				FileDialogBuilder.updateOptionsDialogFileView(dialog, m_duplicate_file_name, m_file_name, this);
+				break;
+			case DIALOG_RENAME:
+				FileDialogBuilder.updateRenameDialogFile(dialog, m_rename_file_name, false, false, this);
+				break;
+		}
+	}
+	
+
+	@Override
+	public void renamedFile(String old_file_name, String new_file) {
+
+		Logger.i("renamedFile: " + old_file_name + " new file_name: " + new_file);
+		if (old_file_name.compareTo(m_file_name) == 0)
+		{
+			//
+			// update file name in the text view
+			//
+			m_file_name = new_file;
+
+			//
+			// get file name text field
+			//
+			TextView file_name_text_view = (TextView) findViewById(R.id.pending_file_list);
+
+			if (file_name_text_view != null) {
+				//
+				// set file name
+				//
+				file_name_text_view.setText(m_file_name);	
+			}
+		}
+	}
+	
+
+	@Override
+	public void renamedTag(String old_tag_name, String new_tag_name) {
+		//
+		// first scan the active buttons if the old tag name is present
+		//
+		for (int button_id : s_tag_button_ids) 
+		{
+			//
+			// find button
+			//
+			Button button = (Button) findViewById(button_id);
+
+			//
+			// get button text
+			//
+			String button_text = (String) button.getText();
+			if (button_text.compareTo(old_tag_name) == 0)
+			{
+				//
+				// update button tag
+				//
+				button.setText(new_tag_name);
+				return;
+			}
+		}
+		
+		//
+		// search in popular list
+		//
+		for(String current_tag : m_popular_tags)
+		{
+			if (current_tag.compareTo(old_tag_name) == 0)
+			{
+				//
+				// add new tag
+				//
+				m_popular_tags.add(m_popular_tags.indexOf(current_tag), new_tag_name);
+				
+				//
+				// remove old tag
+				//
+				m_popular_tags.remove(current_tag);
+				return;
+			}
+		}
+		
+		//
+		// FIXME: should the current tag line be updated too?
+		//
+	}
+	
+	@Override
+	public void processOptionsDialogCommand(String file_name, boolean ignore) {
+
+		Logger.i("processOptionsDialogCommand: file_name " + file_name + " ignore: " + ignore);
+		
+		//
+		// acquire database manager
+		//
+		DBManager db_man = DBManager.getInstance();
+
+		if (ignore)
+		{
+			if (file_name.compareTo(m_duplicate_file_name) == 0)
+			{
+				//
+				// remove the file from the tag store
+				//
+				db_man.removeFile(file_name, false, true);
+			}
+			else if (file_name.compareTo(m_file_name) == 0)
+			{
+				//
+				// remove file from pending list
+				//
+				db_man.removeFile(file_name, true, false);
+				
+				//
+				// update GUI
+				//
+				initialize(false);
+			}
+		}
+		else
+		{
+			//
+			// store the name of the file to be renamed
+			//
+			m_rename_file_name = file_name;
+			
+			//
+			// display dialog
+			//
+			showDialog(DIALOG_RENAME);
+		}
+	}
 	
 	public void onPause() {
 
@@ -82,21 +275,10 @@ public class AddFileTagActivity extends Activity {
 		//
 		super.onPause();
 
-		//
-		// acquire shared settings
-		//
-		SharedPreferences settings = getSharedPreferences(
-				ConfigurationSettings.TAGSTORE_PREFERENCES_NAME,
-				Context.MODE_PRIVATE);
-
-		//
-		// get editor
-		//
-		SharedPreferences.Editor editor = settings.edit();
-
 		if (m_text_view != null) {
+			
 			//
-			// get editable
+			// get text
 			//
 			Editable edit = m_text_view.getText();
 
@@ -108,15 +290,9 @@ public class AddFileTagActivity extends Activity {
 			//
 			// store in editor
 			//
-			editor.putString(ConfigurationSettings.CURRENT_TAG_LINE, tag_line);
-
+			setCurrentPreferenceTagLine(tag_line);
 		}
 
-		//
-		// commit changes
-		//
-		editor.commit();
-		
 		if (m_toast != null)
 		{
 			//
@@ -130,7 +306,7 @@ public class AddFileTagActivity extends Activity {
 	/**
 	 * resumes the activity
 	 */
-	protected void onResume() {
+	public void onResume() {
 
 		//
 		// call super method
@@ -144,14 +320,9 @@ public class AddFileTagActivity extends Activity {
 			return;
 
 		//
-		// initialize basic user interface components
+		// initialize view
 		//
-		if (!initializeUIComponents())
-			return;
-
-		if (!initializeTagButtons())
-			return;
-
+		initialize(true);
 	}
 
 	@Override
@@ -169,11 +340,41 @@ public class AddFileTagActivity extends Activity {
 		setContentView(R.layout.addfiletag);
 
 		//
+		// initialize view
+		//
+		initialize(true);
+		
+	}
+
+	private void initialize(boolean check_settings) {
+		
+		//
 		// check parameters
 		//
-		if (!getParameters(true))
-			return;
+		if (!getParameters(check_settings))
+		{
+			//
+			// get localized new file
+			//
+			String new_file = getApplicationContext().getString(R.string.new_file);
+			
+			//
+			// no more files, remove pending file item
+			//
+			MainActivity.s_Instance.showTab(new_file, false);
+					
+			//
+			// remove notification
+			//
+			removeNotification();
 
+			
+			//
+			// set current tag line
+			//
+			setCurrentPreferenceTagLine("");			
+			return;
+		}
 		//
 		// initialize basic user interface components
 		//
@@ -183,8 +384,63 @@ public class AddFileTagActivity extends Activity {
 		if (!initializeTagButtons())
 			return;
 
+		if (!isFileNameUnique(m_file_name))
+		{
+			//
+			// show options dialog
+			//
+			showDialog(DIALOG_OPTIONS);
+		}
+	
 	}
+	
+	
+	/**
+	 * returns true when the file name is unique (no other file named liked this is present in the tagstore)
+	 * @param file_name file name to be checked
+	 * @return boolean
+	 */
+	private boolean isFileNameUnique(String file_name) {
+		
+		
+		//
+		// extract file name
+		//
+		String file = new File(file_name).getName();
+		
+		//
+		// acquire database manager
+		//
+		DBManager db_man = DBManager.getInstance();
 
+		//
+		// get all files which have the same name
+		//
+		ArrayList<String> files = db_man.getSimilarFilePaths(file);
+		
+		//
+		// any file paths which have the same file name but different directory
+		//
+		if (files == null || files.isEmpty())
+		{
+			//
+			// no duplicates found, great!
+			//
+			return true;
+		}
+
+		//
+		// get first duplicate
+		//
+		m_duplicate_file_name = files.get(0);
+		
+		//
+		// this file name is already present in the tag store
+		//
+		return false;
+	}
+	
+	
 	/**
 	 * gets the parameters from the passed intent
 	 * 
@@ -237,7 +493,7 @@ public class AddFileTagActivity extends Activity {
 				//
 			}
 		}
-
+		
 		//
 		// acquire database manager
 		//
@@ -316,102 +572,12 @@ public class AddFileTagActivity extends Activity {
 		//
 		// add editor action listener
 		//
-		m_text_view.setOnEditorActionListener(new OnEditorActionListener() {
-
-			@Override
-			public boolean onEditorAction(TextView v, int actionId,
-					KeyEvent event) {
-
-				if (event != null) {
-					if (event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
-						//
-						// collapse keyboard
-						//
-						InputMethodManager imm = (InputMethodManager) v
-								.getContext().getSystemService(
-										Context.INPUT_METHOD_SERVICE);
-						imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-
-						//
-						// event is consumed
-						//
-						return true;
-					}
-				}
-
-				//
-				// event is not consumed
-				//
-				return false;
-			}
-		});
-
+		m_text_view.setOnEditorActionListener(new UIEditorActionListener());
+		
 		//
 		// add text changed listener
 		//
-		m_text_view.addTextChangedListener(new TextWatcher() {
-
-			
-			@Override
-			public void afterTextChanged(Editable s) {
-
-				//
-				// convert to string
-				//
-				String tag_text = s.toString();
-				
-				//
-				// check if it contains reserved characters
-				//
-				if (TagValidator.containsReservedCharacters(tag_text))
-				{
-					if (m_toast == null)
-					{
-						//
-						// get reserved character string localized
-						//
-						String reserved_characters = getApplicationContext().getString(R.string.reserved_character);
-						
-						//
-						// create the toast
-						//
-						m_toast = Toast.makeText(getApplicationContext(), reserved_characters, Toast.LENGTH_SHORT);
-					}
-					
-					
-					//
-					// now display the toast
-					//
-					m_toast.show();
-					
-					//
-					// clear the old text
-					//
-					s.clear();
-					
-					//
-					// append the 'cleaned' text
-					//
-					s.append(TagValidator.removeReservedCharacters(tag_text));
-					
-					//
-					// done
-					//
-					return;
-				}
-			}
-
-			@Override
-			public void beforeTextChanged(CharSequence s, int start, int count,
-					int after) {
-			}
-
-			@Override
-			public void onTextChanged(CharSequence s, int start, int before,
-					int count) {
-			}
-		});
-		
+		m_text_view.addTextChangedListener(new UITagTextWatcher(getApplicationContext(), true));		
 		
 		//
 		// get the tag me button
@@ -445,6 +611,10 @@ public class AddFileTagActivity extends Activity {
 		return true;
 	}
 
+	/**
+	 * initializes the tag field
+	 * @param tags
+	 */
 	private void initializeTagField(String[] tags) {
 
 		//
@@ -489,13 +659,6 @@ public class AddFileTagActivity extends Activity {
 		DBManager db_man = DBManager.getInstance();
 
 		//
-		// build integer array of identifiers
-		//
-		int[] tag_button_ids = new int[] { R.id.button_tag_one,
-				R.id.button_tag_two, R.id.button_tag_three,
-				R.id.button_tag_four, R.id.button_tag_five, R.id.button_tag_six };
-
-		//
 		// get popular tags
 		//
 		m_popular_tags = db_man.getPopularTags();
@@ -509,7 +672,7 @@ public class AddFileTagActivity extends Activity {
 			//
 			// hide the tag buttons
 			//
-			for (int button_id : tag_button_ids) {
+			for (int button_id : s_tag_button_ids) {
 				//
 				// find button
 				//
@@ -549,7 +712,7 @@ public class AddFileTagActivity extends Activity {
 			//
 			// initialize popular button
 			//
-			initializeTagButton(tag_button_ids[index], popular_tag, true);
+			initializeTagButton(s_tag_button_ids[index], popular_tag, true);
 
 			//
 			// remove tag
@@ -565,7 +728,7 @@ public class AddFileTagActivity extends Activity {
 				//
 				// find button
 				//
-				Button button = (Button) findViewById(tag_button_ids[index]);
+				Button button = (Button) findViewById(s_tag_button_ids[index]);
 
 				if (button != null) {
 					//
@@ -750,6 +913,33 @@ public class AddFileTagActivity extends Activity {
 		//
 		editor.commit();
 	}
+	
+	private void setCurrentPreferenceTagLine(String tag_line) {
+		//
+		// acquire shared settings
+		//
+		SharedPreferences settings = getSharedPreferences(
+				ConfigurationSettings.TAGSTORE_PREFERENCES_NAME,
+				Context.MODE_PRIVATE);
+
+		//
+		// get editor
+		//
+		SharedPreferences.Editor editor = settings.edit();
+
+		//
+		// all files have been tagged, clear current tag line
+		//
+		editor.putString(ConfigurationSettings.CURRENT_TAG_LINE, "");
+
+		//
+		// commit changes
+		//
+		editor.commit();
+		
+		
+	}
+	
 
 	/**
 	 * removes notification from notification manager
@@ -789,7 +979,7 @@ public class AddFileTagActivity extends Activity {
 		//
 		// first validate the tags
 		//
-		if (!FileTagUtility.validateTags(tag_text, this)) {
+		if (!FileTagUtility.validateTags(tag_text, this, m_text_view)) {
 
 			//
 			// done for now
@@ -813,72 +1003,9 @@ public class AddFileTagActivity extends Activity {
 
 		//
 		// done now
-		// check if there more pending files
+		// re-initialize
 		//
-		if (getParameters(false) == false) {
-			
-			//
-			// get localized new file
-			//
-			String new_file = getApplicationContext().getString(R.string.new_file);
-			
-			//
-			// no more files, remove pending file item
-			//
-			MainActivity.s_Instance.showTab(new_file, false);
-					
-			//
-			// remove notification
-			//
-			removeNotification();
-
-			//
-			// acquire shared settings
-			//
-			SharedPreferences settings = getSharedPreferences(
-					ConfigurationSettings.TAGSTORE_PREFERENCES_NAME,
-					Context.MODE_PRIVATE);
-
-			//
-			// get editor
-			//
-			SharedPreferences.Editor editor = settings.edit();
-
-			//
-			// all files have been tagged, clear current tag line
-			//
-			editor.putString(ConfigurationSettings.CURRENT_TAG_LINE, "");
-
-			//
-			// commit changes
-			//
-			editor.commit();
-			
-			
-			//
-			// done
-			//
-			return;
-		}
-
-		//
-		// initialize basic user interface components
-		//
-		if (!initializeUIComponents())
-			return;
-
-	
-		//
-		// now initialize the tag buttons
-		//
-		if (!initializeTagButtons()) {
-			//
-			// failed to initialize tag buttons
-			//
-			return;
-
-		}
-
+		initialize(false);
 	}
 
 	/**
@@ -938,6 +1065,6 @@ public class AddFileTagActivity extends Activity {
 			onTagButtonClick(m_button_id, button_text.toString(),
 					m_popular_button);
 		}
-	};
+	}
 
 }

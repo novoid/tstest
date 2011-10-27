@@ -3,6 +3,9 @@ package org.me.TagStore;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.me.TagStore.R;
+import org.me.TagStore.core.Logger;
+
 import android.app.Activity;
 import android.app.ListActivity;
 import android.content.Intent;

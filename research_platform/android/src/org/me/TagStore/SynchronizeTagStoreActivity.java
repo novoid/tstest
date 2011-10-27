@@ -7,6 +7,14 @@ import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.me.TagStore.R;
+import org.me.TagStore.core.ConfigurationSettings;
+import org.me.TagStore.core.DBManager;
+import org.me.TagStore.core.FileTagUtility;
+import org.me.TagStore.core.Logger;
+import org.me.TagStore.core.SyncFileLog;
+import org.me.TagStore.core.SyncLogEntry;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -229,7 +237,7 @@ public class SynchronizeTagStoreActivity extends Activity {
 			//
 			// add file as pending
 			//
-			db_man.addPendingFile(entry.m_file_name, entry.m_hash_sum);
+			db_man.addPendingFile(entry.m_file_name);
 		
 			//
 			// let FileTagUtility do the rest

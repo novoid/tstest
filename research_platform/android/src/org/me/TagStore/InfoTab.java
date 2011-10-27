@@ -1,5 +1,8 @@
 package org.me.TagStore;
 
+import org.me.TagStore.R;
+import org.me.TagStore.core.Logger;
+
 import android.app.Activity;
 import android.app.NotificationManager;
 import android.content.Context;
