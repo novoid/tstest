@@ -37,7 +37,7 @@
         <TableRow>
             <Button android:layout_width="wrap_content" android:visibility="invisible" android:layout_height="wrap_content" android:id="@+id/dummy1_button1" android:text="Tag me"></Button>
             <Button android:layout_width="wrap_content" android:visibility="invisible" android:layout_height="wrap_content" android:id="@+id/dummy2_button" android:text="Tag me"></Button>
-            <Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/button_tag_done" android:text="Tag me"></Button>
+            <Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/button_tag_done" android:text="@string/tag_me"></Button>
         </TableRow>
     
     </TableLayout>

@@ -1,25 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
+    android:stretchColumns="1,2"
+    
     android:layout_height="fill_parent">
 
 <TableRow>
 
-        <ImageButton android:layout_width="fill_parent"
-        android:layout_height="50dp"
-        android:id="@+id/tag_image_one"
-        android:layout_column="1"
-        android:layout_weight="1"
-        android:src="@drawable/icon">
+        <ImageButton 
+	        android:layout_height="50dp"
+    	    android:id="@+id/tag_image_one"
+			android:padding="3dip"
+        	android:layout_gravity="center"			
+        	android:src="@drawable/icon">
         
         </ImageButton>
 
-        <ImageButton android:layout_width="fill_parent"
-        android:layout_height="50dp"
-        android:id="@+id/tag_image_two"
-        android:layout_column="2"
-		android:layout_weight="1"
-        android:src="@drawable/icon">
+
+        <ImageButton 
+        	android:layout_height="50dp"
+        	android:layout_gravity="center" 
+	        android:id="@+id/tag_image_two"
+			android:padding="3dip"
+        	android:src="@drawable/icon">
         </ImageButton>
 
   </TableRow>
@@ -27,20 +30,18 @@
 <TableRow>
 
 
-        <TextView android:text="Tag1" android:layout_width="wrap_content"
+        <TextView android:text="Tag1" 
                 android:layout_height="25dp"
+				android:layout_gravity="center"  
                 android:textSize="13dp" 
-				android:layout_column="1"
-        		android:layout_weight="1"				
-                android:id="@+id/tag_name_one" android:gravity="center">
+                android:id="@+id/tag_name_one">
         </TextView>
 
-        <TextView android:text="Tag2" android:layout_width="wrap_content"
+        <TextView android:text="Tag2" 
                 android:layout_height="25dp"
+	        	android:layout_gravity="center"                  
                 android:textSize="13dp" 
-				android:layout_column="2"
-        		android:layout_weight="1"				
-                android:id="@+id/tag_name_two" android:gravity="center">
+                android:id="@+id/tag_name_two">
         </TextView>
         
   </TableRow>

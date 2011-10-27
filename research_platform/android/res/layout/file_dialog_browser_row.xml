@@ -9,7 +9,8 @@
                 android:layout_toRightOf="@+id/directory_image"
                 android:layout_alignTop="@+id/directory_image" android:layout_alignBottom="@+id/directory_image"
                 android:gravity="center_vertical" android:layout_height="50dp"
-                android:textSize="35dp" android:id="@+id/directory_name_text"></TextView> 
+                android:textSize="35dp" android:id="@+id/directory_name_text">
+        </TextView> 
 
 </RelativeLayout>
 
