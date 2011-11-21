@@ -4,11 +4,13 @@ import org.me.TagStore.R;
 import org.me.TagStore.core.ConfigurationSettings;
 import org.me.TagStore.core.Logger;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.RadioButton;
@@ -16,7 +18,7 @@ import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
-public class ListViewSettingsActivity extends Activity {
+public class ListViewSettingsActivity extends Fragment {
 
 	/**
 	 * list view radio button
@@ -59,7 +61,7 @@ public class ListViewSettingsActivity extends Activity {
 	Button m_done_button;
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	public void onCreate(Bundle savedInstanceState) {
 
 		//
 		// pass onto lower classes
@@ -70,27 +72,20 @@ public class ListViewSettingsActivity extends Activity {
 		// informal debug message
 		//
 		Logger.d("ListViewSettingsActivity::onCreate");
-
-		//
-		// lets sets our own design
-		//
-		setContentView(R.layout.list_view_settings);
-
-		//
-		// initialize configuration tab
-		//
-		initialize();
 	}
 
-	/**
-	 * initializes the ui elements
-	 */
-	private void initialize() {
+	 public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle saved) {
+			
+		 //
+		 // construct layout
+		 //
+		 View view = inflater.inflate(R.layout.list_view_settings, null);
+
 
 		//
 		// acquire shared settings
 		//
-		SharedPreferences settings = getSharedPreferences(
+		SharedPreferences settings = getActivity().getSharedPreferences(
 				ConfigurationSettings.TAGSTORE_PREFERENCES_NAME,
 				Context.MODE_PRIVATE);
 
@@ -118,49 +113,12 @@ public class ListViewSettingsActivity extends Activity {
 		//
 		// get ui elements
 		//
-		m_list_view_button = (RadioButton) findViewById(R.id.button_icon_list_view);
-		m_cloud_view_button = (RadioButton) findViewById(R.id.button_cloud_list_view);
-		m_seek_bar_list_view = (SeekBar) findViewById(R.id.seekbar_list_view);
-		m_alphabetic_sort_mode = (RadioButton) findViewById(R.id.button_alphabetic_sort_mode);
-		m_popular_sort_mode = (RadioButton) findViewById(R.id.button_popular_sort_mode);
-		m_list_view_column = (TextView) findViewById(R.id.text_num_rows);
-		m_cancel_button = (Button) findViewById(R.id.button_cancel);
-		m_done_button = (Button) findViewById(R.id.button_done);
-
-		if (m_done_button != null) {
-
-			//
-			// add on click listener
-			//
-			m_done_button.setOnClickListener(new OnClickListener() {
-
-				@Override
-				public void onClick(View v) {
-					//
-					// call save settings method
-					//
-					saveSettings();
-				}
-			});
-		}
-
-		if (m_cancel_button != null) {
-
-			//
-			// add on click listener
-			//
-			m_cancel_button.setOnClickListener(new OnClickListener() {
-
-				@Override
-				public void onClick(View v) {
-
-					//
-					// cancel
-					//
-					ConfigurationActivityGroup.s_Instance.back();
-				}
-			});
-		}
+		m_list_view_button = (RadioButton) view.findViewById(R.id.button_icon_list_view);
+		m_cloud_view_button = (RadioButton) view.findViewById(R.id.button_cloud_list_view);
+		m_seek_bar_list_view = (SeekBar) view.findViewById(R.id.seekbar_list_view);
+		m_alphabetic_sort_mode = (RadioButton) view.findViewById(R.id.button_alphabetic_sort_mode);
+		m_popular_sort_mode = (RadioButton) view.findViewById(R.id.button_popular_sort_mode);
+		m_list_view_column = (TextView) view.findViewById(R.id.text_num_rows);
 
 		if (m_seek_bar_list_view != null) {
 
@@ -198,6 +156,12 @@ public class ListViewSettingsActivity extends Activity {
 								//
 								m_list_view_column.setText(Integer
 										.toString(progress + 1));
+								
+								//
+								// save settings
+								//
+								saveSettings();
+								
 							}
 						}
 
@@ -224,6 +188,7 @@ public class ListViewSettingsActivity extends Activity {
 				// current sort mode is alphabetic
 				//
 				m_alphabetic_sort_mode.setChecked(true);
+				
 			}
 
 			m_alphabetic_sort_mode.setOnClickListener(new OnClickListener() {
@@ -237,6 +202,11 @@ public class ListViewSettingsActivity extends Activity {
 						// set popular mode unchecked
 						//
 						m_popular_sort_mode.setChecked(false);
+						
+						//
+						// save settings
+						//
+						saveSettings();						
 					}
 
 				}
@@ -255,6 +225,7 @@ public class ListViewSettingsActivity extends Activity {
 				// current sort mode is alphabetic
 				//
 				m_popular_sort_mode.setChecked(true);
+				
 			}
 
 			m_popular_sort_mode.setOnClickListener(new OnClickListener() {
@@ -268,6 +239,11 @@ public class ListViewSettingsActivity extends Activity {
 						// set popular mode unchecked
 						//
 						m_alphabetic_sort_mode.setChecked(false);
+						
+						//
+						// save settings
+						//
+						saveSettings();
 					}
 
 				}
@@ -289,6 +265,11 @@ public class ListViewSettingsActivity extends Activity {
 					// enable icon view
 					//
 					toggleListViewUIElements(true);
+					
+					//
+					// save settings
+					//
+					saveSettings();
 				}
 
 			});
@@ -308,6 +289,11 @@ public class ListViewSettingsActivity extends Activity {
 					// enable icon view
 					//
 					toggleListViewUIElements(false);
+					
+					//
+					// save settings
+					//
+					saveSettings();
 				}
 			});
 		}
@@ -331,14 +317,19 @@ public class ListViewSettingsActivity extends Activity {
 			//
 			toggleListViewUIElements(false);
 		}
+		
+		//
+		// done
+		//
+		return view;
 	}
-
+	 
 	protected void saveSettings() {
 
 		//
 		// acquire shared settings
 		//
-		SharedPreferences settings = getSharedPreferences(
+		SharedPreferences settings = getActivity().getSharedPreferences(
 				ConfigurationSettings.TAGSTORE_PREFERENCES_NAME,
 				Context.MODE_PRIVATE);
 
@@ -421,11 +412,6 @@ public class ListViewSettingsActivity extends Activity {
 		// now commit changes
 		//
 		editor.commit();
-
-		//
-		// hit back
-		//
-		ConfigurationActivityGroup.s_Instance.back();
 	}
 
 	/**

@@ -1,11 +1,11 @@
 package org.me.TagStore.ui;
 
-import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 
 import org.me.TagStore.core.DBManager;
+import org.me.TagStore.core.FileTagUtility;
 import org.me.TagStore.core.Logger;
 import org.me.TagStore.core.TagStackManager;
 import org.me.TagStore.interfaces.BackKeyCallback;
@@ -169,6 +169,8 @@ public class CloudViewSurfaceAdapter extends SurfaceView{
 		//
 		super(context);
 
+		Logger.i("CloudViewSurfaceAdapter constructor");
+		
 		//
 		// init members
 		//
@@ -186,12 +188,16 @@ public class CloudViewSurfaceAdapter extends SurfaceView{
 		m_font_size[2] = MAX_FONT_SIZE - FONT_STEP_SIZE * 2;
 		m_font_size[3] = MAX_FONT_SIZE - FONT_STEP_SIZE * 3;
 
+		m_width = 0;
+		m_height = 0;
+		
 		//
 		// change background
 		//
 		changeBG(0, 0, 0);
 	}
 
+	/*
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		//
@@ -232,9 +238,9 @@ public class CloudViewSurfaceAdapter extends SurfaceView{
 			//
 			// pop last tag from tag stack
 			//
-			String last_element = m_tag_stack.getLastTag();
-			m_tag_stack.removeTag(last_element);
+			m_tag_stack.removeLastTag();
 		}
+		
 		
 		//
 		// initialize view
@@ -258,6 +264,7 @@ public class CloudViewSurfaceAdapter extends SurfaceView{
 		//
 		return true;
 	}
+	*/
 	
 	/**
 	 * returns the current selected item
@@ -344,7 +351,7 @@ public class CloudViewSurfaceAdapter extends SurfaceView{
 				//
 				// fill list map with tags and files
 				//
-				fillListMapWithTag(tag.m_tag);
+				fillListMapWithTag();
 
 				//
 				// draw bitmap
@@ -369,76 +376,46 @@ public class CloudViewSurfaceAdapter extends SurfaceView{
 		}
 	}
 
-	protected void fillListMapWithTag(String item_name) {
+	protected void fillListMapWithTag() {
 
-		//
-		// acquire instance of database manager
-		//
-		DBManager db_man = DBManager.getInstance();
-
-		//
-		// get tag stack
-		//
-		ArrayList<String> tag_stack= m_tag_stack.toArray(new String[1]);
-		
-		
 		//
 		// get associated tags
 		//
-		ArrayList<String> linked_tags = db_man.getLinkedTags(tag_stack);
+		ArrayList<String> linked_tags = FileTagUtility.getLinkedTags();
 
 		//
-		// construct new array for tags
+		// sanity checks
 		//
-		ArrayList<String> tags = new ArrayList<String>();
-
-		if (linked_tags != null) {
-
+		for (String linked_tag : linked_tags) {
 			//
-			// add them to list
+			// check if tag has already been visited
 			//
-			for (String linked_tag : linked_tags) {
-				//
-				// check if tag has already been visited
-				//
-				if (m_tag_stack.containsTag(linked_tag) == false) {
-
-					//
-					// add tag
-					//
-					tags.add(linked_tag);
-					continue;
-				}
+			if (m_tag_stack.containsTag(linked_tag)) {
+				Logger.e("Error: DB query bug detected");
+				continue;
 			}
-
-			//
-			// calculate minimum and maximum
-			//
-			findMinimumAndMaximum(tags);
-
-			//
-			// calculate tag reference array boundaries
-			//
-			calculateTagReferenceArray();
-
-			//
-			// add tags
-			//
-			addTags(tags, true);
 		}
+
+		//
+		// calculate minimum and maximum
+		//
+		findMinimumAndMaximum(linked_tags);
+
+		//
+		// calculate tag reference array boundaries
+		//
+		calculateTagReferenceArray();
+
+		//
+		// add tags
+		//
+		addTags(linked_tags, true);
 
 		//
 		// get linked files
 		//
-		ArrayList<String> linked_files = db_man.getLinkedFiles(tag_stack);
-
-		if (linked_files != null) {
-
-			//
-			// add linked files
-			//
-			addTags(linked_files, false);
-		}
+		ArrayList<String> linked_files = FileTagUtility.getLinkedFiles();
+		addTags(linked_files, false);
 	}
 
 	/**
@@ -646,11 +623,6 @@ public class CloudViewSurfaceAdapter extends SurfaceView{
 		if (!m_tag_stack.isEmpty())
 		{
 			//
-			// pop last tag from tag stack
-			//
-			String last_element = m_tag_stack.getLastTag();
-
-			//
 			// clear tags
 			//
 			m_tags.clear();
@@ -658,7 +630,7 @@ public class CloudViewSurfaceAdapter extends SurfaceView{
 			//
 			// fill list map with tags and files
 			//
-			fillListMapWithTag(last_element);
+			fillListMapWithTag();
 		}
 		else
 		{
@@ -667,6 +639,17 @@ public class CloudViewSurfaceAdapter extends SurfaceView{
 			//
 			addTags(popular_tags, true);
 		}
+
+		if (m_width != 0 && m_height != 0)
+		{
+			//
+			// draw bitmap when the size has already been determined
+			//
+			drawBitmap();
+		}
+			
+		
+		
 	}
 
 	@Override
@@ -683,12 +666,18 @@ public class CloudViewSurfaceAdapter extends SurfaceView{
 		//
 		m_width = width;
 		m_height = height;
-		
+
+		Logger.i("onSizeChanged:: m_width: " + m_width + "m_height:" + m_height);
+
 		//
 		// draws the bitmap
 		//
 		drawBitmap();
 		
+		//
+		// invalidate
+		//
+		postInvalidate();
 	}
 
 	/**
@@ -856,14 +845,14 @@ public class CloudViewSurfaceAdapter extends SurfaceView{
 		// DBG code
 		//
 		//m_boxmgr.paintFreeRect(new_canvas, paint);
-
+/*
 		try {
 		       FileOutputStream out = new FileOutputStream("/mnt/sdcard/Ablage/test.png");
 		       m_bitmap.compress(Bitmap.CompressFormat.PNG, 90, out);
 		} catch (Exception e) {
 		       e.printStackTrace();
 		}
-
+*/
 
 	}
 
@@ -935,38 +924,63 @@ public class CloudViewSurfaceAdapter extends SurfaceView{
 		// set paint color size
 		//
 		paint.setColor(tag.m_color);
-		paint.setTextSize(tag.m_font_size);
+		int font_size_reduction = 0;
+		int min_width;
+		int min_height;
 		
 		//
 		// get cloud text
 		//
 		String text = getCloudItemText(tag);
 		
-		//
-		// get text bounds
-		//
-		tag.m_rect.setEmpty();
-		paint.getTextBounds(text, 0, text.length(), tag.m_rect);
-
-		//
-		// get text dimension in absolute coordinates
-		//
-		int min_width = Math.abs(tag.m_rect.right - tag.m_rect.left) + tag.m_font_size / 2;
-		int min_height = Math.abs(tag.m_rect.bottom - tag.m_rect.top) + tag.m_font_size / 2;
+		Rect free_rect = null;
 		
-		//
-		// get free rectangle
-		//
-		Rect free_rect = m_boxmgr.getRectangleWithDimension(min_width, min_height);
+		do
+		{
+			paint.setTextSize(tag.m_font_size - font_size_reduction);
+		
+		
+			//
+			// get text bounds
+			//
+			tag.m_rect.setEmpty();
+			paint.getTextBounds(text, 0, text.length(), tag.m_rect);
+
+			//
+			// get text dimension in absolute coordinates
+			//
+			min_width = Math.abs(tag.m_rect.right - tag.m_rect.left) + (tag.m_font_size - font_size_reduction) / 2;
+			min_height = Math.abs(tag.m_rect.bottom - tag.m_rect.top) + (tag.m_font_size - font_size_reduction) / 2;
+		
+			if (min_width < m_width && min_height < m_height)
+			{
+				//
+				// get free rectangle
+				//
+				free_rect = m_boxmgr.getRectangleWithDimension(min_width, min_height);
+			}
+			
+			if (free_rect == null)
+			{
+				//
+				// decrease font size
+				//
+				font_size_reduction += FONT_STEP_SIZE;
+				Logger.i("tag: " + tag.m_tag + " reduced: " + font_size_reduction);
+			}
+			
+		}while(free_rect == null);
 		
 		//
 		// set empty
 		//
 		tag.m_rect.setEmpty();
 		
+		
 		//
 		// add offsets
 		//
+		tag.m_font_size -= font_size_reduction;
 		tag.m_rect.left = free_rect.left;
 		tag.m_rect.right = free_rect.left + min_width;
 		tag.m_rect.top = free_rect.top;
@@ -979,7 +993,7 @@ public class CloudViewSurfaceAdapter extends SurfaceView{
 	 * @param diff_x diff in x coordinates
 	 * @param diff_y diff in y coordinates
 	 */
-	public void onPointerMove(int pointer_index, float diff_x, float diff_y) {
+	public void onPointerMove(int pointer_index, float diff_x, float diffy) {
 		
 		if (pointer_index != 0)
 		{
@@ -993,6 +1007,7 @@ public class CloudViewSurfaceAdapter extends SurfaceView{
 		// get current maximum height of the screen box manager
 		//
 		int max_height = m_boxmgr.getCurrentHeight();
+		int diff_y = (int)diffy;
 		
 		if (diff_y > 0)
 		{
@@ -1000,10 +1015,10 @@ public class CloudViewSurfaceAdapter extends SurfaceView{
 			// scroll down operation
 			//
 			Logger.i("DOWN: top: " + m_source_rect.top + " diff_y:" + Math.abs(diff_y) + " height:" + m_height + " max_height: " + max_height);
-			if (m_source_rect.top + diff_y <= max_height)
+			if (m_source_rect.bottom + Math.abs(diff_y) <= max_height)
 			{
-				m_source_rect.top += Math.min(diff_y, max_height - m_source_rect.bottom);
-				m_source_rect.bottom += Math.min(diff_y, max_height - m_source_rect.bottom);
+				m_source_rect.top += Math.min(Math.abs(diff_y), max_height - m_source_rect.bottom);
+				m_source_rect.bottom += Math.min(Math.abs(diff_y), max_height - m_source_rect.bottom);
 				
 				//
 				// force repaint
@@ -1017,13 +1032,13 @@ public class CloudViewSurfaceAdapter extends SurfaceView{
 			// scroll up operation
 			//
 			Logger.i("UP: top: " + m_source_rect.top + " diff_y:" + Math.abs(diff_y) + " height:" + m_height + " max_height: " + max_height);
-			if (m_source_rect.top + diff_y >= 0.0f)
+			if (m_source_rect.top + diff_y >= 0)
 			{
 				//
 				// don't scroll up beyond beginning
 				//
 				m_source_rect.top = (int)Math.max(m_source_rect.top + diff_y, 0.0);
-				m_source_rect.bottom = (int)Math.max(m_source_rect.bottom + diff_y, m_width);
+				m_source_rect.bottom = m_source_rect.top + m_height;
 				
 				//
 				// force repaint

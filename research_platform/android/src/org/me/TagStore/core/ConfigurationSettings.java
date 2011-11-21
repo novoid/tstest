@@ -27,12 +27,12 @@ public class ConfigurationSettings {
 	/**
 	 * default list view class
 	 */
-	public final static String DEFAULT_LIST_VIEW_CLASS = "org.me.TagStore.TagStoreListViewActivity";
+	public final static String DEFAULT_LIST_VIEW_CLASS = "org.me.TagStore.TagStoreGridViewActivity";
 
 	/**
 	 * icon list view class
 	 */
-	public final static String ICON_LIST_VIEW_CLASS = "org.me.TagStore.TagStoreListViewActivity";
+	public final static String ICON_LIST_VIEW_CLASS = "org.me.TagStore.TagStoreGridViewActivity";
 
 	/**
 	 * cloud view class
@@ -119,6 +119,4 @@ public class ConfigurationSettings {
 	 * boolean setting if tool bar notifications should be enabled
 	 */
 	public static final String SHOW_TOOLBAR_NOTIFICATIONS = "toolbar_notifications";
-
-	
 }

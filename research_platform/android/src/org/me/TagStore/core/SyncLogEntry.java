@@ -8,7 +8,6 @@ package org.me.TagStore.core;
 
 public class SyncLogEntry {
 
-	
 	/**
 	 * stores the file name
 	 */

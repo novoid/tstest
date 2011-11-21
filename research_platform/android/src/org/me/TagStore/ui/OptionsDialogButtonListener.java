@@ -3,7 +3,7 @@ package org.me.TagStore.ui;
 import org.me.TagStore.R;
 import org.me.TagStore.interfaces.OptionsDialogCallback;
 
-import android.app.AlertDialog;
+import android.support.v4.app.DialogFragment;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -17,23 +17,29 @@ import android.widget.TextView;
 public class OptionsDialogButtonListener implements OnClickListener
 {
 	/**
-	 * stores the dialog
+	 * stores the view
 	 */
-	private AlertDialog m_dialog;
+	private final View m_view;
 	
 	/**
 	 * stores the callback
 	 */
-	private OptionsDialogCallback m_callback;
+	private final OptionsDialogCallback m_callback;
 
+	/**
+	 * stores the fragment which holds the dialog
+	 */
+	private final DialogFragment m_fragment;
+	
 	/**
 	 * constructor of class OptionsDialogButtonListener
 	 * @param callback callback which is invoked when a button of the options dialog has been pressed
-	 * @param dialog dialog containing the buttons
+	 * @param view view containing the buttons
 	 */
-	public OptionsDialogButtonListener(OptionsDialogCallback callback, AlertDialog dialog) {
+	public OptionsDialogButtonListener(OptionsDialogCallback callback, View view, DialogFragment fragment) {
 		m_callback = callback;
-		m_dialog = dialog;
+		m_view = view;
+		m_fragment = fragment;
 	}
 	
 	@Override
@@ -67,7 +73,7 @@ public class OptionsDialogButtonListener implements OnClickListener
 		//
 		// dismiss the dialog
 		//
-		m_dialog.dismiss();
+		m_fragment.dismiss();
 	}
 	
 	/**
@@ -80,7 +86,7 @@ public class OptionsDialogButtonListener implements OnClickListener
 		//
 		// get text field
 		//
-		TextView file_name = (TextView)m_dialog.findViewById(id);
+		TextView file_name = (TextView)m_view.findViewById(id);
 		if (file_name != null)
 		{
 			//

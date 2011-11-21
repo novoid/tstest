@@ -34,13 +34,4 @@
     	android:id="@+id/label_reset_factory_settings_text" android:text="@string/reset_factory_setting">
     </TextView>
 
-    <Button 
-    	android:layout_alignParentBottom="true" 
-    	android:layout_alignParentLeft="true"
-    	android:layout_height="wrap_content" 
-        android:layout_marginLeft="30dp"
-        android:layout_width="100dp"
-		android:layout_marginBottom="30dp" android:id="@+id/button_back" android:text="@string/string_back">
-    </Button>
-
 </RelativeLayout>

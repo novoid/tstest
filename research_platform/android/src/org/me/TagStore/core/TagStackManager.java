@@ -112,23 +112,6 @@ public class TagStackManager {
 	}
 
 	/**
-	 * returns the last element in the list
-	 * @return String
-	 */
-	public String getLastTag() {
-		
-		//
-		// convert to array
-		//
-		String [] tags = m_tags.toArray(new String[1]);
-		
-		//
-		// return last element
-		//
-		return tags[tags.length-1];
-	}
-	
-	/**
 	 * removes the specified tag
 	 * @param tag to be removed
 	 */
@@ -138,6 +121,25 @@ public class TagStackManager {
 		// remove the tag
 		//
 		m_tags.remove(tag);
+	}
+	
+	/**
+	 * removes the last tag in the list
+	 */
+	public void removeLastTag() {
+		
+		if (!m_tags.isEmpty())
+		{
+			//
+			// convert to array
+			//
+			String [] tags = m_tags.toArray(new String[1]);
+			
+			//
+			// remove last element
+			//
+			m_tags.remove(tags[tags.length-1]);			
+		}
 	}
 	
 	/**

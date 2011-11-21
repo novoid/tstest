@@ -12,11 +12,11 @@ import org.me.TagStore.interfaces.OptionsDialogCallback;
 import org.me.TagStore.interfaces.RenameDialogCallback;
 import org.me.TagStore.interfaces.RetagDialogCallback;
 
-
-import android.app.ActivityGroup;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.webkit.MimeTypeMap;
@@ -38,40 +38,40 @@ public class FileDialogBuilder {
 	final static int [] s_ids = new int[]{R.id.button_ignore_current, R.id.button_ignore_new, R.id.button_rename_current, R.id.button_rename_new};
 
 	
-	public static Dialog buildGeneralTagDialog(ActivityGroup activity, GeneralDialogCallback callback) {
+	public static Dialog buildGeneralTagDialog(FragmentActivity m_activity_group, GeneralDialogCallback callback) {
 		
 		//
 		// call internal builder
 		//
-		return buildCommonDialog(activity, true, callback);		
+		return buildCommonDialog(m_activity_group, true, callback);		
 		
 	}
 	
-	public static Dialog buildGeneralFileDialog(ActivityGroup activity, GeneralDialogCallback callback) {
+	public static Dialog buildGeneralFileDialog(FragmentActivity m_activity_group, GeneralDialogCallback callback) {
 		//
 		// call internal builder
 		//
-		return buildCommonDialog(activity, false, callback);
+		return buildCommonDialog(m_activity_group, false, callback);
 	}
 	
 	/**
 	 * constructs a general dialog
 	 * 
-	 * @param activity activity group this dialog belongs to
+	 * @param m_activity_group activity group this dialog belongs to
 	 * @param item name of the file
 	 */
-	private static Dialog buildCommonDialog(ActivityGroup activity, boolean is_tag, GeneralDialogCallback callback) {
+	private static Dialog buildCommonDialog(FragmentActivity m_activity_group, boolean is_tag, GeneralDialogCallback callback) {
 
 		//
 		// construct new alert builder
 		//
 		AlertDialog.Builder builder = new AlertDialog.Builder(
-				activity);
+				m_activity_group);
 
 		//
 		// get localized title
 		//
-		String title = activity.getApplicationContext().getString(R.string.options);
+		String title = m_activity_group.getApplicationContext().getString(R.string.options);
 		
 		//
 		// set title
@@ -87,25 +87,25 @@ public class FileDialogBuilder {
 		//
 		// add default menu items
 		//
-		String details_string = activity.getApplicationContext().getString(R.string.details);
+		String details_string = m_activity_group.getApplicationContext().getString(R.string.details);
 		menu_options.add(details_string);
 		action_ids.add(MENU_ITEM_ENUM.MENU_ITEM_DETAILS);
 
-		String rename_string = activity.getApplicationContext().getString(R.string.rename);
+		String rename_string = m_activity_group.getApplicationContext().getString(R.string.rename);
 		menu_options.add(rename_string);
 		action_ids.add(MENU_ITEM_ENUM.MENU_ITEM_RENAME);
 		
-		String delete_string = activity.getApplicationContext().getString(R.string.delete);
+		String delete_string = m_activity_group.getApplicationContext().getString(R.string.delete);
 		menu_options.add(delete_string);
 		action_ids.add(MENU_ITEM_ENUM.MENU_ITEM_DELETE);
 
 		if (!is_tag)
 		{
-			String send_string = activity.getApplicationContext().getString(R.string.send);
+			String send_string = m_activity_group.getApplicationContext().getString(R.string.send);
 			menu_options.add(send_string);
 			action_ids.add(MENU_ITEM_ENUM.MENU_ITEM_SEND);
 		
-			String retag_string = activity.getApplicationContext().getString(R.string.retag);
+			String retag_string = m_activity_group.getApplicationContext().getString(R.string.retag);
 			menu_options.add(retag_string);
 			action_ids.add(MENU_ITEM_ENUM.MENU_ITEM_RETAG);
 		}
@@ -145,17 +145,12 @@ public class FileDialogBuilder {
 	 * @param file_name file name
 	 * @return View
 	 */
-	public static void updateDetailDialogFileView(Dialog dialog, ActivityGroup activity, String file_name) {
-		
-		//
-		// cast to AlertDialog
-		//
-		AlertDialog alert_dialog = (AlertDialog)dialog;
+	public static void updateDetailDialogFileView(View view, FragmentActivity activity, String file_name) {
 		
 		//
 		// get text field for name
 		//
-		TextView text = (TextView) alert_dialog.findViewById(R.id.file_name_value);
+		TextView text = (TextView) view.findViewById(R.id.file_name_value);
 		if (text != null) {
 			//
 			// set file name
@@ -176,7 +171,7 @@ public class FileDialogBuilder {
 		//
 		// get text field for folder
 		//
-		text = (TextView) alert_dialog.findViewById(R.id.file_folder_value);
+		text = (TextView) view.findViewById(R.id.file_folder_value);
 		if (text != null) {
 			//
 			// set file name
@@ -192,7 +187,7 @@ public class FileDialogBuilder {
 		//
 		// get text field for size
 		//
-		text = (TextView) alert_dialog.findViewById(R.id.file_size_value);
+		text = (TextView) view.findViewById(R.id.file_size_value);
 		if (text != null) {
 			
 			//
@@ -225,7 +220,7 @@ public class FileDialogBuilder {
 		//
 		// get text field for size
 		//
-		text = (TextView) alert_dialog.findViewById(R.id.file_type_value);
+		text = (TextView) view.findViewById(R.id.file_type_value);
 		if (text != null) {
 			//
 			// set mime type
@@ -233,7 +228,7 @@ public class FileDialogBuilder {
 			text.setText(mime_type);
 		}
 		
-		text = (TextView) alert_dialog.findViewById(R.id.file_hashsum_value);
+		text = (TextView) view.findViewById(R.id.file_hashsum_value);
 		if (text != null)
 		{
 			//
@@ -248,7 +243,7 @@ public class FileDialogBuilder {
 			}
 		}
 		
-		text = (TextView)alert_dialog.findViewById(R.id.file_date_value);
+		text = (TextView)view.findViewById(R.id.file_date_value);
 		if (text != null)
 		{
 			//
@@ -256,16 +251,18 @@ public class FileDialogBuilder {
 			//
 			DBManager db_man = DBManager.getInstance();
 			String utc_file_date = db_man.getFileDate(file_name);
-			
-			//
-			// convert date to local time
-			//
-			String local_time = TimeFormatUtility.convertStringToLocalTime(utc_file_date);
+			if (utc_file_date != null)
+			{
+				//
+				// convert date to local time
+				//
+				String local_time = TimeFormatUtility.convertStringToLocalTime(utc_file_date);
 
-			//
-			// update time
-			//
-			text.setText(local_time);
+				//
+				// update time
+				//
+				text.setText(local_time);
+			}
 		}
 		
 	}
@@ -276,32 +273,67 @@ public class FileDialogBuilder {
 	 * @param file_name path of the file
 	 * @return Dialog
 	 */
-	public static Dialog buildDetailDialogFile(ActivityGroup activity) {
+	public static Dialog buildDetailDialogFile(FragmentActivity activity, String file_name) {
 
 		//
-		// call internal builder
+		// construct layout
 		//
-		return buildDialogWithId(activity, R.layout.details_dialog);
+		View layout = constructViewWithId(activity, R.layout.details_dialog);
+		
+		//
+		// update dialog
+		//
+		updateDetailDialogFileView(layout, activity, file_name);
+		
+		
+		//
+		// complete builder
+		//
+		return constructDialogWithView(activity, layout);
 	}
 
 	/**
 	 * updates the options dialog
 	 * @param dialog dialog to be updated
-	 * @param current_file_name file name which identifies a file currently included in the tagstore
 	 * @param new_file_name file name which identifies a file to be added to the tagstore
 	 * @param callback call-back class which receives call out when the user has made a choice
 	 */
-	public static void updateOptionsDialogFileView(Dialog dialog, String current_file_name, String new_file_name, OptionsDialogCallback callback) {
+	private static void updateOptionsDialogFileView(View view, String new_file_name, OptionsDialogCallback callback, DialogFragment fragment) {
+		
 		
 		//
-		// convert to AlertDialog
+		// acquire database manager
 		//
-		AlertDialog alert_dialog = (AlertDialog)dialog;
+		DBManager db_man = DBManager.getInstance();
+
+		//
+		// get all files which have the same name
+		//
+		ArrayList<String> files = db_man.getSimilarFilePaths(new File(new_file_name).getName());
+
+		//
+		// any file paths which have the same file name but different directory
+		//
+		if (files == null || files.isEmpty()) {
+			//
+			// BUG: no duplicates found 
+			//
+			Logger.e("no duplicates found while building updateOptionsDialog: " + new_file_name);
+			return;
+		}
+
+		//
+		// get first duplicate
+		//
+		String current_file_name = files.get(0);
+		
+		Logger.i("current: " + current_file_name + " new: " + new_file_name);
+		
 		
 		//
 		// first find the current file name text view
 		//
-		TextView current_view = (TextView)alert_dialog.findViewById(R.id.file_path_current);
+		TextView current_view = (TextView)view.findViewById(R.id.file_path_current);
 		if (current_view != null) 
 		{
 			//
@@ -313,7 +345,7 @@ public class FileDialogBuilder {
 		// 
 		// now find the new file name text view
 		//
-		TextView new_view = (TextView)alert_dialog.findViewById(R.id.file_path_new);
+		TextView new_view = (TextView)view.findViewById(R.id.file_path_new);
 		if (new_view != null)
 		{
 			//
@@ -330,47 +362,58 @@ public class FileDialogBuilder {
 			//
 			// get button
 			//
-			Button current_button = (Button)alert_dialog.findViewById(id);
+			Button current_button = (Button)view.findViewById(id);
 			if (current_button != null)
 			{
 				//
 				// set click listener
 				//
-				current_button.setOnClickListener(new OptionsDialogButtonListener(callback, alert_dialog));
+				current_button.setOnClickListener(new OptionsDialogButtonListener(callback, view, fragment));
 			}
 		}
-		
-		//
-		// finally mark dialog as not cancelable
-		//
-		alert_dialog.setCancelable(false);
 	}
 	
 	
 	/**
 	 * constructs the option dialog
-	 * @param activity activity which is the parent of the dialog
+	 * @param fragmentActivity activity which is the parent of the dialog
 	 * @return Dialog object
 	 */
-	public static Dialog buildOptionsDialogFile(ActivityGroup activity) {
+	public static Dialog buildOptionsDialogFile(FragmentActivity fragmentActivity, String new_file_name, OptionsDialogCallback callback, DialogFragment fragment) {
 		
 		//
-		// call internal builder
+		// construct layout
 		//
-		return buildDialogWithId(activity, R.layout.file_options);
+		View layout = constructViewWithId(fragmentActivity, R.layout.file_options);
+		
+		//
+		// update dialog
+		//
+		updateOptionsDialogFileView(layout, new_file_name, callback, fragment);
+		
+		//
+		// complete builder
+		//
+		AlertDialog alert_dialog = (AlertDialog) constructDialogWithView(fragmentActivity, layout);
+		
+		//
+		// finally mark dialog as not cancelable
+		//
+		alert_dialog.setCancelable(false);
+		
+		//
+		// done
+		//
+		return alert_dialog;
+		
 	}
 
-	public static void updateRetagDialogFile(Dialog dialog, String current_file, RetagDialogCallback callback) {
-		
-		//
-		// cast to alert dialog
-		//
-		AlertDialog alert_dialog = (AlertDialog)dialog;
+	private static void updateRetagDialogFile(View view, String current_file, RetagDialogCallback callback, DialogFragment fragment) {
 		
 		//
 		// get text view
 		//
-		TextView text_view = (TextView)alert_dialog.findViewById(R.id.old_tag_line);
+		TextView text_view = (TextView)view.findViewById(R.id.old_tag_line);
 		if (text_view != null)
 		{
 			//
@@ -410,19 +453,19 @@ public class FileDialogBuilder {
 		//
 		// get button tag done
 		//
-		Button button_tag = (Button) alert_dialog.findViewById(R.id.button_tag_done);
+		Button button_tag = (Button) view.findViewById(R.id.button_tag_done);
 		if (button_tag != null) {
 			
 			//
 			// add listener
 			//
-			button_tag.setOnClickListener( new RetagButtonClickListener(alert_dialog, current_file, callback));
+			button_tag.setOnClickListener( new RetagButtonClickListener(view, current_file, callback, fragment));
 		}
 
 		//
 		// get tag text field
 		//
-		EditText edit_text = (EditText) alert_dialog.findViewById(R.id.tag_field);
+		EditText edit_text = (EditText) view.findViewById(R.id.tag_field);
 		if (edit_text != null)
 		{
 			//
@@ -433,7 +476,7 @@ public class FileDialogBuilder {
 			//
 			// add text changed listener
 			//
-			edit_text.addTextChangedListener(new UITagTextWatcher(dialog.getContext(), false));		
+			edit_text.addTextChangedListener(new UITagTextWatcher(view.getContext(), false));		
 		}
 	}
 	
@@ -442,12 +485,22 @@ public class FileDialogBuilder {
 	 * @param activity activity this dialog belongs to
 	 * @return Dialog object
 	 */
-	public static Dialog buildRetagDialogFile(ActivityGroup activity) {
+	public static Dialog buildRetagDialogFile(FragmentActivity activity, String current_file, RetagDialogCallback callback, DialogFragment fragment) {
 		
 		//
-		// call internal builder
+		// construct layout
 		//
-		return buildDialogWithId(activity, R.layout.file_retag);
+		View layout = constructViewWithId(activity, R.layout.file_retag);
+		
+		//
+		// update dialog
+		//
+		updateRetagDialogFile(layout, current_file, callback, fragment);
+		
+		//
+		// complete builder
+		//
+		return constructDialogWithView(activity, layout);
 	}
 	
 	/**
@@ -455,12 +508,34 @@ public class FileDialogBuilder {
 	 * @param activity activity this dialog belongs to
 	 * @return Dialog object
 	 */
-	public static Dialog buildRenameDialogFile(ActivityGroup activity) {
+	public static Dialog buildRenameDialogFile(FragmentActivity activity, String item_name, boolean is_tag, boolean cancellable, RenameDialogCallback callback, DialogFragment fragment) {
 
 		//
-		// call internal builder
+		// construct layout
 		//
-		return buildDialogWithId(activity, R.layout.file_rename);
+		View layout = constructViewWithId(activity, R.layout.file_rename);
+		
+
+		//
+		// update details
+		//
+		updateRenameDialogFile(layout, item_name, is_tag, callback, fragment);
+
+		
+		//
+		// complete builder
+		//
+		AlertDialog alert_dialog = (AlertDialog)constructDialogWithView(activity, layout);
+		
+		//
+		// finally mark dialog as not cancelable
+		//
+		alert_dialog.setCancelable(cancellable);
+		
+		//
+		// done
+		//
+		return alert_dialog;
 	}
 	
 	/**
@@ -471,21 +546,16 @@ public class FileDialogBuilder {
 	 * @param cancellable if true the dialog is cancelable
 	 * @param callback callback which is invoked when rename operation has been completed
 	 */
-	public static void updateRenameDialogFile(Dialog dialog,
+	private static void updateRenameDialogFile(View view,
 			String item_name,
 			boolean is_tag,
-			boolean cancelable,
-			RenameDialogCallback callback) {
+			RenameDialogCallback callback,
+			DialogFragment fragment) {
 
-		//
-		// cast to alert dialog
-		//
-		AlertDialog alert_dialog = (AlertDialog)dialog;
-		
 		//
 		// find text view for old file path text view
 		//
-		TextView text_view = (TextView) alert_dialog.findViewById(R.id.old_file_name);
+		TextView text_view = (TextView) view.findViewById(R.id.old_file_name);
 		if (text_view != null)
 		{
 			//
@@ -503,7 +573,7 @@ public class FileDialogBuilder {
 			name = new File(item_name).getName();
 		}
 		
-		EditText edit_text = (EditText) alert_dialog.findViewById(R.id.new_file_name);
+		EditText edit_text = (EditText) view.findViewById(R.id.new_file_name);
 		if (edit_text != null)
 		{
 			//
@@ -519,25 +589,20 @@ public class FileDialogBuilder {
 			//
 			// add text changed listener
 			//
-			edit_text.addTextChangedListener(new UITagTextWatcher(dialog.getContext(), false));		
+			edit_text.addTextChangedListener(new UITagTextWatcher(view.getContext(), false));		
 		}
 		
 		//
 		// get rename button
 		//
-		Button button = (Button)alert_dialog.findViewById(R.id.button_rename);
+		Button button = (Button)view.findViewById(R.id.button_rename);
 		if (button != null)
 		{
 			//
 			// add listener
 			//
-			button.setOnClickListener(new RenameDialogButtonListener(alert_dialog, item_name, is_tag, callback));
+			button.setOnClickListener(new RenameDialogButtonListener(view, item_name, is_tag, callback, fragment));
 		}
-		
-		//
-		// finally mark dialog as not cancelable
-		//
-		alert_dialog.setCancelable(cancelable);
 	}
 	
 	/**
@@ -545,25 +610,40 @@ public class FileDialogBuilder {
 	 * @param activity activity this dialog belongs to
 	 * @return Dialog object
 	 */
-	public static Dialog buildTagDetailDialog(ActivityGroup activity) {
+	public static Dialog buildTagDetailDialog(FragmentActivity activity, String tag_name) {
 
 		//
-		// call internal builder
+		// construct layout
 		//
-		return buildDialogWithId(activity, R.layout.tag_details);
-	}
-	
-	public static void updateTagDetailDialog(Dialog dialog, String tag_name) {
+		View layout = constructViewWithId(activity, R.layout.tag_details);
+		
 		
 		//
-		// cast to alert dialog
+		// update details
 		//
-		AlertDialog alert_dialog = (AlertDialog)dialog;
+		updateTagDetailDialog(layout, tag_name);
+
+		
+		//
+		// complete builder
+		//
+		return constructDialogWithView(activity, layout);
+		
+	}
+
+	/**
+	 * updates the tag detail dialog
+	 * @param view to use for updating the dialog
+	 * @param tag_name name of the tag
+	 */
+	private static void updateTagDetailDialog(View view, String tag_name) {
+		
+		//alert_dialog.requestWindowFeature(Window.)
 		
 		//
 		// find tag name item
 		//
-		TextView text = (TextView)alert_dialog.findViewById(R.id.tag_name_value);
+		TextView text = (TextView)view.findViewById(R.id.tag_name_value);
 		if (text != null)
 		{
 			//
@@ -586,7 +666,7 @@ public class FileDialogBuilder {
 		//
 		// find tag link item
 		//
-		text = (TextView) alert_dialog.findViewById(R.id.tag_link_value);
+		text = (TextView) view.findViewById(R.id.tag_link_value);
 		if (text != null)
 		{
 			//
@@ -607,7 +687,7 @@ public class FileDialogBuilder {
 		//
 		// find tag file item
 		//
-		text = (TextView) alert_dialog.findViewById(R.id.tag_files_value);
+		text = (TextView) view.findViewById(R.id.tag_files_value);
 		if (text != null)
 		{
 			//
@@ -628,16 +708,16 @@ public class FileDialogBuilder {
 	
 	/**
 	 * builds a specific alert dialog
-	 * @param activity activity this dialog belongs to
+	 * @param fragmentActivity activity this dialog belongs to
 	 * @param dialog_id resource id of the dialog
 	 * @return
 	 */
-	private static Dialog buildDialogWithId(ActivityGroup activity, int dialog_id) {
+	private static View constructViewWithId(FragmentActivity fragmentActivity, int dialog_id) {
 		
 		//
 		// get layout inflater service
 		//
-		LayoutInflater inflater = (LayoutInflater) activity
+		LayoutInflater inflater = (LayoutInflater) fragmentActivity
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
 		//
@@ -646,11 +726,18 @@ public class FileDialogBuilder {
 		View layout = inflater.inflate(dialog_id,
 				null);//(ViewGroup) findViewById(R.id.layout_root));
 		
-
+		//
+		// done
+		//
+		return layout;
+	}
+	
+	private static Dialog constructDialogWithView(FragmentActivity fragmentActivity, View layout) {
+	
 		//
 		// construct builder
 		//
-		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+		AlertDialog.Builder builder = new AlertDialog.Builder(fragmentActivity);
 		
 		//
 		// set view

@@ -5,7 +5,6 @@ import java.io.FileFilter;
 
 import android.app.ListActivity;
 import android.os.Bundle;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -85,15 +84,6 @@ public class FileDialogBrowser extends ListActivity {
 	public static final String SELECTED_PATH_PARAMETER = "SELECTED_PATH";
 
 	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		if (keyCode == KeyEvent.KEYCODE_BACK) {
-			ConfigurationActivityGroup.s_Instance.back();
-			return true;
-		}
-		return super.onKeyDown(keyCode, event);
-	}
-
-	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 
 		//
@@ -126,22 +116,16 @@ public class FileDialogBrowser extends ListActivity {
 				if (m_CurrentPath != null) {
 
 					//
-					// store intent
+					// store result in intent
 					//
 					getIntent()
 							.putExtra(SELECTED_PATH_PARAMETER, m_CurrentPath);
 
 					//
-					// HACK: perform onActivityResult manually
+					// set result code
 					//
-					DirectoryListActivity.s_Instance.onActivityResult(
-							DirectoryListActivity.DIRECTORY_LIST_REQUEST_CODE,
-							RESULT_OK, getIntent());
-
-					//
-					// go back
-					//
-					ConfigurationActivityGroup.s_Instance.back();
+					setResult(RESULT_OK, getIntent());
+					finish();
 				}
 			}
 		});
@@ -158,7 +142,7 @@ public class FileDialogBrowser extends ListActivity {
 
 			@Override
 			public void onClick(View v) {
-				ConfigurationActivityGroup.s_Instance.back();
+				finish();
 			}
 
 		});

@@ -2,19 +2,21 @@ package org.me.TagStore.ui;
 
 import java.io.File;
 import org.me.TagStore.R;
-import org.me.TagStore.core.DBManager;
-import org.me.TagStore.core.DialogIds;
 import org.me.TagStore.core.FileTagUtility;
+import org.me.TagStore.core.Logger;
 import org.me.TagStore.interfaces.GeneralDialogCallback;
+import org.me.TagStore.interfaces.OptionsDialogCallback;
 import org.me.TagStore.interfaces.RenameDialogCallback;
 import org.me.TagStore.interfaces.RetagDialogCallback;
 
-import android.app.Activity;
-import android.app.ActivityGroup;
 import android.app.Dialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Environment;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
@@ -25,49 +27,23 @@ import android.widget.Toast;
  */
 public class DialogItemOperations {
 
-	private final Activity m_activity;
-	private final ActivityGroup m_activity_group;
+	private final Fragment m_activity;
+	private final FragmentActivity m_activity_group;
+	private final FragmentManager m_fragment_manager;
 	
 	/**
 	 * constructor of class DialogItemOperations
 	 * @param activity owner activity for the dialogs
 	 * @param activity_group owner of activity which is assed for launching / sharing files
 	 */
-	public DialogItemOperations(Activity activity, ActivityGroup activity_group) {
+	public DialogItemOperations(Fragment activity, FragmentActivity activity_group, FragmentManager fragment_manager) {
 		
 		//
 		// initialize activity
 		//
 		m_activity = activity;
 		m_activity_group = activity_group;
-	}
-	
-	/**
-	 * prepares the dialog
-	 * @param id dialog id
-	 * @param dialog dialog object
-	 * @param file_name file name
-	 * @param is_tag if it is a tag
-	 */
-	public void prepareDialog(int id, Dialog dialog, String file_name, boolean is_tag) {
-		
-		//
-		// check which dialog is requested
-		//
-		switch (id) {
-			case DialogIds.DIALOG_DETAILS:
-				FileDialogBuilder.updateDetailDialogFileView(dialog, m_activity_group, file_name);
-				break;
-			case DialogIds.DIALOG_RENAME:
-				FileDialogBuilder.updateRenameDialogFile(dialog, file_name, is_tag, true, (RenameDialogCallback)m_activity);
-				break;
-			case DialogIds.DIALOG_RETAG:
-				FileDialogBuilder.updateRetagDialogFile(dialog, file_name, (RetagDialogCallback)m_activity);
-				break;
-			case DialogIds.DIALOG_DETAILS_TAG:
-				FileDialogBuilder.updateTagDetailDialog(dialog, file_name);
-				break;
-		}
+		m_fragment_manager = fragment_manager;
 	}
 	
 	/**
@@ -75,7 +51,7 @@ public class DialogItemOperations {
 	 * @param id dialog to be created
 	 * @return Dialog
 	 */
-	public Dialog createDialog(int id) {
+	public Dialog createDialog(int id, String item_name, boolean is_tag, DialogFragment fragment) {
 		
 		//
 		// construct dialog
@@ -90,26 +66,28 @@ public class DialogItemOperations {
 		case DialogIds.DIALOG_GENERAL_FILE_MENU:
 			dialog = FileDialogBuilder.buildGeneralFileDialog(m_activity_group, (GeneralDialogCallback)m_activity);
 			break;
+			
 		case DialogIds.DIALOG_DETAILS:
-			dialog = FileDialogBuilder.buildDetailDialogFile(m_activity_group);
+			dialog = FileDialogBuilder.buildDetailDialogFile(m_activity_group, item_name);
 			break;
 		case DialogIds.DIALOG_RENAME:
-			dialog = FileDialogBuilder.buildRenameDialogFile(m_activity_group);
+			dialog = FileDialogBuilder.buildRenameDialogFile(m_activity_group, item_name, is_tag, true, (RenameDialogCallback)m_activity, fragment);
 			break;
 		case DialogIds.DIALOG_RETAG:
-			dialog = FileDialogBuilder.buildRetagDialogFile(m_activity_group);
+			dialog = FileDialogBuilder.buildRetagDialogFile(m_activity_group, item_name, (RetagDialogCallback)m_activity, fragment);
 			break;
 		case DialogIds.DIALOG_GENERAL_TAG_MENU:
 			dialog = FileDialogBuilder.buildGeneralTagDialog(m_activity_group, (GeneralDialogCallback)m_activity);
 			break;			
 		case DialogIds.DIALOG_DETAILS_TAG:
-			dialog = FileDialogBuilder.buildTagDetailDialog(m_activity_group);
+			dialog = FileDialogBuilder.buildTagDetailDialog(m_activity_group, item_name);
 			break;
+		case DialogIds.DIALOG_OPTIONS:
+			dialog = FileDialogBuilder.buildOptionsDialogFile(m_activity_group, item_name, (OptionsDialogCallback)m_activity, fragment);
 		}
 		return dialog;
 	}
-	
-	
+
 	/**
 	 * performs a common dialog operation
 	 * @param item_path path of item or tag name when is_tag is set to true
@@ -124,31 +102,42 @@ public class DialogItemOperations {
 			//
 			// launch retag dialog
 			//
-			m_activity.showDialog(DialogIds.DIALOG_RETAG);
-			
+			CommonDialogFragment fragment = CommonDialogFragment.newInstance(item_path, is_tag, DialogIds.DIALOG_RETAG);
+			fragment.setDialogItemOperation(this);
+			fragment.show(m_fragment_manager, "FIXME");		
 		}
+		
 		if (action_id == FileDialogBuilder.MENU_ITEM_ENUM.MENU_ITEM_RENAME)
 		{
 			//
 			// launch rename dialog
 			//
-			m_activity.showDialog(DialogIds.DIALOG_RENAME);
+			CommonDialogFragment fragment = CommonDialogFragment.newInstance(item_path, is_tag, DialogIds.DIALOG_RENAME);
+			fragment.setDialogItemOperation(this);			
+			fragment.show(m_fragment_manager, "FIXME");		
 		}
 		else if (action_id == FileDialogBuilder.MENU_ITEM_ENUM.MENU_ITEM_DETAILS)
 		{
+			
+			Logger.i(item_path + " is_tag: " + is_tag);
+			
 			if (is_tag) 
 			{
 				//
 				// launch tag details dialog
 				//
-				m_activity.showDialog(DialogIds.DIALOG_DETAILS_TAG);
+				CommonDialogFragment fragment = CommonDialogFragment.newInstance(item_path, is_tag, DialogIds.DIALOG_DETAILS_TAG);
+				fragment.setDialogItemOperation(this);				
+				fragment.show(m_fragment_manager, "FIXME");		
 			}
 			else
 			{
 				//
 				// launch file details dialog
 				//
-				m_activity.showDialog(DialogIds.DIALOG_DETAILS);
+				CommonDialogFragment fragment = CommonDialogFragment.newInstance(item_path, is_tag, DialogIds.DIALOG_DETAILS);
+				fragment.setDialogItemOperation(this);				
+				fragment.show(m_fragment_manager, "FIXME");		
 			}
 		} else if (action_id == FileDialogBuilder.MENU_ITEM_ENUM.MENU_ITEM_DELETE) 
 		{
@@ -158,15 +147,20 @@ public class DialogItemOperations {
 				//
 				// remove tag
 				//
-				DBManager db_man = DBManager.getInstance();
-				db_man.deleteTag(item_path);
+				FileTagUtility.removeTag(item_path);
 			}
 			else
 			{
 				//
+				// check if external disk is mounted
+				//
+				if (!isExternalStorageAvailable())
+					return false;
+
+				//
 				// remove the file
 				//
-				FileTagUtility.removeFile(item_path, m_activity);
+				FileTagUtility.removeFile(item_path, m_activity_group);
 			}
 
 			//
@@ -194,39 +188,24 @@ public class DialogItemOperations {
 		return false;
 	}
 	
+	/**
+	 * sends a file
+	 * @param item_path path of the item
+	 * @return true on success
+	 */
 	private boolean sendFile(String item_path) {
 		
-		File file = new File(item_path);
+		//
+		// check if external disk is mounted
+		//
+		if (!isExternalStorageAvailable())
+			return false;
 
-		if (file.exists() == false) {
-			
-			//
-			// get localized error format
-			//
-			String error_format = m_activity.getString(R.string.error_format_file_removed);
-			
-			//
-			// format the error
-			//
-			String msg = String.format(error_format, item_path);
-			
-			//
-			// create the toast
-			//
-			Toast toast = Toast.makeText(m_activity,
-					msg,
-					Toast.LENGTH_SHORT);
-
-			//
-			// display toast
-			//
-			toast.show();
-
-			//
-			// needs refresh
-			//
-			return true;
-		}
+		//
+		// does the file still exist
+		//
+		if (!isFileExisting(item_path))
+			return false;
 
 		//
 		// create new intent
@@ -241,7 +220,7 @@ public class DialogItemOperations {
 		//
 		// create uri from file
 		//
-		Uri uri_file = Uri.fromFile(file);
+		Uri uri_file = Uri.fromFile(new File(item_path));
 
 		//
 		// get mime type map instance
@@ -282,10 +261,10 @@ public class DialogItemOperations {
 	}
 	
 	/**
-	 * launches a file with the default registered application
-	 * @param item_path path of the file
+	 * checks if the external storage disk is available
+	 * @return
 	 */
-	private void launchFile(String item_path) {
+	private boolean isExternalStorageAvailable() {
 		
 		//
 		// get current storage state
@@ -301,7 +280,7 @@ public class DialogItemOperations {
 			//
 			// create toast
 			//
-			Toast toast = Toast.makeText(m_activity, media_available, Toast.LENGTH_SHORT);
+			Toast toast = Toast.makeText(m_activity_group, media_available, Toast.LENGTH_SHORT);
 			
 			//
 			// display toast
@@ -311,10 +290,22 @@ public class DialogItemOperations {
 			//
 			// done
 			//
-			return;
+			return false;
 		}
-
-
+		
+		//
+		// all ready
+		//
+		return true;
+	}
+	
+	/**
+	 * checks if the specified file still exists
+	 * @param item_path item path to be checked
+	 * @return true when it still exists
+	 */
+	private boolean isFileExisting(String item_path) {
+		
 		//
 		// construct file object
 		//
@@ -335,7 +326,7 @@ public class DialogItemOperations {
 			//
 			// create the toast
 			//
-			Toast toast = Toast.makeText(m_activity,
+			Toast toast = Toast.makeText(m_activity_group,
 					msg,
 					Toast.LENGTH_SHORT);
 
@@ -347,8 +338,33 @@ public class DialogItemOperations {
 			//
 			// FIXME: refresh perhaps?
 			//
-			return;
+			return false;
 		}
+		
+		//
+		// file exists
+		//
+		return true;
+	}
+	
+	
+	/**
+	 * launches a file with the default registered application
+	 * @param item_path path of the file
+	 */
+	private void launchFile(String item_path) {
+		
+		//
+		// check if it is mounted
+		//
+		if (!isExternalStorageAvailable())
+			return;
+
+		//
+		// does the file still exist
+		//
+		if (!isFileExisting(item_path))
+			return;
 
 		//
 		// create new intent
@@ -363,7 +379,7 @@ public class DialogItemOperations {
 		//
 		// create uri from file
 		//
-		Uri uri_file = Uri.fromFile(file);
+		Uri uri_file = Uri.fromFile(new File(item_path));
 
 		//
 		// get mime type map instance

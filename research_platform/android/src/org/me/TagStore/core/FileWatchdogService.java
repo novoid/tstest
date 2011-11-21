@@ -3,7 +3,7 @@ package org.me.TagStore.core;
 import java.io.File;
 import java.util.ArrayList;
 
-import org.me.TagStore.MainActivity;
+import org.me.TagStore.MainPagerActivity;
 import org.me.TagStore.R;
 import org.me.TagStore.core.DBManager;
 import org.me.TagStore.core.FileSystemObserver;
@@ -84,9 +84,9 @@ public class FileWatchdogService extends Service implements org.me.TagStore.core
 		if (type == org.me.TagStore.interfaces.FileSystemObserverNotification.NotificationType.FILE_DELETED) {
 			//
 			// file was deleted
-			// remove file from database
+			// remove file from store
 			//
-			db_man.removeFile(file_name, true, true);
+			FileTagUtility.removeFile(file_name, null);
 
 			//
 			// done
@@ -230,7 +230,7 @@ public class FileWatchdogService extends Service implements org.me.TagStore.core
 		// construct new intent
 		//
 		Intent notificationIntent = new Intent(getApplicationContext(),
-				MainActivity.class);
+				MainPagerActivity.class);
 
 		//
 		// construct pending intent

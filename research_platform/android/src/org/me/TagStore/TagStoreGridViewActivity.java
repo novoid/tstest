@@ -5,17 +5,19 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 
-import org.me.TagStore.R;
 import org.me.TagStore.core.ConfigurationSettings;
 import org.me.TagStore.core.DBManager;
-import org.me.TagStore.core.DialogIds;
+import org.me.TagStore.core.FileTagUtility;
 import org.me.TagStore.core.Logger;
 import org.me.TagStore.core.TagStackManager;
+import org.me.TagStore.interfaces.BackKeyCallback;
 import org.me.TagStore.interfaces.GeneralDialogCallback;
 import org.me.TagStore.interfaces.IconViewClickListenerCallback;
 import org.me.TagStore.interfaces.RenameDialogCallback;
 import org.me.TagStore.interfaces.RetagDialogCallback;
 import org.me.TagStore.interfaces.TagStackUIButtonCallback;
+import org.me.TagStore.ui.CommonDialogFragment;
+import org.me.TagStore.ui.DialogIds;
 import org.me.TagStore.ui.DialogItemOperations;
 import org.me.TagStore.ui.FileDialogBuilder;
 import org.me.TagStore.ui.IconViewItemBuilder;
@@ -23,70 +25,54 @@ import org.me.TagStore.ui.IconViewListAdapter;
 import org.me.TagStore.ui.IconViewScrollListener;
 import org.me.TagStore.ui.TagStackUIButtonAdapter;
 
-import android.app.Dialog;
-import android.app.ListActivity;
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
-import android.widget.ListView;
+import android.widget.GridView;
 
-public class TagStoreListViewActivity extends ListActivity implements GeneralDialogCallback, 
-																	  RenameDialogCallback, 
-																	  TagStackUIButtonCallback, 
-																	  IconViewClickListenerCallback, 
-																	  RetagDialogCallback
+
+
+public class TagStoreGridViewActivity extends DialogFragment implements GeneralDialogCallback, 
+																  RenameDialogCallback, 
+																  TagStackUIButtonCallback, 
+																  IconViewClickListenerCallback, 
+																  RetagDialogCallback,
+																  BackKeyCallback
 {
-
-	/**
-	 * reference to database manager
-	 */
-	DBManager m_db;
-
-	/**
-	 * stores stack of the visited items
-	 */
-	TagStackManager m_tag_stack;
-
-
 	/**
 	 * list view contents
 	 */
-	ArrayList<HashMap<String, Object>> m_list_map;
-
-	/**
-	 * stores the tag list sorting order
-	 */
-	ArrayList<String> m_tag_list;
+	private ArrayList<HashMap<String, Object>> m_list_map;
 
 	/**
 	 * stores the tag navigation button adapter
 	 */
-	TagStackUIButtonAdapter m_tag_list_view;
+	private TagStackUIButtonAdapter m_tag_list_view;
 	
-	/**
-	 * stores the tag reference count
-	 */
-	HashMap<String, Integer> m_tag_reference_count;
-
 	/**
 	 * stores the common dialog operations object
 	 */
-	DialogItemOperations m_dialog_operations;
+	private DialogItemOperations m_dialog_operations;
 	
 	/**
 	 * current active file item
 	 */
-	int m_selected_item_index;
+	private int m_selected_item_index;
 
 	/**
 	 * scroll listener of view
 	 */
-	IconViewScrollListener m_scroll_listener;
+	private IconViewScrollListener m_scroll_listener;
 
-
-	
 	@Override
 	public void onPause() {
 
@@ -95,7 +81,7 @@ public class TagStoreListViewActivity extends ListActivity implements GeneralDia
 		//
 		super.onPause();
 
-		Logger.e("TagStoreListViewActivity::onPause");
+		Logger.i("TagStoreListViewActivity::onPause");
 
 		//
 		// is there a scroll listener
@@ -125,61 +111,25 @@ public class TagStoreListViewActivity extends ListActivity implements GeneralDia
 		refreshView();
 	}
 
-	protected void onPrepareDialog (int id, Dialog dialog) {
-		
-		//
-		// get map entry
-		//
-		HashMap<String, Object> map_entry = m_list_map
-				.get(m_selected_item_index);
+	public void onCreate(Bundle savedInstanceState) {
 
 		//
-		// file name
+		// get arguments
 		//
-		String file_name;		
-
-		//
-		// check if tag
-		//
-		boolean is_tag = !map_entry.containsKey(IconViewItemBuilder.ITEM_PATH);
+		Bundle args = getArguments();
 		
-		if (is_tag)
+		if (args != null)
 		{
-			//
-			// item name
-			//
-			file_name = (String) map_entry.get(IconViewItemBuilder.ITEM_NAME);
-		}
-		else
-		{
-			file_name = (String) map_entry.get(IconViewItemBuilder.ITEM_PATH);
+			int num = getArguments().getInt("dialogid");
+			Logger.i("TagStoreListViewActivity::onCreate dialogid: " + num);
+			return;
 		}
 		
-		//
-		// let common dialog operations handle it
-		//
-		m_dialog_operations.prepareDialog(id, dialog, file_name, is_tag);
-	}
-	
-	/**
-	 * called when there is a need to construct a dialog
-	 */
-	protected Dialog onCreateDialog(int id) {
-
-		Logger.i("TagStoreListViewActivity::onCreateDialog dialog id: " + id);
-
-		//
-		// let common dialog operations handle it
-		//
-		return m_dialog_operations.createDialog(id);
-	}
-
-	protected void onCreate(Bundle savedInstanceState) {
-
+		
 		//
 		// informal debug message
 		//
-		Logger.d("TagStoreListViewActivity::onCreate");
+		Logger.d("TagStoreGridViewActivity::onCreate");
 
 		//
 		// pass onto lower classes
@@ -187,24 +137,10 @@ public class TagStoreListViewActivity extends ListActivity implements GeneralDia
 		super.onCreate(savedInstanceState);
 
 		//
-		// lets sets our own design
-		//
-		setContentView(R.layout.tagstore_list_view);
-
-		//
-		// acquire instance of tag stack
-		//
-		m_tag_stack = TagStackManager.getInstance();
-
-		//
 		// construct list map
 		//
 		m_list_map = new ArrayList<HashMap<String, Object>>();
 
-		//
-		// initialize configuration tab
-		//
-		initialize();
 
 	}
 
@@ -213,18 +149,25 @@ public class TagStoreListViewActivity extends ListActivity implements GeneralDia
 	 */
 	private void refreshView() {
 
-		//
-		// clear the map
-		//
-		m_list_map.clear();
+		if (m_list_map != null)
+		{
+			//
+			// clear the map
+			//
+			m_list_map.clear();
+		}
 		
+		//
+		// acquire tag stack manager
+		//
+		TagStackManager tag_stack = TagStackManager.getInstance();
+
 		//
 		// verify the tag stack
 		//
-		m_tag_stack.verifyTags();
+		tag_stack.verifyTags();
 		
-		
-		if (m_tag_stack.isEmpty())
+		if (tag_stack.isEmpty())
 		{
 			//
 			// refresh root view
@@ -245,31 +188,24 @@ public class TagStoreListViewActivity extends ListActivity implements GeneralDia
 			//
 			// now build the list the view
 			//
-			buildListView();
+			buildListView(getView());
 			
 			//
 			// done
 			//
 			return;
-		}			
-
 		
-		//
-		// this is a bit retarded ;)
-		//
-		String last_element = m_tag_stack.getLastTag();
-
-		assert(last_element != null);
-		
+		}
+			
 		//
 		// fill list map with this tag
 		//
-		fillListMapWithTag(last_element);
+		fillListMapWithTagStack();
 
 		//
 		// now rebuild list
 		//
-		buildListView();
+		buildListView(getView());
 	}
 
 	/**
@@ -279,14 +215,19 @@ public class TagStoreListViewActivity extends ListActivity implements GeneralDia
 	public void tagButtonClicked(String tag) {
 		
 		//
+		// get tag stack manager
+		//
+		TagStackManager tag_stack = TagStackManager.getInstance();
+		
+		//
 		// clear tag stack
 		//
-		m_tag_stack.clearTags();
+		tag_stack.clearTags();
 		
 		//
 		// add the tag
 		//
-		m_tag_stack.addTag(tag);
+		tag_stack.addTag(tag);
 		
 		//
 		// refresh view
@@ -294,27 +235,6 @@ public class TagStoreListViewActivity extends ListActivity implements GeneralDia
 		refreshView();
 	}
 	
-	
-	/**
-	 * removes the last tag from the tag stack
-	 */
-	private void removeLastTagFromTagStack() {
-
-		if (!m_tag_stack.isEmpty())
-		{
-			//
-			// this is a bit retarded ;)
-			//
-			String last_element = m_tag_stack.getLastTag();
-
-			//
-			// remove last element
-			//
-			m_tag_stack.removeTag(last_element);
-		}
-	}
-
-
 	public void renamedFile(String old_file_name, String new_file) {
 		
 		//
@@ -339,10 +259,14 @@ public class TagStoreListViewActivity extends ListActivity implements GeneralDia
 		//
 		refreshView();		
 	}
-	
-	@Override
+
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		
+		//
+		// get tag stack manager
+		//
+		TagStackManager tag_stack = TagStackManager.getInstance();
+	
 		//
 		// check if not back button was pressed
 		//
@@ -350,26 +274,25 @@ public class TagStoreListViewActivity extends ListActivity implements GeneralDia
 			//
 			// pass on to default handler
 			//
-			return super.onKeyDown(keyCode, event);
+			return false;
 		}
 
-		Logger.i("TagStoreListViewActivity::onKeyDown empty: " + m_tag_stack.isEmpty());
+		Logger.i("TagStoreListViewActivity::onKeyDown empty: " + tag_stack.isEmpty());
 
 		//
 		// check if object stack is empty
 		//
-		if (m_tag_stack.isEmpty()) {
+		if (tag_stack.isEmpty()) {
 			//
-			// exit application
+			// close application
 			//
-			TagActivityGroup.s_Instance.back();
 			return true;
 		}
 
 		//
 		// pop last tag from stack if available
 		//
-		removeLastTagFromTagStack();
+		tag_stack.removeLastTag();
 
 		//
 		// now refresh view
@@ -392,9 +315,21 @@ public class TagStoreListViewActivity extends ListActivity implements GeneralDia
 	private boolean fillListMap() {
 
 		//
+		// acquire database manager
+		//
+		DBManager db_man = DBManager.getInstance();
+		
+		//
+		// tag list
+		//
+		ArrayList<String> tag_list = null;
+		
+			
+		
+		//
 		// acquire shared settings
 		//
-		SharedPreferences settings = getSharedPreferences(
+		SharedPreferences settings = getActivity().getSharedPreferences(
 				ConfigurationSettings.TAGSTORE_PREFERENCES_NAME,
 				Context.MODE_PRIVATE);
 
@@ -412,13 +347,13 @@ public class TagStoreListViewActivity extends ListActivity implements GeneralDia
 			//
 			// get tags sorted by alphabet
 			//
-			m_tag_list = m_db.getAlphabeticTags();
+			tag_list = db_man.getAlphabeticTags();
 		} else if (sort_mode
 				.compareTo(ConfigurationSettings.LIST_VIEW_SORT_MODE_POPULAR) == 0) {
 			//
 			// get tags sorted by popularity
 			//
-			m_tag_list = m_db.getPopularTags();
+			tag_list = db_man.getPopularTags();
 		} else if (sort_mode
 				.compareTo(ConfigurationSettings.LIST_VIEW_SORT_MODE_RECENT) == 0) {
 			//
@@ -427,7 +362,7 @@ public class TagStoreListViewActivity extends ListActivity implements GeneralDia
 			Logger.e("Error: TagListViewActivity::fillListMap get recent tags is not implemented yet");
 		}
 
-		if (m_tag_list == null) {
+		if (tag_list == null) {
 			//
 			// no tag list
 			//
@@ -437,7 +372,7 @@ public class TagStoreListViewActivity extends ListActivity implements GeneralDia
 		//
 		// now add the tags to the list
 		//
-		for (String current_tag : m_tag_list) {
+		for (String current_tag : tag_list) {
 			//
 			// add item to list
 			//
@@ -450,52 +385,61 @@ public class TagStoreListViewActivity extends ListActivity implements GeneralDia
 		return true;
 	}
 
-	/**
-	 * initializes the list view
-	 */
-	private void initialize() {
+	 public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle saved) {
+			
+			//
+			// get arguments
+			//
+			Bundle args = getArguments();
+			
+			if (args != null)
+			{
+				int num = getArguments().getInt("dialogid");
+				Logger.i("TagStoreListViewActivity::onCreateView dialogid: " + num);
+				return null;
+			}		 
+		 
+			//
+			// construct grid view
+			//
+			View view = inflater.inflate(R.layout.tagstore_grid_view, null);
 
-		//
-		// acquire database manager instance
-		//
-		m_db = DBManager.getInstance();
-
+			//
+			// create dialog operations object
+			//
+			m_dialog_operations = new DialogItemOperations(this, getActivity(), getFragmentManager());
 		
-		//
-		// create dialog operations object
-		//
-		m_dialog_operations = new DialogItemOperations(this, TagActivityGroup.s_Instance);
-		
-		//
-		// create button array
-		//
-		Button[] buttons = new Button[5];
-		buttons[0] = (Button) findViewById(R.id.navigation_button_one);
-		buttons[1] = (Button) findViewById(R.id.navigation_button_two);
-		buttons[2] = (Button) findViewById(R.id.navigation_button_three);
-		buttons[3] = (Button) findViewById(R.id.navigation_button_four);
-		buttons[4] = (Button) findViewById(R.id.navigation_button_five);
+			//
+			// create button array
+			//
+			Button[] buttons = new Button[5];
+			buttons[0] = (Button) view.findViewById(R.id.navigation_button_one);
+			buttons[1] = (Button) view.findViewById(R.id.navigation_button_two);
+			buttons[2] = (Button) view.findViewById(R.id.navigation_button_three);
+			buttons[3] = (Button) view.findViewById(R.id.navigation_button_four);
+			buttons[4] = (Button) view.findViewById(R.id.navigation_button_five);
 		
 		
-		//
-		// acquire tag text list element
-		//
-		m_tag_list_view = new TagStackUIButtonAdapter(this, buttons);
+			//
+			// acquire tag text list element
+			//
+			m_tag_list_view = new TagStackUIButtonAdapter(this, buttons);
 				
 
-		if (!fillListMap()) {
-			//
-			// failed to fill list map
-			//
-			Logger.e("Error: TagStoreListActivity::initialize failed to fill list map");
-			return;
-		}
+			if (!fillListMap()) {
+				//
+				// failed to fill list map
+				//
+				Logger.e("Error: TagStoreListActivity::initialize failed to fill list map");
+				return view;
+			}
 
-		//
-		// now build the list the view
-		//
-		buildListView();
+			//
+			// now build the list the view
+			//
+			buildListView(view);
 
+			return view;
 	}
 
 	/**
@@ -514,12 +458,12 @@ public class TagStoreListViewActivity extends ListActivity implements GeneralDia
 	/**
 	 * build the list view
 	 */
-	protected void buildListView() {
+	protected void buildListView(View view) {
 
 		//
 		// acquire shared settings
 		//
-		SharedPreferences settings = getSharedPreferences(
+		SharedPreferences settings = getActivity().getSharedPreferences(
 				ConfigurationSettings.TAGSTORE_PREFERENCES_NAME,
 				Context.MODE_PRIVATE);
 
@@ -536,27 +480,34 @@ public class TagStoreListViewActivity extends ListActivity implements GeneralDia
 		buildTagTreeForUI();
 
 		//
+		// lets get the grid view
+		//
+		GridView grid_view = (GridView)view.findViewById(R.id.grid_list_view);
+		
+		//
 		// construct list adapter
 		//
-		IconViewListAdapter list_adapter = new IconViewListAdapter(
-				num_items_per_row, m_list_map, this, this);
+		IconViewListAdapter list_adapter = new IconViewListAdapter(m_list_map, this, getActivity());
 
 		//
-		// set list adapter to list view
+		// set icon adapter to grid view
 		//
-		setListAdapter(list_adapter);
-
-		ListView list_view = getListView();
-
+		grid_view.setAdapter(list_adapter);
+		
+		//
+		// set number of items per row
+		//
+		grid_view.setNumColumns(num_items_per_row);
+		
 		//
 		// construct new list view scroll listener
 		//
-		m_scroll_listener = new IconViewScrollListener(list_adapter, this.getApplicationContext());
+		m_scroll_listener = new IconViewScrollListener(list_adapter, getActivity().getApplicationContext());
 
 		//
 		// set new scroll listener
 		//
-		list_view.setOnScrollListener(m_scroll_listener);
+		grid_view.setOnScrollListener(m_scroll_listener);
 	}
 
 	/**
@@ -596,10 +547,13 @@ public class TagStoreListViewActivity extends ListActivity implements GeneralDia
 		//
 		String item_path = (String) map_entry.get(IconViewItemBuilder.ITEM_PATH);
 		
-		//
-		// let dialog operations handle it
-		//
-		m_dialog_operations.performDialogItemOperation(item_path, false, FileDialogBuilder.MENU_ITEM_ENUM.MENU_ITEM_OPEN);
+		if (m_dialog_operations != null)
+		{
+			//
+			// let dialog operations handle it
+			//
+			m_dialog_operations.performDialogItemOperation(item_path, false, FileDialogBuilder.MENU_ITEM_ENUM.MENU_ITEM_OPEN);
+		}
 	}
 
 	/**
@@ -613,9 +567,19 @@ public class TagStoreListViewActivity extends ListActivity implements GeneralDia
 			ArrayList<String> tag_list) {
 
 		//
+		// get instance of database manager
+		//
+		DBManager db_man = DBManager.getInstance();		
+		
+		//
+		// get tag reference counts
+		//
+		final HashMap<String, Integer> ref_count = db_man.getTagReferenceCount();
+		
+		//
 		// acquire shared settings
 		//
-		SharedPreferences settings = getSharedPreferences(
+		SharedPreferences settings = getActivity().getSharedPreferences(
 				ConfigurationSettings.TAGSTORE_PREFERENCES_NAME,
 				Context.MODE_PRIVATE);
 
@@ -645,8 +609,8 @@ public class TagStoreListViewActivity extends ListActivity implements GeneralDia
 					//
 					// get the tag reference counts
 					//
-					Integer tag1_ref_count = m_tag_reference_count.get(tag1);
-					Integer tag2_ref_count = m_tag_reference_count.get(tag2);
+					Integer tag1_ref_count = ref_count.get(tag1);
+					Integer tag2_ref_count = ref_count.get(tag2);
 
 					//
 					// compare if tag1 is has bigger reference count
@@ -678,7 +642,7 @@ public class TagStoreListViewActivity extends ListActivity implements GeneralDia
 		//
 		// construct entry
 		//
-		HashMap<String, Object> map_entry = IconViewItemBuilder.buildIconViewItem(getApplicationContext(), item_name, is_tag);
+		HashMap<String, Object> map_entry = IconViewItemBuilder.buildIconViewItem(getActivity().getApplicationContext(), item_name, is_tag);
 		if (map_entry != null)
 		{
 			//
@@ -690,62 +654,52 @@ public class TagStoreListViewActivity extends ListActivity implements GeneralDia
 	
 	/**
 	 * fills the list map with tags related to item name and associated files
-	 * @param item_name name of the tag
 	 */
-	protected void fillListMapWithTag(String item_name) {
+	protected void fillListMapWithTagStack() {
 
 		//
-		// get tag reference count
+		// get instance of tagstack manager
 		//
-		m_tag_reference_count = m_db.getTagReferenceCount();
-
-
-		//
-		// get tag stack
-		//
-		ArrayList<String> tag_stack = m_tag_stack.toArray(new String[1]);
-		
+		TagStackManager tag_stack = TagStackManager.getInstance();
 		
 		//
 		// get associated tags
 		//
-		ArrayList<String> linked_tags = m_db.getLinkedTags(tag_stack);
+		ArrayList<String> linked_tags = FileTagUtility.getLinkedTags();
 
-		if (linked_tags != null) {
-			//
-			// apply sorting
-			//
-			linked_tags = applySortMethodToTagList(linked_tags);
+		//
+		// apply sorting
+		//
+		linked_tags = applySortMethodToTagList(linked_tags);
 
+		//
+		// add them to list
+		//
+		for (String linked_tag : linked_tags) {
+			
 			//
-			// add them to list
+			// check if the tag is already in visted link
 			//
-			for (String linked_tag : linked_tags) {
+			if (tag_stack.containsTag(linked_tag))
+			{
 				//
-				// check if tag has already been visited
+				// this should never happen
 				//
-				if (m_tag_stack.containsTag(linked_tag)) {
-					//
-					// tag already present in stack
-					//
-					Logger.i("TagStoreListViewActivity::onListItemClick tag "
-							+ linked_tag
-							+ " not added to list as it already visited");
-					continue;
-				}
-
-				//
-				// add item
-				//
-				addItem(linked_tag, true);
+				Logger.e("Error: DB query bug detected in TagStoreGridViewActivity::fillListMapWithTag duplicate tag:" + linked_tag);
+				continue;
 			}
+
+			//
+			// add item
+			//
+			addItem(linked_tag, true);
 		}
 
 		//
-		// get associated files
-		// m_tag_stack.toArray(new String[1])
-		ArrayList<String> linked_files = m_db.getLinkedFiles(tag_stack);
-
+		// get linked files
+		//
+		ArrayList<String> linked_files = FileTagUtility.getLinkedFiles();
+		
 		if (linked_files != null) {
 			//
 			// add linked files
@@ -819,7 +773,15 @@ public class TagStoreListViewActivity extends ListActivity implements GeneralDia
 		//
 		m_selected_item_index = pos;
 		
-		
+		//
+		// get hash map entry
+		//
+		HashMap<String, Object> map_entry = m_list_map.get(m_selected_item_index);
+
+		//
+		// get item name
+		//
+		String item_name = (String) map_entry.get(IconViewItemBuilder.ITEM_NAME);
 		
 		//
 		// check if this is an tag item
@@ -829,14 +791,18 @@ public class TagStoreListViewActivity extends ListActivity implements GeneralDia
 			//
 			// launch general tag menu
 			//
-			showDialog(DialogIds.DIALOG_GENERAL_TAG_MENU);
+			CommonDialogFragment fragment = CommonDialogFragment.newInstance(item_name, true, DialogIds.DIALOG_GENERAL_TAG_MENU);
+			fragment.setDialogItemOperation(m_dialog_operations);
+			fragment.show(getFragmentManager(), "FIXME");			
 		}
 		else
 		{
 			//
 			// request new dialog to be shown
 			//
-			showDialog(DialogIds.DIALOG_GENERAL_FILE_MENU);
+			CommonDialogFragment fragment = CommonDialogFragment.newInstance(item_name, false, DialogIds.DIALOG_GENERAL_FILE_MENU);
+			fragment.setDialogItemOperation(m_dialog_operations);			
+			fragment.show(getFragmentManager(), "FIXME");				
 		}
 		
 		return true;
@@ -881,9 +847,14 @@ public class TagStoreListViewActivity extends ListActivity implements GeneralDia
 		String item_name = (String) map_entry.get(IconViewItemBuilder.ITEM_NAME);
 
 		//
+		// get tag stack manager
+		//
+		TagStackManager tag_stack = TagStackManager.getInstance();
+		
+		//
 		// add item to visited tag stack
 		//
-		m_tag_stack.addTag(item_name);
+		tag_stack.addTag(item_name);
 
 		//
 		// now clear the list map
@@ -893,11 +864,24 @@ public class TagStoreListViewActivity extends ListActivity implements GeneralDia
 		//
 		// fill list map with this tag
 		//
-		fillListMapWithTag(item_name);
-
+		fillListMapWithTagStack();
+	
 		//
 		// now rebuild list
 		//
-		buildListView();
+		buildListView(getView());
+	}
+	
+	@Override
+	public void backKeyPressed() {
+		
+		Activity activity = getActivity();
+		if (activity == null)
+		{
+			Logger.e("Error: Fragment has no activity!");
+			return;
+		}
+		
+		refreshView();
 	}
 }

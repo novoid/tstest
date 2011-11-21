@@ -1,16 +1,15 @@
 package org.me.TagStore;
 
-import android.app.ListActivity;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
-import android.view.KeyEvent;
+import android.support.v4.app.ListFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -22,9 +21,12 @@ import java.util.ArrayList;
 
 import org.me.TagStore.R;
 import org.me.TagStore.core.DBManager;
+import org.me.TagStore.core.DirectoryChangeWorker;
+import org.me.TagStore.core.FileTagUtility;
 import org.me.TagStore.core.Logger;
+import org.me.TagStore.core.PendingFileChecker;
 
-public class DirectoryListActivity extends ListActivity {
+public class DirectoryListActivity extends ListFragment {
 
 	/**
 	 * stores mapping between list view and list view row
@@ -48,37 +50,12 @@ public class DirectoryListActivity extends ListActivity {
 	private static final String DIRECTORY_UI_ELEMENT = "DIRECTORY_UI_ELEMENT";
 
 	/**
-	 * indicates if directory is from database
-	 */
-	private static final String DIRECTORY_DATABASE = "DIRECTORY_DATABASE";
-
-	/**
-	 * indicates if entry has been deleted
-	 */
-	private static final String DIRECTORY_DELETED = "DIRECTORY_DELETED";
-
-	/**
 	 * directory request code
 	 */
 	public static int DIRECTORY_LIST_REQUEST_CODE = 20;
 
-	/**
-	 * hack required as startActivityForResult is not working with nested
-	 * activities
-	 */
-	public static DirectoryListActivity s_Instance;
-
 	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		if (keyCode == KeyEvent.KEYCODE_BACK) {
-			ConfigurationActivityGroup.s_Instance.back();
-			return true;
-		}
-		return super.onKeyDown(keyCode, event);
-	}
-
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
 		Logger.d("RequestCode " + requestCode + "resultCode " + resultCode
 				+ "data : " + data);
@@ -90,7 +67,10 @@ public class DirectoryListActivity extends ListActivity {
 			return;
 		}
 
-		if (resultCode != RESULT_OK) {
+		//
+		// FIXME fragment
+		//
+		if (resultCode != Activity.RESULT_OK) {
 			//
 			// operation did not succeed
 			//
@@ -115,126 +95,92 @@ public class DirectoryListActivity extends ListActivity {
 			//
 			// path not present
 			//
-			addItem(new_directory, true, false);
+			addItem(new_directory, true);
 
 			//
-			// done
+			// construct new list adapter
 			//
+			DirectoryListAdapter list_adapter = new DirectoryListAdapter(this);
+
+			//
+			// set list adapter to list view
+			//
+			setListAdapter(list_adapter);		
+						
+			
 			return;
 		}
 
 		//
-		// get the existing entry
+		// inform user that the entry was already present
 		//
-		HashMap<String, Object> map_entry = m_ListViewMap.get(directory_index);
+		String message = getActivity().getApplicationContext().getString(R.string.directory_present);
+		Toast toast = Toast.makeText(getActivity(),
+				message, Toast.LENGTH_SHORT);
 
 		//
-		// lets check if the entry was deleted before
+		// display toast
 		//
-		Boolean is_deleted = (Boolean) map_entry.get(DIRECTORY_DELETED);
-
-		if (is_deleted.booleanValue() == false) {
-			//
-			// inform user that the entry was already present
-			//
-			String message = getApplicationContext().getString(R.string.directory_present);
-			Toast toast = Toast.makeText(getApplicationContext(),
-					message, Toast.LENGTH_SHORT);
-
-			//
-			// display toast
-			//
-			toast.show();
-		} else {
-			//
-			// add item for user convenience on the end of list
-			//
-			addItem(new_directory, true, false);
-		}
+		toast.show();
 	}
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-
-		//
-		// informal debug message
-		//
-		Logger.d("DirectoryListActivity::onCreate");
-
-		//
-		// HACK: for retreiving result
-		//
-		s_Instance = this;
+	public void onCreate(Bundle savedInstanceState) {
 
 		//
 		// pass onto lower classes
 		//
 		super.onCreate(savedInstanceState);
-
+		
+		
 		//
-		// lets sets our own design
+		// informal debug message
 		//
-		setContentView(R.layout.directory_list);
+		Logger.d("DirectoryListActivity::onCreate");
+	}
+	
+	
+	
+	 public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle saved) {
+			
+		 View view = inflater.inflate(R.layout.directory_list, null);
 
 		//
 		// construct new list map
 		//
 		m_ListViewMap = new ArrayList<HashMap<String, Object>>();
-
-		//
-		// get cancel button
-		//
-		Button CancelButton = (Button) findViewById(R.id.button_cancel);
-
-		//
-		// add cancel button click selector
-		//
-		CancelButton.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				ConfigurationActivityGroup.s_Instance.back();
-			}
-
-		});
-
-		//
-		// get cancel button
-		//
-		Button DoneButton = (Button) findViewById(R.id.button_done);
-
-		//
-		// add cancel button click selector
-		//
-		DoneButton.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-
-				//
-				// save changes
-				//
-				onSaveChanges();
-				ConfigurationActivityGroup.s_Instance.back();
-			}
-
-		});
+		m_ListViewMap.clear();
 
 		//
 		// get localized directory
 		//
-		String add_directory_string = getApplicationContext().getString(R.string.add_directory);
+		String add_directory_string = getActivity().getString(R.string.add_directory);
 		
 		
 		//
 		// add directory button
 		//
-		addItem(add_directory_string, false, false);
+		addItem(add_directory_string, false);
 
 		//
 		// read directories from database
 		//
 		addDirectoriesFromDatabase();
+		
+		//
+		// construct new list adapter
+		//
+		DirectoryListAdapter list_adapter = new DirectoryListAdapter(this);
+
+		//
+		// set list adapter to list view
+		//
+		setListAdapter(list_adapter);		
+		
+		//
+		// done
+		//
+		return view;
 	}
 
 	/**
@@ -301,74 +247,129 @@ public class DirectoryListActivity extends ListActivity {
 			//
 			// add item
 			//
-			addItem(directory_path, true, true);
+			addItem(directory_path, true);
 		}
 	}
 
 	/**
-	 * this function is called when done button is pressed It will then collect
-	 * all directories and add them to the database
+	 * called when the activity is hidden
 	 */
-	protected void onSaveChanges() {
+	public void onPause() {
 
+		//
+		// call super method
+		//
+		super.onPause();
+		
+		Logger.i("DirectoryList::onPause");
+		
 		//
 		// get instance of database manager
 		//
 		DBManager db_man = DBManager.getInstance();
 
 		//
-		// remove first entry, it is the add directory entry
+		// get list of directories
 		//
-		m_ListViewMap.remove(0);
-
+		ArrayList<String> db_directories = db_man.getDirectories();
+		if (db_directories == null)
+			db_directories = new ArrayList<String>();
+		
 		//
-		// go through the list and add remove directories to the database
+		// compute list of new directories
 		//
-		for (HashMap<String, Object> map_entry : m_ListViewMap) {
+		ArrayList<String> current_directories = new ArrayList<String>();
+		
+		for(HashMap<String, Object> map_entry : m_ListViewMap)
+		{
 			//
-			// check if the entry is database entry
+			// get directory image
 			//
-			Boolean db_entry = (Boolean) map_entry.get(DIRECTORY_DATABASE);
-
-			//
-			// check if entry was deleted
-			//
-			Boolean is_deleted = (Boolean) map_entry.get(DIRECTORY_DELETED);
-
+			Integer dir_image = (Integer)map_entry.get(DIRECTORY_IMAGE);
+			if (dir_image == R.drawable.add_directory)
+			{
+				//
+				// skip add directory entry
+				//
+				continue;
+			}
+			
 			//
 			// get directory value
 			//
 			String directory_path = (String) map_entry.get(DIRECTORY_NAME);
+			
+			//
+			// store in list
+			//
+			current_directories.add(directory_path);
+		}
+		
+		//
+		// compute list of deleted directories
+		//
+		ArrayList<String> deleted_directories = new ArrayList<String>(db_directories);
+		deleted_directories.removeAll(current_directories);
+		
+		//
+		// remove deleted directories
+		//
+		for(String directory : deleted_directories)
+		{
+			//
+			// entry was deleted from database
+			//
+			db_man.removeDirectory(directory);
 
-			if (db_entry.booleanValue()) {
-				//
-				// entry is from database -> check if it was deleted
-				//
-				if (is_deleted.booleanValue()) {
-					//
-					// entry was deleted from database
-					//
-					db_man.removeDirectory(directory_path);
-
-					//
-					// remove pending items
-					//
-					removePendingFilesfromDirectory(directory_path);
-					
-					//
-					// TODO: should files which are in the tagstore also be removed?
-					//
-					
-				}
-			} else if (is_deleted.booleanValue() == false) {
-				//
-				// entry is new and not deleted (again) by user
-				//
-				db_man.addDirectory(directory_path);
-			}
+			//
+			// remove pending items
+			//
+			removePendingFilesfromDirectory(directory);			
+		}
+		
+		//
+		// compute list of new added directories
+		//
+		current_directories.removeAll(db_directories);
+		
+		//
+		// now add them
+		//
+		for(String directory : current_directories)
+		{
+			Logger.e("adding: " + directory);
+			db_man.addDirectory(directory);
+			queryAddNewDirectories(directory);			
 		}
 	}
 
+	private void queryAddNewDirectories(String directory_path) {
+		
+		//
+		// construct directory change worker
+		//
+		DirectoryChangeWorker change_worker = new DirectoryChangeWorker();
+		
+		//
+		// get instance of database manager
+		//
+		DBManager db_man = DBManager.getInstance();
+		
+		//
+		// get new files from directory
+		//
+		ArrayList<String> files = change_worker.getNewFilesFromDirectory(directory_path);
+		
+		for(String file : files)
+		{
+			Logger.i("new file in directory: " + file);
+			db_man.addPendingFile(file);
+		}
+	}
+	
+	
+	
+	
 	/**
 	 * removes all pending files which are placed in that directory
 	 * @param directory_path
@@ -376,21 +377,15 @@ public class DirectoryListActivity extends ListActivity {
 	private void removePendingFilesfromDirectory(String directory_path) {
 		
 		//
-		// acquire instance
+		// get pending file checker
 		//
-		DBManager db_man = DBManager.getInstance();
+		PendingFileChecker file_checker = new PendingFileChecker();
 		
 		//
 		// get pending files
 		//
-		ArrayList<String> pending_files = db_man.getPendingFiles();
-		if (pending_files == null)
-		{
-			//
-			// no pending files
-			//
-			return;
-		}
+		ArrayList<String> pending_files = file_checker.getPendingFiles();
+
 		//
 		// loop all files and remove pending files
 		//
@@ -402,7 +397,7 @@ public class DirectoryListActivity extends ListActivity {
 				//
 				// file is directory which got removed
 				//
-				db_man.removeFile(current_file, true, false);
+				FileTagUtility.removePendingFile(current_file);
 			}
 		}
 	}
@@ -417,8 +412,7 @@ public class DirectoryListActivity extends ListActivity {
 	 * @param is_directory
 	 *            indicates if the item is a directory
 	 */
-	protected void addItem(String item_name, boolean is_directory,
-			boolean db_entry) {
+	protected void addItem(String item_name, boolean is_directory) {
 
 		//
 		// construct new entry
@@ -429,16 +423,6 @@ public class DirectoryListActivity extends ListActivity {
 		// store directory name in it
 		//
 		map_entry.put(DIRECTORY_NAME, item_name);
-
-		//
-		// set entry active
-		//
-		map_entry.put(DIRECTORY_DELETED, new Boolean(false));
-
-		//
-		// set indicator if it is an database entry
-		//
-		map_entry.put(DIRECTORY_DATABASE, new Boolean(db_entry));
 
 		if (is_directory) {
 			//
@@ -458,22 +442,10 @@ public class DirectoryListActivity extends ListActivity {
 		// add map entry to list view map
 		//
 		m_ListViewMap.add(map_entry);
-
-		//
-		// construct new list adapter
-		//
-		DirectoryListAdapter list_adapter = new DirectoryListAdapter(
-				m_ListViewMap, this);
-
-		//
-		// set list adapter to list view
-		//
-		setListAdapter(list_adapter);
-
 	}
 
 	@Override
-	protected void onListItemClick(ListView listView, View view, int position,
+	public void onListItemClick(ListView listView, View view, int position,
 			long id) {
 
 		Logger.d("Item " + id + " was clicked");
@@ -482,21 +454,16 @@ public class DirectoryListActivity extends ListActivity {
 		// first item is add directory item
 		//
 		if (id != 0) {
+			
 			//
-			// get hash map entry
+			// remove item
 			//
-			HashMap<String, Object> map_entry = m_ListViewMap.get((int) id);
-
-			//
-			// mark entry as removed
-			//
-			map_entry.put(DIRECTORY_DELETED, new Boolean(true));
+			m_ListViewMap.remove((int)id);
 
 			//
 			// re-create list adapter, how inefficient ;)
 			//
-			DirectoryListAdapter list_adapter = new DirectoryListAdapter(
-					m_ListViewMap, this);
+			DirectoryListAdapter list_adapter = new DirectoryListAdapter(this);
 
 			//
 			// set list adapter to list view
@@ -515,15 +482,17 @@ public class DirectoryListActivity extends ListActivity {
 		String storage_state = Environment.getExternalStorageState();
 		if (!storage_state.equals(Environment.MEDIA_MOUNTED) && !storage_state.equals(Environment.MEDIA_MOUNTED_READ_ONLY))
 		{
+			Logger.e("Error: storage_state is : " + storage_state);
+			
 			//
 			// the media is currently not accessible
 			//
-			String media_available = getApplicationContext().getString(R.string.error_media_not_mounted);
+			String media_available = getActivity().getString(R.string.error_media_not_mounted);
 			
 			//
 			// create toast
 			//
-			Toast toast = Toast.makeText(getApplicationContext(), media_available, Toast.LENGTH_SHORT);
+			Toast toast = Toast.makeText(getActivity(), media_available, Toast.LENGTH_SHORT);
 			
 			//
 			// display toast
@@ -539,17 +508,13 @@ public class DirectoryListActivity extends ListActivity {
 		//
 		// time to start new activity
 		//
-		Intent new_intent = new Intent(getBaseContext(),
+		Intent new_intent = new Intent(getActivity(),
 				FileDialogBrowser.class);
 
 		//
 		// get SD card directory
 		//
 		String sd_card_directory = Environment.getExternalStorageDirectory().getAbsolutePath();
-
-		
-		
-		
 
 		//
 		// add start directory
@@ -561,16 +526,7 @@ public class DirectoryListActivity extends ListActivity {
 		// now create view
 		//
 
-		View new_view = ConfigurationActivityGroup.s_Instance
-				.getLocalActivityManager()
-				.startActivity("FileDialogBrowser",
-						new_intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
-				.getDecorView();
-
-		//
-		// now replace the view
-		//
-		ConfigurationActivityGroup.s_Instance.replaceView(new_view);
+		startActivityForResult(new_intent, DirectoryListActivity.DIRECTORY_LIST_REQUEST_CODE);
 	}
 
 	/**
@@ -584,7 +540,7 @@ public class DirectoryListActivity extends ListActivity {
 		/**
 		 * stores the content
 		 */
-		private ArrayList<HashMap<String, Object>> m_Content;
+		//private ArrayList<HashMap<String, Object>> m_Content;
 
 		/*
 		 * layout builder
@@ -602,13 +558,7 @@ public class DirectoryListActivity extends ListActivity {
 		 * @param context
 		 */
 
-		public DirectoryListAdapter(ArrayList<HashMap<String, Object>> content,
-				DirectoryListActivity activity) {
-
-			//
-			// store content
-			//
-			m_Content = content;
+		public DirectoryListAdapter(DirectoryListActivity activity) {
 
 			//
 			// store activity
@@ -618,118 +568,34 @@ public class DirectoryListActivity extends ListActivity {
 			//
 			// construct layout inflater from context
 			//
-			m_LayoutInflater = LayoutInflater.from(activity);
+			m_LayoutInflater = LayoutInflater.from(activity.getActivity());
 		}
 
 		@Override
 		public int getCount() {
 
 			//
-			// go through the list and only count these items which are not
-			// marked as deleted
+			// return count
 			//
-			int Count = 0;
-			for (HashMap<String, Object> map_entry : m_Content) {
-				//
-				// get entry deletion status
-				//
-				Boolean is_deleted = (Boolean) map_entry.get(DIRECTORY_DELETED);
-
-				if (is_deleted.booleanValue() == false) {
-					//
-					// entry is not deleted
-					//
-					Count++;
-				}
-			}
-
-			//
-			// return item count
-			//
-			return Count;
+			return m_ListViewMap.size();
 		}
 
 		@Override
 		public Object getItem(int index) {
 
 			//
-			// go through the list and return entry at index which is not
-			// deleted
+			// return index
 			//
-			int Count = 0;
-			for (HashMap<String, Object> map_entry : m_Content) {
-				//
-				// get entry deletion status
-				//
-				Boolean is_deleted = (Boolean) map_entry.get(DIRECTORY_DELETED);
-
-				if (is_deleted.booleanValue() == false) {
-					//
-					// entry is not deleted
-					//
-					if (Count == index) {
-						//
-						// found matching index
-						//
-						return (Object) map_entry;
-					}
-
-					//
-					// increment object count
-					//
-					Count++;
-				}
-			}
-
-			//
-			// return object
-			//
-			Logger.e("Error: DirectoryListAdapter::getItem> index out of bounds");
-			return null;
+			return m_ListViewMap.get(index);
 		}
 
 		@Override
 		public long getItemId(int position) {
 
 			//
-			// go through the list and return index of entry which was requested
+			// position is index
 			//
-			int Count = 0;
-			long Index = 0;
-			for (HashMap<String, Object> map_entry : m_Content) {
-				//
-				// get entry deletion status
-				//
-				Boolean is_deleted = (Boolean) map_entry.get(DIRECTORY_DELETED);
-
-				if (is_deleted.booleanValue() == false) {
-					//
-					// entry is not deleted
-					//
-					if (Count == position) {
-						//
-						// found matching index
-						//
-						return Index;
-					}
-
-					//
-					// increment object count
-					//
-					Count++;
-				}
-
-				//
-				// increment index
-				//
-				Index++;
-			}
-
-			//
-			// bug
-			//
-			Logger.e("Error: DirectoryListAdapter::getItemId out of bounds");
-			return -1;
+			return position;
 		}
 
 		@SuppressWarnings("unchecked")

@@ -16,12 +16,12 @@ public class IconViewListItemClickListener implements OnClickListener {
 	/**
 	 * stores call-back
 	 */
-	private IconViewClickListenerCallback m_callback;
+	private final IconViewClickListenerCallback m_callback;
 
 	/**
 	 * stores item index
 	 */
-	private int m_item_index;
+	private final int m_item_index;
 
 	/**
 	 * constructor of class IconViewListItemClickListener

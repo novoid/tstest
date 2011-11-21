@@ -1,18 +1,17 @@
 package org.me.TagStore.ui;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Set;
 
 import org.me.TagStore.R;
-import org.me.TagStore.core.DBManager;
 import org.me.TagStore.core.FileTagUtility;
 import org.me.TagStore.core.Logger;
 import org.me.TagStore.core.TagValidator;
 import org.me.TagStore.interfaces.RenameDialogCallback;
 
-import android.app.AlertDialog;
 import android.content.Context;
+import android.os.Environment;
+import android.support.v4.app.DialogFragment;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.EditText;
@@ -29,12 +28,12 @@ public class RenameDialogButtonListener implements OnClickListener
 	/**
 	 * stores the dialog
 	 */
-	private AlertDialog m_dialog;
+	private final View m_view;
 	
 	/**
 	 * stores the context
 	 */
-	private Context m_ctx;
+	private final Context m_ctx;
 	
 	/**
 	 * stores toast
@@ -44,7 +43,7 @@ public class RenameDialogButtonListener implements OnClickListener
 	/**
 	 * stores the current item name / path
 	 */
-	private String m_item;
+	private final String m_item;
 	
 	/**
 	 * stores the setting if its an tag
@@ -54,7 +53,12 @@ public class RenameDialogButtonListener implements OnClickListener
 	/**
 	 * stores the call back
 	 */
-	private RenameDialogCallback m_callback;
+	private final RenameDialogCallback m_callback;
+	
+	/**
+	 * stores the dialog fragment
+	 */
+	private final DialogFragment m_fragment;
 	
 	/**
 	 * constructor of class RenameDialogButtonListener
@@ -62,18 +66,19 @@ public class RenameDialogButtonListener implements OnClickListener
 	 * @param file file name
 	 * @param callback callback to be invoked
 	 */
-	public RenameDialogButtonListener(AlertDialog dialog, String item, boolean is_tag, RenameDialogCallback callback) {
+	public RenameDialogButtonListener(View view, String item, boolean is_tag, RenameDialogCallback callback, DialogFragment fragment) {
 		
 		
 		//
 		// init members
 		//
-		m_dialog = dialog;
+		m_view = view;
 		m_item = item;
 		m_callback = callback;
 		m_toast = null;
 		m_is_tag = is_tag;
-		m_ctx = m_dialog.getContext();
+		m_ctx = m_view.getContext();
+		m_fragment = fragment;
 	}
 	
 	
@@ -144,11 +149,6 @@ public class RenameDialogButtonListener implements OnClickListener
 	private void handleTag(String new_item_name, EditText edit_text) {
 		
 		//
-		// acquire database manager instance
-		//
-		DBManager db_man = DBManager.getInstance();
-		
-		//
 		// lets split the tags first
 		//
 		Set<String> tags = FileTagUtility.splitTagText(new_item_name);
@@ -171,8 +171,8 @@ public class RenameDialogButtonListener implements OnClickListener
 			//
 			// check if that tag already exists
 			//
-			long tag_id = db_man.getTagId(current_tag);
-			if (tag_id != -1)
+			boolean tag_id = FileTagUtility.isTagExisting(current_tag);
+			if (tag_id)
 			{
 				//
 				// tag already exists
@@ -213,7 +213,7 @@ public class RenameDialogButtonListener implements OnClickListener
 		//
 		// now rename the tag
 		//
-		boolean renamed = db_man.renameTag(m_item, new_tag);
+		boolean renamed = FileTagUtility.renameTag(m_item, new_tag);
 		
 		//
 		// check if it worked
@@ -231,7 +231,7 @@ public class RenameDialogButtonListener implements OnClickListener
 			//
 			// dismiss the dialog
 			//
-			m_dialog.dismiss();
+			m_fragment.dismiss();
 		}
 		else
 		{
@@ -239,6 +239,11 @@ public class RenameDialogButtonListener implements OnClickListener
 			// failed to rename file SHIT
 			//
 			displayToast(R.string.error_failed_rename);
+			
+			//
+			// dismiss dialog
+			//
+			m_fragment.dismiss();
 		}
 	}
 	/**
@@ -285,9 +290,7 @@ public class RenameDialogButtonListener implements OnClickListener
 		//
 		// check if there is already a file with that name entered
 		//
-		DBManager db_man = DBManager.getInstance();
-		ArrayList<String> same_files = db_man.getSimilarFilePaths(new_file_name);
-		if (same_files != null)
+		if (FileTagUtility.isFilenameAlreadyTaken(new_file_name))
 		{
 			//
 			// file name is not unique
@@ -296,6 +299,19 @@ public class RenameDialogButtonListener implements OnClickListener
 			return;
 		}
 
+		//
+		// check first if the card is accessible
+		//
+		String state = Environment.getExternalStorageState();
+		if (!Environment.MEDIA_MOUNTED.equals(state) && !Environment.MEDIA_MOUNTED_READ_ONLY.equals(state))
+		{
+			//
+			// card is not accessible
+			//
+			displayToast(R.string.error_media_not_mounted);
+			return;
+		}
+				
 		//
 		// final check if a file with the new name already exists
 		//
@@ -311,22 +327,11 @@ public class RenameDialogButtonListener implements OnClickListener
 		}
 		
 		//
-		// now update the database
+		// now rename the file
 		//
-		db_man.renameFile(file.getPath(), new_file_obj.getPath());
-		
-		//
-		// now really rename the file
-		//
-		boolean renamed = file.renameTo(new_file_obj);
+		boolean renamed = FileTagUtility.renameFile(file.getPath(), new_file_obj.getPath());
 		if (renamed)
 		{
-			//
-			// now update the database
-			//
-			db_man.renameFile(file.getPath(), new_file_obj.getPath());
-			
-			
 			//
 			// invoke call back
 			//
@@ -338,14 +343,19 @@ public class RenameDialogButtonListener implements OnClickListener
 			//
 			// dismiss the dialog
 			//
-			m_dialog.dismiss();
+			m_fragment.dismiss();
 		}
 		else
 		{
 			//
-			// failed to rename file SHIT
+			// failed to rename file
 			//
 			displayToast(R.string.error_failed_rename);
+			
+			//
+			// dismiss dialog
+			//
+			m_fragment.dismiss();
 		}
 	}
 	
@@ -355,7 +365,7 @@ public class RenameDialogButtonListener implements OnClickListener
 		//
 		// first get edit text
 		//
-		EditText edit_text = (EditText)m_dialog.findViewById(R.id.new_file_name);
+		EditText edit_text = (EditText)m_view.findViewById(R.id.new_file_name);
 		if (edit_text == null)
 		{
 			//

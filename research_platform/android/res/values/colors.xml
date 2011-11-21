@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<color name="default_footer_line_color">#FF6899FF</color>
+	<dimen name="default_footer_line_height">1px</dimen>
+	<color name="default_footer_triangle_color">#FFFFFF</color>
+	<dimen name="default_footer_triangle_height">7dp</dimen>
+	<color name="default_text_font_color">#FFAAAAAA</color>
+	<dimen name="default_text_font_size">18dp</dimen>
+	<dimen name="default_footer_padding">4dp</dimen>
+</resources>

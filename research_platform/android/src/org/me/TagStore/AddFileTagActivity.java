@@ -8,50 +8,48 @@ import org.me.TagStore.core.ConfigurationSettings;
 import org.me.TagStore.core.DBManager;
 import org.me.TagStore.core.FileTagUtility;
 import org.me.TagStore.core.Logger;
+import org.me.TagStore.core.PendingFileChecker;
 import org.me.TagStore.interfaces.OptionsDialogCallback;
 import org.me.TagStore.interfaces.RenameDialogCallback;
-import org.me.TagStore.ui.FileDialogBuilder;
+import org.me.TagStore.ui.CommonDialogFragment;
+import org.me.TagStore.ui.DialogIds;
+import org.me.TagStore.ui.DialogItemOperations;
+import org.me.TagStore.ui.MainPageAdapter;
 import org.me.TagStore.ui.UIEditorActionListener;
 import org.me.TagStore.ui.UITagTextWatcher;
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.text.Editable;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class AddFileTagActivity extends Activity implements OptionsDialogCallback, RenameDialogCallback{
+public class AddFileTagActivity extends Fragment implements
+		OptionsDialogCallback, RenameDialogCallback {
 
-	/**
-	 * stores the dialog id of options dialog
-	 */
-	private static final int DIALOG_OPTIONS = 1;
-	
-	/**
-	 * stores the dialog id of the rename dialog
-	 */
-	private static final int DIALOG_RENAME = 2;
-	
-	
 	/**
 	 * stores the file name of the new file passed as parameter of intent
 	 */
 	private String m_file_name = "";
-	
+
 	/**
-	 * stores the file path of the file which has the same file name and is already present in the tag store
+	 * stores the file path of the file which has the same file name and is
+	 * already present in the tag store
 	 */
-	private String m_duplicate_file_name ="";
-	
+	private String m_duplicate_file_name = "";
+
 	/**
 	 * stores the file path of the file which is being re-named
 	 */
@@ -62,13 +60,15 @@ public class AddFileTagActivity extends Activity implements OptionsDialogCallbac
 	 */
 	private String m_last_settings = "";
 
+	private DialogItemOperations m_dialog_operations;
+	
 	/**
 	 * stores the button ids
 	 */
 	static int[] s_tag_button_ids = new int[] { R.id.button_tag_one,
-			R.id.button_tag_two, R.id.button_tag_three,
-			R.id.button_tag_four, R.id.button_tag_five, R.id.button_tag_six };
-	
+			R.id.button_tag_two, R.id.button_tag_three, R.id.button_tag_four,
+			R.id.button_tag_five, R.id.button_tag_six };
+
 	/**
 	 * stores popular tags
 	 */
@@ -108,49 +108,13 @@ public class AddFileTagActivity extends Activity implements OptionsDialogCallbac
 	 * displays toast for user notifications
 	 */
 	private Toast m_toast;
-	
-	@Override
-	public Dialog onCreateDialog(int dialog_id) {
-		
-		Dialog dialog = null;
-		switch(dialog_id)
-		{
-		case DIALOG_OPTIONS:
-			dialog = FileDialogBuilder.buildOptionsDialogFile(TagActivityGroup.s_Instance);
-			break;	
-		case DIALOG_RENAME:
-			dialog = FileDialogBuilder.buildRenameDialogFile(TagActivityGroup.s_Instance);
-			break;
-		}
-		
-		//
-		// done
-		//
-		return dialog;
-	}
-	
-	protected void onPrepareDialog (int id, Dialog dialog) {
-		
-		//
-		// check which dialog is requested
-		//
-		switch (id) {
-			case DIALOG_OPTIONS:
-				FileDialogBuilder.updateOptionsDialogFileView(dialog, m_duplicate_file_name, m_file_name, this);
-				break;
-			case DIALOG_RENAME:
-				FileDialogBuilder.updateRenameDialogFile(dialog, m_rename_file_name, false, false, this);
-				break;
-		}
-	}
-	
 
 	@Override
 	public void renamedFile(String old_file_name, String new_file) {
 
-		Logger.i("renamedFile: " + old_file_name + " new file_name: " + new_file);
-		if (old_file_name.compareTo(m_file_name) == 0)
-		{
+		Logger.i("renamedFile: " + old_file_name + " new file_name: "
+				+ new_file);
+		if (old_file_name.compareTo(m_file_name) == 0) {
 			//
 			// update file name in the text view
 			//
@@ -159,36 +123,48 @@ public class AddFileTagActivity extends Activity implements OptionsDialogCallbac
 			//
 			// get file name text field
 			//
-			TextView file_name_text_view = (TextView) findViewById(R.id.pending_file_list);
+			TextView file_name_text_view = (TextView) getView().findViewById(
+					R.id.pending_file_list);
 
 			if (file_name_text_view != null) {
 				//
 				// set file name
 				//
-				file_name_text_view.setText(m_file_name);	
+				file_name_text_view.setText(m_file_name);
 			}
 		}
+		else
+		{
+			//
+			// the file in the tag store got renamed
+			//
+			performTag();
+		}
+		
+		//
+		// update GUI
+		//
+		initialize(getView(), false);
+		
+		
 	}
-	
 
 	@Override
 	public void renamedTag(String old_tag_name, String new_tag_name) {
 		//
 		// first scan the active buttons if the old tag name is present
 		//
-		for (int button_id : s_tag_button_ids) 
-		{
+		for (int button_id : s_tag_button_ids) {
 			//
 			// find button
 			//
-			Button button = (Button) findViewById(button_id);
+			Button button = (Button) getView().findViewById(button_id);
 
 			//
 			// get button text
 			//
 			String button_text = (String) button.getText();
-			if (button_text.compareTo(old_tag_name) == 0)
-			{
+			if (button_text.compareTo(old_tag_name) == 0) {
 				//
 				// update button tag
 				//
@@ -196,19 +172,18 @@ public class AddFileTagActivity extends Activity implements OptionsDialogCallbac
 				return;
 			}
 		}
-		
+
 		//
 		// search in popular list
 		//
-		for(String current_tag : m_popular_tags)
-		{
-			if (current_tag.compareTo(old_tag_name) == 0)
-			{
+		for (String current_tag : m_popular_tags) {
+			if (current_tag.compareTo(old_tag_name) == 0) {
 				//
 				// add new tag
 				//
-				m_popular_tags.add(m_popular_tags.indexOf(current_tag), new_tag_name);
-				
+				m_popular_tags.add(m_popular_tags.indexOf(current_tag),
+						new_tag_name);
+
 				//
 				// remove old tag
 				//
@@ -216,58 +191,62 @@ public class AddFileTagActivity extends Activity implements OptionsDialogCallbac
 				return;
 			}
 		}
-		
+
 		//
 		// FIXME: should the current tag line be updated too?
 		//
 	}
-	
+
 	@Override
 	public void processOptionsDialogCommand(String file_name, boolean ignore) {
 
-		Logger.i("processOptionsDialogCommand: file_name " + file_name + " ignore: " + ignore);
-		
+		Logger.i("processOptionsDialogCommand: file_name " + file_name
+				+ " ignore: " + ignore);
+
 		//
 		// acquire database manager
 		//
 		DBManager db_man = DBManager.getInstance();
 
-		if (ignore)
-		{
-			if (file_name.compareTo(m_duplicate_file_name) == 0)
-			{
+		if (ignore) {
+			if (file_name.compareTo(m_duplicate_file_name) == 0) {
 				//
 				// remove the file from the tag store
 				//
-				db_man.removeFile(file_name, false, true);
-			}
-			else if (file_name.compareTo(m_file_name) == 0)
-			{
+				db_man.removeFile(file_name);
+				
+				//
+				// tag the file
+				//
+				performTag();
+				
+			} else if (file_name.compareTo(m_file_name) == 0) {
 				//
 				// remove file from pending list
 				//
-				db_man.removeFile(file_name, true, false);
-				
-				//
-				// update GUI
-				//
-				initialize(false);
+				db_man.removePendingFile(file_name);
 			}
-		}
-		else
-		{
+			
+			//
+			// update GUI
+			//
+			initialize(getView(), false);
+
+		} else {
 			//
 			// store the name of the file to be renamed
 			//
 			m_rename_file_name = file_name;
-			
+
 			//
 			// display dialog
 			//
-			showDialog(DIALOG_RENAME);
+			CommonDialogFragment dialog_fragment = CommonDialogFragment.newInstance(m_rename_file_name, false, DialogIds.DIALOG_RENAME);
+			dialog_fragment.setDialogItemOperation(m_dialog_operations);
+			dialog_fragment.show(getFragmentManager(), "FIXME");
 		}
 	}
-	
+
 	public void onPause() {
 
 		//
@@ -275,8 +254,10 @@ public class AddFileTagActivity extends Activity implements OptionsDialogCallbac
 		//
 		super.onPause();
 
+		Logger.i("AddFile::onPause");
+		
 		if (m_text_view != null) {
-			
+
 			//
 			// get text
 			//
@@ -286,21 +267,20 @@ public class AddFileTagActivity extends Activity implements OptionsDialogCallbac
 			// convert to string
 			//
 			String tag_line = edit.toString();
-
+			
 			//
 			// store in editor
 			//
 			setCurrentPreferenceTagLine(tag_line);
 		}
 
-		if (m_toast != null)
-		{
+		if (m_toast != null) {
 			//
 			// cancel any on-going toast when switching the view
 			//
 			m_toast.cancel();
 		}
-		
+
 	}
 
 	/**
@@ -314,100 +294,124 @@ public class AddFileTagActivity extends Activity implements OptionsDialogCallbac
 		super.onResume();
 
 		//
-		// check parameters
-		//
-		if (!getParameters(true))
-			return;
-
-		//
 		// initialize view
 		//
-		initialize(true);
+		initialize(getView(), true);
 	}
 
+
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
+		
 		//
 		// let base class initialize
 		//
 		super.onCreate(savedInstanceState);
 
-		Logger.i("AddFileTagActivity::onCreate");
-
 		//
-		// setup view
+		// construct on create dialog operations object
 		//
-		setContentView(R.layout.addfiletag);
-
-		//
-		// initialize view
-		//
-		initialize(true);
+		m_dialog_operations = new DialogItemOperations(this, getActivity(), getFragmentManager());
 		
 	}
 
-	private void initialize(boolean check_settings) {
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle saved) {
+
+		//
+		// construct layout
+		//
+		View view = inflater.inflate(R.layout.addfiletag, null);
+
+		//
+		// done
+		//
+		return view;
+
+	}
+
+	
+	
+	/**
+	 * collapses the screen keyboard
+	 */
+	private void collapseScreenKeyboard() {
+
+		//
+		// get activity
+		//
+		Activity activity = getActivity();
+		if (activity != null)
+		{
+			InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
 		
+			if (imm != null && m_text_view != null)
+			{
+				imm.hideSoftInputFromWindow(m_text_view.getWindowToken(), 0);
+			}
+		}
+	}
+
+	private void initialize(View view, boolean check_settings) {
+
 		//
 		// check parameters
 		//
-		if (!getParameters(check_settings))
-		{
-			//
-			// get localized new file
-			//
-			String new_file = getApplicationContext().getString(R.string.new_file);
-			
-			//
-			// no more files, remove pending file item
-			//
-			MainActivity.s_Instance.showTab(new_file, false);
-					
+		if (!getParameters(check_settings)) {
+
 			//
 			// remove notification
 			//
 			removeNotification();
 
-			
+			//
+			// collapse on screen keyboard
+			//
+			collapseScreenKeyboard();
+
 			//
 			// set current tag line
 			//
-			setCurrentPreferenceTagLine("");			
+			setCurrentPreferenceTagLine("");
+			
+			//
+			// no more files
+			//
+			MainPageAdapter adapter = MainPageAdapter.getInstance();
+
+			//
+			// remove add file tag fragment
+			//
+			adapter.removeAddFileTagFragment();			
 			return;
 		}
+
 		//
 		// initialize basic user interface components
 		//
-		if (!initializeUIComponents())
+		if (!initializeUIComponents(view))
 			return;
 
-		if (!initializeTagButtons())
+		if (!initializeTagButtons(view))
 			return;
-
-		if (!isFileNameUnique(m_file_name))
-		{
-			//
-			// show options dialog
-			//
-			showDialog(DIALOG_OPTIONS);
-		}
-	
 	}
-	
-	
+
 	/**
-	 * returns true when the file name is unique (no other file named liked this is present in the tagstore)
-	 * @param file_name file name to be checked
+	 * returns true when the file name is unique (no other file named liked this
+	 * is present in the tagstore)
+	 * 
+	 * @param file_name
+	 *            file name to be checked
 	 * @return boolean
 	 */
 	private boolean isFileNameUnique(String file_name) {
-		
-		
+
 		//
 		// extract file name
 		//
 		String file = new File(file_name).getName();
-		
+
 		//
 		// acquire database manager
 		//
@@ -417,12 +421,11 @@ public class AddFileTagActivity extends Activity implements OptionsDialogCallbac
 		// get all files which have the same name
 		//
 		ArrayList<String> files = db_man.getSimilarFilePaths(file);
-		
+
 		//
 		// any file paths which have the same file name but different directory
 		//
-		if (files == null || files.isEmpty())
-		{
+		if (files == null || files.isEmpty()) {
 			//
 			// no duplicates found, great!
 			//
@@ -433,14 +436,13 @@ public class AddFileTagActivity extends Activity implements OptionsDialogCallbac
 		// get first duplicate
 		//
 		m_duplicate_file_name = files.get(0);
-		
+
 		//
 		// this file name is already present in the tag store
 		//
 		return false;
 	}
-	
-	
+
 	/**
 	 * gets the parameters from the passed intent
 	 * 
@@ -455,7 +457,7 @@ public class AddFileTagActivity extends Activity implements OptionsDialogCallbac
 			//
 			// acquire shared settings
 			//
-			SharedPreferences settings = getSharedPreferences(
+			SharedPreferences settings = getActivity().getSharedPreferences(
 					ConfigurationSettings.TAGSTORE_PREFERENCES_NAME,
 					Context.MODE_PRIVATE);
 
@@ -493,21 +495,16 @@ public class AddFileTagActivity extends Activity implements OptionsDialogCallbac
 				//
 			}
 		}
-		
-		//
-		// acquire database manager
-		//
-		DBManager db_man = DBManager.getInstance();
 
 		//
-		// get pending files from database
+		// construct pending file checker
 		//
-		ArrayList<String> pending_files = db_man.getPendingFiles();
+		PendingFileChecker file_checker = new PendingFileChecker();
 
 		//
 		// are there pending files
 		//
-		if (pending_files == null || pending_files.size() == 0) {
+		if (!file_checker.hasPendingFiles()) {
 			//
 			// no more pending files
 			//
@@ -520,7 +517,7 @@ public class AddFileTagActivity extends Activity implements OptionsDialogCallbac
 		//
 		// get first pending file
 		//
-		m_file_name = pending_files.get(0);
+		m_file_name = file_checker.getPendingFiles().get(0);
 
 		//
 		// update current preferences file
@@ -538,11 +535,12 @@ public class AddFileTagActivity extends Activity implements OptionsDialogCallbac
 	 * 
 	 * @return true on success
 	 */
-	private boolean initializeUIComponents() {
+	private boolean initializeUIComponents(View view) {
 		//
 		// get file name text field
 		//
-		TextView file_name_text_view = (TextView) findViewById(R.id.pending_file_list);
+		TextView file_name_text_view = (TextView) view
+				.findViewById(R.id.pending_file_list);
 
 		if (file_name_text_view == null) {
 			//
@@ -560,7 +558,7 @@ public class AddFileTagActivity extends Activity implements OptionsDialogCallbac
 		//
 		// get reference to auto complete field
 		//
-		m_text_view = (AutoCompleteTextView) findViewById(R.id.tag_field);
+		m_text_view = (AutoCompleteTextView) view.findViewById(R.id.tag_field);
 		if (m_text_view == null) {
 			//
 			// failed to find tag field
@@ -573,16 +571,17 @@ public class AddFileTagActivity extends Activity implements OptionsDialogCallbac
 		// add editor action listener
 		//
 		m_text_view.setOnEditorActionListener(new UIEditorActionListener());
-		
+
 		//
 		// add text changed listener
 		//
-		m_text_view.addTextChangedListener(new UITagTextWatcher(getApplicationContext(), true));		
-		
+		m_text_view.addTextChangedListener(new UITagTextWatcher(getActivity(),
+				true));
+
 		//
 		// get the tag me button
 		//
-		Button button = (Button) findViewById(R.id.button_tag_done);
+		Button button = (Button) view.findViewById(R.id.button_tag_done);
 
 		if (button == null) {
 			//
@@ -613,6 +612,7 @@ public class AddFileTagActivity extends Activity implements OptionsDialogCallbac
 
 	/**
 	 * initializes the tag field
+	 * 
 	 * @param tags
 	 */
 	private void initializeTagField(String[] tags) {
@@ -620,7 +620,7 @@ public class AddFileTagActivity extends Activity implements OptionsDialogCallbac
 		//
 		// construct array adapter holding the popular entries
 		//
-		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+		ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
 				android.R.layout.simple_dropdown_item_1line, tags);
 
 		if (m_text_view != null) {
@@ -651,7 +651,7 @@ public class AddFileTagActivity extends Activity implements OptionsDialogCallbac
 	 * 
 	 * @return
 	 */
-	private boolean initializeTagButtons() {
+	private boolean initializeTagButtons(View view) {
 
 		//
 		// acquire database manager instance
@@ -676,7 +676,7 @@ public class AddFileTagActivity extends Activity implements OptionsDialogCallbac
 				//
 				// find button
 				//
-				Button button = (Button) findViewById(button_id);
+				Button button = (Button) view.findViewById(button_id);
 
 				if (button != null) {
 					//
@@ -685,6 +685,24 @@ public class AddFileTagActivity extends Activity implements OptionsDialogCallbac
 					button.setVisibility(View.INVISIBLE);
 				}
 			}
+			
+			//
+			// restore tag field contents
+			//
+			if (m_text_view != null)
+			{
+				//
+				// set line
+				//
+				m_text_view.setText(m_last_settings);
+
+				//
+				// move cursor to last position
+				//
+				m_text_view.setSelection(m_text_view.length());
+			}
+			
+			
 			return true;
 		}
 
@@ -712,7 +730,8 @@ public class AddFileTagActivity extends Activity implements OptionsDialogCallbac
 			//
 			// initialize popular button
 			//
-			initializeTagButton(s_tag_button_ids[index], popular_tag, true);
+			initializeTagButton(view, s_tag_button_ids[index], popular_tag,
+					true);
 
 			//
 			// remove tag
@@ -728,7 +747,8 @@ public class AddFileTagActivity extends Activity implements OptionsDialogCallbac
 				//
 				// find button
 				//
-				Button button = (Button) findViewById(s_tag_button_ids[index]);
+				Button button = (Button) view
+						.findViewById(s_tag_button_ids[index]);
 
 				if (button != null) {
 					//
@@ -756,13 +776,13 @@ public class AddFileTagActivity extends Activity implements OptionsDialogCallbac
 	 * @param popular
 	 *            indicates if it is from popular tag button
 	 */
-	protected void initializeTagButton(int button_id, String button_text,
-			boolean popular) {
+	protected void initializeTagButton(View view, int button_id,
+			String button_text, boolean popular) {
 
 		//
 		// first get the button from the view
 		//
-		Button button = (Button) findViewById(button_id);
+		Button button = (Button) view.findViewById(button_id);
 
 		if (button != null) {
 			//
@@ -775,7 +795,7 @@ public class AddFileTagActivity extends Activity implements OptionsDialogCallbac
 			//
 			button.setOnClickListener(new ButtonTagClickListener(button_id,
 					popular));
-			
+
 			//
 			// show button
 			//
@@ -806,24 +826,21 @@ public class AddFileTagActivity extends Activity implements OptionsDialogCallbac
 				//
 				m_text_view.setText(button_text + DELIMITER);
 			} else {
-				
+
 				//
 				// get button text
 				//
 				String tag_text = m_text_view.getText().toString();
-				
+
 				//
 				// is there a delimiter at the end
 				//
-				if (tag_text.endsWith(DELIMITER))
-				{
+				if (tag_text.endsWith(DELIMITER)) {
 					//
 					// no need to put a separator before the tag is appended
 					//
 					m_text_view.append(button_text + DELIMITER);
-				}
-				else
-				{
+				} else {
 					//
 					// add delimiter before appending the tag
 					//
@@ -841,7 +858,7 @@ public class AddFileTagActivity extends Activity implements OptionsDialogCallbac
 			//
 			// get button with this id
 			//
-			Button button = (Button) findViewById(button_id);
+			Button button = (Button) getView().findViewById(button_id);
 
 			//
 			// check if there is a unused tag left
@@ -891,7 +908,7 @@ public class AddFileTagActivity extends Activity implements OptionsDialogCallbac
 		//
 		// get settings
 		//
-		SharedPreferences settings = getSharedPreferences(
+		SharedPreferences settings = getActivity().getSharedPreferences(
 				ConfigurationSettings.TAGSTORE_PREFERENCES_NAME,
 				Context.MODE_PRIVATE);
 
@@ -913,12 +930,12 @@ public class AddFileTagActivity extends Activity implements OptionsDialogCallbac
 		//
 		editor.commit();
 	}
-	
+
 	private void setCurrentPreferenceTagLine(String tag_line) {
 		//
 		// acquire shared settings
 		//
-		SharedPreferences settings = getSharedPreferences(
+		SharedPreferences settings = getActivity().getSharedPreferences(
 				ConfigurationSettings.TAGSTORE_PREFERENCES_NAME,
 				Context.MODE_PRIVATE);
 
@@ -930,16 +947,14 @@ public class AddFileTagActivity extends Activity implements OptionsDialogCallbac
 		//
 		// all files have been tagged, clear current tag line
 		//
-		editor.putString(ConfigurationSettings.CURRENT_TAG_LINE, "");
+		editor.putString(ConfigurationSettings.CURRENT_TAG_LINE, tag_line);
 
 		//
 		// commit changes
 		//
 		editor.commit();
-		
-		
+
 	}
-	
 
 	/**
 	 * removes notification from notification manager
@@ -952,14 +967,24 @@ public class AddFileTagActivity extends Activity implements OptionsDialogCallbac
 		String ns_name = Context.NOTIFICATION_SERVICE;
 
 		//
-		// get notification service manager instance
+		// get activity
 		//
-		NotificationManager notification_manager = (NotificationManager) getSystemService(ns_name);
-
-		//
-		// clear notification
-		//
-		notification_manager.cancel(ConfigurationSettings.NOTIFICATION_ID);
+		Activity activity = getActivity();
+		if (activity != null)
+		{
+			//
+			// get notification service manager instance
+			//
+			NotificationManager notification_manager = (NotificationManager) activity.getSystemService(ns_name);
+			
+			if (notification_manager != null)
+			{
+				//
+				// clear notification
+				//
+				notification_manager.cancel(ConfigurationSettings.NOTIFICATION_ID);
+			}
+		}
 	}
 
 	/**
@@ -979,7 +1004,7 @@ public class AddFileTagActivity extends Activity implements OptionsDialogCallbac
 		//
 		// first validate the tags
 		//
-		if (!FileTagUtility.validateTags(tag_text, this, m_text_view)) {
+		if (!FileTagUtility.validateTags(tag_text, getActivity(), m_text_view)) {
 
 			//
 			// done for now
@@ -988,10 +1013,23 @@ public class AddFileTagActivity extends Activity implements OptionsDialogCallbac
 		}
 
 		//
+		// check if it is unique
+		//
+		if (!isFileNameUnique(m_file_name)) {
+			
+			//
+			// show options dialog
+			//
+			CommonDialogFragment dialog_fragment = CommonDialogFragment.newInstance(m_file_name, false, DialogIds.DIALOG_OPTIONS);
+			dialog_fragment.setDialogItemOperation(m_dialog_operations);
+			dialog_fragment.show(getFragmentManager(), "FIXME");
+			return;
+		}
+
+		//
 		// add file
 		//
-		if (FileTagUtility.addFile(m_file_name, tag_text, getApplicationContext()) == false)
-		{
+		if (FileTagUtility.addFile(m_file_name, tag_text, true, getActivity()) == false) {
 			//
 			// failed to tag
 			//
@@ -1005,7 +1043,7 @@ public class AddFileTagActivity extends Activity implements OptionsDialogCallbac
 		// done now
 		// re-initialize
 		//
-		initialize(false);
+		initialize(getView(), false);
 	}
 
 	/**
@@ -1052,7 +1090,7 @@ public class AddFileTagActivity extends Activity implements OptionsDialogCallbac
 			//
 			// get button
 			//
-			Button button = (Button) findViewById(m_button_id);
+			Button button = (Button) getView().findViewById(m_button_id);
 
 			//
 			// get button text

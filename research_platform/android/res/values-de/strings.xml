@@ -23,12 +23,12 @@
     <string name="string_back">Zurück</string>
     <string name="enable_notification_string">Status Benachrichigungen aktivieren</string>
     <string name="enable_notification_description">Wenn diese Option aktiviert ist, zeigt TagStore eine Benachrichtigung an sobald eine neue Datei empfangen wird.</string>
-    <string name="tagstore_directories">TagStore Verzeichnisse</string>
-    <string name="sync_tagstore">Synchronisiere TagStore</string>
-    <string name="about_tagstore">Über TagStore</string>
-    <string name="notification_settings">Benachrichtigungsoptionen</string>
-    <string name="listview_settings">Anzeigeeinstellungen</string>
-    <string name="database_options">Datenbankoptionen</string>
+    <string name="tagstore_directories">Verzeichnisse</string>
+    <string name="sync_tagstore">Synch</string>
+    <string name="about_tagstore">Info</string>
+    <string name="notification_settings">Benachrichtigung</string>
+    <string name="listview_settings">Anzeige</string>
+    <string name="database_options">Datenbank</string>
     <string name="directory_present">Verzeichniss ist bereits in Liste!</string>
     <string name="one_tag_minimum">Es muss zumindest einen Tag für eine Datei geben</string>
     <string name="bytes">Bytes</string>
@@ -46,7 +46,7 @@
     <string name="sort_mode">Sortiermodus:</string>
     <string name="sort_mode_alphabetic">alphabetisch</string>
     <string name="sort_mode_popular">meist verwendet</string>
-    <string name="configuration">Einstellungen</string>
+    <string name="configuration">Setup</string>
     <string name="new_file">Neue Datei</string>
     <string name="reset_database">Werkseinstellungen wiederhergestellt!</string>
     <string name="error_reset_database">Konnte die Werkseinstellungen nicht wiederherstellen!</string>

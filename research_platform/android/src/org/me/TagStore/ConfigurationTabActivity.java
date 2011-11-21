@@ -5,11 +5,10 @@ import java.util.HashMap;
 
 import org.me.TagStore.R;
 import org.me.TagStore.core.Logger;
+import org.me.TagStore.ui.MainPageAdapter;
 
-import android.app.Activity;
-import android.app.ListActivity;
-import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.ListFragment;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
@@ -21,7 +20,7 @@ import android.widget.SimpleAdapter;
  * @author Johannes Anderwald
  * 
  */
-public class ConfigurationTabActivity extends ListActivity {
+public class ConfigurationTabActivity extends ListFragment {
 
 	/**
 	 * key name for item name
@@ -43,8 +42,9 @@ public class ConfigurationTabActivity extends ListActivity {
 	 */
 	protected ArrayList<HashMap<String, Object>> m_ListMap;
 
+
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	public void onCreate(Bundle savedInstanceState) {
 
 		//
 		// informal debug message
@@ -59,7 +59,7 @@ public class ConfigurationTabActivity extends ListActivity {
 		//
 		// lets sets our own design
 		//
-		setContentView(R.layout.configuration_tab);
+		//setContentView(R.layout.configuration_tab);
 
 		//
 		// initialize configuration tab
@@ -67,7 +67,26 @@ public class ConfigurationTabActivity extends ListActivity {
 		initialize();
 
 	}
-
+	
+	public void onResume() {
+		
+		//
+		// resume
+		//
+		super.onResume();
+		
+		Logger.i("ConfigurationTabActivity::onResume");
+	}
+	
+	public void onPause() {
+		
+		super.onPause();
+		
+		Logger.i("ConfigurationTabActivity::onPause");
+		
+	}
+	
+	
 	/**
 	 * adds the directory settings to configuration item
 	 */
@@ -81,7 +100,8 @@ public class ConfigurationTabActivity extends ListActivity {
 		//
 		// get localized string
 		//
-		String item_name = getApplicationContext().getString(R.string.tagstore_directories);
+		String item_name = super.getActivity().getApplicationContext().getString(R.string.tagstore_directories);
+		
 		
 		//
 		// set name
@@ -118,7 +138,7 @@ public class ConfigurationTabActivity extends ListActivity {
 		//
 		// get localized string
 		//
-		String item_name = getApplicationContext().getString(R.string.sync_tagstore);
+		String item_name = super.getActivity().getApplicationContext().getString(R.string.sync_tagstore);
 		
 		//
 		// set name
@@ -152,7 +172,7 @@ public class ConfigurationTabActivity extends ListActivity {
 		//
 		// get localized string
 		//
-		String item_name = getApplicationContext().getString(R.string.about_tagstore);
+		String item_name = super.getActivity().getApplicationContext().getString(R.string.about_tagstore);
 		
 		//
 		// set name
@@ -186,7 +206,7 @@ public class ConfigurationTabActivity extends ListActivity {
 		//
 		// get localized string
 		//
-		String item_name = getApplicationContext().getString(R.string.listview_settings);
+		String item_name = super.getActivity().getApplicationContext().getString(R.string.listview_settings);
 		
 		//
 		// set name
@@ -223,7 +243,7 @@ public class ConfigurationTabActivity extends ListActivity {
 		//
 		// get localized string
 		//
-		String item_name = getApplicationContext().getString(R.string.database_options);
+		String item_name = super.getActivity().getApplicationContext().getString(R.string.database_options);
 		
 		//
 		// set name
@@ -260,7 +280,7 @@ public class ConfigurationTabActivity extends ListActivity {
 		//
 		// get localized string
 		//
-		String item_name = getApplicationContext().getString(R.string.notification_settings);
+		String item_name = super.getActivity().getApplicationContext().getString(R.string.notification_settings);
 		
 		//
 		// set name
@@ -324,10 +344,11 @@ public class ConfigurationTabActivity extends ListActivity {
 		//
 		addInfoConfigurationItem();
 
+		
 		//
 		// now create simple adapter to display the entries
 		//
-		SimpleAdapter adapter = new SimpleAdapter(this, m_ListMap,
+		SimpleAdapter adapter = new SimpleAdapter(this.getActivity(), m_ListMap,
 				R.layout.configuration_tab_row, new String[] { ITEM_NAME,
 						ITEM_IMAGE }, new int[] { R.id.configuration_item,
 						R.id.configuration_item_image });
@@ -337,9 +358,8 @@ public class ConfigurationTabActivity extends ListActivity {
 		setListAdapter(adapter);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	protected void onListItemClick(ListView listView, View view, int position,
+	public void onListItemClick(ListView listView, View view, int position,
 			long id) {
 
 		//
@@ -353,49 +373,60 @@ public class ConfigurationTabActivity extends ListActivity {
 		String class_name = (String) map_entry.get(ITEM_CLASS_NAME);
 
 		//
+		// get associated item name
+		//
+		String item_name = (String) map_entry.get(ITEM_NAME);
+		
+		//
 		// check if it is supported
 		//
 		if (class_name == null || class_name.length() == 0) {
+			
 			//
-			// TODO:
+			// BUG detected:
 			//
-			Logger.d("Item: " + map_entry.get(ITEM_NAME) + " not implemented");
-
+			Logger.e("Error: no class name for item: " + item_name);
 			return;
 		}
 
 		//
-		// construct 'class'
+		// get main page adapter
 		//
-		Class<Activity> class_object = null;
-
-		try {
-			//
-			// get class name
-			//
-			class_object = (Class<Activity>) Class.forName(class_name);
-		} catch (ClassNotFoundException e) {
-			Logger.d("Failed to get class" + class_name);
-			return;
+		MainPageAdapter adapter = MainPageAdapter.getInstance();
+		
+		//
+		// HACK: when the add file fragment is present
+		// remove add file fragment
+		// change tab to trigger change
+		// add configuration item
+		// change tab
+		// add add file fragment
+		//
+		
+		boolean add_file_present = adapter.isAddFileTagFragmentActive();
+		if (add_file_present)
+		{
+			adapter.removeAddFileTagFragment();
+			adapter.setCurrentFragmentByIndex(0);
 		}
-
-		//
-		// construct new intent
-		//
-		Intent new_intent = new Intent(this, class_object);
-
-		//
-		// now create view
-		//
-		View new_view = ConfigurationActivityGroup.s_Instance
-				.getLocalActivityManager()
-				.startActivity(class_name,
-						new_intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
-				.getDecorView();
-
-		//
-		// now replace the view
-		//
-		ConfigurationActivityGroup.s_Instance.replaceView(new_view);
+		
+		adapter.addFragmentByIndex(class_name, item_name, 2);
+		adapter.setCurrentFragmentByIndex(2);
+		
+		if (add_file_present)
+		{
+			//
+			// get localized new file
+			//
+			String new_file = getString(
+					R.string.new_file);
+			
+			//
+			// rebuild tabs
+			//
+			adapter.addFragment(AddFileTagActivity.class.getName(),
+					new_file);	
+		}
+		
 	}
 }

@@ -23,12 +23,12 @@
     <string name="string_back">Back</string>
     <string name="enable_notification_string">Enable status bar notification</string>
     <string name="enable_notification_description">When enabled, TagStore displays a status bar notification when a new file arrives in one of the observed directories.</string>
-    <string name="tagstore_directories">TagStore Directories</string>
-    <string name="sync_tagstore">Sync TagStore</string>
-    <string name="about_tagstore">About TagStore</string>
-    <string name="notification_settings">Notification Settings</string>
-    <string name="listview_settings">List View Settings</string>
-    <string name="database_options">Database Options</string>
+    <string name="tagstore_directories">Directories</string>
+    <string name="sync_tagstore">Sync</string>
+    <string name="about_tagstore">About</string>
+    <string name="notification_settings">Notification</string>
+    <string name="listview_settings">List View</string>
+    <string name="database_options">Database</string>
     <string name="directory_present">Directory is already in list!</string>
     <string name="one_tag_minimum">There must be at least one tag for the file</string>
     <string name="bytes">Bytes</string>
@@ -42,11 +42,11 @@
     <string name="delete">Delete</string>
     <string name="add_directory">Add directory...</string>
     <string name="no_update">No updates found!</string>
-    <string name="cloud_view">Cloud view:</string>
+    <string name="cloud_view">Cloud View</string>
     <string name="sort_mode">Tag sort mode:</string>
     <string name="sort_mode_alphabetic">alphabetic</string>
     <string name="sort_mode_popular">popular</string>
-    <string name="configuration">Configuration</string>
+    <string name="configuration">Setup</string>
     <string name="new_file">New File</string>
     <string name="reset_database">Restored to factory settings</string>
     <string name="error_reset_database">Failed to restore factory settings!</string>
@@ -73,9 +73,10 @@
     <string name="file_type">Type:</string>
     <string name="file_size">Size:</string>
     <string name="error_tag_exists">The tag already exists!</string>
-    <string name="error_one_tag_maximum">CanÂ´t rename tag to multiple tags!</string>
+    <string name="error_one_tag_maximum">Can´t rename tag to multiple tags!</string>
     <string name="tag_name">Name of tag:</string>
     <string name="tag_files">Num. of files:</string>
     <string name="tag_link">Num. of linked tags:</string>
     <string name="file_date">Date:</string>
+    <string name="tagstore">TagStore</string>
 </resources>

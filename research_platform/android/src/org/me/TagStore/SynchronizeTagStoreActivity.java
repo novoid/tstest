@@ -1,32 +1,28 @@
 package org.me.TagStore;
 
-import java.io.File;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import org.me.TagStore.R;
 import org.me.TagStore.core.ConfigurationSettings;
-import org.me.TagStore.core.DBManager;
-import org.me.TagStore.core.FileTagUtility;
 import org.me.TagStore.core.Logger;
-import org.me.TagStore.core.SyncFileLog;
-import org.me.TagStore.core.SyncLogEntry;
+import org.me.TagStore.core.SyncFileWriter;
+import org.me.TagStore.core.SyncManager;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class SynchronizeTagStoreActivity extends Activity {
+public class SynchronizeTagStoreActivity extends Fragment {
 
 	
 	/**
@@ -39,60 +35,37 @@ public class SynchronizeTagStoreActivity extends Activity {
 	 */
 	Button m_synch_button;
 	
-	class ButtonTask extends TimerTask
-	{
-		/**
-		 * stores the button
-		 */
-		Button m_button;
-		
-		/**
-		 * constructor of class ButtonTask
-		 * @param button holds the button
-		 */
-		ButtonTask(Button button)
-		{
-			m_button = button;
-		}
-		
-		@Override
-		public void run() {
-			runOnUiThread(new Runnable() {
-			    public void run() {
-					//
-					// re-enable the button
-					//
-					m_button.setEnabled(true);
-			    }
-			});
-
-		}
-		
-	}
+	/**
+	 * stores if an sync was performed
+	 */
+	boolean m_sync_performed = false;
 	
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-
-		//
-		// informal debug message
-		//
-		Logger.d("SynchronizeTagStoreActivity::onCreate");
+	public void onCreate(Bundle savedInstanceState) {
 
 		//
 		// pass onto lower classes
 		//
 		super.onCreate(savedInstanceState);
+		
+		//
+		// informal debug message
+		//
+		Logger.d("SynchronizeTagStoreActivity::onCreate");
+	}
+	
+	
+	 public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle saved) {
 
-		//
-		// lets sets our own design
-		//
-		setContentView(R.layout.synchronize_tag_store);
-		
-		
+		 //
+		 // construct layout
+		 //
+		 View view = inflater.inflate(R.layout.synchronize_tag_store, null);
+
 		//
 		// get synchronize button
 		//
-		m_synch_button = (Button) findViewById(R.id.button_synchronize);
+		m_synch_button = (Button) view.findViewById(R.id.button_synchronize);
 		if (m_synch_button != null) {
 			//
 			// add click listener
@@ -112,23 +85,23 @@ public class SynchronizeTagStoreActivity extends Activity {
 		//
 		// synchronization text view
 		//
-		m_synch_date = (TextView)findViewById(R.id.synchronization_history); 
+		m_synch_date = (TextView)view.findViewById(R.id.synchronization_history); 
 		if (m_synch_date != null)
 		{
 			//
 			// acquire shared settings
 			//
-			SharedPreferences settings = getSharedPreferences(
+			SharedPreferences settings = getActivity().getSharedPreferences(
 					ConfigurationSettings.TAGSTORE_PREFERENCES_NAME,
 					Context.MODE_PRIVATE);
 
 			//
 			// get localized unknown string
 			//
-			String unknown = getApplicationContext().getString(R.string.unknown);
+			String unknown = getActivity().getString(R.string.unknown);
 			
 			//
-			// get last file which was started to get tagged
+			// get last date when synchronization was performed
 			//
 			String date = settings.getString(
 					ConfigurationSettings.SYNCHRONIZATION_HISTORY, unknown);
@@ -139,6 +112,10 @@ public class SynchronizeTagStoreActivity extends Activity {
 			m_synch_date.setText(date);
 		}
 		
+		//
+		// done
+		//
+		return view;
 		
 	}
 
@@ -153,12 +130,12 @@ public class SynchronizeTagStoreActivity extends Activity {
 			//
 			// the media is currently not accessible
 			//
-			String media_available = getApplicationContext().getString(R.string.error_media_not_mounted);
+			String media_available = getActivity().getString(R.string.error_media_not_mounted);
 			
 			//
 			// create toast
 			//
-			Toast toast = Toast.makeText(getApplicationContext(), media_available, Toast.LENGTH_SHORT);
+			Toast toast = Toast.makeText(getActivity(), media_available, Toast.LENGTH_SHORT);
 			
 			//
 			// display toast
@@ -177,78 +154,45 @@ public class SynchronizeTagStoreActivity extends Activity {
 		m_synch_button.setEnabled(false);
 		
 		//
-		// instantiate the SyncFileLog
+		// create sync thread
 		//
-		SyncFileLog file_log = SyncFileLog.getInstance();
+		Thread sync_thread = new Thread(new SyncTask());
 		
 		//
-		// construct array list
+		// perform the sync
 		//
-		ArrayList<SyncLogEntry> entries = new ArrayList<SyncLogEntry>();
-		
-		//
-		// read all log entries
-		//
-		file_log.readLogEntries(entries);
-		
-		
-		DBManager db_man = DBManager.getInstance();
-		
-		//
-		// checks if updates were performed
-		//
-		boolean performed_sync = false;
-		
-		//
-		// go through each entry
-		//
-		for (SyncLogEntry entry : entries)
-		{
-			//
-			// get file name
-			//
-			File file = new File(entry.m_file_name);
-			if (!file.exists())
-			{
-				//
-				// skip non existing files
-				//
-				continue;
-			}
-			
-			//
-			// get file id
-			//
-			long file_id = db_man.getFileId(entry.m_file_name);
-			if (file_id != -1)
-			{
-				//
-				// file is already present
-				// FIXME: should update tags???
-				//
-				continue;
-			}
-			
-			//
-			// updates are being performed
-			//
-			performed_sync = true;
-			
-			//
-			// add file as pending
-			//
-			db_man.addPendingFile(entry.m_file_name);
-		
-			//
-			// let FileTagUtility do the rest
-			//
-			FileTagUtility.addFile(entry.m_file_name, entry.m_tags, getApplicationContext());
-		}
-		
-		String date;
-		
+		sync_thread.start();
+	}
 
-
+	/**
+	 * callback invoked by synchronization thread when the sync has been completed
+	 * @param performed_sync if the sync has been made
+	 */	
+	public void syncCallback(boolean performed_sync) {
+		
+		//
+		// store result
+		//
+		m_sync_performed = performed_sync;
+		
+		
+		//
+		// run on ui thread
+		//
+		getActivity().runOnUiThread(new Runnable() {
+		    public void run() {
+		    	syncResultCallback(m_sync_performed);
+		    }
+		});
+	}
+	
+	
+	/**
+	 * updates gui after a sync operation
+	 * @param performed_sync if a real sync occur. A sync occurs when a file is added / removed / tags got changed
+	 */
+	public void syncResultCallback(boolean performed_sync) {
+		
 		if (performed_sync)
 		{
 			//
@@ -260,69 +204,30 @@ public class SynchronizeTagStoreActivity extends Activity {
 			//
 			// format date
 			//
-			date = date_format.format(new Date());
+			String date = date_format.format(new Date());
+			
+			if (m_synch_date != null)
+			{
+				//
+				// update sync date
+				//
+				m_synch_date.setText(date);
+			}
 		}
 		else
 		{
 			//
 			// get localized string
 			//
-			String no_updates = getApplicationContext().getString(R.string.no_update);
-			
+			String no_updates = getActivity().getString(R.string.no_update);
+
 			
 			//
 			// display toast
 			//
-			Toast toast = Toast.makeText(getApplicationContext(), no_updates, Toast.LENGTH_SHORT);
+			Toast toast = Toast.makeText(getActivity(), no_updates, Toast.LENGTH_SHORT);
 			toast.show();
-
-			//
-			// construct timer
-			//
-			Timer timer = new Timer();
-			
-			//
-			// schedule thread to re-enable timer
-			//
-			timer.schedule(new ButtonTask(m_synch_button), 2500);
-			
-			//
-			// done
-			//
-			return;
 		}
-		
-		
-		if (m_synch_date != null)
-		{
-			//
-			// update sync date
-			//
-			m_synch_date.setText(date);
-		}
-		
-		//
-		// get settings
-		//
-		SharedPreferences settings = getSharedPreferences(
-				ConfigurationSettings.TAGSTORE_PREFERENCES_NAME,
-				Context.MODE_PRIVATE);
-
-		//
-		// get settings editor
-		//
-		SharedPreferences.Editor editor = settings.edit();
-			
-		//
-		// store synchronization date
-		//
-		editor.putString(ConfigurationSettings.SYNCHRONIZATION_HISTORY, date);
-			
-			
-		//
-		// and commit the changes
-		//
-		editor.commit();
 	
 		//
 		// re-enable sync button
@@ -330,5 +235,66 @@ public class SynchronizeTagStoreActivity extends Activity {
 		m_synch_button.setEnabled(true);
 		
 	}
+	
+	/**
+	 * This class executes the synchronization task
+	 * @author Johnseyii
+	 *
+	 */
+	private class SyncTask implements Runnable {
+		
+		@Override
+		public void run() {
 
+			//
+			// instantiate the sync manager
+			//
+			SyncManager sync_mgr = new SyncManager(getActivity());
+			
+			int new_files = sync_mgr.getNumberOfNewFiles();
+			int removed_files = sync_mgr.getNumberOfRemovedFiles();
+			int changed_files = sync_mgr.getNumberOfChangedFiles();
+			
+			
+			
+			Logger.i("New     Files: " + new_files);
+			Logger.i("Removed Files: " + removed_files);
+			Logger.i("Changed files: " + changed_files);
+			//
+			// now sync the files
+			//
+			sync_mgr.syncRemovedFiles();
+			sync_mgr.syncNewFiles();
+			sync_mgr.syncChangedFiles();	
+			
+			//
+			// did any updates happen?
+			//
+			boolean performed_sync = (new_files != 0) || (removed_files != 0) || (changed_files != 0);
+
+			if (performed_sync)
+			{
+				//
+				// instantiate the sync file write
+				//
+				SyncFileWriter file_writer = new SyncFileWriter();
+				
+				//
+				// write entries
+				//
+				file_writer.writeTagstoreFiles();	
+			}
+			
+			//
+			// lets update the gui
+			//
+			syncCallback(performed_sync);
+			
+		}
+		
+	}
+
+
+	
+	
 }

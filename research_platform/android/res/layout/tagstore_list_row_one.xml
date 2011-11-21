@@ -3,26 +3,31 @@
     android:layout_width="wrap_content"
     android:layout_height="fill_parent">
 
-<TableRow android:gravity="center">
+<TableRow android:gravity="center_horizontal">
 
-        <ImageButton android:layout_width="wrap_content"
-        android:layout_height="50dp"
-        android:id="@+id/tag_image_one"
-        android:gravity="center"
-        android:src="@drawable/icon">
+        <ImageButton 
+            android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+        	android:id="@+id/tag_image_one"
+        	android:gravity="center"
+        	android:src="@drawable/icon">
         
         </ImageButton>
   </TableRow>
 
-<TableRow android:gravity="center">
-
-
-        <TextView android:text="Tag1" android:layout_width="wrap_content"
-                android:layout_height="25dp"
-                android:textSize="13dp" 
-	
-                android:id="@+id/tag_name_one" android:gravity="center">
+<TableRow android:gravity="center_horizontal">
+        <TextView android:text="Tag1"
+				android:layout_width="wrap_content"
+        		android:layout_height="wrap_content"
+                android:textSize="15dp"
+				android:maxLines="3"
+				android:ellipsize="end"
+				android:scrollHorizontally="true"
+				android:gravity="center_horizontal"
+                android:id="@+id/tag_name_one">
         </TextView>
+  
+            
   </TableRow>
 
 </TableLayout>   

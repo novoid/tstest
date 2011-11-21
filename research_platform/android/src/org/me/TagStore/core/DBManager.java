@@ -6,14 +6,11 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.os.Debug;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-
-import junit.framework.Assert;
 
 /**
  * manages access to sqlite engine
@@ -217,10 +214,10 @@ public class DBManager {
 		//
 		// add 3 files
 		//
-		addFile("/mnt/data/file1", "text/plain", date, "no hash");
-		addFile("/mnt/data/file2", "text/plain", date, "no hash");
-		addFile("/mnt/data/file3", "text/plain", date, "no hash");
-		addFile("/mnt/data/file4", "text/plain", date, "no hash");
+		addFile("/mnt/sdcard/file1", "text/plain", date, "no hash");
+		addFile("/mnt/sdcard/file2", "text/plain", date, "no hash");
+		addFile("/mnt/sdcard/file3", "text/plain", date, "no hash");
+		addFile("/mnt/sdcard/file4", "text/plain", date, "no hash");
 
 		//
 		// add 3 tags
@@ -244,10 +241,10 @@ public class DBManager {
 		long tag2_id = getTagId("tag2");
 		long tag3_id = getTagId("tag3");
 
-		long file1_id = getFileId("/mnt/data/file1");
-		long file2_id = getFileId("/mnt/data/file2");
-		long file3_id = getFileId("/mnt/data/file3");
-		long file4_id = getFileId("/mnt/data/file4");
+		long file1_id = getFileId("/mnt/sdcard/file1");
+		long file2_id = getFileId("/mnt/sdcard/file2");
+		long file3_id = getFileId("/mnt/sdcard/file3");
+		long file4_id = getFileId("/mnt/sdcard/file4");
 
 		addFileTagMapping(file1_id, tag1_id);
 		addFileTagMapping(file1_id, tag2_id);
@@ -320,9 +317,8 @@ public class DBManager {
 			StackTraceElement [] elements = Thread.currentThread().getStackTrace();
 			for(StackTraceElement element : elements)
 				Logger.e("    at " + element.getClassName() + "." + element.getMethodName() + "(" + element.getFileName() + ":" + element.getLineNumber() + ")");
-			
 		}
-		
+
 		//
 		// close cursor
 		//
@@ -333,6 +329,38 @@ public class DBManager {
 		//
 		return result;
 	}
+	
+	/**
+	 * returns all files present in the tagstore
+	 * @return
+	 */
+	public ArrayList<String> getFiles() {
+		
+		if (m_db == null)
+			return null;
+		
+		//
+		// query database
+		//
+		Cursor cursor = m_db.query(FILE_TABLE_NAME, new String[]{FILE_FIELD_PATH}, null, null, null, null, null);
+		
+		
+		//
+		// construct array list
+		//
+		ArrayList<String> list = new ArrayList<String>();
+
+		//
+		// collect result set
+		//
+		collectResultSet(cursor, list);
+		
+		//
+		// done
+		//
+		return list;
+	}
+	
 	
 	/**
 	 * inserts a tag
@@ -441,9 +469,7 @@ public class DBManager {
 			//
 			ids[index] = new String(Long.toString(getTagId(tag_names.get(index))));
 		}
-		
-		Logger.e(query);
-		
+
 		Cursor cursor = m_db.rawQuery(query,
 				ids);
 
@@ -535,8 +561,6 @@ public class DBManager {
 			query = builder.toString();
 		}
 		
-		Logger.e(query);
-		
 		String [] ids = new String[tag_names.size()*2];
 		for(int index = 0; index < tag_names.size(); index++)
 		{
@@ -570,6 +594,9 @@ public class DBManager {
 	 */
 	public ArrayList<String> getAlphabeticTags() {
 
+		if (m_db == null)
+			return null;
+		
 		Cursor cursor = m_db.query(TAG_TABLE_NAME,
 				new String[] { TAG_FIELD_NAME }, null, null, null, null,
 				TAG_FIELD_NAME + " ASC");
@@ -767,43 +794,49 @@ public class DBManager {
 	}
 
 	/**
+	 * removes a pending file from the database
+	 * @param filename file to be removed from the pending list
+	 * @return true on success
+	 */
+	public boolean removePendingFile(String filename) {
+		
+		if (m_db == null)
+			return false;
+		
+		//
+		// remove file from pending file list
+		//
+		int pending_affected = m_db.delete(PENDING_FILE_TABLE_NAME,
+					PENDING_FIELD_PATH + "=?", new String[] { filename });
+	
+		return pending_affected != 0;
+	}
+	
+	
+	/**
 	 * removes a file from the database
 	 * 
 	 * @param filename
 	 *            to be removed
-	 * @param pending_file_list
-	 *            if true removes file from pending file list
-	 * @param file_cache
-	 *            if true removes file from cache
 	 * @return true on success
 	 */
-	public boolean removeFile(String filename, boolean pending_file_list,
-			boolean file_cache) {
+	public boolean removeFile(String filename) {
 
 		try {
 			long pending_affected = 0;
 			long file_cache_affected = 0;
 
-			if (pending_file_list) {
-				//
-				// remove file from pending file list
-				//
-				pending_affected = m_db.delete(PENDING_FILE_TABLE_NAME,
-						PENDING_FIELD_PATH + "=?", new String[] { filename });
-			}
+			//
+			// remove all file references
+			//
+			removeFileReferences(filename);
 
-			if (file_cache) {
-				//
-				// remove all file references
-				//
-				removeFileReferences(filename);
+			//
+			// remove file from tag store
+			//
+			file_cache_affected = m_db.delete(FILE_TABLE_NAME,
+					FILE_FIELD_PATH + "=?", new String[] { filename });
 
-				//
-				// remove file from tag store
-				//
-				file_cache_affected = m_db.delete(FILE_TABLE_NAME,
-						FILE_FIELD_PATH + "=?", new String[] { filename });
-			}
 
 			//
 			// informal debug message
@@ -896,6 +929,9 @@ public class DBManager {
 	 */
 	public long getFileId(String file_name) {
 
+		if (m_db == null)
+			return -1;
+		
 		Cursor cursor = m_db.query(FILE_TABLE_NAME,
 				new String[] { FILE_FIELD_ID }, FILE_FIELD_PATH + "=?",
 				new String[] { file_name }, null, null, null);
@@ -1179,6 +1215,9 @@ public class DBManager {
 	 */
 	public void addPendingFile(String file_name) {
 
+		if (m_db == null)
+			return;
+		
 		//
 		// construct new content values
 		//
@@ -1215,6 +1254,9 @@ public class DBManager {
 	public long addFile(String file_name, String file_type,
 			String file_create_date, String hash_sum) {
 
+		if (m_db == null)
+			return -1;
+		
 		//
 		// construct content values
 		//
@@ -1263,6 +1305,9 @@ public class DBManager {
 	 */
 	public boolean addDirectory(String directory) {
 
+		if (m_db == null)
+			return false;
+		
 		//
 		// construct new content values
 		//
@@ -1337,6 +1382,10 @@ public class DBManager {
 	 */
 	public ArrayList<String> getDirectories() {
 
+		if (m_db == null)
+			return null;
+		
+		
 		//
 		// read directories
 		//
@@ -1459,112 +1508,7 @@ public class DBManager {
 		Logger.i("DBManager::renameFile> result " + affected);
 		
 	}
-	
-	/**
-	 * searches the sync log for an entry with that name 
-	 * @param file_path file name to be searched
-	 * @return SyncLogEntry
-	 */
-	public SyncLogEntry getSyncEntry(String file_path) {
-		
-		if (m_db == null)
-		{
-			//
-			// database not yet initialized
-			//
-			return null;
-		}
-		
-		Cursor cursor = m_db.query(SYNC_TABLE_NAME, 
-								   new String[] {SYNC_FIELD_DATE, SYNC_FIELD_TAGS, SYNC_FIELD_HASH_SUM}, 
-								   SYNC_FIELD_PATH + " LIKE ?", 
-								   new String[]{file_path}, null, null, null);
-		
-		if (!cursor.moveToFirst())
-		{
-			//
-			// no entry found
-			//
-			cursor.close();
-			return null;
-		}
-		
-		//
-		// construct new sync entry and initialize it with values from the database
-		//
-		SyncLogEntry log_entry = new SyncLogEntry();
-		log_entry.m_file_name = file_path;
-		log_entry.m_time_stamp = cursor.getString(0);
-		log_entry.m_tags = cursor.getString(1);
-		log_entry.m_hash_sum = cursor.getString(2);
-		
-		//
-		// close cursor
-		//
-		cursor.close();
-		
-		//
-		// done
-		//
-		return log_entry;
-	}
-	
-	/**
-	 * updates a sync log entry with the following details
-	 * @param log_entry log entry to be updated
-	 */
-	public void updateSyncEntry(SyncLogEntry log_entry) {
-		
-		if (m_db == null)
-		{
-			//
-			// no database initialized yet
-			//
-			return;
-		}
-		
-		ContentValues values = new ContentValues();
-		
-		//
-		// add updated values
-		//
-		values.put(SYNC_FIELD_DATE, log_entry.m_time_stamp);
-		values.put(SYNC_FIELD_TAGS, log_entry.m_tags);
-		values.put(SYNC_FIELD_HASH_SUM, log_entry.m_hash_sum);
-		
-		//
-		// update entry
-		//
-		m_db.update(SYNC_TABLE_NAME, values, SYNC_FIELD_PATH + "=?", new String[]{log_entry.m_file_name});
-	}
-	
-	/**
-	 * adds a new sync entry to the log
-	 * @param log_entry to be added
-	 */
-	public void addSyncEntry(SyncLogEntry log_entry) {
-		
-		if (m_db == null)
-		{
-			//
-			// no database initialized yet
-			//
-			return;
-		}
-		
-		ContentValues values = new ContentValues();
-		
-		//
-		// add updated values
-		//
-		values.put(SYNC_FIELD_DATE, log_entry.m_time_stamp);
-		values.put(SYNC_FIELD_TAGS, log_entry.m_tags);
-		values.put(SYNC_FIELD_HASH_SUM, log_entry.m_hash_sum);
-		values.put(SYNC_FIELD_PATH, log_entry.m_file_name);
 
-		m_db.insert(SYNC_TABLE_NAME, null, values);
-	}
-	
 	/**
 	 * returns all associated tags of that file
 	 * @param file_name file name whose tags are returned
@@ -1608,6 +1552,9 @@ public class DBManager {
 	
 	public boolean resetDatabase(Context ctx) {
 
+		if (m_db == null)
+			return false;
+		
 		//
 		// now close the database
 		//
@@ -1903,8 +1850,6 @@ public class DBManager {
 			}
 
 			m_db = db;
-			// constructTestDatabase();
-			m_db = null;
 		}
 
 		@Override

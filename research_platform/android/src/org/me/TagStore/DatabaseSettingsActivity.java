@@ -4,20 +4,34 @@ import org.me.TagStore.R;
 import org.me.TagStore.core.ConfigurationSettings;
 import org.me.TagStore.core.DBManager;
 import org.me.TagStore.core.Logger;
+import org.me.TagStore.core.SyncFileLog;
+import org.me.TagStore.ui.MainPageAdapter;
 
-import android.app.Activity;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.Toast;
 
-public class DatabaseSettingsActivity extends Activity {
+public class DatabaseSettingsActivity extends Fragment {
 
-	protected void onCreate(Bundle savedInstanceState) {
+	/**
+	 * stores the result of database reset thread
+	 */
+	boolean m_reset_database;
+	
+	/**
+	 * stores the reset button
+	 */
+	Button m_reset_button;
+	
+	public void onCreate(Bundle savedInstanceState) {
 
 		//
 		// pass onto lower classes
@@ -28,126 +42,132 @@ public class DatabaseSettingsActivity extends Activity {
 		// informal debug message
 		//
 		Logger.i("DatabaseSettingsActivity::onCreate");
-
-		//
-		// lets sets our own design
-		//
-		setContentView(R.layout.database_settings);
-
-		//
-		// initialize configuration tab
-		//
-		initialize();
 	}
 
-	/**
-	 * initialize user interface
-	 */
-	private void initialize() {
-
-		//
-		// get back button
-		//
-		Button back_button = (Button) findViewById(R.id.button_back);
-		if (back_button != null) {
-			//
-			// add click listener
-			//
-			back_button.setOnClickListener(new OnClickListener() {
-
-				@Override
-				public void onClick(View v) {
-					//
-					// notify that we are done
-					//
-					ConfigurationActivityGroup.s_Instance.back();
-				}
-			});
-		}
+	 public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle saved) {
+			
+		 //
+		 // construct layout
+		 //
+		 View view = inflater.inflate(R.layout.database_settings, null);
 
 		//
 		// get reset button
 		//
-		Button reset_button = (Button) findViewById(R.id.button_reset);
-		if (reset_button != null) {
+		m_reset_button = (Button) view.findViewById(R.id.button_reset);
+		if (m_reset_button != null) {
 
 			//
 			// add click listener
 			//
-			reset_button.setOnClickListener(new OnClickListener() {
+			m_reset_button.setOnClickListener(new OnClickListener() {
 
 				@Override
 				public void onClick(View v) {
+					
 					//
-					// call reset database method
+					// disable reset button
 					//
-					resetDatabase();
+					m_reset_button.setEnabled(false);
+					
+					//
+					// create database reset worker
+					//
+					Thread database_worker = new Thread(new DatabaseResetTask());
+					
+					//
+					// start the thread
+					//
+					database_worker.start();
 				}
 			});
 		}
 
+		//
+		// done
+		//
+		return view;
+		
 	}
 
 	/**
-	 * resets the database
+	 * callback which is invoked when database worker has been reset
+	 * @param reset_database if true the database has been reset
 	 */
-	protected void resetDatabase() {
-
+	protected void resetDatabaseCallback(boolean reset_database) {
+		
 		//
-		// acquire database manager instance
+		// store result
 		//
-		DBManager db_man = DBManager.getInstance();
-
+		m_reset_database = reset_database;
+		
 		//
-		// reset the database
+		// run on ui thread
 		//
-		boolean reset_database = db_man.resetDatabase(getApplicationContext());
+		getActivity().runOnUiThread(new Runnable() {
+		    public void run() {
+		    	updateUIDatabaseCallback(m_reset_database);
+		    }
+		});
+		
+	}
+	
+	
+	/**
+	 * updates the ui after the database has been reset
+	 * @param reset_database if true the database has successfully been reset
+	 */
+	protected void updateUIDatabaseCallback(boolean reset_database) {
 
 		Toast toast;
+		
+		//
+		// re-enable reset button
+		//
+		m_reset_button.setEnabled(true);
 		
 		if (reset_database) {
 			//
 			// successfully deleted database
 			//
-			String text = getApplicationContext().getString(R.string.reset_database);
-			toast = Toast.makeText(getApplicationContext(),
+			String text = getActivity().getString(R.string.reset_database);
+			toast = Toast.makeText(getActivity(),
 					text, Toast.LENGTH_SHORT);
 		} else {
 			//
 			// failed to reset database
 			//
-			String text = getApplicationContext().getString(R.string.error_reset_database);			
-			toast = Toast.makeText(getApplicationContext(),
+			String text = getActivity().getString(R.string.error_reset_database);			
+			toast = Toast.makeText(getActivity(),
 					text, Toast.LENGTH_SHORT);
 		}
-
-		//
-		// get localized new file
-		//
-		String new_file = getApplicationContext().getString(R.string.new_file);
 		
 		//
-		// is the new file tab being shown
+		// get main page adapter
 		//
-		if (MainActivity.s_Instance.isTabVisible(new_file))
+		MainPageAdapter adapter = MainPageAdapter.getInstance();
+
+		//
+		// is the add file tag fragment present
+		//
+		if (adapter.isAddFileTagFragmentActive())
 		{
 			//
-			// the database was cleaned, there are no more pending files
+			// hide that fragment as the database is now empty
 			//
-			MainActivity.s_Instance.showTab(new_file, false);
-		
-
-			//
-			// clear file settings
-			//
-			clearCurrentFile();
-			
+			adapter.removeAddFileTagFragment();
+				
 			//
 			// clear notification settings
 			//
 			clearNotification();
 		}
-		
+
+		//
+		// clear file settings
+		//
+		clearCurrentFile();		
+
 		//
 		// display toast
 		//
@@ -162,7 +182,7 @@ public class DatabaseSettingsActivity extends Activity {
 		//
 		// get settings
 		//
-		SharedPreferences settings = getSharedPreferences(
+		SharedPreferences settings = getActivity().getSharedPreferences(
 				ConfigurationSettings.TAGSTORE_PREFERENCES_NAME,
 				Context.MODE_PRIVATE);
 		
@@ -185,7 +205,7 @@ public class DatabaseSettingsActivity extends Activity {
 		//
 		// get notification service manager instance
 		//
-		NotificationManager notification_manager = (NotificationManager) getSystemService(ns_name);
+		NotificationManager notification_manager = (NotificationManager) getActivity().getSystemService(ns_name);
 
 		//
 		// clear notification
@@ -201,7 +221,7 @@ public class DatabaseSettingsActivity extends Activity {
 		//
 		// get settings
 		//
-		SharedPreferences settings = getSharedPreferences(
+		SharedPreferences settings = getActivity().getSharedPreferences(
 				ConfigurationSettings.TAGSTORE_PREFERENCES_NAME,
 				Context.MODE_PRIVATE);
 
@@ -225,5 +245,51 @@ public class DatabaseSettingsActivity extends Activity {
 		//
 		editor.commit();
 	}
+	
+	private class DatabaseResetTask implements Runnable {
+
+		@Override
+		public void run() {
+
+			//
+			// acquire database manager instance
+			//
+			DBManager db_man = DBManager.getInstance();
+
+			//
+			// reset the database
+			//
+			boolean reset_database = db_man.resetDatabase(getActivity());
+			
+			//
+			// clear sync log
+			//
+			//clearSyncLog();
+			
+			//
+			// invoke callback
+			//
+			resetDatabaseCallback(reset_database);
+
+		}
+		
+		/**
+		 * removes all file entries from the log file
+		 */
+		private void clearSyncLog() {
+			
+			//
+			// construct sync log
+			//
+			SyncFileLog file_log = new SyncFileLog();
+			
+			//
+			// clear the log
+			//
+			file_log.clearLogEntries();
+		}
+		
+	}
+	
 	
 }

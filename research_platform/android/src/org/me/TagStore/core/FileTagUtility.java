@@ -1,6 +1,8 @@
 package org.me.TagStore.core;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -9,6 +11,7 @@ import java.util.StringTokenizer;
 import org.me.TagStore.R;
 
 import android.content.Context;
+import android.os.Environment;
 import android.webkit.MimeTypeMap;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -192,7 +195,7 @@ public class FileTagUtility {
 		//
 		// generate hashsum
 		//
-		String hash_sum = FileHashsumGenerator.generateFileHashsum(ctx, file_name);
+		String hash_sum = "NOHASHSUMGENEREATED"; //FileHashsumGenerator.generateFileHashsum(ctx, file_name);
 		
 		//
 		// get time stamp in UTC
@@ -221,7 +224,7 @@ public class FileTagUtility {
 		//
 		// let's add the file
 		//
-		return addFileWithProperties(file_name, tag_text, hash_sum, create_date, mime_type, true);
+		return addFileWithProperties(file_name, tag_text, hash_sum, create_date, mime_type);
 	}	
 
 	/**
@@ -231,11 +234,10 @@ public class FileTagUtility {
 	 * @param hash_sum hash sum of the file
 	 * @param create_date create date of the file
 	 * @param mime_type mime type of the file
-	 * @param write_log if true a log is written
 	 * @return true on success
 	 */
-	public static boolean addFileWithProperties(String file_name, String tag_text, String hash_sum, 
-												String create_date, String mime_type, boolean write_log)
+	private static boolean addFileWithProperties(String file_name, String tag_text, String hash_sum, 
+												String create_date, String mime_type)
 	{
 		//
 		// acquire database manager
@@ -263,26 +265,8 @@ public class FileTagUtility {
 		//
 		// now remove pending file
 		//
-		db_man.removeFile(file_name, true, false);
+		db_man.removePendingFile(file_name);
 
-		//
-		// check if log should be written
-		//
-		if (write_log)
-		{
-			//
-			// get instance of sync file log
-			//
-			SyncFileLog file_log = SyncFileLog.getInstance();
-			if (file_log != null)
-			{
-				//
-				// write entry
-				//
-				file_log.writeLogEntry(file_name, tag_text, create_date, hash_sum);
-			}
-		}
-		
 		//
 		// done
 		//
@@ -293,13 +277,57 @@ public class FileTagUtility {
 	/**
 	 * adds a file to the database
 	 * @param file_name path of file
+	 * @param write_log true if to the log should be written
 	 * @param tag_text tags of the file
 	 */
-	public static boolean addFile(String file_name, String tag_text, Context ctx) {
+	public static boolean addFile(String file_name, String tag_text, boolean write_log, Context ctx) {
+		
+		//
+		// check if file exists
+		//
+		File file = new File(file_name);
+		if (!file.exists())
+		{
+			if (ctx == null)
+				return false;
+			
+			//
+			// get localized error format string
+			//
+			String error_format = ctx.getString(R.string.error_format_file_removed);
+			
+			//
+			// format the error
+			//
+			String msg = String.format(error_format, file_name);
+			
+			
+			//
+			// inform user that it failed to add the file
+			//
+			Toast toast = Toast
+					.makeText(ctx,
+							msg,
+							Toast.LENGTH_SHORT);
+
+			//
+			// display toast
+			//
+			toast.show();
+
+			//
+			// done
+			//
+			return false;
+		}
+		
 		//
 		// first add the file
 		//
 		if (!FileTagUtility.addFileToDB(file_name, tag_text, ctx)) {
+			
+			if (ctx == null)
+				return false;
 			
 			//
 			// get localized error format string
@@ -336,6 +364,9 @@ public class FileTagUtility {
 		//
 		if (!FileTagUtility.processTags(file_name, tag_text)) {
 			
+			if (ctx == null)
+				return false;
+			
 			//
 			// get localized error format string
 			//
@@ -365,7 +396,7 @@ public class FileTagUtility {
 			//
 			// remove entry
 			//
-			db_man.removeFile(file_name, false, true);
+			db_man.removeFile(file_name);
 
 			//
 			// done
@@ -373,15 +404,57 @@ public class FileTagUtility {
 			return false;
 		}
 		
+		if (write_log)
+		{
+			//
+			// instantiate the sync file write
+			//
+			SyncFileWriter file_writer = new SyncFileWriter();
+			
+			//
+			// write entries
+			//
+			file_writer.writeTagstoreFiles();
+		}
+		
+		
+		
 		//
 		// completed
 		//
 		return true;
 	}
 	
+	/**
+	 * removes a tag from the tag store
+	 * @param tagname
+	 */
+	public static void removeTag(String tagname) {
+		
+		//
+		// instantiate database manager
+		//
+		DBManager db_man = DBManager.getInstance();
+		
+		//
+		// remove tag
+		//
+		db_man.deleteTag(tagname);
+		
+		//
+		// instantiate the sync file write
+		//
+		SyncFileWriter file_writer = new SyncFileWriter();
+		
+		//
+		// write entries
+		//
+		file_writer.writeTagstoreFiles();			
+	}
+	
 	
 	/**
-	 * removes a file from the database and then deletes the file from disk and displays a toast if the operation has been successful
+	 * removes a file from the database and deletes the file from disk and displays a toast if the operation has been successful
 	 * @param file_name path of the file to be deleted
 	 * @param ctx application context
 	 */
@@ -398,9 +471,9 @@ public class FileTagUtility {
 		DBManager db_man = DBManager.getInstance();
 
 		//
-		// FIXME: this should be the job of file watch dog service...
+		// remove file
 		//
-		db_man.removeFile(file_name, false, true);
+		db_man.removeFile(file_name);
 
 		//
 		// delete file
@@ -414,6 +487,19 @@ public class FileTagUtility {
 		if (file_deleted) {
 			
 			//
+			// instantiate the sync file write
+			//
+			SyncFileWriter file_writer = new SyncFileWriter();
+			
+			//
+			// write entries
+			//
+			file_writer.writeTagstoreFiles();	
+			
+			if (ctx == null)
+				return;
+			
+			//
 			// get localized format string
 			//
 			String format_delete = ctx.getString(R.string.format_delete);
@@ -422,8 +508,16 @@ public class FileTagUtility {
 			// format the string
 			//
 			msg = String.format(format_delete, file_name);
+			
+			
+		
+			
 
 		} else {
+			
+			if (ctx == null)
+				return;
+			
 			//
 			// get localized format string
 			//
@@ -531,6 +625,302 @@ public class FileTagUtility {
 		// tags appear to be o.k.
 		//
 		return true;
+	}
+	
+	/**
+	 * this function retags a file
+	 * @param filename file to be retagged
+	 * @param tags new tags for file
+	 * @param write_log true if the log should be written to
+	 * @param context context which is invoked in case of errors
+	 * @return true on success
+	 */
+	public static boolean retagFile(String filename, String tags, boolean write_log, Context context) {
+		
+		//
+		// instantiate database manager
+		//
+		DBManager db_man = DBManager.getInstance();
+		
+		//
+		// remove file from tag store
+		//
+		db_man.removeFile(filename);
+		
+		//
+		// HACK: mark file as pending
+		//
+		db_man.addPendingFile(filename);
+		
+		//
+		// re-add them to the store
+		//
+		return FileTagUtility.addFile(filename, tags, write_log, context);
+	}
+	
+	
+	/**
+	 * renames a file in the databases and then actually renames it in the filesystem
+	 * @param old_file_name
+	 * @param new_file_name
+	 * @return
+	 */
+	public static boolean renameFile(String old_file_name, String new_file_name) {
+	
+		//
+		// instantiate database manager
+		//
+		DBManager db_man = DBManager.getInstance();
+	
+		//
+		// instantiate the sync file write
+		//
+		SyncFileWriter file_writer = new SyncFileWriter();
+		
+		//
+		// create file objs for renaming
+		//
+		File file = new File(old_file_name);
+		if (!file.exists())
+		{
+			Logger.e("Error: the file " + old_file_name + " no longer exists");
+			
+			//
+			// lets remove it from tagstore
+			//
+			db_man.removeFile(old_file_name);
+			
+			//
+			// write entries
+			//
+			file_writer.writeTagstoreFiles();			
+			
+			//
+			// failed
+			//
+			return false;
+		}
+		
+		//
+		// construct new file name obj
+		//
+		File new_file_obj = new File(new_file_name);
+		if (new_file_obj.exists())
+		{
+			//
+			// there is already a file with that name present
+			//
+			Logger.e("Error: can't rename file to " + new_file_name + " because it already exists");
+			return false;
+		}
+		
+		//
+		// now update the database
+		//
+		db_man.renameFile(old_file_name, new_file_name);
+	
+		//
+		// now rename the file
+		//
+		boolean renamed_file = file.renameTo(new_file_obj);
+		
+		if (renamed_file)
+		{
+			//
+			// write entries
+			//
+			file_writer.writeTagstoreFiles();			
+		}
+		
+		//
+		// done
+		//
+		return renamed_file;
+	}
+	
+	/**
+	 * returns true when the file name is already taken
+	 * @param new_file_name new file name to check for uniqueness
+	 * @return true when filename is already consumed
+	 */
+	public static boolean isFilenameAlreadyTaken(String new_file_name) {
+		
+		//
+		// check if there is already a file with that name entered
+		//
+		DBManager db_man = DBManager.getInstance();
+		
+		//
+		// get list of file paths which have the same file name
+		//
+		ArrayList<String> same_files = db_man.getSimilarFilePaths(new_file_name);
+		
+		//
+		// check result
+		//
+		if (same_files == null)
+			return false;
+		else
+			return (same_files.size() > 0);
+	}
+	
+	/**
+	 * returns true when the tag already exists
+	 * @param tag to be checked
+	 * @return boolean
+	 */
+	public static boolean isTagExisting(String tag) {
+		
+		//
+		// check if there is already a file with that name entered
+		//
+		DBManager db_man = DBManager.getInstance();
+		
+		//
+		// get tag id of given tag
+		//
+		return db_man.getTagId(tag) != -1;
+		
+	}
+	
+	/**
+	 * renames the tag
+	 * @param old_tag_name old tag name
+	 * @param new_tag_name new tag name
+	 */
+	public static boolean renameTag(String old_tag_name, String new_tag_name) {
+		
+		//
+		// check if there is already a file with that name entered
+		//
+		DBManager db_man = DBManager.getInstance();
+		
+		
+		//
+		// rename tag
+		//
+		boolean renamed_tag = db_man.renameTag(old_tag_name, new_tag_name);
+		
+		
+		if (renamed_tag)
+		{
+			//
+			// instantiate the sync file write
+			//
+			SyncFileWriter file_writer = new SyncFileWriter();
+			
+			//
+			// write entries
+			//
+			file_writer.writeTagstoreFiles();
+		}
+		
+		//
+		// done
+		//
+		return renamed_tag;
+	}
+
+
+	/**
+	 * removes pending file from pending file list
+	 * @param current_file
+	 */
+	public static void removePendingFile(String current_file) {
+		//
+		// check if there is already a file with that name entered
+		//
+		DBManager db_man = DBManager.getInstance();
+		
+		//
+		// removes pending file
+		//
+		db_man.removePendingFile(current_file);
+	}
+
+	/**
+	 * returns a list of linked tags which are linked to the current tag stack
+	 * @return
+	 */
+	public static ArrayList<String> getLinkedTags() {
+		
+		//
+		// acquire database manager
+		//
+		DBManager db_man = DBManager.getInstance();
+
+		//
+		// get current tag stack
+		//
+		ArrayList<String> tag_stack = TagStackManager.getInstance().toArray(new String[1]);
+		
+		//
+		// get associated files
+		//
+		ArrayList<String> linked_tags = db_man.getLinkedTags(tag_stack);
+		if (linked_tags == null)
+		{
+			Logger.e("Error: FileTagUtility::getLinkedTags linked_tags null");
+			return new ArrayList<String>();
+		}
+		
+		//
+		// done
+		//
+		return linked_tags;
+	}
+	
+	
+	/**
+	 * returns a list of linked files in respect to their current tag stack
+	 * @return
+	 */
+	public static ArrayList<String> getLinkedFiles() {
+		
+		//
+		// acquire database manager
+		//
+		DBManager db_man = DBManager.getInstance();
+
+		//
+		// get current tag stack
+		//
+		ArrayList<String> tag_stack = TagStackManager.getInstance().toArray(new String[1]);
+		
+		//
+		// get associated files
+		// m_tag_stack.toArray(new String[1])
+		ArrayList<String> linked_files = db_man.getLinkedFiles(tag_stack);
+		if (linked_files == null)
+		{
+			Logger.e("Error: FileTagUtility::getLinkedFiles linked_files null");
+			return new ArrayList<String>();
+		}
+		
+		//
+		// build result list
+		//
+		ArrayList<String> result_list = new ArrayList<String>();
+		
+		for(String linked_file : linked_files)
+		{
+			//
+			// check if file still exists
+			//
+			//File file = new File(linked_file);
+			//if (file.exists())
+			result_list.add(linked_file);
+		}
+		
+		//
+		// sort array by collections
+		//
+		Collections.sort(result_list);
+		
+		//
+		// done
+		//
+		return result_list;
 	}
 	
 	

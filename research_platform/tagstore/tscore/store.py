@@ -17,6 +17,8 @@
 #import time #for performance tests only
 import datetime
 import re
+import sys
+import os
 import logging.handlers
 from PyQt4 import QtCore
 from tsos.filesystem import FileSystemWrapper
@@ -53,8 +55,11 @@ class Store(QtCore.QObject):
         self.__watcher = QtCore.QFileSystemWatcher(self)
         self.__watcher.connect(self.__watcher,QtCore.SIGNAL("directoryChanged(QString)"), self.__directory_changed)
         self.__tag_wrapper = None
+        self.__sync_tag_wrapper = None
         self.__store_config_wrapper = None
         self.__pending_changes = PendingChanges()
+        
+        self.__sync_tags_file_name = TsConstants.DEFAULT_STORE_SYNC_TAGS_FILENAME
         
         self.__tagline_config = None
         self.__paths_to_maintain = []
@@ -92,6 +97,7 @@ class Store(QtCore.QObject):
         self.__name = unicode(self.__path.split("/")[-1])
         self.__parent_path = unicode(self.__path[:len(self.__path)-len(self.__name)-1])
 
+
     def __create_wrappers(self):
         if self.__file_system.path_exists(self.__path + "/" + self.__tags_file_name):
             self.__tag_wrapper = TagWrapper(self.__path + "/" + self.__tags_file_name)
@@ -108,7 +114,7 @@ class Store(QtCore.QObject):
             self.__handle_renamed_removed_store()
         if not self.__file_system.path_exists(self.__path):
             #print self.__path
-            raise StoreInitError, self.trUtf8("The specified store directory does not exist!")
+            raise StoreInitError, self.trUtf8("The specified store directory does not exist! %s" % self.__path)
             return
         
         
@@ -178,6 +184,52 @@ class Store(QtCore.QObject):
             self.__file_system.create_dir(path)
 
         self.__init_store()
+
+    def init_sync_log(self, target_store_name):
+        """
+        initializes the sync log
+        """
+        # construct sync tags file path
+        self.__sync_tags_file_path = self.__path + "/" + TsConstants.DEFAULT_STORE_CONFIG_DIR + "/" + target_store_name + self.__sync_tags_file_name
+        
+        self.__log.info("path:%s" % self.__sync_tags_file_path)
+        if not self.__file_system.path_exists(self.__sync_tags_file_path):
+            # create default sync tags file
+            TagWrapper.create_tags_file(self.__sync_tags_file_path)
+            
+        ## now create a new sync tag_wrapper instance
+        self.__sync_tag_wrapper = TagWrapper(self.__sync_tags_file_path)
+
+    def sync_item_exists(self, item_name):
+        """
+        checks an item exists in the sync log
+        """
+        return self.__sync_tag_wrapper.file_exists(item_name)
+
+    def get_sync_items(self):
+        """
+        returns a list of all item names in the sync log 
+        """
+        return self.__sync_tag_wrapper.get_files()
+
+    def get_sync_file_timestamp(self, file_name):
+        """
+        returns the timestamp value in the sync log
+        """
+        return self.__sync_tag_wrapper.get_file_timestamp(file_name)
+        
+    def get_describing_sync_tags_for_item(self, item_name):
+        """
+        returns all describing tags associated with the given item in the sync log
+        """
+        return self.__sync_tag_wrapper.get_file_tags(item_name)
+        
+    def get_categorizing_sync_tags_for_item(self, item_name):
+        """
+        returns all categorizing tags associated with the given item in the sync log
+        """
+        return self.__sync_tag_wrapper.get_file_categories(item_name)
+
         
     def __init_store(self):
         """
@@ -186,6 +238,7 @@ class Store(QtCore.QObject):
         self.__name = self.__path.split("/")[-1]
         self.__parent_path = self.__path[:len(self.__path)-len(self.__name)]
         self.__tags_file_path = self.__path + "/" + self.__tags_file_name
+        self.__sync_tags_file_path = self.__path + "/" + self.__sync_tags_file_name
         self.__config_path = self.__path + "/" + self.__config_file_name
         self.__vocabulary_path = self.__path + "/" + self.__vocabulary_file_name #TsConstants.STORE_CONFIG_DIR + "/" + TsConstants.STORE_VOCABULARY_FILENAME
         self.__watcher_path = self.__path + "/" + self.__storage_dir_name
@@ -196,6 +249,8 @@ class Store(QtCore.QObject):
         self.__temp_progress_path = unicode(self.__config_path[:len(self.__config_path)-len(config_file_name)-1])
         
         self.__tag_wrapper = TagWrapper(self.__tags_file_path)
+        self.__sync_tag_wrapper = TagWrapper(self.__sync_tags_file_path)
+        
         ## update store id to avoid inconsistency
         config_wrapper = ConfigWrapper(self.__path + "/" + self.__config_file_name)#self.__tags_file_name)
         config_wrapper.set_store_id(self.__id)
@@ -209,6 +264,7 @@ class Store(QtCore.QObject):
         
         ## all necessary files and dirs should have been created now - so init the logger
         self.__log = LogHelper.get_store_logger(self.__path, logging.INFO) 
+
 
         ## handle offline changes
         self.__handle_unfinished_operation()
@@ -330,7 +386,50 @@ class Store(QtCore.QObject):
             if int(file["exp_year"]) < now.year or (int(file["exp_year"]) == now.year and int(file["exp_month"]) < now.month):
                 new_filename = file_name + " - " + "; ".join(file["category"]) + " - " + "; ".join(file["tags"]) + file_extension
                 self.__file_system.rename_file(self.__watcher_path + "/" + file["filename"], self.__path + "/" + self.__expiry_dir_name + "/" + new_filename)
-                      
+                
+    def __is_sync_active(self):
+        """
+        returns true when the sync is active
+        """
+  
+        path = unicode(self.__watcher_path + "/" + ".android_sync_process_running.lock")
+        
+        result = self.__file_system.path_exists(path)
+        if result == False:
+            return result
+        
+        # is this not windows host
+        if sys.platform[:3] != "win":
+            # open or create a pid file
+            old_pid = None            
+            pid_file = open(path, "r")
+        
+            for line in pid_file.readlines():
+                old_pid = line
+            
+            pid_file.close()
+        
+            if old_pid is None or old_pid == "":
+                # empty file
+                # delete file
+                self.__file_system.remove_file(path)
+                return False            
+            
+            try:
+                # the second parameter is the signal code
+                # If sig is 0, then no signal is sent, but error checking is still performed.
+                # if "os.kill" throws no exception, the process exists
+                os.kill(int(old_pid), 0)
+                # if no exception is thrown the sync is active
+                return True
+            except OSError, e:
+                # no such process, remove old lock file
+                self.__file_system.remove_file(path)
+                return False
+        
+        # windows platform
+        return True
+    
     def __handle_file_changes(self, path):
         """
         handles the stores file and dir changes to find out if a file/directory was added, renamed, removed
@@ -346,6 +445,14 @@ class Store(QtCore.QObject):
         data_files = (config_files | captured_added_files) - captured_removed_files 
         added = list((existing_files | existing_dirs) - data_files)
         removed = list(data_files - (existing_files | existing_dirs))
+    
+        if self.__is_sync_active():
+            self.__log.info("__handle_file_changes: sync is active")
+            return
+
+        #names = self.__pending_changes.get_added_names()
+        #for name in names:
+        #    self.__log.info(name)
     
         if len(added) == 1 and len(removed) == 1:
             self.__pending_changes.register(removed[0], self.__get_type(removed[0]), EFileEvent.REMOVED_OR_RENAMED)
@@ -626,9 +733,9 @@ class Store(QtCore.QObject):
         #TODO: if file_name already in config, delete missing tags and recreate whole link structure
         #existing tags will not be recreated in windows-> linux, osx???
          
-        self.__log.info("add item with tags to navigation: itemname: %s" % file_name)
-        self.__log.info("describing tags: %s" % describing_tag_list)
-        self.__log.info("categorizing tags: %s" % categorising_tag_list)
+        #self.__log.info("add item with tags to navigation: itemname: %s" % file_name)
+        #self.__log.info("describing tags: %s" % describing_tag_list)
+        #self.__log.info("categorizing tags: %s" % categorising_tag_list)
         ## throw error if inodes run short
         if self.__file_system.inode_shortage(self.__config_path):
             self.__log.error("inode threshold has exceeded")
@@ -648,17 +755,22 @@ class Store(QtCore.QObject):
         ## start = time.clock()
         #try:
         self.__create_inprogress_file()
-        for path in self.__paths_to_maintain:
-            if path == self.__describing_nav_path:
-                self.__build_store_navigation(file_name, describing_tags, self.__describing_nav_path)
-            elif path == self.__categorising_nav_path:
-                self.__build_store_navigation(file_name, categorising_tags, self.__categorising_nav_path)
-            elif path == self.__navigation_path:
-                self.__build_store_navigation(file_name, describing_tags, self.__navigation_path)
+        
+        # is it not an android store
+        if not self.__is_android_store():
+            for path in self.__paths_to_maintain:
+                if path == self.__describing_nav_path:
+                    self.__build_store_navigation(file_name, describing_tags, self.__describing_nav_path)
+                elif path == self.__categorising_nav_path:
+                    self.__build_store_navigation(file_name, categorising_tags, self.__categorising_nav_path)
+                elif path == self.__navigation_path:
+                    self.__build_store_navigation(file_name, describing_tags, self.__navigation_path)
         #except:
         #    raise Exception, self.trUtf8("An error occurred during building the navigation path(s) and links!")
         #try:
+        
         self.__tag_wrapper.set_file(file_name, describing_tags, categorising_tags)
+
         self.__pending_changes.remove(file_name)
         self.__remove_inprogress_file()
         #except:
@@ -744,6 +856,38 @@ class Store(QtCore.QObject):
     
     def set_controlled_vocabulary(self, vocabulary_set):
         self.__vocabulary_wrapper.set_vocabulary(vocabulary_set)
-        
 
+    def get_storage_directory(self):
+        """
+        returns the path of the storage directory where the items are stored
+        """        
+        return self.__watcher_path
+    
+    def __is_android_store(self):
+        """
+        returns True if the store is an android store
+        """
+        result = self.__store_config_wrapper.get_android_store()
+        if result == None or result =="":
+            return False
+        
+        if int(result) == 0:
+            return False
+        else:
+            return True
+        
+    def is_android_store(self):
+        return self.__is_android_store()
+        
+    def set_sync_tags(self, file_name, describing_tags, categorising_tags):
+        """
+        updates the sync tags
+        """
+        
+        
+        # is the and sync tag wrapper initialized
+        if self.__sync_tag_wrapper != None:
+            self.__sync_tag_wrapper.set_file(file_name, describing_tags, categorising_tags)
+
+    
 ## end
