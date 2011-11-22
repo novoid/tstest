@@ -56,6 +56,8 @@ class TsConstants(object):
     
     SETTING_VOCABULARY_CONFIGURABLE = "vocabulary_configurable"
     
+    SETTING_SYNCHRONIZABLE_STORE = "synchronizable_store"
+
     ## these constants are NOT used at the config file - it is a "gui setting name"
     SETTING_CATEGORY_VOCABULARY = "category_vocabulary"
     SETTING_ITEMS = "store_items"
@@ -81,6 +83,10 @@ class TsConstants(object):
     DEFAULT_STORE_TAGS_FILENAME = "store.tgs"
     DEFAULT_STORE_SYNC_TAGS_FILENAME = "sync.tgs"
     DEFAULT_STORE_VOCABULARY_FILENAME = "vocabulary.txt"
+    
+    ## this file is created during a synchronization process
+    DEFAULT_SYNCHRONIZATION_LOCKFILE_NAME = "tagstore.synchronization.lock"
+    
     DEFAULT_RECENT_TAGS = 5
     DEFAULT_POPULAR_TAGS = 5
     DEFAULT_MAX_TAGS = 3

@@ -98,6 +98,7 @@ class ConfigWrapper(QtCore.QObject):
         file.write("expiry_prefix=expiration\n")
         file.write("max_tags=5\n")
         file.write("num_popular_tags=5\n")
+        file.write("additional_ignored_extensions=\"\"\n")
         ## store config defaults
         #file.write("datestamp_format=1\n")
         #file.write("show_category_line=1\n")
@@ -289,6 +290,21 @@ class ConfigWrapper(QtCore.QObject):
         else:    
             return False
 
+    def get_syncronizable_store(self):
+        """
+        returns a dictionary with the store id and the store path 
+        of the store to be synchronized with an android application
+        KEYS: "id", "path" 
+        """
+        store_id = self.__get_setting(TsConstants.SETTING_SYNCHRONIZABLE_STORE)
+        
+        if(store_id is None or store_id == ""):
+            return None
+        
+        store_path = self.get_store_path(store_id)
+        
+        return dict(id=unicode(store_id), path=unicode(store_path))
+        
     def get_vocabulary_configurable(self):
         """
         returns "True" or "False" in case the vocabulary options are configurable

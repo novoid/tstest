@@ -391,7 +391,11 @@ class Store(QtCore.QObject):
             if int(file["exp_year"]) < now.year or (int(file["exp_year"]) == now.year and int(file["exp_month"]) < now.month):
                 new_filename = file_name + " - " + "; ".join(file["category"]) + " - " + "; ".join(file["tags"]) + file_extension
                 self.__file_system.rename_file(self.__watcher_path + "/" + file["filename"], self.__path + "/" + self.__expiry_dir_name + "/" + new_filename)
-                
+    
+    def __get_lockfile_path(self):
+        return self.__path + "/" + self.__storage_dir_name + "/" + TsConstants.DEFAULT_SYNCHRONIZATION_LOCKFILE_NAME
+    
+                    
     def __is_sync_active(self):
         """
         returns true when the sync is active
@@ -434,11 +438,18 @@ class Store(QtCore.QObject):
         
         # windows platform
         return True
-    
+               
     def __handle_file_changes(self, path):
         """
         handles the stores file and dir changes to find out if a file/directory was added, renamed, removed
         """
+        if(path == self.__get_lockfile_path()):
+            return
+        
+        ## if there is a synchronize procedure running - just do nothing
+        if(self.__is_synchronize_in_progress()):
+            print "recognized a new file - but this must be from the sync-process"
+            return
         
         if self.__is_sync_active():
             self.__log.info("__handle_file_changes: sync is active")
@@ -526,10 +537,14 @@ class Store(QtCore.QObject):
         """
         moves the whole path to the specified place 
         """
+        ## first of all move the physical data to the new location 
         self.__file_system.move(self.__path, new_path)
-        #re-set the path
+        ## re-set the path variable
         self.__path = new_path
+        ## initialize to update all necessary membervariables
         self.init()
+        ## rebuild the whole store structure to make sure all links are updated
+        self.rebuild()
 
     def remove(self):
         """
@@ -719,6 +734,13 @@ class Store(QtCore.QObject):
         """
         checks for conflicts and returns the result as boolean
         """
+        
+        ## both lists could be none if there is just one tagline
+        if(categorising_tag_list is None):
+            categorising_tag_list = []
+        if(describing_tag_list is None):
+            describing_tag_list = []
+        
         #TODO: extend functionality: have a look at #18 (Wiki)
         existing_files = self.__tag_wrapper.get_files()
         existing_tags = self.__tag_wrapper.get_all_tags()
@@ -732,12 +754,24 @@ class Store(QtCore.QObject):
             if tag in existing_files:
                 return [tag, EConflictType.TAG]
         return ["", None]
-         
-    def add_item_list_with_tags(self, file_name_list, describing_tag_list, categorising_tag_list=None):
+    
+    def silent_add_item_list_with_tags(self, file_name_list, describing_tag_list, categorising_tag_list=None):
+        """
+        use this method for synchronizing if there should not showup a tag-dialog
+        """
+        self.add_item_list_with_tags(file_name_list, describing_tag_list, categorising_tag_list, True)
+
+    def silent_add_item_with_tags(self, file_name, describing_tag_list, categorising_tag_list=None):
+        """
+        use this method for synchronizing if there should not showup a tag-dialog
+        """
+        self.add_item_with_tags(file_name, describing_tag_list, categorising_tag_list, False)
+    
+    def add_item_list_with_tags(self, file_name_list, describing_tag_list, categorising_tag_list=None, silent=False):
         for item in file_name_list:
-            self.add_item_with_tags(item, describing_tag_list, categorising_tag_list)
+            self.add_item_with_tags(item, describing_tag_list, categorising_tag_list, silent)
         
-    def add_item_with_tags(self, file_name, describing_tag_list, categorising_tag_list=None):
+    def add_item_with_tags(self, file_name, describing_tag_list, categorising_tag_list=None, silent=False):
         """
         adds tags to the given file, resets existing tags
         """

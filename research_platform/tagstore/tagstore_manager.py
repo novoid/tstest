@@ -67,6 +67,7 @@ class Administration(QtCore.QObject):
         self.SUPPORTED_LANGUAGES = TsConstants.DEFAULT_SUPPORTED_LANGUAGES
         self.__store_dict = {}
         
+        # catch all "possible" dir-names
         for lang in self.SUPPORTED_LANGUAGES: 
             self.change_language(lang) 
             self.STORE_STORAGE_DIRS.append(self.trUtf8("storage"))#self.STORE_STORAGE_DIR_EN))  
@@ -92,8 +93,10 @@ class Administration(QtCore.QObject):
         if self.CURRENT_LANGUAGE is None or self.CURRENT_LANGUAGE == "":
             self.CURRENT_LANGUAGE = self.__get_locale_language()
         
+        # switch back to the configured language
         self.change_language(self.CURRENT_LANGUAGE)
 
+        ## connect to all the signals the admin gui is sending 
         if self.__admin_dialog is None:
             self.__admin_dialog = StorePreferencesController()
             self.connect(self.__admin_dialog, QtCore.SIGNAL("create_new_store"), self.__handle_new_store)
@@ -104,6 +107,8 @@ class Administration(QtCore.QObject):
             self.connect(self.__admin_dialog, QtCore.SIGNAL("rebuild_store"), self.__handle_store_rebuild)
             self.connect(self.__admin_dialog, QtCore.SIGNAL("rename_store"), self.__handle_store_rename)
             self.connect(self.__admin_dialog, QtCore.SIGNAL("delete_store"), self.__handle_store_delete)
+
+            self.connect(self.__admin_dialog, QtCore.SIGNAL("synchronize"), self.__handle_synchronization)
             
         self.__admin_dialog.set_main_config(self.__main_config)
         
@@ -124,6 +129,17 @@ class Administration(QtCore.QObject):
         if self.__main_config.get_first_start():
             self.__admin_dialog.set_first_start(True)
     
+    def __handle_synchronization(self, store_name):
+        """
+        do all the necessary synchronization stuff here ...
+        """
+        store_to_sync = self.__store_dict[str(store_name)]
+        print "####################"
+        print "synchronize " + store_name
+        print "####################"
+        
+        store_to_sync.add_item_list_with_tags(["item_one", "item_two"], ["be", "tough"])
+            
     def __handle_store_delete(self, store_name):
         self.__admin_dialog.start_progressbar(self.trUtf8("Deleting store ..."))
         store = self.__store_dict[str(store_name)]
@@ -131,45 +147,44 @@ class Administration(QtCore.QObject):
         self.connect(store, QtCore.SIGNAL("store_delete_end"), self.__handle_store_deleted)
         ## remove the directories 
         store.remove()
+        self.disconnect(store, QtCore.SIGNAL("store_delete_end"))
         ## remove the config entry 
         self.__main_config.remove_store(store.get_id())
     
     def __handle_store_deleted(self, id):
-        #the files and dirs of the store have been deleted now.
-        #so at first remove the store entry in the config  
-        #self.__main_config.remove_store(id)
         #second remove the item in the admin_dialog 
         self.__admin_dialog.remove_store_item(self.__store_to_be_deleted)
         
     def __handle_store_rename(self, store_name, new_store_name):
         """
-        1. rename (move) store base dir
-        2. update the main config with the new path
-        3. update the admin dialog
+        the whole store directory gets moved to the new directory
+        the store will be rebuilt then to make sure all links are updated
         """
+        ## show a progress bar at the admin dialog
+        self.__admin_dialog.start_progressbar(self.trUtf8("Moving store ..."))
         store = self.__store_dict.pop(str(store_name))        
-        # 2
+
         self.__main_config.rename_store(store.get_id(), new_store_name)
+        ## connect to the rebuild signal because after the moving there is a rebuild routine started
+        self.connect(store, QtCore.SIGNAL("store_rebuild_end"), self.__handle_store_rebuilt)
+
         store.move(new_store_name)
+        
+        self.disconnect(store, QtCore.SIGNAL("store_rebuild_end"))
+        
         self.__init_configuration()
         
-        #self.__create_new_store_object(store.get_id(), new_store_name)
-        # 3.
-        # split the store path that just the store name is used
-        ## prepare path for a split("/"); remove a trailing "/"
-        #if new_store_name[-1] == "/":
-        #    new_store_name = new_store_name[:-1]
-        ## check if new store name is a duplicate
-        #new_store_name = new_store_name.split("/")[-1]
-        # rewrite in the store dict
-        #self.__store_dict[str(new_store_name)] = store
-        #self.__admin_dialog.rename_store_item(store_name, new_store_name)
-        #self.__init_configuration()
         
     def __handle_store_rebuild(self, store_name):
+        """
+        the whole store structure will be rebuild according to the records in store.tgs file
+        """
+        ## show a progress bar at the admin dialog
         self.__admin_dialog.start_progressbar(self.trUtf8("Rebuilding store ..."))
         store = self.__store_dict[str(store_name)]
+        self.connect(store, QtCore.SIGNAL("store_rebuild_end"), self.__handle_store_rebuilt)
         store.rebuild()
+        self.disconnect(store, QtCore.SIGNAL("store_rebuild_end"))
     
     def __hide_progress_dialog(self, store_name):
         self.__admin_dialog.stop_progressbar()
