@@ -7,7 +7,7 @@ import org.me.TagStore.ui.MainPageAdapter;
 
 import android.app.Activity;
 
-class MainFileSystemObserverNotification implements
+public class MainFileSystemObserverNotification implements
 		FileSystemObserverNotification {
 
 	/**
@@ -25,7 +25,7 @@ class MainFileSystemObserverNotification implements
 	 * constructor of class MainFileSystemObserverNotification
 	 * @param context application context
 	 */
-	MainFileSystemObserverNotification(Activity activity) {
+	public MainFileSystemObserverNotification(Activity activity) {
 		
 		//
 		// store context
@@ -55,7 +55,7 @@ class MainFileSystemObserverNotification implements
 
 	/**
 	 * Helper class which adds the add file tab
-	 * @author Johnseyii
+	 * @author Johannes Anderwald
 	 *
 	 */
 	private class AddFileTabLauncher implements Runnable {
@@ -97,8 +97,6 @@ class MainFileSystemObserverNotification implements
 
 			
 			Logger.e("AddFileTabLauncher::current index: " + current_index);
-			//adapter.setCurrentFragmentByIndex(2);
-			//adapter.setCurrentFragmentByIndex(0);
 			adapter.setCurrentFragmentByIndex(current_index);
 			
 		}

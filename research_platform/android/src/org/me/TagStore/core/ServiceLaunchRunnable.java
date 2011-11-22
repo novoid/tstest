@@ -28,13 +28,13 @@ public class ServiceLaunchRunnable implements Runnable {
 	 * @param context
 	 * @param mainPagerActivity TODO
 	 */
-	public ServiceLaunchRunnable(Activity activity) {
+	public ServiceLaunchRunnable(Activity activity, MainServiceConnection connection) {
 		
 		//
 		// init members
 		//
 		m_context = activity;
-		m_connection = new MainServiceConnection(activity);
+		m_connection = connection;
 	}
 
 	@Override

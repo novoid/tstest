@@ -229,6 +229,12 @@
         <source>Re-Tagging</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="../tsgui/admindialog.py" line="1105"/>
+        <source>Sync Settings</source>
+        <translation type="Sync Einstellungen"></translation>
+    </message>
+
 </context>
 <context>
     <name>StorePreferencesView</name>

@@ -73,7 +73,7 @@
     <string name="file_type">Type:</string>
     <string name="file_size">Size:</string>
     <string name="error_tag_exists">The tag already exists!</string>
-    <string name="error_one_tag_maximum">Can´t rename tag to multiple tags!</string>
+    <string name="error_one_tag_maximum">CanÂ´t rename tag to multiple tags!</string>
     <string name="tag_name">Name of tag:</string>
     <string name="tag_files">Num. of files:</string>
     <string name="tag_link">Num. of linked tags:</string>

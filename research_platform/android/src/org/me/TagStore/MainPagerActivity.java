@@ -2,6 +2,8 @@ package org.me.TagStore;
 
 import org.me.TagStore.core.DBManager;
 import org.me.TagStore.core.Logger;
+import org.me.TagStore.core.MainFileSystemObserverNotification;
+import org.me.TagStore.core.MainServiceConnection;
 import org.me.TagStore.core.ServiceLaunchRunnable;
 import org.me.TagStore.core.TagStackManager;
 import org.me.TagStore.ui.MainPageAdapter;
@@ -17,22 +19,34 @@ public class MainPagerActivity extends FragmentActivity {
 	/**
 	 * stores the view pager
 	 */
-	private ViewPager m_view_pager;
+	private ViewPager m_view_pager = null;
 
 	/**
 	 * stores the page adapter
 	 */
-	private MainPageAdapter m_page_adapter;
+	private MainPageAdapter m_page_adapter = null;
 
 	/**
 	 * stores the service launcher
 	 */
-	private ServiceLaunchRunnable m_launcher;
+	private ServiceLaunchRunnable m_launcher = null;
+	
+	/**
+	 * stores the service connection
+	 */
+	private MainServiceConnection m_connection = null;
+	
+	
+	/**
+	 * register notification
+	 */
+	private MainFileSystemObserverNotification m_notification = null;
+
 	
 	/**
 	 * stores the service launcher thread
 	 */
-	private Thread m_launcher_thread;
+	private Thread m_launcher_thread = null;
 	
 	/**
 	 * stores the tab indicator
@@ -42,7 +56,22 @@ public class MainPagerActivity extends FragmentActivity {
 	public void onStop() {
 		
 		super.onStop();
-		Logger.e("onStop");
+
+		//
+		// informal debug print
+		//
+		Logger.e("MainPagerActivity::onStop");
+
+		//
+		// unregister external observer
+		//
+		m_connection.unregisterExternalNotification(m_notification);
+		
+		//
+		// unbind service connection
+		//
+		unbindService(m_connection);
+
 	}
 	
 	
@@ -139,6 +168,22 @@ public class MainPagerActivity extends FragmentActivity {
 		
 	}
 	
+	private void initDatabase() {
+		
+		long start = System.currentTimeMillis();
+		
+		//
+		// initialize database manager
+		//
+		DBManager db_man = DBManager.getInstance();
+		db_man.initialize(this);
+		
+		long diff = System.currentTimeMillis() - start;
+		
+		Logger.e("DB startup time: " + diff);
+		
+	}
+	
 	public void onCreate(Bundle savedInstanceState) {
 
 		//
@@ -156,8 +201,7 @@ public class MainPagerActivity extends FragmentActivity {
 		//
 		// initialize database manager
 		//
-		DBManager db_man = DBManager.getInstance();
-		db_man.initialize(this);
+		initDatabase();
 
 		//
 		// launch file watch dog service asynchronously
@@ -209,19 +253,33 @@ public class MainPagerActivity extends FragmentActivity {
 	private void startFileWatchdogService() {
 
 		//
+		// construct new notification
+		//
+		m_notification = new MainFileSystemObserverNotification(this);
+
+		//
+		// construct service connection
+		//
+		m_connection = new MainServiceConnection(this);
+		
+		//
+		// register external notification
+		//
+		m_connection.registerExternalNotification(m_notification);
+		
+		//
 		// construct service launcher
 		//
-		m_launcher = new ServiceLaunchRunnable(this);
+		m_launcher = new ServiceLaunchRunnable(this, m_connection);
 		
 		//
 		// create a thread which will start the service
 		//
 		m_launcher_thread = new Thread(m_launcher);
-
+		Logger.e("Service::launch" + System.currentTimeMillis());
 		//
 		// now start the thread
 		//
 		m_launcher_thread.start();
 	}
-
 }
