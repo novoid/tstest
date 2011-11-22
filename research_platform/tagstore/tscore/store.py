@@ -15,24 +15,24 @@
 ## if not, see <http://www.gnu.org/licenses/>.
 
 #import time #for performance tests only
+from PyQt4 import QtCore
+from tscore.configwrapper import ConfigWrapper
+from tscore.enums import EFileType, EFileEvent, EOS, EConflictType, \
+    ECategorySetting
+from tscore.exceptions import StoreInitError, StoreTaggingError, \
+    NameInConflictException, InodeShortageException
+from tscore.loghelper import LogHelper
+from tscore.pendingchanges import PendingChanges
+from tscore.specialcharhelper import SpecialCharHelper
+from tscore.tagwrapper import TagWrapper
+from tscore.tsconstants import TsConstants
+from tscore.vocabularywrapper import VocabularyWrapper
+from tsos.filesystem import FileSystemWrapper
 import datetime
+import logging.handlers
+import os
 import re
 import sys
-import os
-import logging.handlers
-from PyQt4 import QtCore
-from tsos.filesystem import FileSystemWrapper
-from tscore.tagwrapper import TagWrapper
-from tscore.enums import EFileType, EFileEvent, EOS, EConflictType,\
-    ECategorySetting
-from tscore.pendingchanges import PendingChanges
-from tscore.exceptions import StoreInitError, StoreTaggingError,\
-    NameInConflictException, InodeShortageException
-from tscore.configwrapper import ConfigWrapper
-from tscore.vocabularywrapper import VocabularyWrapper
-from tscore.tsconstants import TsConstants
-from tscore.loghelper import LogHelper
-from tscore.specialcharhelper import SpecialCharHelper
 #from tscore.tsconstants import TsConstants
 
 class Store(QtCore.QObject):
