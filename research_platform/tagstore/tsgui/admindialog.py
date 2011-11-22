@@ -281,7 +281,7 @@ class MultipleStorePreferenceController(BasePreferenceController):
 
     def add_store_name(self, store_name):
         self.get_view().add_store_name(store_name)
-    
+
 class StoreAdminView(BasePreferenceView):
 
     def __init__(self, store_list):
@@ -301,6 +301,8 @@ class StoreAdminView(BasePreferenceView):
         self.__btn_new_store = QtGui.QPushButton(self.trUtf8("New Tagstore"))
         self.__btn_build_new = QtGui.QPushButton(self.trUtf8("Rebuild ..."))
         self.__btn_rename = QtGui.QPushButton(self.trUtf8("Rename ..."))
+        ## TODO remove
+        self.__btn_rename.setEnabled(False)
         self.__btn_delete = QtGui.QPushButton(self.trUtf8("Delete ..."))
 
         self.__central_layout.addWidget(self.__btn_new_store, 0, 0, 1, 1)
@@ -334,7 +336,8 @@ class StoreAdminView(BasePreferenceView):
     def __enable_buttons(self, enable):
         self.__btn_build_new.setEnabled(enable)
         self.__btn_delete.setEnabled(enable)
-        self.__btn_rename.setEnabled(enable)
+        ## TODO remove    
+        ##self.__btn_rename.setEnabled(enable)
     
     def set_store_names(self, store_names):
         """
@@ -417,7 +420,11 @@ class StoreAdminController(BasePreferenceController):
     
     def __rename_store(self):
         store_name = self.get_view().get_selected_store().text()
-        new_store_name = QtGui.QInputDialog.getText(self.get_view(), self.trUtf8("Rename a tagstore"), self.trUtf8("new name:"), text=store_name)
+        
+        dialog = QtGui.QInputDialog()
+        dialog.setSizeIncrement(50, 50)
+#        new_store_name = QtGui.QInputDialog.getText(self.get_view(), self.trUtf8("Rename a tagstore"), self.trUtf8("new name:"), text=self.__store_list[str(self.get_view().get_selected_store().text())])
+        new_store_name = dialog.getText(self.get_view(), self.trUtf8("Rename a tagstore"), self.trUtf8("new name:"), text=self.__store_list[str(self.get_view().get_selected_store().text())])
         new_store_name = new_store_name[0]
         if new_store_name is not None and new_store_name != "":
             self.emit(QtCore.SIGNAL("rename"), store_name, new_store_name)
@@ -680,8 +687,7 @@ class ReTaggingView(MultipleStorePreferenceView):
         
     def get_selected_item(self):
         return self.__selected_item
-        
-        
+  
 class ReTaggingController(MultipleStorePreferenceController):
     
     def __init__(self, store_list):
@@ -1232,6 +1238,7 @@ class StorePreferencesController(QtCore.QObject):
         self.TAB_NAME_VOCABULARY = self.trUtf8("My Tags")
         self.TAB_NAME_TAGS = self.trUtf8("Rename Tags")
         self.TAB_NAME_RETAG = self.trUtf8("Re-Tagging")
+        self.TAB_NAME_SYNCHRONIZE = self.trUtf8("Synchronize")
         self.TAB_NAME_SYNC = self.trUtf8("Sync Settings")
         ## a list with all controllers used at the preference view
         self.__preference_controller_list = {}
@@ -1280,7 +1287,7 @@ class StorePreferencesController(QtCore.QObject):
 
             self.__controller_store_admin = StoreAdminController(self.__store_dict)
             self.__register_controller(self.__controller_store_admin, self.TAB_NAME_STORE)
-
+            
             self.__controller_sync_store = SyncTagstoreController()
             self.__register_controller(self.__controller_sync_store, self.TAB_NAME_SYNC)
 
@@ -1326,15 +1333,21 @@ class StorePreferencesController(QtCore.QObject):
             self.__controller_datestamp.add_setting(TsConstants.SETTING_DATESTAMP_FORMAT, config.get_datestamp_format(), store_name)
             self.__controller_datestamp.add_setting(TsConstants.SETTING_DATESTAMP_HIDDEN, config.get_datestamp_hidden(), store_name)
 
+        ###################################
+        ## connect to the signals the tab-controller are throwing
+        ###################################
+        
+        ## store controller
         self.connect(self.__controller_store_admin, QtCore.SIGNAL("new"), self.__handle_new_store)
         self.connect(self.__controller_store_admin, QtCore.SIGNAL("rebuild"), QtCore.SIGNAL("rebuild_store"))
         self.connect(self.__controller_store_admin, QtCore.SIGNAL("rename"), QtCore.SIGNAL("rename_store"))
         self.connect(self.__controller_store_admin, QtCore.SIGNAL("delete"), QtCore.SIGNAL("delete_store"))
-#        self.connect(controller_tag_admin, QtCore.SIGNAL("rename_desc_tag"), self.__handle_desc_tag_rename)
-#        self.connect(controller_tag_admin, QtCore.SIGNAL("rename_cat_tag"), self.__handle_cat_tag_rename)
+
+        ## rename-tag controller
         self.connect(self.__controller_tag_admin, QtCore.SIGNAL("rename_desc_tag"), QtCore.SIGNAL("rename_desc_tag"))
         self.connect(self.__controller_tag_admin, QtCore.SIGNAL("rename_cat_tag"), QtCore.SIGNAL("rename_cat_tag"))
 
+        ## retag controller
         self.connect(self.__controller_retag, QtCore.SIGNAL("retag"), QtCore.SIGNAL("retag"))
 
         ## this setting comes from the main config

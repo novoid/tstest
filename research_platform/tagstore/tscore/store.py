@@ -238,7 +238,7 @@ class Store(QtCore.QObject):
         self.__name = self.__path.split("/")[-1]
         self.__parent_path = self.__path[:len(self.__path)-len(self.__name)]
         self.__tags_file_path = self.__path + "/" + self.__tags_file_name
-        self.__sync_tags_file_path = self.__path + "/" + self.__sync_tags_file_name
+        self.__sync_tags_file_path = self.__path + "/" + TsConstants.DEFAULT_STORE_CONFIG_DIR + "/" + self.__sync_tags_file_name
         self.__config_path = self.__path + "/" + self.__config_file_name
         self.__vocabulary_path = self.__path + "/" + self.__vocabulary_file_name #TsConstants.STORE_CONFIG_DIR + "/" + TsConstants.STORE_VOCABULARY_FILENAME
         self.__watcher_path = self.__path + "/" + self.__storage_dir_name
@@ -447,9 +447,9 @@ class Store(QtCore.QObject):
             return
         
         ## if there is a synchronize procedure running - just do nothing
-        if(self.__is_synchronize_in_progress()):
-            print "recognized a new file - but this must be from the sync-process"
-            return
+        #if(self.__is_synchronize_in_progress()):
+        #    print "recognized a new file - but this must be from the sync-process"
+        #    return
         
         if self.__is_sync_active():
             self.__log.info("__handle_file_changes: sync is active")
