@@ -259,12 +259,17 @@ class Store(QtCore.QObject):
         self.__store_config_wrapper = ConfigWrapper(self.__config_path)
         self.connect(self.__store_config_wrapper, QtCore.SIGNAL("changed()"), self.__handle_store_config_changed)
         
-        self.__watcher.addPath(self.__parent_path)
-        self.__watcher.addPath(self.__watcher_path)
+        if len(self.__name) == 0:
+            self.__name = self.__path[:self.__path.rfind("/")]
+        
+        if not self.__is_android_store():
+            # no activity is required on android tag stores
+            self.__watcher.addPath(self.__parent_path)
+            self.__watcher.addPath(self.__watcher_path)
         
         ## all necessary files and dirs should have been created now - so init the logger
         self.__log = LogHelper.get_store_logger(self.__path, logging.INFO) 
-
+        self.__log.info("parent_path: '%s'" % self.__name)
 
         ## handle offline changes
         self.__handle_unfinished_operation()
@@ -435,6 +440,15 @@ class Store(QtCore.QObject):
         handles the stores file and dir changes to find out if a file/directory was added, renamed, removed
         """
         
+        if self.__is_sync_active():
+            self.__log.info("__handle_file_changes: sync is active")
+            return
+
+        if self.__is_android_store():
+            # no notifications on android stores
+            self.__log.info("__handle_file_changes: no notifications on android stores")
+            return
+        
         ## this method does not handle the renaming or deletion of the store directory itself (only childs)
         existing_files = set(self.__file_system.get_files(path))
         existing_dirs = set(self.__file_system.get_directories(path))
@@ -446,9 +460,6 @@ class Store(QtCore.QObject):
         added = list((existing_files | existing_dirs) - data_files)
         removed = list(data_files - (existing_files | existing_dirs))
     
-        if self.__is_sync_active():
-            self.__log.info("__handle_file_changes: sync is active")
-            return
 
         #names = self.__pending_changes.get_added_names()
         #for name in names:
@@ -890,4 +901,38 @@ class Store(QtCore.QObject):
             self.__sync_tag_wrapper.set_file(file_name, describing_tags, categorising_tags)
 
     
+    def is_sync_active(self):
+        """
+        returns True when the sync is active
+        """
+        return self.__is_sync_active()
+    
+    def create_sync_lock_file(self):
+        """
+        creates the sync lock file
+        """
+        
+        if self.__is_sync_active():
+            # sync is already active
+            return False
+        
+        # construct sync path
+        sync_file_path = self.__watcher_path + "/" + ".android_sync_process_running.lock" 
+        
+        # write sync pid lock file
+        pid = os.getpid()
+        pid_file = open(sync_file_path, "w")
+        pid_file.write(str(pid))
+        pid_file.close()
+        
+        # done
+        return True
+    
+    def remove_sync_lock_file(self):
+        """
+        removes the sync lock file
+        """
+        self.__file_system.remove_file(self.__watcher_path + "/" + ".android_sync_process_running.lock")
+
+
 ## end

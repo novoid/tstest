@@ -65,6 +65,8 @@ class TsConstants(object):
     SETTING_FIRST_START = "first_start"
     SETTING_SHOW_WIZARD = "show_wizard"
     SETTING_CURRENT_LANGUAGE = "current_language"
+    SETTING_SYNC_TAG = "sync_tag"
+    SETTING_ANDROID_STORE ="android_store"
     
     SETTING_ADDITIONAL_IGNORED_EXTENSIONS = "additional_ignored_extensions"
     
@@ -77,6 +79,7 @@ class TsConstants(object):
     DEFAULT_STORE_CONFIG_DIR = ".tagstore"
     DEFAULT_STORE_CONFIG_FILENAME = "store.cfg"
     DEFAULT_STORE_TAGS_FILENAME = "store.tgs"
+    DEFAULT_STORE_SYNC_TAGS_FILENAME = "sync.tgs"
     DEFAULT_STORE_VOCABULARY_FILENAME = "vocabulary.txt"
     DEFAULT_RECENT_TAGS = 5
     DEFAULT_POPULAR_TAGS = 5
@@ -92,6 +95,7 @@ class TsConstants(object):
     DEFAULT_DATESTAMP_FORMAT = 1
     DEFAULT_DATESTAMP_HIDDEN = "false"
     DEFAULT_ADDITIONAL_IGNORED_EXTENSIONS = ""
+    DEFAULT_SYNC_TAG = "android"
     
     def __init__(self):
         pass

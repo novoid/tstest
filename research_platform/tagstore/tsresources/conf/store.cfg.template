@@ -2,8 +2,9 @@
 store_id=0
 
 [settings]
-config_format = 3
+config_format = 1
 datestamp_format=1
 datestamp_hidden=false
 show_category_line=2
 category_mandatory=false
+android_store = 0

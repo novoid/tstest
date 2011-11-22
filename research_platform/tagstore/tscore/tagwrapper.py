@@ -14,7 +14,8 @@
 ## You should have received a copy of the GNU General Public License along with this program;
 ## if not, see <http://www.gnu.org/licenses/>.
 
-import time
+
+import datetime
 import re
 import shutil
 from PyQt4.QtCore import QSettings
@@ -31,6 +32,7 @@ class TagWrapper():
     KEY_TAGS = "tags"
     KEY_TIMESTAMP = "timestamp"
     KEY_CATEGORIES = "category"
+    KEY_HASHSUM = "hashsum"
 
     TAG_SEPARATOR = ","
     
@@ -83,7 +85,8 @@ class TagWrapper():
             tags = unicode(self.__settings.value(self.KEY_TAGS, "").toString()).split(self.TAG_SEPARATOR)
             categories = unicode(self.__settings.value(self.KEY_CATEGORIES, "").toString()).split(self.TAG_SEPARATOR)
             timestamp = unicode(self.__settings.value(self.KEY_TIMESTAMP, "").toString())
-            file_list.append(dict(filename=file, tags=tags, category=categories, timestamp=timestamp))
+            hashsum = unicode(self.__settings.value(self.KEY_HASHSUM, "").toString())            
+            file_list.append(dict(filename=file, tags=tags, category=categories, timestamp=timestamp, hashsum=hashsum))
             self.__settings.endGroup()
         self.__settings.endGroup()
         return sorted(file_list, key=lambda k:k[self.KEY_TIMESTAMP], reverse=True)
@@ -142,6 +145,28 @@ class TagWrapper():
                     dictionary[unicode(tag)] = 1
         self.__settings.endGroup()
         return dictionary
+
+    def get_file_timestamp(self, file_name):
+        """
+        returns the timestamp value of a given file
+        """
+        self.__settings.beginGroup(self.GROUP_FILES_NAME)
+        self.__settings.beginGroup(file_name)
+        timestamp = unicode(self.__settings.value(self.KEY_TIMESTAMP, "").toString())
+        self.__settings.endGroup()        
+        self.__settings.endGroup()
+        return timestamp
+
+    def get_file_hashsum(self, file_name):
+        """
+        returns the hashsum value of a given file
+        """
+        self.__settings.beginGroup(self.GROUP_FILES_NAME)
+        self.__settings.beginGroup(file_name)
+        timestamp = unicode(self.__settings.value(self.KEY_TIMESTAMP, "").toString())
+        self.__settings.endGroup()        
+        self.__settings.endGroup()
+        return timestamp
 
     def get_file_tags(self, file_name):
         """
@@ -271,7 +296,7 @@ class TagWrapper():
             position +=1
         return sorted(tags)[:no_of_tags]
 
-    def set_file(self, file_name, tag_list, category_list=None, timestamp=time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())):
+    def set_file(self, file_name, tag_list, category_list=None, timestamp=datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")):
         """
         adds a file and its tags to the config file
         or overrides the tags of an existing file

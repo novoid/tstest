@@ -408,7 +408,7 @@ class ApplicationController(QtCore.QObject):
         self.__main_config = ConfigWrapper(TsConstants.CONFIG_PATH)
         
         if self.__main_config is None:
-            self.__log("No config file found for the given path")
+            self.__log.info("No config file found for the given path")
             self.__handle_retag_error()
         else:
             self.__store_path = PathHelper.resolve_store_path(path, self.__main_config.get_store_path_list())

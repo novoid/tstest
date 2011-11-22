@@ -75,7 +75,7 @@ class TagDialog(QtGui.QDialog):
         
         self.__help_button = QtGui.QToolButton()
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(":/ts/images/help.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap("./tsresources/images/help.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.__help_button.setIcon(icon)
         
         self.__property_button = QtGui.QPushButton()

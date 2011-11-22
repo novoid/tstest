@@ -1102,6 +1102,107 @@ class ExpiryAdminController(BasePreferenceController):
                         self.get_view().show_tooltip(self.trUtf8("Please provide a prefix, when this setting is enabled"))
                         return
                     setting["SETTING_VALUE"] = prefix        
+
+class SyncTagstoreView(BasePreferenceView):
+
+    def __init__(self, storparent=None):
+        BasePreferenceView.__init__(self)
+        self.set_description(self.trUtf8("Please define a tag, which makes all files associated with it, to be sync-able."))
+
+        self.__sync_tag = ""
+        
+        self.__radio_layout = QtGui.QVBoxLayout()
+
+        self.__radio_deactivated = QtGui.QRadioButton(self.trUtf8("no sync tag"))
+        self.__radio_activated = QtGui.QRadioButton(self.trUtf8("Use the following sync tag"))
+        
+        self.__radio_layout.addWidget(self.__radio_deactivated)
+        self.__radio_layout.addWidget(self.__radio_activated)
+        
+        self.__radio_panel = QtGui.QWidget()
+        self.__radio_panel.setLayout(self.__radio_layout)
+        
+        self.__sync_tag_line = QtGui.QLineEdit()
+
+        self.__detailed_description_label = QtGui.QLabel()
+        self.__update_sync_tag(self.__sync_tag)
+        self.__detailed_description_label.setWordWrap(True)
+        
+        self.add_widget(self.__radio_panel)
+        self.add_widget(self.__sync_tag_line)
+        self.add_widget(self.__detailed_description_label)
+        
+        
+        self.connect(self.__radio_deactivated, QtCore.SIGNAL("toggled(bool)"), self.__sync_detoggled)
+        self.connect(self.__radio_activated, QtCore.SIGNAL("toggled(bool)"), self.__sync_toggled)
+        self.connect(self.__sync_tag_line, QtCore.SIGNAL("textChanged(QString)"), self.__update_sync_tag)
+                     
+    def __sync_detoggled(self, checked):
+        if checked:
+            self.__sync_tag_line.setEnabled(False)
+            self.__detailed_description_label.setEnabled(False)
+            self._promote_setting_changed(None, TsConstants.SETTING_SYNC_TAG, "")
+
+    def __sync_toggled(self, checked):
+        if checked:
+            self.__sync_tag_line.setEnabled(True)
+            self.__detailed_description_label.setEnabled(True)
+            self._promote_setting_changed(None, TsConstants.SETTING_SYNC_TAG, self.__sync_tag_line.text())
+                     
+    def __update_sync_tag(self, sync_tag):
+        self.__sync_tag = sync_tag
+        descr_text = self.trUtf8("Files tagged with '%s' " \
+            "will be automatically synced" % self.__sync_tag)
+        self.__detailed_description_label.setText(descr_text)
+    
+    def get_sync_tag(self):
+        return self.trUtf8(self.__sync_tag_line.text())
+
+    def set_sync_tag(self, sync_tag):
+        self.__sync_tag = sync_tag
+        self.__sync_tag_line.setText(sync_tag)
+    
+    def set_sync_enabled(self):   
+        self.__sync_tag_line.setEnabled(True)
+        self.__detailed_description_label.setEnabled(True)
+        self.__radio_activated.setChecked(True)        
+
+    def set_sync_disabled(self):   
+        self.__sync_tag_line.setEnabled(False)
+        self.__detailed_description_label.setEnabled(False)
+        self.__radio_deactivated.setChecked(True)        
+
+    def is_sync_tag_enabled(self):
+        return self.__radio_activated.isChecked()
+    
+
+class SyncTagstoreController(BasePreferenceController):
+    
+    def __init__(self):
+        BasePreferenceController.__init__(self)
+    
+    def _create_view(self):
+        return SyncTagstoreView(None)
+        
+    def _handle_setting(self, store_id, setting_name, setting_value):
+
+        if setting_name == TsConstants.SETTING_SYNC_TAG:
+            if setting_value is not None and setting_value != "":
+                self.get_view().set_sync_tag(setting_value)
+                self.get_view().set_sync_enabled()
+            else:
+                self.get_view().set_sync_disabled()
+                
+    def _add_additional_settings(self):
+        for setting in self._settings_dict_list:
+            if setting["SETTING_NAME"] == TsConstants.SETTING_SYNC_TAG:
+                ## just write the prefix if it is enabled
+                if self.get_view().is_sync_tag_enabled():
+                    sync_tag = self.get_view().get_sync_tag()
+                    if sync_tag is None or sync_tag == "":
+                        self.get_view().show_tooltip(self.trUtf8("Please define a tag which is used for syncing."))
+                        return
+                    setting["SETTING_VALUE"] = sync_tag   
         
 class StorePreferencesController(QtCore.QObject):
     
@@ -1131,6 +1232,7 @@ class StorePreferencesController(QtCore.QObject):
         self.TAB_NAME_VOCABULARY = self.trUtf8("My Tags")
         self.TAB_NAME_TAGS = self.trUtf8("Rename Tags")
         self.TAB_NAME_RETAG = self.trUtf8("Re-Tagging")
+        self.TAB_NAME_SYNC = self.trUtf8("Sync Settings")
         ## a list with all controllers used at the preference view
         self.__preference_controller_list = {}
         
@@ -1178,6 +1280,9 @@ class StorePreferencesController(QtCore.QObject):
 
             self.__controller_store_admin = StoreAdminController(self.__store_dict)
             self.__register_controller(self.__controller_store_admin, self.TAB_NAME_STORE)
+
+            self.__controller_sync_store = SyncTagstoreController()
+            self.__register_controller(self.__controller_sync_store, self.TAB_NAME_SYNC)
 
             self.__first_time_init = False
         else:
@@ -1234,6 +1339,8 @@ class StorePreferencesController(QtCore.QObject):
 
         ## this setting comes from the main config
         self.__controller_expiry_admin.add_setting(TsConstants.SETTING_EXPIRY_PREFIX, self.__main_config.get_expiry_prefix())
+        self.__controller_sync_store.add_setting(TsConstants.SETTING_SYNC_TAG, self.__main_config.get_sync_tag())
+        
     
     def __handle_desc_tag_rename(self, old, new, store_name):
         self.emit(QtCore.SIGNAL("rename_desc_tag"), old, new, self.__store_dict[store_name])
@@ -1294,6 +1401,9 @@ class StorePreferencesController(QtCore.QObject):
                     ## this is a general setting  
                     if property["SETTING_NAME"] == TsConstants.SETTING_EXPIRY_PREFIX:
                         self.__main_config.set_expiry_prefix(property["SETTING_VALUE"])
+                    elif property["SETTING_NAME"] == TsConstants.SETTING_SYNC_TAG:
+                        self.__main_config.set_sync_tag(property["SETTING_VALUE"])
+                        
                 self.__log.info("%s, setting: %s, value: %s" % (property["STORE_NAME"], 
                                 property["SETTING_NAME"], property["SETTING_VALUE"]))
         

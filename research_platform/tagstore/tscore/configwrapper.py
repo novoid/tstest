@@ -256,7 +256,30 @@ class ConfigWrapper(QtCore.QObject):
         """
         return self.__get_setting(TsConstants.SETTING_EXPIRY_PREFIX)
         
+    def set_sync_tag(self, setting_value): 
+        """
+        stores the sync tag
+        """
+        self.__put_setting(TsConstants.SETTING_SYNC_TAG, setting_value)
         
+    def get_sync_tag(self):
+        """
+        returns the sync tag whose associated files can be synced with other stores
+        """
+        return self.__get_setting(TsConstants.SETTING_SYNC_TAG)
+    
+    def set_android_store(self, setting_value):
+        """
+        stores setting if store is an android store
+        """
+        return self.__put_setting(TsConstants.SETTING_ANDROID_STORE, setting_value)
+    
+    def get_android_store(self):
+        """
+        returns setting if the current store is an android store
+        """
+        return self.__get_setting(TsConstants.SETTING_ANDROID_STORE)
+    
     def get_datestamp_hidden(self):
         """
         returns "True" or "False" in case date-stamps are requested

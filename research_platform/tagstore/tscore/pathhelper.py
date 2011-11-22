@@ -76,6 +76,7 @@ class PathHelper(object):
         absolute_path = os.path.abspath(path_to_be_resolved)
         
         for store_path in store_path_list:
+            store_path = os.path.abspath(store_path)
             if absolute_path.find(store_path) > -1:
                 return store_path
         
