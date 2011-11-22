@@ -216,11 +216,11 @@ class Tagstore(QtCore.QObject):
                 tmp_dialog.connect(tmp_dialog, QtCore.SIGNAL("handle_cancel()"), self.handle_cancel)
                 tmp_dialog.connect(tmp_dialog, QtCore.SIGNAL("open_store_admin_dialog()"), self.show_admin_dialog)
                 
-                self.__configure_tag_dialog(store, tmp_dialog)
                 self.DIALOGS[store.get_id()] = tmp_dialog
                 ## call init to initialize new store instance (after adding the event handler)
                 ## necessary if store was renamed during tagstore was not running (to write config)
                 store.init()
+                self.__configure_tag_dialog(store, tmp_dialog)
 
     
     def __configure_tag_dialog(self, store, tmp_dialog):
@@ -295,7 +295,7 @@ class Tagstore(QtCore.QObject):
         #TODO @chris: encoding problem?
         
         self.__log.info("new pending file operation added")
-        
+
         dialog_controller = self.DIALOGS[store.get_id()]
         
         #dialog_controller.clear_store_children(store.get_name())
