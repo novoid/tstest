@@ -72,6 +72,7 @@ class ConfigWrapper(QtCore.QObject):
         store_conf_wrapper.set_datestamp_format(self.get_datestamp_format())
         store_conf_wrapper.set_show_category_line(self.get_show_category_line())
         store_conf_wrapper.set_category_mandatory(self.get_category_mandatory())
+        store_conf_wrapper.set_android_store(self.get_android_store())
         """
     @staticmethod
     def create_app_config_file(file_path):
@@ -95,6 +96,7 @@ class ConfigWrapper(QtCore.QObject):
         file.write("vocabulary_configurable=%d\n" % TsConstants.DEFAULT_VOCABULARY_CONFIGURABLE)
         file.write("datestamp_format=%s\n" % TsConstants.DEFAULT_DATESTAMP_FORMAT)
         file.write("datestamp_hidden=%d\n" % TsConstants.DEFAULT_DATESTAMP_HIDDEN)
+        file.write("sync_tag=%d\n" % TsConstants.DEFAULT_SYNC_TAG)
         file.write("expiry_prefix=expiration\n")
         file.write("max_tags=5\n")
         file.write("num_popular_tags=5\n")
@@ -135,6 +137,7 @@ class ConfigWrapper(QtCore.QObject):
         self.__log.info("expiry_prefix=%s" % self.get_expiry_prefix())
         self.__log.info("max_tags=%s" % self.get_max_tags())
         self.__log.info("num_popular_tags=%s" % self.get_num_popular_tags())
+        self.__log.info("sync_tag=%s" % self.get_sync_tag())
         self.__log.info("[stores]")
         self.__log.info("***************************************************************")
         self.__log.info("END - APPLICATION CONFIGURATION")

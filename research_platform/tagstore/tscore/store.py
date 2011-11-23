@@ -28,6 +28,7 @@ from tscore.tagwrapper import TagWrapper
 from tscore.tsconstants import TsConstants
 from tscore.vocabularywrapper import VocabularyWrapper
 from tsos.filesystem import FileSystemWrapper
+from pidhelper import PidHelper
 import datetime
 import logging.handlers
 import os
@@ -401,44 +402,33 @@ class Store(QtCore.QObject):
         returns true when the sync is active
         """
   
-        path = unicode(self.__watcher_path + "/" + ".android_sync_process_running.lock")
-        
+        # get lock path
+        path = self.__get_lockfile_path();
+  
+        # check if path exists        
         result = self.__file_system.path_exists(path)
         if result == False:
             return result
         
-        # is this not windows host
-        if sys.platform[:3] != "win":
-            # open or create a pid file
-            old_pid = None            
-            pid_file = open(path, "r")
         
-            for line in pid_file.readlines():
-                old_pid = line
-            
-            pid_file.close()
+        # read pid from file
+        old_pid = None 
+        pid_file = open(path, "r")
         
-            if old_pid is None or old_pid == "":
-                # empty file
-                # delete file
-                self.__file_system.remove_file(path)
-                return False            
-            
-            try:
-                # the second parameter is the signal code
-                # If sig is 0, then no signal is sent, but error checking is still performed.
-                # if "os.kill" throws no exception, the process exists
-                os.kill(int(old_pid), 0)
-                # if no exception is thrown the sync is active
-                return True
-            except OSError, e:
-                # no such process, remove old lock file
-                self.__file_system.remove_file(path)
-                return False
+        for line in pid_file.readlines():
+            old_pid = line
+
+        # close pid file
+        pid_file.close()
         
-        # windows platform
-        return True
-               
+        if old_pid is None or old_pid == "":
+            # empty file remove
+            self.__file_system.remove_file(path)
+            return False
+        
+        # check if the pid still exists
+        return PidHelper.pid_exists(old_pid)
+
     def __handle_file_changes(self, path):
         """
         handles the stores file and dir changes to find out if a file/directory was added, renamed, removed
@@ -912,8 +902,12 @@ class Store(QtCore.QObject):
         """
         returns True if the store is an android store
         """
+        
+        # get 'android_store' store setting
         result = self.__store_config_wrapper.get_android_store()
-        if result == None or result =="":
+        
+        # is this setting active
+        if result is None or result =="":
             return False
         
         if int(result) == 0:
@@ -928,7 +922,6 @@ class Store(QtCore.QObject):
         """
         updates the sync tags
         """
-        
         
         # is the and sync tag wrapper initialized
         if self.__sync_tag_wrapper != None:
@@ -950,12 +943,14 @@ class Store(QtCore.QObject):
             # sync is already active
             return False
         
-        # construct sync path
-        sync_file_path = self.__watcher_path + "/" + ".android_sync_process_running.lock" 
+        # get sync lock file
+        path = self.__get_lockfile_path()
         
-        # write sync pid lock file
-        pid = os.getpid()
-        pid_file = open(sync_file_path, "w")
+        # get current pid
+        pid = PidHelper.get_current_pid()
+        
+        # write new pid file
+        pid_file = open(path, "w")
         pid_file.write(str(pid))
         pid_file.close()
         
@@ -966,7 +961,11 @@ class Store(QtCore.QObject):
         """
         removes the sync lock file
         """
-        self.__file_system.remove_file(self.__watcher_path + "/" + ".android_sync_process_running.lock")
-
+        
+        # sync lockfile
+        path = self.__get_lockfile_path()
+        
+        # remove lock file
+        self.__file_system.remove_file(path)
 
 ## end

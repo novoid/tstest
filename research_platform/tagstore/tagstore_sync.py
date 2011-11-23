@@ -765,7 +765,7 @@ if __name__ == '__main__':
   
     ## initialize and configure the optionparser
     usage = "\nThis program opens a dialog used for tagging an item placed in a tagstore directory."
-    opt_parser = OptionParser("tagstore_sync.py -s <item_path>")
+    opt_parser = OptionParser("tagstore_sync.py -s <store path>")
     opt_parser.add_option("-s", "--store", dest="store_path", help="absolute  or relative path to the tagstore")
     opt_parser.add_option("-v", "--verbose", dest="verbose", action="store_true", help="start programm with detailed output")
 
@@ -790,7 +790,7 @@ if __name__ == '__main__':
         sys.exit()
         
     tagstore_tag = QtGui.QApplication(sys.argv)
-    tagstore_tag.setApplicationName("tagstore_retag")
+    tagstore_tag.setApplicationName("tagstore_sync")
     tagstore_tag.setOrganizationDomain("www.tagstore.org")
     tagstore_tag.UnicodeUTF8
     

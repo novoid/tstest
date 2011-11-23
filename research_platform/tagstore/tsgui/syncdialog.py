@@ -163,7 +163,7 @@ class SyncDialog(QtGui.QDialog):
         
         self.setWindowTitle(QtGui.QApplication.translate("tagstore", self.APP_NAME, None, QtGui.QApplication.UnicodeUTF8))
         self.__sync_button.setText(QtGui.QApplication.translate("tagstore", "Sync!", None, QtGui.QApplication.UnicodeUTF8))
-        self.__sync_button.setToolTip(QtGui.QApplication.translate("tagstore", "Tag the selected item", None, QtGui.QApplication.UnicodeUTF8))
+        self.__sync_button.setToolTip(QtGui.QApplication.translate("tagstore", "Sync the selected target tagstore with the source tagstore", None, QtGui.QApplication.UnicodeUTF8))
        
        
         self.__close_button.setText(QtGui.QApplication.translate("tagstore", "Cancel", None, QtGui.QApplication.UnicodeUTF8))

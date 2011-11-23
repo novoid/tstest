@@ -1157,9 +1157,15 @@ class SyncTagstoreView(BasePreferenceView):
                      
     def __update_sync_tag(self, sync_tag):
         self.__sync_tag = sync_tag
-        descr_text = self.trUtf8("Files tagged with '%s' " \
-            "will be automatically synced" % self.__sync_tag)
-        self.__detailed_description_label.setText(descr_text)
+        
+        # get translated text
+        descr_text = self.trUtf8("Files tagged with %s will be automatically synced")
+        
+        # format result
+        format_text = str(descr_text) % sync_tag
+        
+        # done
+        self.__detailed_description_label.setText(format_text)
     
     def get_sync_tag(self):
         return self.trUtf8(self.__sync_tag_line.text())
