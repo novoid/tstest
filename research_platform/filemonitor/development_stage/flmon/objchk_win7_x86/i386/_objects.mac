@@ -1,0 +1,16 @@
+
+
+386_OBJECTS=\
+ $(OBJ_PATH)\$O\flmonipc.obj \
+
+
+
+
+
+# lowercased
+BASEDIR=d:\winddk\7600.16385.1
+OBJECT_ROOT=d:\winddk\7600.16385.1
+MAKEDIR_LOWERCASE=d:\daten\projekte\filemonitor\flmon
+OBJ_PATH=d:\daten\projekte\filemonitor\flmon
+CONCURRENT_MIDL=0
+CONCURRENT_MANIFEST_BUILD=0

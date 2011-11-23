@@ -1,0 +1,2 @@
+1>warnings in directory d:\daten\projekte\filemonitor\flmon
+1>d:\daten\projekte\filemonitor\flmon\flmonipc.c(163) : warning C4090: 'function' : different 'const' qualifiers

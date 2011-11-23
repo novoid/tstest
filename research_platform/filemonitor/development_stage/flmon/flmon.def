@@ -1,0 +1,12 @@
+NAME flmon.dll 
+
+EXPORTS 
+	FlMonIPCInit
+	FlMonIPCOpen
+	FlMonIPCClose
+	FlMonIPCOpened
+	FlMonIPCReadMessage
+	FlMonIPCSendAddWatchDir
+	FlMonIPCSendClearWatchDir
+	FlMonIPCSendStartFiltering
+	FlMonIPCGetFilteringState
