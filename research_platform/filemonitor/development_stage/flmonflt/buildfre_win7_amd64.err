@@ -1,0 +1,7 @@
+1>errors in directory d:\daten\projekte\filemonitor\flmonflt
+1>d:\daten\projekte\filemonitor\flmonflt\filemon.c(173) : error C2220: warning treated as error - no 'object' file generated
+1>d:\daten\projekte\filemonitor\flmonflt\fldirectorylist.c(144) : error C2220: warning treated as error - no 'object' file generated
+1>d:\daten\projekte\filemonitor\flmonflt\fldiropenclosetracker.c(357) : error C2220: warning treated as error - no 'object' file generated
+1>d:\daten\projekte\filemonitor\flmonflt\flucfilename.c(69) : error C2220: warning treated as error - no 'object' file generated
+1>d:\daten\projekte\filemonitor\flmonflt\fltimerthread.c(41) : error C2220: warning treated as error - no 'object' file generated
+1>link : error LNK1181: cannot open input file 'd:\daten\projekte\filemonitor\flmonflt\objfre_win7_amd64\amd64\filemon.obj'

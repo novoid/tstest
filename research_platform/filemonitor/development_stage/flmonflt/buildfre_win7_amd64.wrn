@@ -1,0 +1,33 @@
+1>warnings in directory d:\daten\projekte\filemonitor\flmonflt
+1>d:\daten\projekte\filemonitor\flmonflt\filemon.c(173) : warning C4100: 'RegistryPath' : unreferenced formal parameter
+1>d:\daten\projekte\filemonitor\flmonflt\filemon.c(326) : warning C4100: 'Flags' : unreferenced formal parameter
+1>d:\daten\projekte\filemonitor\flmonflt\filemon.c(365) : warning C4100: 'CompletionContext' : unreferenced formal parameter
+1>d:\daten\projekte\filemonitor\flmonflt\filemon.c(364) : warning C4100: 'FltObjects' : unreferenced formal parameter
+1>d:\daten\projekte\filemonitor\flmonflt\filemon.c(370) : warning C4101: 's' : unreferenced local variable
+1>d:\daten\projekte\filemonitor\flmonflt\filemon.c(372) : warning C4189: 'valid' : local variable is initialized but not referenced
+1>d:\daten\projekte\filemonitor\flmonflt\filemon.c(444) : warning C4100: 'Flags' : unreferenced formal parameter
+1>d:\daten\projekte\filemonitor\flmonflt\filemon.c(443) : warning C4100: 'CompletionContext' : unreferenced formal parameter
+1>d:\daten\projekte\filemonitor\flmonflt\filemon.c(583) : warning C4100: 'CompletionContext' : unreferenced formal parameter
+1>d:\daten\projekte\filemonitor\flmonflt\filemon.c(588) : warning C4101: 's' : unreferenced local variable
+1>d:\daten\projekte\filemonitor\flmonflt\filemon.c(701) : warning C4100: 'CompletionContext' : unreferenced formal parameter
+1>d:\daten\projekte\filemonitor\flmonflt\filemon.c(700) : warning C4100: 'FltObjects' : unreferenced formal parameter
+1>d:\daten\projekte\filemonitor\flmonflt\filemon.c(699) : warning C4100: 'Data' : unreferenced formal parameter
+1>d:\daten\projekte\filemonitor\flmonflt\filemon.c(728) : warning C4100: 'ConnectionCookie' : unreferenced formal parameter
+1>d:\daten\projekte\filemonitor\flmonflt\filemon.c(727) : warning C4100: 'SizeOfContext' : unreferenced formal parameter
+1>d:\daten\projekte\filemonitor\flmonflt\filemon.c(726) : warning C4100: 'ConnectionContext' : unreferenced formal parameter
+1>d:\daten\projekte\filemonitor\flmonflt\filemon.c(725) : warning C4100: 'ServerPortCookie' : unreferenced formal parameter
+1>d:\daten\projekte\filemonitor\flmonflt\filemon.c(763) : warning C4100: 'ConnectionCookie' : unreferenced formal parameter
+1>d:\daten\projekte\filemonitor\flmonflt\filemon.c(790) : warning C4100: 'ReturnOutputBufferLength' : unreferenced formal parameter
+1>d:\daten\projekte\filemonitor\flmonflt\filemon.c(789) : warning C4100: 'OutputBufferLength' : unreferenced formal parameter
+1>d:\daten\projekte\filemonitor\flmonflt\filemon.c(788) : warning C4100: 'OutputBuffer' : unreferenced formal parameter
+1>d:\daten\projekte\filemonitor\flmonflt\filemon.c(786) : warning C4100: 'InputBuffer' : unreferenced formal parameter
+1>d:\daten\projekte\filemonitor\flmonflt\filemon.c(785) : warning C4100: 'PortCookie' : unreferenced formal parameter
+1>d:\daten\projekte\filemonitor\flmonflt\fldirectorylist.c(144) : warning C4101: 'status' : unreferenced local variable
+1>d:\daten\projekte\filemonitor\flmonflt\fldirectorylist.c(187) : warning C4101: 'bstatus' : unreferenced local variable
+1>d:\daten\projekte\filemonitor\flmonflt\fldiropenclosetracker.c(357) : warning C4101: 'tmp' : unreferenced local variable
+1>d:\daten\projekte\filemonitor\flmonflt\fldiropenclosetracker.c(412) : warning C4100: 'tracker' : unreferenced formal parameter
+1>d:\daten\projekte\filemonitor\flmonflt\fldiropenclosetracker.c(435) : warning C4101: 'buf' : unreferenced local variable
+1>d:\daten\projekte\filemonitor\flmonflt\flucfilename.c(69) : warning C4098: 'UcFilenameFree' : 'void' function returning a value
+1>d:\daten\projekte\filemonitor\flmonflt\fltimerthread.c(41) : warning C4101: 'thread' : unreferenced local variable
+1>d:\daten\projekte\filemonitor\flmonflt\fltimerthread.c(102) : warning C4101: 'cresult' : unreferenced local variable
+1>d:\daten\projekte\filemonitor\flmonflt\fltimerthread.c(143) : warning C4100: 'StartContext' : unreferenced formal parameter

@@ -1,0 +1,38 @@
+﻿Der Buildvorgang wurde am 16.11.2011 00:20:08 gestartet.
+     1>Projekt "D:\Daten\Projekte\FileMonitor\flmonflt\flmonflt.vcxproj" auf Knoten "2", build Ziel(e).
+     1>Build:
+         builddrv_chk_x64.cmd
+         OACR monitor running already
+         path contains nonexistant d:\program files (x86)\microsoft visual studio 10.0\common7\tools\bin, removing
+         path contains nonexistant c:\program files (x86)\microsoft sdks\windows\v7.0a\\lib\win64, removing
+         BUILD: Compile and Link for AMD64
+         
+         BUILD: Loading d:\winddk\7600.16385.1\build.dat...
+         
+         BUILD: Computing Include file dependencies:
+         
+         BUILD: Start time: Wed Nov 16 00:20:08 2011
+         BUILD: Examining d:\daten\projekte\filemonitor\flmonflt directory for files to compile.
+         
+             d:\daten\projekte\filemonitor\flmonflt 
+         
+         Invalidating OACR warning log for 'root:amd64chk'
+         BUILD: Saving d:\winddk\7600.16385.1\build.dat...
+         
+         BUILD: Compiling and Linking d:\daten\projekte\filemonitor\flmonflt directory
+         
+         Configuring OACR for 'root:amd64chk' - <OACR on>
+         BUILD: Finish time: Wed Nov 16 00:20:09 2011
+         BUILD: Done
+         
+         
+         
+             0 files compiled - 2 Warnings
+         
+                 1 Datei(en) kopiert.
+                 1 Datei(en) kopiert.
+     1>Die Erstellung des Projekts "D:\Daten\Projekte\FileMonitor\flmonflt\flmonflt.vcxproj" ist abgeschlossen, build Ziel(e).
+
+Das Erstellen war erfolgreich.
+
+Verstrichene Zeit 00:00:00.67

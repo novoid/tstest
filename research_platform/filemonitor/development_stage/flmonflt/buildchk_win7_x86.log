@@ -1,0 +1,5 @@
+BUILD: Computing Include file dependencies:
+BUILD: Examining d:\daten\projekte\filemonitor\flmonflt directory for files to compile.
+oacr invalidate root:x86chk /autocleanqueue
+1>Compiling and Linking d:\daten\projekte\filemonitor\flmonflt *************
+1>'nmake.exe /nologo BUILDMSG=Stop. -i /nologo /f d:\winddk\7600.16385.1\bin\makefile.def BUILD_PASS=PASS2 LINKONLY=1 NOPASS0=1 MAKEDIR_RELATIVE_TO_BASEDIR='

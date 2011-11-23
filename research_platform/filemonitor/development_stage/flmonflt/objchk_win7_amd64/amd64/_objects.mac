@@ -1,0 +1,22 @@
+
+
+AMD64_OBJECTS=\
+ $(OBJ_PATH)\$O\filemon.obj \
+ $(OBJ_PATH)\$O\fldebug.obj \
+ $(OBJ_PATH)\$O\fldirectorylist.obj \
+ $(OBJ_PATH)\$O\flmutex.obj \
+ $(OBJ_PATH)\$O\fltracker.obj \
+ $(OBJ_PATH)\$O\flucfilename.obj \
+ $(OBJ_PATH)\$O\fltimerthread.obj \
+
+
+
+
+
+# lowercased
+BASEDIR=d:\winddk\7600.16385.1
+OBJECT_ROOT=d:\winddk\7600.16385.1
+MAKEDIR_LOWERCASE=d:\daten\projekte\filemonitor\flmonflt
+OBJ_PATH=d:\daten\projekte\filemonitor\flmonflt
+CONCURRENT_MIDL=0
+CONCURRENT_MANIFEST_BUILD=0
