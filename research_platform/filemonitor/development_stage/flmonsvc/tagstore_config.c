@@ -10,9 +10,22 @@
 
 BOOLEAN TagStorePrivStringStartsWith(char * string, char c);
 BOOLEAN TagStorePrivGetParts(char * line, PTAGSTORE_STORE_ENTRY entry);
+BOOLEAN TagStorePrivGetDir(char * filepath, char * dirpath);
+unsigned int TagStoreInstallChangeHandler();
+unsigned int TagStoreRemoveChangeHandler();
 
 
+/*! .
 
+	\param [in]
+	\param [out]
+	\param [in,out]
+
+	\pre
+	\post
+	\return
+
+*/
 BOOLEAN TagStorePrivStringStartsWith(char * string, char c)
 {
 	if (!string)
@@ -24,49 +37,139 @@ BOOLEAN TagStorePrivStringStartsWith(char * string, char c)
 	return FALSE;
 }
 
+/*! .
+
+	\param [in]
+	\param [out]
+	\param [in,out]
+
+	\pre
+	\post
+	\return
+
+*/
 BOOLEAN TagStorePrivGetParts(char * line, PTAGSTORE_STORE_ENTRY entry)
 {
 
 	return TRUE;
 }
 
+/*! .
 
-unsigned int TagStoresInit(PTAGSTORE_STORES stores)
+	\param [in]
+	\param [out]
+	\param [in,out]
+
+	\pre
+	\post
+	\return
+
+*/
+BOOLEAN TagStorePrivGetDir(char * filepath, char * dirpath)
+{
+	unsigned int last_bs_index = 0;
+
+	// get last index of '\'
+
+
+
+	return TRUE;
+}
+
+/*! .
+
+	\param [in]
+	\param [out]
+	\param [in,out]
+
+	\pre
+	\post
+	\return
+
+*/
+unsigned int TagStoreInstallChangeHandler()
+{
+	char directory[256];
+
+
+
+	FindFirstChangeNotification(directory, FALSE, FILE_NOTIFY_CHANGE_LAST_WRITE);
+	return TSC_SUCCESS;
+}
+
+/*! .
+
+	\param [in]
+	\param [out]
+	\param [in,out]
+
+	\pre
+	\post
+	\return
+
+*/
+unsigned int TagStoreRemoveChangeHandler()
+{
+
+}
+
+/*! .
+
+	\param [in]
+	\param [out]
+	\param [in,out]
+
+	\pre
+	\post
+	\return
+
+*/
+unsigned int TagStoresInit(char * filename, PTAGSTORE_CONFIGFILE cfile)
 {
 	unsigned int i = 0;
 
-	if (!stores)
+	if (!filename || !cfile)
 		return TSC_INVALID_PARAMETER;
 
 
+	cfile->change_handler = NULL;
+	strcpy(cfile->filename, filename);
+
 	for (i=0; i < TCS_MAX_STORES; i++)
 	{
-		stores->stores[i].storename[0] = '\0';
-		stores->stores[i].storepath[0] = '\0';
+		cfile->storelist[i].storename[0] = '\0';
+		cfile->storelist[i].storepath[0] = '\0';
 	}
 
 	return TSC_SUCCESS;
 }
 
+/*! .
 
-unsigned int TagStoresRead(char * config_file, PTAGSTORE_STORES stores)
+	\param [in]
+	\param [out]
+	\param [in,out]
+
+	\pre
+	\post
+	\return
+
+*/
+unsigned int TagStoresRead(PTAGSTORE_CONFIGFILE cfile)
 {
 	char line [TCS_MAX_PATHNAME_LENGTH];
 	unsigned int linepos = 0;
 	char c;
 	FILE * fildes = NULL;
 	BOOLEAN sectionbegin = FALSE;
-	char sectionname [TCS_MAX_PATHNAME_LENGTH];
 	int count = 0;
 
 
-	if (!config_file || !stores)
+	if (!cfile || !cfile->filename || cfile->filename[0] == '\n')
 		return TSC_INVALID_PARAMETER;
 
 
-	TagStoresInit(stores);
-
-	fildes  = fopen(config_file, "r");
+	fildes  = fopen(cfile->filename, "r");
 
 	if (!fildes)
 		return TSC_READFILE_CONFIG_FAILED;	
@@ -96,7 +199,7 @@ unsigned int TagStoresRead(char * config_file, PTAGSTORE_STORES stores)
 
 			if (sectionbegin) // we are in the section
 			{
-				TagStorePrivGetParts(line, &stores->stores[count]);
+				TagStorePrivGetParts(line, &cfile->storelist[count]);
 				count++;
 			}
 
@@ -113,4 +216,5 @@ unsigned int TagStoresRead(char * config_file, PTAGSTORE_STORES stores)
 
 	return TSC_SUCCESS;
 }
+
 
