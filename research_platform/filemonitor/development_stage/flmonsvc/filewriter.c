@@ -29,10 +29,9 @@ unsigned int FwGetCurrentFilename(char * filename)
 	time (&rawtime);
 	timeinfo = localtime(&rawtime);
 
-	strcat(filename, "tswatch.");
 	strftime(timepart, FW_MAX_FILENAME_LENGTH, "%Y-%m-%d", timeinfo);
 	strcat(filename, timepart);
-	strcat(filename, ".log");
+	strcat(filename, "_tswatch.log");
 
 	return FW_SUCCESS;
 }
