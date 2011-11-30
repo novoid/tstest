@@ -24,11 +24,6 @@ import android.widget.Toast;
 public class FileTagUtility {
 
 	/**
-	 * tag separator
-	 */
-	public final static String DELIMITER = ",";	
-	
-	/**
 	 * this function processes the associated tags. It will create tag entry if
 	 * the tag is new, or update the reference count of existing tags
 	 * 
@@ -148,7 +143,7 @@ public class FileTagUtility {
 		//
 		// split the tag_text
 		//
-		StringTokenizer tokenizer = new StringTokenizer(tag_text, DELIMITER);
+		StringTokenizer tokenizer = new StringTokenizer(tag_text, ConfigurationSettings.TAG_DELIMITER);
 
 		//
 		// create hash map to store the tags in order to remove duplicates

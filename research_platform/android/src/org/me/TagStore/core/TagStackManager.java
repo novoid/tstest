@@ -21,7 +21,7 @@ public class TagStackManager {
 	/**
 	 * stores the tags
 	 */
-	LinkedHashSet<String> m_tags;
+	private LinkedHashSet<String> m_tags;
 	
 	/**
 	 * constructor of TagStackManager

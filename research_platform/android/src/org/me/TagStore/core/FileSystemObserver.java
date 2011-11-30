@@ -20,7 +20,7 @@ public class FileSystemObserver {
 	/**
 	 * stores the mapping between path and notification
 	 */
-	HashMap<String, FsObserver> m_observer_map = null;
+	private HashMap<String, FsObserver> m_observer_map = null;
 
 	/**
 	 * stores the static instance of FileSystemObserver

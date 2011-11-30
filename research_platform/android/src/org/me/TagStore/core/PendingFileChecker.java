@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import android.os.Environment;
 
 /**
- * This class queries for pending files and removes non-existant files
+ * This class queries for pending files and removes non-existent files
  * @author Johannes Anderwald
  *
  */

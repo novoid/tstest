@@ -12,7 +12,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
-import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
@@ -23,42 +22,32 @@ public class ListViewSettingsActivity extends Fragment {
 	/**
 	 * list view radio button
 	 */
-	RadioButton m_list_view_button;
+	private RadioButton m_list_view_button;
 
 	/**
 	 * cloud view radio button
 	 */
-	RadioButton m_cloud_view_button;
+	private RadioButton m_cloud_view_button;
 
 	/**
 	 * list view seek bar
 	 */
-	SeekBar m_seek_bar_list_view;
+	private SeekBar m_seek_bar_list_view;
 
 	/**
 	 * alphabetic sort mode
 	 */
-	RadioButton m_alphabetic_sort_mode;
+	private RadioButton m_alphabetic_sort_mode;
 
 	/**
 	 * popular sort mode
 	 */
-	RadioButton m_popular_sort_mode;
+	private RadioButton m_popular_sort_mode;
 
 	/**
 	 * columns list view
 	 */
-	TextView m_list_view_column;
-
-	/**
-	 * cancel button
-	 */
-	Button m_cancel_button;
-
-	/**
-	 * accept button
-	 */
-	Button m_done_button;
+	private TextView m_list_view_column;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {

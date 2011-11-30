@@ -1,5 +1,6 @@
 package org.me.TagStore;
 
+import org.me.TagStore.core.ConfigurationChecker;
 import org.me.TagStore.core.DBManager;
 import org.me.TagStore.core.Logger;
 import org.me.TagStore.core.MainFileSystemObserverNotification;
@@ -63,6 +64,12 @@ public class MainPagerActivity extends FragmentActivity {
 	 * tagstore file checker
 	 */
 	private TagStoreFileChecker m_file_checker = null; 
+	
+	/**
+	 * configuration checker
+	 */
+	private ConfigurationChecker m_configuration_checker = null;
+	
 	
 	public void onStop() {
 		
@@ -200,10 +207,10 @@ public class MainPagerActivity extends FragmentActivity {
 		m_launcher_thread.start();
 		
 		//
-		// register file checker task
+		// register file checker task / configuration checker task
 		//
 		m_timer_task.addCallback(m_file_checker);
-		
+		m_timer_task.addCallback(m_configuration_checker);
 		
 	}
 	
@@ -241,6 +248,24 @@ public class MainPagerActivity extends FragmentActivity {
 		m_timer_task.addCallback(m_file_checker);
 	}
 	
+	public void initConfiguration() {
+		
+		//
+		// construct configuration checker
+		//
+		m_configuration_checker = new ConfigurationChecker(this);
+		
+		//
+		// acquire instance of storage timer task
+		//
+		m_timer_task = StorageTimerTask.acquireInstance();
+		
+		//
+		// register task
+		//
+		m_timer_task.addCallback(m_configuration_checker);
+	}
+	
 	
 	public void onCreate(Bundle savedInstanceState) {
 
@@ -256,6 +281,11 @@ public class MainPagerActivity extends FragmentActivity {
 		//
 		setContentView(R.layout.main_pager);
 
+		//
+		// init cfg
+		//
+		initConfiguration();
+		
 		//
 		// initialize database manager
 		//

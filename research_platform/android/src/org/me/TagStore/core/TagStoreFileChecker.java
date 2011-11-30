@@ -66,8 +66,4 @@ public class TagStoreFileChecker implements org.me.TagStore.core.StorageTimerTas
 	public void diskNotAvailable() {
 		
 	}
-	
-	
-	
-
 }

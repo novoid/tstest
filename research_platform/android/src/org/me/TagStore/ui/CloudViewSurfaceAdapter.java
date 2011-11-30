@@ -3,12 +3,10 @@ package org.me.TagStore.ui;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-
 import org.me.TagStore.core.DBManager;
 import org.me.TagStore.core.FileTagUtility;
 import org.me.TagStore.core.Logger;
 import org.me.TagStore.core.TagStackManager;
-import org.me.TagStore.interfaces.BackKeyCallback;
 import org.me.TagStore.interfaces.CloudViewClickListener;
 
 import android.content.Context;
@@ -19,7 +17,6 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 
 import android.util.AttributeSet;
-import android.view.KeyEvent;
 import android.view.SurfaceView;
 
 public class CloudViewSurfaceAdapter extends SurfaceView{
@@ -64,27 +61,27 @@ public class CloudViewSurfaceAdapter extends SurfaceView{
 	/**
 	 * list of cloud tags
 	 */
-	ArrayList<CloudTag> m_tags;
+	private ArrayList<CloudTag> m_tags;
 
 	/**
 	 * width of view
 	 */
-	int m_width;
+	private int m_width;
 
 	/**
 	 * height of view
 	 */
-	int m_height;
+	private int m_height;
 
 	/**
 	 * stores the maximum reference count of tag
 	 */
-	int m_max_ref;
+	private int m_max_ref;
 
 	/**
 	 * stores the minimum reference count of a tag
 	 */
-	int m_min_ref;
+	private int m_min_ref;
 
 	/**
 	 * stores the callback
@@ -94,17 +91,17 @@ public class CloudViewSurfaceAdapter extends SurfaceView{
 	/**
 	 * stores the font sizes of the tags / file objects
 	 */
-	int[] m_font_size = new int[4];
+	private int[] m_font_size = new int[4];
 
 	/**
 	 * stores the colors of the tags / file objects
 	 */
-	int[] m_colors = new int[4];
+	private int[] m_colors = new int[4];
 
 	/**
 	 * stores the tag reference count which determine the font size / colors
 	 */
-	int[] m_tag_refs = new int[4];
+	private int[] m_tag_refs = new int[4];
 
 	/**
 	 * maximum font size
@@ -318,11 +315,6 @@ public class CloudViewSurfaceAdapter extends SurfaceView{
 		//
 		ArrayList<String> linked_tags = FileTagUtility.getLinkedTags();
 
-		//
-		// get tagstack manager
-		//
-		TagStackManager tag_stack = TagStackManager.getInstance();
-		
 		//
 		// calculate minimum and maximum
 		//
@@ -821,7 +813,7 @@ public class CloudViewSurfaceAdapter extends SurfaceView{
 		//canvas.drawLine(tag.m_rect.right, tag.m_rect.bottom, tag.m_rect.right, tag.m_rect.top, paint);
 		//canvas.drawLine(tag.m_rect.left, tag.m_rect.bottom, tag.m_rect.right, tag.m_rect.bottom, paint);
 	}
-	
+	/*
 	private void reserveRectangleForCloudTags1() {
 		
 		//
@@ -873,7 +865,7 @@ public class CloudViewSurfaceAdapter extends SurfaceView{
 		
 		
 	}
-	
+	*/
 	
 	
 	/**

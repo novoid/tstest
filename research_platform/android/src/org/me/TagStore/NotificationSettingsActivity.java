@@ -12,11 +12,10 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.CheckBox;
 
 /**
- * This class is used to display notification settings
+ * This class is used to display notification settings and let the user edit them
  * 
  * @author Johannes Anderwald
  * 
@@ -24,19 +23,9 @@ import android.widget.CheckBox;
 public class NotificationSettingsActivity extends Fragment {
 
 	/**
-	 * stores the cancel button
-	 */
-	Button m_cancel_button;
-
-	/**
-	 * stores the accept button
-	 */
-	Button m_done_button;
-
-	/**
 	 * stores the notification button
 	 */
-	CheckBox m_enable_notification_button;
+	private CheckBox m_enable_notification_button;
 
 	public void onCreate(Bundle savedInstanceState) {
 
@@ -98,7 +87,7 @@ public class NotificationSettingsActivity extends Fragment {
 		//
 		super.onPause();
 		
-		Logger.e("NotificationSetting::onPause");
+		Logger.i("NotificationSetting::onPause");
 		
 		//
 		// get settings

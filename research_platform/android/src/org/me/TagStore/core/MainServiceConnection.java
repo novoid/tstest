@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import org.me.TagStore.interfaces.FileSystemObserverNotification;
 
-import android.app.Activity;
 import android.content.ComponentName;
 import android.content.ServiceConnection;
 import android.os.IBinder;

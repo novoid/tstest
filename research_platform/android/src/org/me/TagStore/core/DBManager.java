@@ -22,17 +22,17 @@ public class DBManager {
 	/**
 	 * instance of the SQLite database
 	 */
-	SQLiteDatabase m_db = null;
+	private SQLiteDatabase m_db = null;
 
 	/**
 	 * sql database utility helper class
 	 */
-	OpenHelper m_db_helper = null;
+	private OpenHelper m_db_helper = null;
 
 	/**
 	 * stores the layout of the database
 	 */
-	ArrayList<SQLTableLayout> m_layouts = null;
+	private ArrayList<SQLTableLayout> m_layouts = null;
 
 	/**
 	 * instance of database manager

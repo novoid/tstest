@@ -57,11 +57,6 @@ public class ConfigurationTabActivity extends ListFragment {
 		super.onCreate(savedInstanceState);
 
 		//
-		// lets sets our own design
-		//
-		//setContentView(R.layout.configuration_tab);
-
-		//
 		// initialize configuration tab
 		//
 		initialize();

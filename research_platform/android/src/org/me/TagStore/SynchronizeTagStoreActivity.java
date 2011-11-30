@@ -28,17 +28,17 @@ public class SynchronizeTagStoreActivity extends Fragment {
 	/**
 	 * stores the text view for synchronization date
 	 */
-	TextView m_synch_date;
+	private TextView m_synch_date;
 	
 	/**
 	 * synch button
 	 */
-	Button m_synch_button;
+	private Button m_synch_button;
 	
 	/**
 	 * stores if an sync was performed
 	 */
-	boolean m_sync_performed = false;
+	private boolean m_sync_performed = false;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {

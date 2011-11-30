@@ -23,7 +23,7 @@ public class FileMenuClickListener implements
 	/**
 	 * stores the callback object
 	 */
-	GeneralDialogCallback m_callback;
+	private GeneralDialogCallback m_callback;
 	
 	/**
 	 * constructor of class FileMenuClickListener

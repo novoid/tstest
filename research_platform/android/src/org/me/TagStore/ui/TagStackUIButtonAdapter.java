@@ -2,25 +2,17 @@ package org.me.TagStore.ui;
 
 import java.util.Iterator;
 
-import junit.framework.Assert;
 
-import org.me.TagStore.core.Logger;
+
 import org.me.TagStore.core.TagStackManager;
 import org.me.TagStore.interfaces.TagStackUIButtonCallback;
 
 import android.content.Context;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
 import android.util.AttributeSet;
-import android.view.Surface;
 import android.view.View;
-import android.view.View.MeasureSpec;
-import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.RelativeLayout.LayoutParams;
+
 
 /**
  * This class manages the stack of tag items which have been used

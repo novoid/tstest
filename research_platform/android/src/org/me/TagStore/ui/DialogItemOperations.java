@@ -27,8 +27,19 @@ import android.widget.Toast;
  */
 public class DialogItemOperations {
 
+	/**
+	 * fragment which is the owner of the DialogItemOperations
+	 */
 	private final Fragment m_activity;
+	
+	/**
+	 * activity of the fragment
+	 */
 	private final FragmentActivity m_activity_group;
+	
+	/**
+	 * fragment manager
+	 */
 	private final FragmentManager m_fragment_manager;
 	
 	/**

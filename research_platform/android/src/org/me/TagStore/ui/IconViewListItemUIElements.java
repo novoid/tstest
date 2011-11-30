@@ -12,7 +12,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 /**
- * stores the user interface elements
+ * stores the user interface elements for the icon view
  * 
  * @author Johannes Anderwald
  * 

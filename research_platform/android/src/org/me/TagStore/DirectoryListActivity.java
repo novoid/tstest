@@ -33,7 +33,7 @@ public class DirectoryListActivity extends ListFragment {
 	/**
 	 * stores mapping between list view and list view row
 	 */
-	ArrayList<HashMap<String, Object>> m_ListViewMap;
+	private ArrayList<HashMap<String, Object>> m_ListViewMap;
 
 	/**
 	 * directory name key
@@ -41,7 +41,7 @@ public class DirectoryListActivity extends ListFragment {
 	private static final String DIRECTORY_NAME = "DIRECTORY_NAME";
 
 	/**
-	 * stores directory image
+	 * stores directory image key
 	 */
 	private static final String DIRECTORY_IMAGE = "DIRECTORY_IMAGE";
 

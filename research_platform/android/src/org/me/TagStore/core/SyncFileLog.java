@@ -19,11 +19,6 @@ import java.util.ArrayList;
 public class SyncFileLog {
 
 	/**
-	 * log file name
-	 */
-	public final static String LOG_FILENAME = "store.tgs";
-
-	/**
 	 * stores the tags of the file
 	 */
 	public final static String TAGS = "tags=";
@@ -32,11 +27,6 @@ public class SyncFileLog {
 	 * stores the time stamp of the file
 	 */
 	public final static String TIMESTAMP = "timestamp=";
-
-	/**
-	 * stores the hash sum of the file
-	 */
-	public final static String HASHSUM = "hashsum=";
 
 	/**
 	 * all tags have per default the android tag associated
@@ -133,7 +123,7 @@ public class SyncFileLog {
 		//
 		// create log file object
 		//
-		File log_file = new File(path + File.separator + LOG_FILENAME);
+		File log_file = new File(path + File.separator + ConfigurationSettings.LOG_FILENAME);
 
 		try {
 			
@@ -361,10 +351,7 @@ public class SyncFileLog {
 					entries.add(log_entry);
 				}
 				
-				if (keyword.compareTo(SyncFileLog.HASHSUM) == 0) {
-					log_entry.m_hash_sum = value;
-				}
-				else if (keyword.compareTo(SyncFileLog.TIMESTAMP) == 0) {
+				if (keyword.compareTo(SyncFileLog.TIMESTAMP) == 0) {
 					log_entry.m_time_stamp = value;
 				}
 				else if (keyword.compareTo(SyncFileLog.TAGS) == 0)
@@ -474,7 +461,6 @@ public class SyncFileLog {
 		String tag_line = file_name + PATH_SEPARATOR + TAGS + "\"" + tags
 				+ "\"";
 		String timestamp_line = file_name + PATH_SEPARATOR + TIMESTAMP + date;
-		String hashsum_line = file_name + PATH_SEPARATOR + HASHSUM + hashsum;
 
 		try {
 			//
@@ -488,13 +474,6 @@ public class SyncFileLog {
 			//
 			m_writer.append(timestamp_line);
 			m_writer.newLine();
-
-			//
-			// write the hashsum
-			//
-			m_writer.append(hashsum_line);
-			m_writer.newLine();
-
 		} catch (IOException e) {
 			Logger.e("IOException while writing to log file");
 			return false;

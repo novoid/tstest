@@ -26,7 +26,8 @@ public class TagStoreCloudViewActivity extends Fragment implements GeneralDialog
 																   		 RenameDialogCallback, 
 																   		 BackKeyCallback,																   
 																   		 CloudViewClickListener,
-																   		 RetagDialogCallback, TagStackUIButtonCallback																   		 
+																   		 RetagDialogCallback, 
+																   		 TagStackUIButtonCallback																   		 
 {
 	/**
 	 * stores the cloud view
@@ -43,7 +44,14 @@ public class TagStoreCloudViewActivity extends Fragment implements GeneralDialog
 	 */
 	private DialogItemOperations m_dialog_operations;
 	
+	/**
+	 * stores the current item
+	 */
 	private String m_current_tag;
+	
+	/**
+	 * is the current selected item a tag
+	 */
 	private boolean m_is_tag;
 	
 	/**

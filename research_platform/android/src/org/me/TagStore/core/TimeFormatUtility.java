@@ -70,9 +70,13 @@ public class TimeFormatUtility {
 		try {
 
 			//
-			// return date object
+			// parse date object
 			//
 			Date date_object = date_format.parse(date);
+			
+			//
+			// done
+			//
 			return date_object;
 		} catch (ParseException e) {
 			e.printStackTrace();

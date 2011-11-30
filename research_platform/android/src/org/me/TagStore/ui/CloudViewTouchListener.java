@@ -25,17 +25,17 @@ public class CloudViewTouchListener implements OnTouchListener {
 	/**
 	 * stores list of pointers on the screen
 	 */
-	ArrayList<Pointer> m_pointers;
+	private ArrayList<Pointer> m_pointers;
 
 	/**
 	 * stores cloud view
 	 */
-	CloudViewSurfaceAdapter m_view;
+	private CloudViewSurfaceAdapter m_view;
 	
 	/**
 	 * timer object
 	 */
-	Timer m_timer;
+	private Timer m_timer;
 	
 	/**
 	 * constructor of class CloudTouchListener

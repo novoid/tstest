@@ -3,7 +3,6 @@ package org.me.TagStore.core;
 import java.util.HashSet;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import android.os.Environment;
@@ -168,7 +167,7 @@ public class StorageTimerTask extends TimerTask {
 	}
 	
 	/**
-	 * 
+	 * run method of TimerTask
 	 */
 	@Override
 	public void run() {
@@ -188,7 +187,6 @@ public class StorageTimerTask extends TimerTask {
 		//
 		m_lock.readLock().lock();
 		
-		
 		if (m_callbacks.size() > 0)
 		{
 			//
@@ -206,6 +204,9 @@ public class StorageTimerTask extends TimerTask {
 			//
 			for(TimerTaskCallback callback : callbacks)
 			{
+				if (callback == null)
+					return;
+				
 				if (available)
 				{
 					//
@@ -222,6 +223,12 @@ public class StorageTimerTask extends TimerTask {
 				}
 			}
 		}
+		else
+		{
+			//
+			// release read lock
+			//
+			m_lock.readLock().unlock();	
+		}
 	}
-
 }

@@ -121,12 +121,28 @@ public class ConfigurationSettings {
 	public static final String SHOW_TOOLBAR_NOTIFICATIONS = "toolbar_notifications";
 	
 	/**
-	 * directory name
+	 * log directory name
 	 */
 	public final static String LOG_DIRECTORY = ".tagstore";
 
 	/**
+	 * log file name
+	 */
+	public final static String LOG_FILENAME = "store.tgs";
+	
+	
+	/**
 	 * storage task timer interval
 	 */
 	public static final long STORAGE_TASK_TIMER_INTERVAL = 15000;
+	
+	/**
+	 * delimiter for tags
+	 */
+	public static final String TAG_DELIMITER=",";
+
+	/**
+	 * name of configuration file
+	 */
+	public static final String CFG_FILENAME = "store.cfg";
 }

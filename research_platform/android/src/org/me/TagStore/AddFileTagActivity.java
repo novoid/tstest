@@ -40,12 +40,12 @@ public class AddFileTagActivity extends Fragment implements
 		OptionsDialogCallback, RenameDialogCallback {
 
 	/**
-	 * stores the file name of the new file passed as parameter of intent
+	 * stores the file name of the currently tagged file
 	 */
 	private String m_file_name = "";
 
 	/**
-	 * stores the file path of the file which has the same file name and is
+	 * stores the file path of the file which has the same file name as the current file name and which is
 	 * already present in the tag store
 	 */
 	private String m_duplicate_file_name = "";
@@ -56,10 +56,13 @@ public class AddFileTagActivity extends Fragment implements
 	private String m_rename_file_name = "";
 
 	/**
-	 * stores the last tags used passed as parameter of intent
+	 * stores the last tags used
 	 */
 	private String m_last_settings = "";
 
+	/**
+	 * common dialog operations object
+	 */
 	private DialogItemOperations m_dialog_operations;
 	
 	/**
@@ -72,37 +75,17 @@ public class AddFileTagActivity extends Fragment implements
 	/**
 	 * stores popular tags
 	 */
-	ArrayList<String> m_popular_tags;
-
-	/**
-	 * stores the recently used tags
-	 */
-	ArrayList<String> m_recent_tags;
-
-	/**
-	 * stores pending file list
-	 */
-	ArrayList<String> m_pending_files;
+	private ArrayList<String> m_popular_tags;
 
 	/**
 	 * reference to auto complete field
 	 */
-	AutoCompleteTextView m_text_view;
+	private AutoCompleteTextView m_text_view;
 
 	/**
 	 * number of buttons which are assigned to popular tags
 	 */
-	private final static int NUMBER_POPULAR_TAGS = 6;
-
-	/**
-	 * key name for parameter last tag
-	 */
-	public final static String LAST_TAG = "LAST_TAG";
-
-	/**
-	 * tag separator
-	 */
-	public final static String DELIMITER = ",";
+	private final static int NUMBER_POPULAR_TAGS = s_tag_button_ids.length;
 
 	/**
 	 * displays toast for user notifications
@@ -112,11 +95,12 @@ public class AddFileTagActivity extends Fragment implements
 	@Override
 	public void renamedFile(String old_file_name, String new_file) {
 
-		Logger.i("renamedFile: " + old_file_name + " new file_name: "
-				+ new_file);
+		Logger.i("renamedFile: " + old_file_name + " new file_name: " + new_file);
+		
 		if (old_file_name.compareTo(m_file_name) == 0) {
+			
 			//
-			// update file name in the text view
+			// set file name
 			//
 			m_file_name = new_file;
 
@@ -128,25 +112,16 @@ public class AddFileTagActivity extends Fragment implements
 
 			if (file_name_text_view != null) {
 				//
-				// set file name
+				// update file name in the text view
 				//
 				file_name_text_view.setText(m_file_name);
 			}
 		}
-		else
-		{
-			//
-			// the file in the tag store got renamed
-			//
-			performTag();
-		}
 		
 		//
-		// update GUI
+		// tag it
 		//
-		initialize(getView(), false);
-		
-		
+		performTag();
 	}
 
 	@Override
@@ -210,6 +185,7 @@ public class AddFileTagActivity extends Fragment implements
 
 		if (ignore) {
 			if (file_name.compareTo(m_duplicate_file_name) == 0) {
+				
 				//
 				// remove the file from the tag store
 				//
@@ -225,13 +201,12 @@ public class AddFileTagActivity extends Fragment implements
 				// remove file from pending list
 				//
 				db_man.removePendingFile(file_name);
+				
+				//
+				// update GUI
+				//
+				initialize(getView(), false);				
 			}
-			
-			//
-			// update GUI
-			//
-			initialize(getView(), false);
-
 		} else {
 			//
 			// store the name of the file to be renamed
@@ -824,7 +799,7 @@ public class AddFileTagActivity extends Fragment implements
 				//
 				// field is empty
 				//
-				m_text_view.setText(button_text + DELIMITER);
+				m_text_view.setText(button_text + ConfigurationSettings.TAG_DELIMITER);
 			} else {
 
 				//
@@ -835,16 +810,16 @@ public class AddFileTagActivity extends Fragment implements
 				//
 				// is there a delimiter at the end
 				//
-				if (tag_text.endsWith(DELIMITER)) {
+				if (tag_text.endsWith(ConfigurationSettings.TAG_DELIMITER)) {
 					//
 					// no need to put a separator before the tag is appended
 					//
-					m_text_view.append(button_text + DELIMITER);
+					m_text_view.append(button_text + ConfigurationSettings.TAG_DELIMITER);
 				} else {
 					//
 					// add delimiter before appending the tag
 					//
-					m_text_view.append(DELIMITER + button_text + DELIMITER);
+					m_text_view.append(ConfigurationSettings.TAG_DELIMITER + button_text + ConfigurationSettings.TAG_DELIMITER);
 				}
 			}
 
