@@ -23,6 +23,10 @@ import logging
 import os
 import sys
 import errno
+if sys.platform[:3] != "win":
+    import ctypes
+
+
 from tscore.loghelper import LogHelper
 
 class PidHelper(object):
@@ -50,7 +54,18 @@ class PidHelper(object):
         check if the given pid number is an currently running process
         """
         LOG = LogHelper.get_app_logger(logging.INFO)
-        
+
+        if sys.platform[:3] == "win":
+            kernel32 = ctypes.windll.kernel32
+            handle = kernel32.OpenProcess(1, 0, pid)
+            if handle is not None:
+                # close handle the process exists
+                LOG.info("process exists")
+                kernel32.CloseHandle(handle)
+                return True
+            else:
+                return False
+
         try:
             # the second parameter is the signal code
             # If sig is 0, then no signal is sent, but error checking is still performed.

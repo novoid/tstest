@@ -499,6 +499,7 @@ class SyncController(QtCore.QObject):
         if target_describing_tags == source_describing_tags and\
             target_categorizing_tags == source_categorizing_tags:
             self.__log.info("no changes found")
+            self.__target_store.set_sync_tags(target_item, source_describing_tags, source_categorizing_tags)
             return
 
         new_describing_tags = (source_describing_tags - target_describing_sync_tags) | target_describing_tags
@@ -510,9 +511,6 @@ class SyncController(QtCore.QObject):
         #if len(removed_describing_tags) > 0:
         #    for item in removed_describing_tags:
         #        self.__log.info("removed tag: '%s'" %item)
-            
-    
-
         new_categorizing_tags = (source_categorizing_tags - target_categorizing_sync_tags) | target_categorizing_tags
     
         # now sync the tags

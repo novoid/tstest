@@ -191,9 +191,11 @@ class Store(QtCore.QObject):
         initializes the sync log
         """
         # construct sync tags file path
+        target_store_name = target_store_name.replace(":", "")
+        
         self.__sync_tags_file_path = self.__path + "/" + TsConstants.DEFAULT_STORE_CONFIG_DIR + "/" + target_store_name + self.__sync_tags_file_name
         
-        self.__log.info("path:%s" % self.__sync_tags_file_path)
+        self.__log.info("init sync log path:%s" % self.__sync_tags_file_path)
         if not self.__file_system.path_exists(self.__sync_tags_file_path):
             # create default sync tags file
             TagWrapper.create_tags_file(self.__sync_tags_file_path)
@@ -744,18 +746,6 @@ class Store(QtCore.QObject):
             if tag in existing_files:
                 return [tag, EConflictType.TAG]
         return ["", None]
-    
-    def silent_add_item_list_with_tags(self, file_name_list, describing_tag_list, categorising_tag_list=None):
-        """
-        use this method for synchronizing if there should not showup a tag-dialog
-        """
-        self.add_item_list_with_tags(file_name_list, describing_tag_list, categorising_tag_list, True)
-
-    def silent_add_item_with_tags(self, file_name, describing_tag_list, categorising_tag_list=None):
-        """
-        use this method for synchronizing if there should not showup a tag-dialog
-        """
-        self.add_item_with_tags(file_name, describing_tag_list, categorising_tag_list, False)
     
     def add_item_list_with_tags(self, file_name_list, describing_tag_list, categorising_tag_list=None, silent=False):
         for item in file_name_list:
