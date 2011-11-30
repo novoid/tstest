@@ -134,7 +134,7 @@ public class StorageTimerTask extends TimerTask {
 		//
 		if (!m_timer_scheduled)
 		{
-			m_Timer.scheduleAtFixedRate(this, 0, 1000);
+			m_Timer.scheduleAtFixedRate(this, 0, ConfigurationSettings.STORAGE_TASK_TIMER_INTERVAL);
 			m_timer_scheduled = true;
 		}
 			
@@ -188,34 +188,38 @@ public class StorageTimerTask extends TimerTask {
 		//
 		m_lock.readLock().lock();
 		
-		//
-		// create temporary list
-		//
-		TimerTaskCallback[] callbacks = m_callbacks.toArray(new TimerTaskCallback[1]);
 		
-		//
-		// release read lock
-		//
-		m_lock.readLock().unlock();	
-		
-		//
-		// call appropiate callback function
-		//
-		for(TimerTaskCallback callback : callbacks)
+		if (m_callbacks.size() > 0)
 		{
-			if (available)
+			//
+			// create temporary list
+			//
+			TimerTaskCallback[] callbacks = m_callbacks.toArray(new TimerTaskCallback[1]);
+		
+			//
+			// release read lock
+			//
+			m_lock.readLock().unlock();	
+		
+			//
+			// call appropiate callback function
+			//
+			for(TimerTaskCallback callback : callbacks)
 			{
-				//
-				// sd card is available
-				//
-				callback.diskAvailable();
-			}
-			else
-			{
-				//
-				// sd card is not available
-				//
-				callback.diskNotAvailable();
+				if (available)
+				{
+					//
+					// sd card is available
+					//
+					callback.diskAvailable();
+				}
+				else
+				{
+					//
+					// sd card is not available
+					//
+					callback.diskNotAvailable();
+				}
 			}
 		}
 	}

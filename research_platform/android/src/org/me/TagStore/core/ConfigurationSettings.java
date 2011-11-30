@@ -124,4 +124,9 @@ public class ConfigurationSettings {
 	 * directory name
 	 */
 	public final static String LOG_DIRECTORY = ".tagstore";
+
+	/**
+	 * storage task timer interval
+	 */
+	public static final long STORAGE_TASK_TIMER_INTERVAL = 15000;
 }
