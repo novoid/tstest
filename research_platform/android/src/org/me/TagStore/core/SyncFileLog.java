@@ -24,11 +24,6 @@ public class SyncFileLog {
 	public final static String LOG_FILENAME = "store.tgs";
 
 	/**
-	 * directory name
-	 */
-	public final static String LOG_DIRECTORY = ".tagstore";
-
-	/**
 	 * stores the tags of the file
 	 */
 	public final static String TAGS = "tags=";
@@ -118,7 +113,7 @@ public class SyncFileLog {
 		//
 		// append seperator
 		//
-		path += File.separator + LOG_DIRECTORY;
+		path += File.separator + ConfigurationSettings.LOG_DIRECTORY;
 
 		//
 		// create file object

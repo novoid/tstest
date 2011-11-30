@@ -24,7 +24,9 @@ import org.me.TagStore.core.DBManager;
 import org.me.TagStore.core.DirectoryChangeWorker;
 import org.me.TagStore.core.FileTagUtility;
 import org.me.TagStore.core.Logger;
+import org.me.TagStore.core.MainServiceConnection;
 import org.me.TagStore.core.PendingFileChecker;
+import org.me.TagStore.core.ServiceLaunchRunnable;
 
 public class DirectoryListActivity extends ListFragment {
 
@@ -54,6 +56,13 @@ public class DirectoryListActivity extends ListFragment {
 	 */
 	public static int DIRECTORY_LIST_REQUEST_CODE = 20;
 
+	
+	/**
+	 * stores the connection handle to the watch dog service
+	 */
+	private MainServiceConnection m_connection;
+	
+	
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
@@ -176,6 +185,26 @@ public class DirectoryListActivity extends ListFragment {
 		// set list adapter to list view
 		//
 		setListAdapter(list_adapter);		
+		
+		//
+		// build main service connection
+		//
+		m_connection = new MainServiceConnection();
+		
+		//
+		// construct service launcher
+		//
+		ServiceLaunchRunnable launcher = new ServiceLaunchRunnable(getActivity().getApplicationContext(), m_connection);
+		
+		//
+		// create a thread which will start the service
+		//
+		Thread launcher_thread = new Thread(launcher);
+		
+		//
+		// now start the thread
+		//
+		launcher_thread.start();
 		
 		//
 		// done
@@ -317,10 +346,15 @@ public class DirectoryListActivity extends ListFragment {
 		for(String directory : deleted_directories)
 		{
 			//
-			// entry was deleted from database
+			// remove path from database
 			//
 			db_man.removeDirectory(directory);
 
+			//
+			// remove path from watch dog service
+			//
+			m_connection.unregisterDirectory(directory);
+			
 			//
 			// remove pending items
 			//
@@ -338,7 +372,20 @@ public class DirectoryListActivity extends ListFragment {
 		for(String directory : current_directories)
 		{
 			Logger.e("adding: " + directory);
+			
+			//
+			// add path to directory
+			//
 			db_man.addDirectory(directory);
+			
+			//
+			// add path to observed list
+			//
+			m_connection.registerDirectory(directory);
+
+			//
+			// add new files from that directory
+			//
 			queryAddNewDirectories(directory);			
 		}
 	}

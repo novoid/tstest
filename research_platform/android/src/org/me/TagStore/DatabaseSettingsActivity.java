@@ -1,9 +1,13 @@
 package org.me.TagStore;
 
+import java.util.ArrayList;
+
 import org.me.TagStore.R;
 import org.me.TagStore.core.ConfigurationSettings;
 import org.me.TagStore.core.DBManager;
 import org.me.TagStore.core.Logger;
+import org.me.TagStore.core.MainServiceConnection;
+import org.me.TagStore.core.ServiceLaunchRunnable;
 import org.me.TagStore.core.SyncFileLog;
 import org.me.TagStore.ui.MainPageAdapter;
 
@@ -24,12 +28,17 @@ public class DatabaseSettingsActivity extends Fragment {
 	/**
 	 * stores the result of database reset thread
 	 */
-	boolean m_reset_database;
+	private boolean m_reset_database;
 	
 	/**
 	 * stores the reset button
 	 */
-	Button m_reset_button;
+	private Button m_reset_button;
+	
+	/**
+	 * stores the connection handle to the watch dog service
+	 */
+	private MainServiceConnection m_connection;
 	
 	public void onCreate(Bundle savedInstanceState) {
 
@@ -83,6 +92,26 @@ public class DatabaseSettingsActivity extends Fragment {
 			});
 		}
 
+		//
+		// build main service connection
+		//
+		m_connection = new MainServiceConnection();
+		
+		//
+		// construct service launcher
+		//
+		ServiceLaunchRunnable launcher = new ServiceLaunchRunnable(getActivity().getApplicationContext(), m_connection);
+		
+		//
+		// create a thread which will start the service
+		//
+		Thread launcher_thread = new Thread(launcher);
+		
+		//
+		// now start the thread
+		//
+		launcher_thread.start();		
+		
 		//
 		// done
 		//
@@ -256,6 +285,24 @@ public class DatabaseSettingsActivity extends Fragment {
 			//
 			DBManager db_man = DBManager.getInstance();
 
+			//
+			// get observed directories
+			//
+			ArrayList<String> observed_directory_list = db_man.getDirectories();
+			if (observed_directory_list != null) {
+				
+				//
+				// unregister all directories
+				//
+				for(String path : observed_directory_list)
+				{
+					if (!m_connection.unregisterDirectory(path))
+					{
+						Logger.e("DatabaseResetTask failed to unregister path: " + path);
+					}
+				}
+			}
+			
 			//
 			// reset the database
 			//

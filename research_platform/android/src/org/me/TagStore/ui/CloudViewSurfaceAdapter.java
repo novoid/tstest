@@ -18,6 +18,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 
+import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.SurfaceView;
 
@@ -86,20 +87,10 @@ public class CloudViewSurfaceAdapter extends SurfaceView{
 	int m_min_ref;
 
 	/**
-	 * stores the tags
-	 */
-	private TagStackManager m_tag_stack;
-	
-	/**
 	 * stores the callback
 	 */
-	private final CloudViewClickListener m_callback;
+	private CloudViewClickListener m_callback;
 
-	/**
-	 * stores the back key callback
-	 */
-	private final BackKeyCallback m_back_callback;
-	
 	/**
 	 * stores the font sizes of the tags / file objects
 	 */
@@ -155,29 +146,27 @@ public class CloudViewSurfaceAdapter extends SurfaceView{
 	 */
 	private Rect m_source_rect;
 	
+	
 	/**
-	 * constructor of class CloudView
-	 * 
+	 * constructor of class TabPageIndicator 
 	 * @param context
-	 * @param tagStoreCloudViewActivity TODO
-	 * @param m_tag_stack
 	 */
-	public CloudViewSurfaceAdapter(CloudViewClickListener callback, BackKeyCallback back_callback, Context context, TagStackManager tag_stack) {
+	public CloudViewSurfaceAdapter(Context context) {
+		this(context, null);
 
-		//
-		// construct base class
-		//
-		super(context);
+	}
+
+    public CloudViewSurfaceAdapter(Context context, AttributeSet attrs) {
+        this(context, attrs, 0);
+    }
+
+
+    public CloudViewSurfaceAdapter(Context context, AttributeSet attrs, int defStyle) {
+        super(context, attrs, defStyle);	
+	
 
 		Logger.i("CloudViewSurfaceAdapter constructor");
 		
-		//
-		// init members
-		//
-		m_tag_stack = tag_stack;
-		m_callback = callback;
-		m_back_callback = back_callback;
-
 		m_colors[0] = Color.WHITE;
 		m_colors[1] = Color.rgb(255, 102, 0);
 		m_colors[2] = Color.rgb(212, 85, 0);
@@ -190,82 +179,23 @@ public class CloudViewSurfaceAdapter extends SurfaceView{
 
 		m_width = 0;
 		m_height = 0;
-		
+
 		//
 		// change background
 		//
 		changeBG(0, 0, 0);
 	}
-
-	/*
-	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		//
-		// check if not back button was pressed
-		//
-		if (keyCode != KeyEvent.KEYCODE_BACK) {
-			//
-			// pass on to default handler
-			//
-			return super.onKeyDown(keyCode, event);
-		}
-
-		Logger.i("CloudView::onKeyDown tag stack size: "
-				+ m_tag_stack.getSize());
-
-		//
-		// check if object stack is empty
-		//
-		if (m_tag_stack.isEmpty()) {
-			if (m_back_callback != null)
-			{
-				//
-				// exit application
-				//
-				m_back_callback.backKeyPressed();
-			}
-			return true;
-		}
-
-		if (m_tag_stack.getSize() == 1) {
-			//
-			// clear tag stack
-			//
-			m_tag_stack.clearTags();
-		}
-		else
-		{
-			//
-			// pop last tag from tag stack
-			//
-			m_tag_stack.removeLastTag();
-		}
-		
-		
-		//
-		// initialize view
-		//
-		initializeView();
-
-		//
-		// draw new bitmap
-		//
-		drawBitmap();
-		
-		
-		//
-		// done
-		//
-		invalidate();
-
-		
-		//
-		// mission accomplished
-		//
-		return true;
-	}
-	*/
 	
+    /**
+     * stores the callback which is invoked when an item is clicked
+     * @param callback to set
+     */
+    public void setCloudViewClickListener(CloudViewClickListener callback) {
+    	
+    	m_callback = callback;
+    }
+    
+    
 	/**
 	 * returns the current selected item
 	 * @return String
@@ -338,10 +268,16 @@ public class CloudViewSurfaceAdapter extends SurfaceView{
 			// is it a tag
 			//
 			if (tag.m_is_tag) {
+				
+				//
+				// get tagstack manager
+				//
+				TagStackManager tag_stack = TagStackManager.getInstance();
+				
 				//
 				// add tag to tag stack
 				//
-				m_tag_stack.addTag(tag.m_tag);
+				tag_stack.addTag(tag.m_tag);
 
 				//
 				// clear tags
@@ -363,15 +299,14 @@ public class CloudViewSurfaceAdapter extends SurfaceView{
 				//
 				postInvalidate();
 
-			} else {
+			} 
 				
-				//
-				// launch file
-				//
-				if (m_callback != null)
-				{
-					m_callback.onListItemClick(tag.m_tag, tag.m_is_tag);
-				}
+			//
+			// launch file
+			//
+			if (m_callback != null)
+			{
+				m_callback.onListItemClick(tag.m_tag, tag.m_is_tag);
 			}
 		}
 	}
@@ -384,18 +319,10 @@ public class CloudViewSurfaceAdapter extends SurfaceView{
 		ArrayList<String> linked_tags = FileTagUtility.getLinkedTags();
 
 		//
-		// sanity checks
+		// get tagstack manager
 		//
-		for (String linked_tag : linked_tags) {
-			//
-			// check if tag has already been visited
-			//
-			if (m_tag_stack.containsTag(linked_tag)) {
-				Logger.e("Error: DB query bug detected");
-				continue;
-			}
-		}
-
+		TagStackManager tag_stack = TagStackManager.getInstance();
+		
 		//
 		// calculate minimum and maximum
 		//
@@ -618,9 +545,14 @@ public class CloudViewSurfaceAdapter extends SurfaceView{
 		calculateTagReferenceArray();
 
 		//
+		// get tagstack manager
+		//
+		TagStackManager tag_stack = TagStackManager.getInstance();
+		
+		//
 		// check if tag stack is empty
 		//
-		if (!m_tag_stack.isEmpty())
+		if (!tag_stack.isEmpty())
 		{
 			//
 			// clear tags
@@ -817,7 +749,7 @@ public class CloudViewSurfaceAdapter extends SurfaceView{
 		//
 		// get height of box manager
 		//
-		int current_height = m_boxmgr.getCurrentHeight();
+		int current_height = m_height; //m_boxmgr.getCurrentHeight();
 		Logger.i("paintCloudTags height: " + current_height);
 		
 		//
@@ -865,14 +797,11 @@ public class CloudViewSurfaceAdapter extends SurfaceView{
 	private void paintTag(Canvas canvas, Paint paint, CloudTag tag) {
 		
 		//
-		// set text size
+		// init paint
 		//
 		paint.setTextSize(tag.m_font_size);
-
-		//
-		// set color
-		//
 		paint.setColor(tag.m_color);
+
 		
 		//
 		// get text
@@ -892,6 +821,59 @@ public class CloudViewSurfaceAdapter extends SurfaceView{
 		//canvas.drawLine(tag.m_rect.right, tag.m_rect.bottom, tag.m_rect.right, tag.m_rect.top, paint);
 		//canvas.drawLine(tag.m_rect.left, tag.m_rect.bottom, tag.m_rect.right, tag.m_rect.bottom, paint);
 	}
+	
+	private void reserveRectangleForCloudTags1() {
+		
+		//
+		// get num of tags
+		//
+		int max_tags = m_tags.size();
+		double phi = 1.0;
+		double theta = 0.0;
+		double radius = Math.min((m_width/2) * 0.95f , (m_height/2) * 0.95f );
+		
+		int index = 1;
+
+		//
+		// allocate new paint
+		//
+		Paint paint = new Paint();
+				
+		
+		for(CloudTag tag : m_tags)
+		{
+				phi = Math.acos(-1.0 + (2.0*index -1.0)/max_tags);
+				theta = Math.sqrt(max_tags*Math.PI) * phi;
+			
+			//coordinate conversion:			
+			int pos_x = (int)(radius * Math.cos(theta) * Math.sin(phi));
+			int pos_y = (int)(radius * Math.sin(theta) * Math.sin(phi));
+			
+			
+			//
+			// get cloud text
+			//
+			String text = getCloudItemText(tag);
+			
+			//
+			// init paint
+			//
+			paint.setTextSize(tag.m_font_size);
+			tag.m_rect.setEmpty();
+			paint.getTextBounds(text, 0, text.length(), tag.m_rect);
+			int font_height = (int)(paint.descent() - paint.ascent());
+			
+
+			tag.m_rect.left += m_width/2 + pos_x;
+			tag.m_rect.right += m_width/2 + pos_x;
+			tag.m_rect.top += m_height/2 + pos_y;
+			tag.m_rect.bottom += m_height/2 + pos_y + font_height;
+			index++;
+		}
+		
+		
+	}
+	
 	
 	
 	/**
@@ -934,7 +916,6 @@ public class CloudViewSurfaceAdapter extends SurfaceView{
 		String text = getCloudItemText(tag);
 		
 		Rect free_rect = null;
-		
 		do
 		{
 			paint.setTextSize(tag.m_font_size - font_size_reduction);

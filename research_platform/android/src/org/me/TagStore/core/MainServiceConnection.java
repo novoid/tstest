@@ -26,11 +26,15 @@ public class MainServiceConnection implements ServiceConnection {
 	 */
 	private long m_timestamp;
 	
+	/**
+	 * setting if service is connected
+	 */
+	private boolean m_service_connected;
 	
 	/**
 	 * @param mainPagerActivity
 	 */
-	public MainServiceConnection(Activity activity) {
+	public MainServiceConnection() {
 		
 		//
 		// init members
@@ -44,6 +48,7 @@ public class MainServiceConnection implements ServiceConnection {
 	 * @return boolean
 	 */
 	public boolean isServiceConnected() {
+		Logger.i("isServiceConnected: " + m_service_connected);
 		return m_service != null;
 	}
 	
@@ -76,7 +81,7 @@ public class MainServiceConnection implements ServiceConnection {
 	}
 	
 	/**
-	 * registers un external observer
+	 * registers an external observer
 	 * @param notification to be registered
 	 * @return true on success
 	 */
@@ -103,10 +108,56 @@ public class MainServiceConnection implements ServiceConnection {
 		}
 	}
 	
+	/**
+	 * registers a new directory to be observed
+	 * @param path to be observed
+	 */
+	public boolean registerDirectory(String path) {
+		
+		if (m_service != null) {
+			
+			//
+			// register the path
+			//
+			return m_service.registerDirectory(path);
+		}
+		else
+		{
+			//
+			// no service yet connected
+			//
+			return false;
+		}
+	}
+
+	/**
+	 * unregisters the directory to be observed
+	 * @param path to be unregisterd
+	 * @return true on success
+	 */
+	public boolean unregisterDirectory(String path) {
+		
+		if (m_service != null)
+		{
+			//
+			// unregister path
+			//
+			return m_service.unregisterDirectory(path);
+		}
+		
+		//
+		// no service yet connected
+		//
+		return false;
+	}
+	
+	
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public void onServiceConnected(ComponentName name, IBinder service) {
 
+		m_service_connected = true;
 		//
 		// store service
 		//
@@ -117,6 +168,9 @@ public class MainServiceConnection implements ServiceConnection {
 		// save timestamp
 		//
 		m_timestamp = System.currentTimeMillis();
+		
+		
+		Logger.e("Service::launch " + m_timestamp);
 		
 		//
 		// register any pending observers

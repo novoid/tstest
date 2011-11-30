@@ -898,6 +898,38 @@ public class AddFileTagActivity extends Fragment implements
 	}
 
 	/**
+	 * gets an editor for common preferences
+	 * @return
+	 */
+	private SharedPreferences.Editor getEditor() {
+		
+		//
+		// get activity
+		//
+		Activity activity = getActivity();
+		if (activity != null)
+		{
+			//
+			// get settings
+			//
+			SharedPreferences settings = activity.getSharedPreferences(
+				ConfigurationSettings.TAGSTORE_PREFERENCES_NAME,
+				Context.MODE_PRIVATE);		
+			
+			//
+			// get settings editor
+			//
+			return settings.edit();
+		}
+		
+		//
+		// no activity!
+		//
+		return null;
+	}
+	
+	
+	/**
 	 * updates the current file in the shared settings. If file name is empty,
 	 * 
 	 * @param file_name
@@ -906,54 +938,44 @@ public class AddFileTagActivity extends Fragment implements
 	private void setCurrentPreferenceFile(String file_name) {
 
 		//
-		// get settings
+		// get editor
 		//
-		SharedPreferences settings = getActivity().getSharedPreferences(
-				ConfigurationSettings.TAGSTORE_PREFERENCES_NAME,
-				Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = getEditor();
+		if (editor != null)
+		{
+			//
+			// set current file
+			//
+			editor.putString(ConfigurationSettings.CURRENT_FILE_TO_TAG, file_name);
 
-		//
-		// get settings editor
-		//
-		SharedPreferences.Editor editor = settings.edit();
+			Logger.e("AddFileTagActivity::setCurrentPreferenceFile file_name "
+					+ file_name);
 
-		//
-		// set current file
-		//
-		editor.putString(ConfigurationSettings.CURRENT_FILE_TO_TAG, file_name);
-
-		Logger.e("AddFileTagActivity::setCurrentPreferenceFile file_name "
-				+ file_name);
-
-		//
-		// and commit the changes
-		//
-		editor.commit();
+			//
+			// and commit the changes
+			//
+			editor.commit();
+		}
 	}
 
 	private void setCurrentPreferenceTagLine(String tag_line) {
-		//
-		// acquire shared settings
-		//
-		SharedPreferences settings = getActivity().getSharedPreferences(
-				ConfigurationSettings.TAGSTORE_PREFERENCES_NAME,
-				Context.MODE_PRIVATE);
-
+		
 		//
 		// get editor
 		//
-		SharedPreferences.Editor editor = settings.edit();
+		SharedPreferences.Editor editor = getEditor();
+		if (editor != null)
+		{
+			//
+			// all files have been tagged, clear current tag line
+			//
+			editor.putString(ConfigurationSettings.CURRENT_TAG_LINE, tag_line);
 
-		//
-		// all files have been tagged, clear current tag line
-		//
-		editor.putString(ConfigurationSettings.CURRENT_TAG_LINE, tag_line);
-
-		//
-		// commit changes
-		//
-		editor.commit();
-
+			//
+			// commit changes
+			//
+			editor.commit();
+		}
 	}
 
 	/**

@@ -5,7 +5,9 @@ import org.me.TagStore.core.Logger;
 import org.me.TagStore.core.MainFileSystemObserverNotification;
 import org.me.TagStore.core.MainServiceConnection;
 import org.me.TagStore.core.ServiceLaunchRunnable;
+import org.me.TagStore.core.StorageTimerTask;
 import org.me.TagStore.core.TagStackManager;
+import org.me.TagStore.core.TagStoreFileChecker;
 import org.me.TagStore.ui.MainPageAdapter;
 import org.me.TagStore.ui.TabPageIndicator;
 
@@ -36,6 +38,10 @@ public class MainPagerActivity extends FragmentActivity {
 	 */
 	private MainServiceConnection m_connection = null;
 	
+	/**
+	 * storage timer task
+	 */
+	private StorageTimerTask m_timer_task = null;
 	
 	/**
 	 * register notification
@@ -51,8 +57,13 @@ public class MainPagerActivity extends FragmentActivity {
 	/**
 	 * stores the tab indicator
 	 */
-	private TabPageIndicator m_tab_indicator;
+	private TabPageIndicator m_tab_indicator = null;
 
+	/**
+	 * tagstore file checker
+	 */
+	private TagStoreFileChecker m_file_checker = null; 
+	
 	public void onStop() {
 		
 		super.onStop();
@@ -67,14 +78,19 @@ public class MainPagerActivity extends FragmentActivity {
 		//
 		m_connection.unregisterExternalNotification(m_notification);
 		
-		//
-		// unbind service connection
-		//
-		unbindService(m_connection);
-
+		if (m_connection.isServiceConnected())
+		{
+			//
+			// unbind service connection
+			//
+			getApplicationContext().unbindService(m_connection);
+		}
+		else
+		{
+			Logger.e("Error: service not connected");
+		}
 	}
-	
-	
+
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		//
@@ -164,6 +180,29 @@ public class MainPagerActivity extends FragmentActivity {
 		super.onResume();
 		
 		Logger.e("MainPager::onResume");
+	}
+	
+	public void onRestart() {
+		
+		super.onRestart();
+		
+		Logger.e("MainPager::onRestart");
+		
+		//
+		// register external notification
+		//
+		m_connection.registerExternalNotification(m_notification);
+				
+		//
+		// restart launcher thread
+		//
+		m_launcher_thread = new Thread(m_launcher);
+		m_launcher_thread.start();
+		
+		//
+		// register file checker task
+		//
+		m_timer_task.addCallback(m_file_checker);
 		
 		
 	}
@@ -184,6 +223,25 @@ public class MainPagerActivity extends FragmentActivity {
 		
 	}
 	
+	private void initChecker() {
+		
+		//
+		// construct file checker
+		//
+		m_file_checker = new TagStoreFileChecker();
+		
+		//
+		// acquire instance of storage timer task
+		//
+		m_timer_task = StorageTimerTask.acquireInstance();
+		
+		//
+		// register task
+		//
+		m_timer_task.addCallback(m_file_checker);
+	}
+	
+	
 	public void onCreate(Bundle savedInstanceState) {
 
 		//
@@ -203,6 +261,11 @@ public class MainPagerActivity extends FragmentActivity {
 		//
 		initDatabase();
 
+		//
+		// let the tagstore checker run
+		//
+		initChecker();
+		
 		//
 		// launch file watch dog service asynchronously
 		//
@@ -260,7 +323,7 @@ public class MainPagerActivity extends FragmentActivity {
 		//
 		// construct service connection
 		//
-		m_connection = new MainServiceConnection(this);
+		m_connection = new MainServiceConnection();
 		
 		//
 		// register external notification
@@ -270,13 +333,12 @@ public class MainPagerActivity extends FragmentActivity {
 		//
 		// construct service launcher
 		//
-		m_launcher = new ServiceLaunchRunnable(this, m_connection);
+		m_launcher = new ServiceLaunchRunnable(getApplicationContext(), m_connection);
 		
 		//
 		// create a thread which will start the service
 		//
 		m_launcher_thread = new Thread(m_launcher);
-		Logger.e("Service::launch" + System.currentTimeMillis());
 		//
 		// now start the thread
 		//

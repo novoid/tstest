@@ -1,9 +1,10 @@
 package org.me.TagStore.core;
 
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import android.os.Environment;
 
@@ -35,18 +36,29 @@ public class StorageTimerTask extends TimerTask {
 	/**
 	 * timer object
 	 */
-	private Timer m_Timer;
+	private final Timer m_Timer;
 	
 	/**
 	 * holds a list of call backs
 	 */
-	HashSet<TimerTaskCallback> m_callbacks;
+	private final HashSet<TimerTaskCallback> m_callbacks;
 	
 	
 	/**	
 	 * sole instance of timer task
 	 */
 	private static StorageTimerTask s_Instance;
+	
+	/**
+	 * lock protecting callbacks array
+	 */
+	private final ReentrantReadWriteLock m_lock;
+	
+	
+	/**
+	 * setting if the timer was already started
+	 */
+	private boolean m_timer_scheduled;
 	
 	/**
 	 * constructor of class StorageTimerTask
@@ -62,6 +74,16 @@ public class StorageTimerTask extends TimerTask {
 		// construct new array list
 		//
 		m_callbacks = new HashSet<TimerTaskCallback>();
+		
+		//
+		// construct lock
+		//
+		m_lock = new ReentrantReadWriteLock();
+		
+		//
+		// timer not scheduled
+		//
+		m_timer_scheduled = false;
 	}
 	
 	
@@ -91,24 +113,35 @@ public class StorageTimerTask extends TimerTask {
 	 */
 	public void addCallback(TimerTaskCallback callback) {
 		
-		synchronized(this)
-		{
-			//
-			// add call back
-			//
-			boolean registered = m_callbacks.add(callback);
+		//
+		// lock
+		//
+		m_lock.writeLock().lock();
+		
+		//
+		// add call back
+		//
+		boolean registered = m_callbacks.add(callback);
 			
-			if (!registered)
-				return;
-
-			//
-			// is this the first call back
-			//
-			if (m_callbacks.size() == 1)
-			{
-				m_Timer.schedule(this, new Date(), 1000);
-			}
+		if (!registered)
+		{
+			m_lock.writeLock().unlock();
+			return;
 		}
+		
+		//
+		// is this the first call back
+		//
+		if (!m_timer_scheduled)
+		{
+			m_Timer.scheduleAtFixedRate(this, 0, 1000);
+			m_timer_scheduled = true;
+		}
+			
+		//	
+		// unlock
+		//
+		m_lock.writeLock().unlock();
 	}
 
 	/**
@@ -117,24 +150,21 @@ public class StorageTimerTask extends TimerTask {
 	 */
 	public void removeCallback(TimerTaskCallback callback) {
 		
-		synchronized(this)
-		{
-			//
-			// remove call back
-			//
-			m_callbacks.remove(callback);
+		//
+		// lock
+		//
+		m_lock.writeLock().lock();
+
+		//
+		// remove call back
+		//
+		m_callbacks.remove(callback);
 			
-			//
-			// was this the last one
-			//
-			if (m_callbacks.size() == 0)
-			{
-				//
-				// stop timer task
-				//
-				this.cancel();
-			}
-		}
+		//	
+		// unlock
+		//
+		m_lock.writeLock().unlock();		
+		
 	}
 	
 	/**
@@ -149,29 +179,43 @@ public class StorageTimerTask extends TimerTask {
 		String state = Environment.getExternalStorageState();
 		
 		//
-		// perform notification synchronized
+		// is it available
 		//
-		synchronized(this)
+		boolean available = Environment.MEDIA_MOUNTED.equals(state) || Environment.MEDIA_MOUNTED_READ_ONLY.equals(state);
+		
+		//
+		// acquire read lock
+		//
+		m_lock.readLock().lock();
+		
+		//
+		// create temporary list
+		//
+		TimerTaskCallback[] callbacks = m_callbacks.toArray(new TimerTaskCallback[1]);
+		
+		//
+		// release read lock
+		//
+		m_lock.readLock().unlock();	
+		
+		//
+		// call appropiate callback function
+		//
+		for(TimerTaskCallback callback : callbacks)
 		{
-			//
-			// iterate through all callbacks and call the appropiate callback functions
-			//
-			for(TimerTaskCallback callback : m_callbacks)
+			if (available)
 			{
-				if (Environment.MEDIA_MOUNTED.equals(state) || Environment.MEDIA_MOUNTED_READ_ONLY.equals(state))
-				{
-					//
-					// sd card is available
-					//
-					callback.diskAvailable();
-				}
-				else
-				{
-					//
-					// sd card is not available
-					//
-					callback.diskNotAvailable();
-				}
+				//
+				// sd card is available
+				//
+				callback.diskAvailable();
+			}
+			else
+			{
+				//
+				// sd card is not available
+				//
+				callback.diskNotAvailable();
 			}
 		}
 	}

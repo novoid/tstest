@@ -24,23 +24,28 @@ public class FileWatchdogService extends Service implements org.me.TagStore.core
 	/**
 	 * file system observer class
 	 */
-	FileSystemObserver m_observer = null;
+	private FileSystemObserver m_observer = null;
 
 	/**
 	 * notification manager
 	 */
-	NotificationManager m_notification_manager;
+	private NotificationManager m_notification_manager;
 
 	/**
 	 * stores external registered notifications
 	 */
-	ArrayList<FileSystemObserverNotification> m_external_observers;
+	private ArrayList<FileSystemObserverNotification> m_external_observers;
 
 	/**
 	 * if notification has been registered
 	 */
-	boolean m_registered;
+	private boolean m_registered;
 
+	/**
+	 * notification handle
+	 */
+	private FileSystemObserverNotification m_notification;
+	
 	@Override
 	public void onCreate() {
 
@@ -69,6 +74,18 @@ public class FileWatchdogService extends Service implements org.me.TagStore.core
 		// create array list for external observers
 		//
 		m_external_observers = new ArrayList<FileSystemObserverNotification>();
+		
+		//
+		// create notification
+		//
+		m_notification = new FileSystemObserverNotification() {
+
+			@Override
+			public void notify(String file_name, NotificationType type) {
+				notificationCallback(file_name, type);
+
+			}
+		};
 
 	}
 
@@ -278,6 +295,7 @@ public class FileWatchdogService extends Service implements org.me.TagStore.core
 		//
 		// register with the storage timer task
 		//
+		Logger.i("internalServiceStartup");
 		StorageTimerTask.acquireInstance().addCallback(this);
 	}
 
@@ -325,6 +343,9 @@ public class FileWatchdogService extends Service implements org.me.TagStore.core
 
 	}
 
+	
+	
+	
 	@Override
 	public IBinder onBind(Intent intent) {
 
@@ -340,31 +361,34 @@ public class FileWatchdogService extends Service implements org.me.TagStore.core
 	public void diskAvailable() {
 
 		//
-		// informal debug print
+		// are we already registered
 		//
-		//Logger.i("diskAvailable(): " + m_registered);
-		
 		if (!m_registered)
 		{
 			//
-			// get path to be observed (external disk)
+			// get observed directories from the database
 			//
-			String path = android.os.Environment.getExternalStorageDirectory()
-					.getAbsolutePath();
-
-			//
-			// register path
-			//
-			m_registered = m_observer.addObserver(path,
-					new FileSystemObserverNotification() {
-
-						@Override
-						public void notify(String file_name,
-								NotificationType type) {
-							notificationCallback(file_name, type);
-
-						}
-					});
+			DBManager db_man = DBManager.getInstance();
+			ArrayList<String> observed_directory_list = db_man.getDirectories();
+			if (observed_directory_list != null) {
+			
+				//	
+				// add each directory
+				//
+				for(String path : observed_directory_list){
+					
+					boolean result = m_observer.addObserver(path, m_notification);
+					if (!result)
+					{
+						Logger.e("Error: failed to add observer for path:" + path);
+					}
+				}
+				
+				//
+				// we are now registered
+				//
+				m_registered = true;
+			}
 		}
 	}
 
@@ -379,7 +403,7 @@ public class FileWatchdogService extends Service implements org.me.TagStore.core
 		if (m_registered)
 		{
 			//
-			// FIXME: unregisters all available observers
+			// unregisters all available observers
 			//
 			m_observer.removeAllObservers();
 			
@@ -389,7 +413,50 @@ public class FileWatchdogService extends Service implements org.me.TagStore.core
 			m_registered = false;
 		}
 	}
-	
 
+	/**
+	 * adds a new directory to be observed
+	 * @param path
+	 * @return
+	 */
+	public boolean registerDirectory(String path) {
+
+		if (m_registered)
+		{
+			//
+			// only register the directory when external disk is available
+			// if the disk is not available, it will be added when the disk becomes available later
+			// Reason: no observers are active when the disk is not mounted
+			// see diskAvailable callback of StorageTimerTask
+			return m_observer.addObserver(path, m_notification);
+		}
+		
+		//
+		// no disk available
+		//
+		return false;
+	}
+	
+	/**
+	 * removes a path from the observed list
+	 * @param path to be removed
+	 * @return true on success
+	 */
+	public boolean unregisterDirectory(String path) {
+		
+		if (m_registered)
+		{
+			//
+			// unregister observer
+			//
+			return m_observer.removeObserver(path);
+		}
+		
+		//
+		// no observers currently active
+		//
+		return false;
+	}
+	
 	
 }

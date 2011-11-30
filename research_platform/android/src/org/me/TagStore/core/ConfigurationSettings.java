@@ -119,4 +119,9 @@ public class ConfigurationSettings {
 	 * boolean setting if tool bar notifications should be enabled
 	 */
 	public static final String SHOW_TOOLBAR_NOTIFICATIONS = "toolbar_notifications";
+	
+	/**
+	 * directory name
+	 */
+	public final static String LOG_DIRECTORY = ".tagstore";
 }

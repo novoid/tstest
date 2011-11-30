@@ -3,6 +3,7 @@ package org.me.TagStore.core;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -11,7 +12,6 @@ import java.util.StringTokenizer;
 import org.me.TagStore.R;
 
 import android.content.Context;
-import android.os.Environment;
 import android.webkit.MimeTypeMap;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -915,13 +915,17 @@ public class FileTagUtility {
 		//
 		// sort array by collections
 		//
-		Collections.sort(result_list);
+		Collections.sort(result_list, new Comparator<String>() {
+
+			@Override
+			public int compare(String arg0, String arg1) {
+				return arg0.toLowerCase().compareTo(arg1.toLowerCase());
+			}
+		});
 		
 		//
 		// done
 		//
 		return result_list;
 	}
-	
-	
 }

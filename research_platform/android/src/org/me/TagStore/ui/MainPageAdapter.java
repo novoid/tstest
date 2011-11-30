@@ -13,10 +13,8 @@ import org.me.TagStore.core.PendingFileChecker;
 import org.me.TagStore.interfaces.BackKeyCallback;
 import org.me.TagStore.interfaces.TabPageIndicatorCallback;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;

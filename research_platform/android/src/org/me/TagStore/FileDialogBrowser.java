@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.ArrayList;
 
 import org.me.TagStore.R;
+import org.me.TagStore.core.ConfigurationSettings;
 import org.me.TagStore.core.Logger;
 
 /**
@@ -223,7 +224,7 @@ public class FileDialogBrowser extends ListActivity {
 		//
 		FileFilter fileFilter = new FileFilter() {
 		    public boolean accept(File file) {
-		        return file.isDirectory();
+		        return file.isDirectory() && (!file.getName().equals(ConfigurationSettings.LOG_DIRECTORY));
 		    }
 		};
 		

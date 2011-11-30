@@ -13,4 +13,10 @@ public interface TagStackUIButtonCallback {
 	 */
 	public abstract void tagButtonClicked(String tag);
 	
+	/**
+	 * informs the view that a tag button was pressed for a long time
+	 * @param tag tag that was clicked
+	 * @return true if it was handled
+	 */
+	public abstract boolean tagButtonLongClicked(String tag);
 }

@@ -1,6 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
   xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="match_parent"
+  android:id="@+id/tagstore_list_view_id"
   android:layout_height="match_parent">
-</LinearLayout>
+  
+     <org.me.TagStore.ui.TagStackUIButtonAdapter
+    android:id="@+id/button_adapter"
+        android:layout_alignParentTop="true"    
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"/>
+          
+  
+     <org.me.TagStore.ui.CloudViewSurfaceAdapter
+    android:id="@+id/tagstore_cloud_view"
+        android:layout_below="@id/button_adapter"	
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"/>
+     	 
+
+</RelativeLayout>

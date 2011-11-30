@@ -520,73 +520,50 @@ public class DBManager {
 	 */
 	public ArrayList<String> getLinkedTags(ArrayList<String> tag_names) {
 
-		String query="";
-		if (tag_names.size() == 1)
+		
+		ArrayList<String> result_list = new ArrayList<String>();
+		
+		for (String tag : tag_names) 
 		{
-			query = "SELECT " + TAG_FIELD_NAME + " FROM " + TAG_TABLE_NAME
+			final String query = "SELECT " + TAG_FIELD_NAME + " FROM " + TAG_TABLE_NAME
 			+ " WHERE " + TAG_FIELD_ID + " IN (SELECT DISTINCT "
 			+ TAG_FIELD_ID + " FROM " + MAP_TABLE_NAME + " WHERE "
 			+ FILE_FIELD_ID + " IN ( SELECT " + FILE_FIELD_ID + " FROM "
 			+ MAP_TABLE_NAME + " WHERE " + TAG_FIELD_ID + " = ?) AND "
 			+ TAG_FIELD_ID + "<> ? )";
 			
+			String [] ids = new String[2];
+			ids[0] = new String(Long.toString(getTagId(tag)));
+			ids[1] = new String(Long.toString(getTagId(tag)));
 			
-		}
-		else
-		{
-			StringBuilder builder = new StringBuilder();
-			for(int index = 0; index < tag_names.size(); index++)
+			Cursor cursor = m_db.rawQuery(query, ids);
+		
+			//
+			// construct array list
+			//
+			ArrayList<String> list = new ArrayList<String>();
+
+			//
+			// collect result
+			//
+			collectResultSet(cursor, list);
+			
+			if (tag_names.indexOf(tag) == 0)
 			{
-				if(builder.length() == 0)
-				{
-					builder.append("SELECT " + TAG_FIELD_NAME + " FROM " + TAG_TABLE_NAME
-									+ " WHERE " + TAG_FIELD_ID + " IN (SELECT DISTINCT "
-									+ TAG_FIELD_ID + " FROM " + MAP_TABLE_NAME + " WHERE "
-									+ FILE_FIELD_ID + " IN ( SELECT " + FILE_FIELD_ID + " FROM "
-									+ MAP_TABLE_NAME + " WHERE " + TAG_FIELD_ID + " = ?) AND "
-									+ TAG_FIELD_ID + "<> ? )");
-				}
-				else
-				{
-					int pos = builder.indexOf(" = ?");
-					String str = " OR " + TAG_FIELD_ID + "=?";
-					builder.insert(pos + 4, str);
-					
-					pos = builder.indexOf("<> ? )");
-					str = " AND " + TAG_FIELD_ID + "<> ?";
-					builder.insert(pos + 4, str);
-				}
-				
+				//
+				// first entry
+				//
+				result_list.addAll(list);
 			}
-			query = builder.toString();
+			else
+			{
+				//
+				// remove all tags from the result list which were not found while querying the current tag
+				//
+				result_list.retainAll(list);
+			}
 		}
-		
-		String [] ids = new String[tag_names.size()*2];
-		for(int index = 0; index < tag_names.size(); index++)
-		{
-			ids[index] = new String(Long.toString(getTagId(tag_names.get(index))));
-			ids[tag_names.size()+index] = new String(Long.toString(getTagId(tag_names.get(index))));
-		}
-		
-		Logger.i(query);
-
-		Cursor cursor = m_db.rawQuery(query,
-				ids);
-
-		//
-		// construct array list
-		//
-		ArrayList<String> list = new ArrayList<String>();
-
-		//
-		// collect result
-		//
-		collectResultSet(cursor, list);
-
-		//
-		// return result list
-		//
-		return list;
+		return result_list;
 	}
 
 	/**

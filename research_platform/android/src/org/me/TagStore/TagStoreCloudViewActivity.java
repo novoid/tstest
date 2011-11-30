@@ -7,11 +7,13 @@ import org.me.TagStore.interfaces.GeneralDialogCallback;
 import org.me.TagStore.interfaces.BackKeyCallback;
 import org.me.TagStore.interfaces.RenameDialogCallback;
 import org.me.TagStore.interfaces.RetagDialogCallback;
+import org.me.TagStore.interfaces.TagStackUIButtonCallback;
 import org.me.TagStore.ui.CloudViewSurfaceAdapter;
 import org.me.TagStore.ui.CloudViewTouchListener;
 import org.me.TagStore.ui.CommonDialogFragment;
 import org.me.TagStore.ui.DialogIds;
 import org.me.TagStore.ui.DialogItemOperations;
+import org.me.TagStore.ui.TagStackUIButtonAdapter;
 import org.me.TagStore.ui.FileDialogBuilder.MENU_ITEM_ENUM;
 
 import android.os.Bundle;
@@ -24,7 +26,7 @@ public class TagStoreCloudViewActivity extends Fragment implements GeneralDialog
 																   		 RenameDialogCallback, 
 																   		 BackKeyCallback,																   
 																   		 CloudViewClickListener,
-																   		 RetagDialogCallback																   		 
+																   		 RetagDialogCallback, TagStackUIButtonCallback																   		 
 {
 	/**
 	 * stores the cloud view
@@ -37,19 +39,28 @@ public class TagStoreCloudViewActivity extends Fragment implements GeneralDialog
 	private CloudViewTouchListener m_listener;
 
 	/**
-	 * stores all tags
-	 */
-	private TagStackManager m_tag_stack;
-
-	/**
 	 * stores the common dialog operations object
 	 */
-	DialogItemOperations m_dialog_operations;
+	private DialogItemOperations m_dialog_operations;
 	
 	private String m_current_tag;
 	private boolean m_is_tag;
 	
-	UIDialogFragmentActivator m_activator;
+	/**
+	 * stores the tag navigation button adapter
+	 */
+	private TagStackUIButtonAdapter m_tag_stack_adapter;
+
+	/**
+	 * common dialog fragment
+	 */
+	public CommonDialogFragment m_fragment;
+
+	
+	/**
+	 * activator for the ui dialogs
+	 */
+	private UIDialogFragmentActivator m_activator;
 	
 	@Override
 	public void onResume() {
@@ -59,12 +70,16 @@ public class TagStoreCloudViewActivity extends Fragment implements GeneralDialog
 		//
 		super.onResume();
 
-		if (m_tag_stack != null)
+		//
+		// get tag stack
+		//
+		TagStackManager tag_stack = TagStackManager.getInstance();
+		if (tag_stack != null)
 		{
 			//
 			// verify the tag stack
 			//
-			m_tag_stack.verifyTags();
+			tag_stack.verifyTags();
 			
 			//
 			// init view
@@ -89,13 +104,10 @@ public class TagStoreCloudViewActivity extends Fragment implements GeneralDialog
 		// create common dialog operations object 
 		//
 		m_dialog_operations = new DialogItemOperations(this, getActivity(), getFragmentManager());
-		
-		//
-		// construct new tag stack
-		//
-		m_tag_stack = TagStackManager.getInstance();
 	}
 
+	
+	
 	public void renamedFile(String old_file_name, String new_file)
 	{
 		
@@ -119,22 +131,40 @@ public class TagStoreCloudViewActivity extends Fragment implements GeneralDialog
 		
 		Logger.i("CloudView::refreshView()");
 		
-		if (m_tag_stack != null)
+		//
+		// get tag stack manager
+		//
+		TagStackManager tag_stack = TagStackManager.getInstance();
+		if (tag_stack != null)
 		{
 			//
 			// verify the tag stack
 			//
-			m_tag_stack.verifyTags();
+			tag_stack.verifyTags();
 
-		//
-		// refresh the view
-		//
+			//
+			// refresh the view
+			//
 			m_view.initializeView();			
 			m_view.invalidate();
 		
+			buildTagTreeForUI();
 		}
 		
 		
+	}
+	
+	/**
+	 * builds the tag tree for the user interface element and updates it
+	 */
+	protected void buildTagTreeForUI() {
+
+		//
+		// set empty tag list
+		//
+		if (m_tag_stack_adapter != null) {
+			m_tag_stack_adapter.refresh();
+		}
 	}
 	
 	 public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle saved) {
@@ -142,32 +172,32 @@ public class TagStoreCloudViewActivity extends Fragment implements GeneralDialog
 		 //
 		 // construct view
 		 //
-		 initView();
-
-		 //
-		 // done
-		 //
-		 return m_view;
+		 return initView(inflater, container);
 	 }
 	
 	/**
 	 * initializes the view
 	 */
-	private void initView() {
+	private View initView(LayoutInflater inflater, ViewGroup container) {
 		
 		Logger.i("CloudView::initView()");
-				
 		
 		//
-		// construct cloud view
+		// construct layout
 		//
-		m_view = new CloudViewSurfaceAdapter(this, this, getActivity(), m_tag_stack);
+		View view = (View)inflater.inflate(R.layout.tagstore_cloud, null);
 		
 		//
-		// initialize view
-		//		
-		//m_view.initializeView();
-
+		// get cloud view from inflated view
+		//
+		m_view = (CloudViewSurfaceAdapter)view.findViewById(R.id.tagstore_cloud_view); 
+		
+		
+		//
+		// set click listener
+		//
+		m_view.setCloudViewClickListener(this);
+		
 		//
 		// construct cloud touch listener
 		//
@@ -185,11 +215,39 @@ public class TagStoreCloudViewActivity extends Fragment implements GeneralDialog
 		m_view.requestFocus();
 		m_view.setFocusableInTouchMode(true);
 		
+		//
+		// find tag stack button
+		//
+		m_tag_stack_adapter = (TagStackUIButtonAdapter)view.findViewById(R.id.button_adapter);
+		if (m_tag_stack_adapter != null)
+		{
+			//
+			// init with our callback
+			//
+			m_tag_stack_adapter.setTagStackUIButtonCallback(this);
+			
+			//
+			// refresh view
+			//
+			m_tag_stack_adapter.refresh();
+		}	
+		return view;
 	}
 
 	public void onBackPressed() {
+		
+		//
+		// get tag stack manager
+		//
+		TagStackManager tag_stack = TagStackManager.getInstance();
+
 		Logger.i("TagStoreCloudViewActivity::onBackPressed tag stack size: "
-				+ m_tag_stack.getSize());
+				+ tag_stack.getSize());
+		
+		//
+		// refresh view
+		//
+		refreshView();
 	}
 
 	@Override
@@ -203,7 +261,7 @@ public class TagStoreCloudViewActivity extends Fragment implements GeneralDialog
 		//
 		// dismiss fragment
 		//
-		m_activator.m_fragment.dismiss();
+		m_fragment.dismiss();
 
 		
 		//
@@ -235,6 +293,20 @@ public class TagStoreCloudViewActivity extends Fragment implements GeneralDialog
 			//
 			launchItem(item_name);
 		}
+		
+		//
+		// refresh tag stack on the ui thread
+		//
+		getActivity().runOnUiThread( new Runnable() {
+
+			@Override
+			public void run() {
+				//
+				// rebuild tag stack
+				//
+				buildTagTreeForUI();
+			}
+		});
 		
 	}
 
@@ -277,6 +349,11 @@ public class TagStoreCloudViewActivity extends Fragment implements GeneralDialog
 		refreshView();
 	}
 
+	/**
+	 * Implements a class which launches a new dialog when its run method is invoked
+	 * @author Johannes Anderwald
+	 *
+	 */
 	private class UIDialogFragmentActivator implements Runnable {
 
 		private final String m_item_name;
@@ -284,7 +361,6 @@ public class TagStoreCloudViewActivity extends Fragment implements GeneralDialog
 		private final int m_dialog_id;
 		private final DialogItemOperations m_dialog_op;
 		
-		public CommonDialogFragment m_fragment;
 		
 		public UIDialogFragmentActivator(String item_name, boolean is_tag, int dialog_id, DialogItemOperations dialog_op) {
 			
@@ -318,5 +394,52 @@ public class TagStoreCloudViewActivity extends Fragment implements GeneralDialog
 		Logger.i("reTaggedFile");
 		refreshView();		
 		
+	}
+
+	@Override
+	public void tagButtonClicked(String tag) {
+		Logger.i("tagButtonClicked");
+		
+		//
+		// get tag stack manager
+		//
+		TagStackManager tag_stack = TagStackManager.getInstance();
+		
+		//
+		// clear tag stack
+		//
+		tag_stack.clearTags();
+		
+		//
+		// add the tag
+		//
+		tag_stack.addTag(tag);		
+		
+		//
+		// refresh view
+		//
+		refreshView();
+	}
+
+	@Override
+	public boolean tagButtonLongClicked(String tag) {
+		
+		//
+		// save current tag
+		//
+		m_current_tag = tag;
+		m_is_tag = true;
+		
+		//
+		// construct new common dialog fragment which will show the dialog
+		//
+		m_fragment = CommonDialogFragment.newInstance(tag, true, DialogIds.DIALOG_GENERAL_TAG_MENU);
+		m_fragment.setDialogItemOperation(m_dialog_operations);
+		m_fragment.show(getFragmentManager(), "FIXME");
+		
+		//
+		// long click was handled
+		//
+		return true;
 	}
 }

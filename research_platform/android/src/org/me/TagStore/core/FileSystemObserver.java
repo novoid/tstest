@@ -73,7 +73,6 @@ public class FileSystemObserver {
 			// invalid parameters
 			//
 			Logger.e("Error: FileSystemObserver::addObserver invalid parameters");
-
 			return false;
 		}
 
@@ -86,14 +85,16 @@ public class FileSystemObserver {
 		// check if the path is a directory
 		//
 		if (!file.isDirectory()) {
+			
 			//
 			// path must be a directory
 			//
-			Logger.e("Error: FileSystemObserver::addObserver directory does not exist");
+			Logger.e("Error: FileSystemObserver::addObserver path is not a directory");
 			return false;
 		}
 
 		if (!file.exists()) {
+			
 			//
 			// error file does not exist
 			//
@@ -106,27 +107,11 @@ public class FileSystemObserver {
 		// check if the path already exists
 		//
 		if (m_observer_map.containsKey(destination_path)) {
+			
 			//
-			// destination path already exists
+			// observer is already registered
 			//
-			FsObserver observer = m_observer_map.get(destination_path);
-
-			//
-			// stop observer
-			//
-			observer.stopWatching();
-
-			//
-			// update notification
-			//
-			observer.setNotification(notification);
-
-			//
-			// restart watching
-			//
-			observer.startWatching();
-
-			return false;
+			return true;
 		}
 
 		//
@@ -144,6 +129,8 @@ public class FileSystemObserver {
 		//
 		observer.startWatching();
 
+		Logger.i("FileSystemObserver::addObserver path " + destination_path + " was added");
+		
 		//
 		// done
 		//
@@ -171,6 +158,50 @@ public class FileSystemObserver {
 	}
 
 	/**
+	 * removes an observer from the map and stops it if it exists
+	 * @param path
+	 * @return
+	 */
+	public boolean removeObserver(String path) {
+
+		//
+		// check if the path already exists
+		//
+		if (m_observer_map.containsKey(path)) {
+			
+			//
+			// get the observer
+			//
+			FsObserver observer = m_observer_map.get(path);
+			
+			//
+			// remove it from list
+			//
+			m_observer_map.remove(path);
+			
+			//
+			// set the notification to null
+			//
+			observer.setNotification(null);
+			
+			//
+			// stop the observer
+			//
+			observer.stopWatching();
+			
+			//
+			// done
+			//
+			return true;
+		}
+		
+		//
+		// observer not found
+		//
+		return false;
+	}
+	
+	/**
 	 * This class is used internally for receiving call backs of the
 	 * FileObserver class. It then analyzes the action and in the case it is
 	 * accepted invokes the registered call back.
@@ -183,12 +214,7 @@ public class FileSystemObserver {
 		/**
 		 * invokes the notification
 		 */
-		FileSystemObserverNotification m_notification = null;
-
-		/*
-		 * stores all sub observers
-		 */
-		HashMap<String, FsObserver> m_sub_observers = null;
+		private FileSystemObserverNotification m_notification = null;
 
 		/*
 		 * stores the current directory
@@ -216,28 +242,10 @@ public class FileSystemObserver {
 			// store current directory
 			//
 			m_path = new File(destination_path).getAbsoluteFile();
-
-			m_sub_observers = new HashMap<String, FsObserver>();
-
-			//
-			// scan directory now
-			//
-			scanDirectory(m_path, false);
-
 		}
 
 		@Override
 		public void stopWatching() {
-
-			//
-			// notify all sub observers that they should stop
-			//
-			Collection<FsObserver> list = m_sub_observers.values();
-
-			if (list != null) {
-				for (FsObserver observer : list)
-					observer.stopWatching();
-			}
 
 			//
 			// now stop this observer
@@ -257,39 +265,6 @@ public class FileSystemObserver {
 			// store notification
 			//
 			m_notification = notification;
-
-			//
-			// update all sub observers too
-			//
-			for (FsObserver observer : m_sub_observers.values()) {
-				//
-				// update notification
-				//
-				observer.setNotification(notification);
-			}
-
-		}
-
-		/**
-		 * scans a directory for files and constructs new observers for sub
-		 * directories and puts them into sub observer list
-		 * 
-		 * @param cur_path
-		 *            current path to be scanned
-		 * @param should_notify
-		 *            if true then notification is invoked
-		 */
-		private void scanDirectory(File cur_path, boolean should_notify) {
-
-			//
-			// now collect all files present in this directory
-			//
-			File[] files = m_path.listFiles();
-			if (files != null) {
-				for (File cur_file : files) {
-					addFileOrDirectory(cur_file, should_notify);
-				}
-			}
 		}
 
 		private void performNotify(
@@ -307,10 +282,9 @@ public class FileSystemObserver {
 		 * adds a file or directory to the internal list depending on the
 		 * Android OS version
 		 * 
-		 * @param path
-		 *            of the file / directory to be added
+		 * @param path of the file / directory to be added
 		 */
-		private void addFileOrDirectory(File cur_file, boolean should_notify) {
+		private void addFileOrDirectory(File cur_file) {
 
 			//
 			// check if this is a file
@@ -318,136 +292,32 @@ public class FileSystemObserver {
 			if (cur_file.isFile()) {
 
 				//
-				// should notification be invoked
+				// notify of new file
 				//
-				if (should_notify) {
-					//
-					// notify of new file
-					//
-					performNotify(
-							cur_file,
-							FileSystemObserverNotification.NotificationType.FILE_CREATED);
-				}
-			} else if (cur_file.isDirectory()) {
-				//
-				// check for duplicate notification
-				//
-				if (!m_sub_observers.containsKey(cur_file.getPath())) {
-					Logger.i("CREATE DIR: " + cur_file);
-					//
-					// construct new observer
-					//
-					FsObserver sub_observer = new FsObserver(
-							cur_file.getPath(), m_notification);
-
-					//
-					// add new sub observer
-					//
-					m_sub_observers.put(cur_file.getPath(), sub_observer);
-
-					//
-					// start the new sub observer
-					//
-					sub_observer.startWatching();
-				} else {
-					Logger.i("path is present: " + cur_file);
-					printSubobservers();
-				}
-			}
+				performNotify(cur_file, FileSystemObserverNotification.NotificationType.FILE_CREATED);
+			} 
 		}
 
 		/**
 		 * deletes a file or directory from the internal list depending on the
 		 * Android OS version.
 		 * 
-		 * @param path
-		 *            of the file / directory
-		 * @param should_notify
-		 *            if notification should be triggered
+		 * @param path of the file / directory
 		 */
-		public void deleteFileOrDirectory(File cur_file, boolean should_notify) {
-
-			if (m_sub_observers.containsKey(cur_file.getPath())) {
-				Logger.i("DELETE DIR: " + cur_file + " current path: " + m_path);
-
-				//
-				// notify observer that it got deleted
-				//
-				FsObserver observer = m_sub_observers.get(cur_file.getPath());
-
-				//
-				// notify delete will trigger delete notifications for all files
-				// present in the observer and its sub-observers
-				//
-				observer.notifyDelete(should_notify);
-
-				//
-				// remove observer
-				//
-				m_sub_observers.remove(cur_file.getPath());
-
-				//
-				// stop watching now
-				//
-				observer.stopWatching();
-
-				//
-				// done
-				//
-				return;
-			}
+		public void deleteFileOrDirectory(File cur_file) {
 
 			//
-			// check if notification should be invoked
+			// check if it is a file
 			//
-			if (should_notify) {
+			if (cur_file.isFile())
+			{
 				//
-				// perform notification
+				// notify of new file
 				//
-				performNotify(
-						cur_file,
-						FileSystemObserverNotification.NotificationType.FILE_DELETED);
+				performNotify(cur_file, FileSystemObserverNotification.NotificationType.FILE_DELETED);
 			}
 		}
 
-		/**
-		 * notifies an observer, that its watched directory got deleted
-		 * 
-		 * @param should_notify
-		 *            if notifications should be invoked
-		 */
-		public void notifyDelete(boolean should_notify) {
-
-			//
-			// now iterate through all observers and stop watching
-			//
-			Collection<FsObserver> list = m_sub_observers.values();
-
-			for (FsObserver cur_observer : list) {
-				//
-				// notify of deletion
-				//
-				cur_observer.notifyDelete(should_notify);
-
-				//
-				// stop watching sub directories
-				//
-				cur_observer.stopWatching();
-			}
-
-			//
-			// clear sub observer list
-			//
-			m_sub_observers.clear();
-
-		}
-
-		private void printSubobservers() {
-
-			for (FsObserver observer : m_sub_observers.values())
-				Logger.i("printSubobservers Path: " + observer.m_path);
-
-		}
 
 		/**
 		 * callback routine of FileObserver
@@ -478,15 +348,17 @@ public class FileSystemObserver {
 				//
 				// add file
 				//
-				addFileOrDirectory(new File(filename), true);
+				addFileOrDirectory(new File(filename));
 
 			} else if ((event & FileObserver.DELETE) != 0) {
 				//
 				// remove file / directory
 				//
-				deleteFileOrDirectory(new File(filename), true);
+				deleteFileOrDirectory(new File(filename));
 
 			}
 		}
-	};
+	}
+
+
 }

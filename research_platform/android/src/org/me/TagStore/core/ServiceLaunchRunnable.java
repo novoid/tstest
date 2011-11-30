@@ -15,7 +15,7 @@ public class ServiceLaunchRunnable implements Runnable {
 	/**
 	 * stores the context
 	 */
-	private Activity m_context;
+	private Context m_context;
 
 	/**
 	 * stores the service connection
@@ -28,12 +28,12 @@ public class ServiceLaunchRunnable implements Runnable {
 	 * @param context
 	 * @param mainPagerActivity TODO
 	 */
-	public ServiceLaunchRunnable(Activity activity, MainServiceConnection connection) {
+	public ServiceLaunchRunnable(Context context, MainServiceConnection connection) {
 		
 		//
 		// init members
 		//
-		m_context = activity;
+		m_context = context;
 		m_connection = connection;
 	}
 
@@ -44,7 +44,8 @@ public class ServiceLaunchRunnable implements Runnable {
 		// now create intent to launch the file watch dog service
 		//
 		Intent intent = new Intent(m_context, FileWatchdogService.class);
-
+		Logger.i("Service::launch " + System.currentTimeMillis());
+		
 		//
 		// start service
 		//

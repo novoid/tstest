@@ -4,63 +4,21 @@
   android:layout_width="match_parent"
   android:id="@+id/tagstore_list_view_id"
   android:layout_height="match_parent">
-  
-        <Button android:text="haha" android:layout_width ="wrap_content"
-        		android:layout_alignParentTop="true"
-				android:layout_alignParentLeft="true"   
-        		android:layout_height="50dp"
-        		android:layout_marginTop="5dp"
-        		android:layout_marginLeft="10dp"
-        		android_textSize="30dp"
-        		android:id="@+id/navigation_button_one">
-        </Button>
-        
-                <Button android:text="haha1" android:layout_width ="wrap_content"
-        		android:layout_alignParentTop="true"
-        		android:layout_height="50dp"
-        		android:layout_marginTop="5dp"        		
-        		android:layout_marginLeft="10dp"
-        		android_textSize="30dp"
-        		android:id="@+id/navigation_button_two"
-        		android:layout_toRightOf="@id/navigation_button_one">
-        </Button>
-        
-                <Button android:text="haha2" android:layout_width ="wrap_content"
-        		android:layout_alignParentTop="true"
-        		android:layout_height="50dp"
-        		android:layout_marginTop="5dp"        		
-        		android:layout_marginLeft="10dp"
-        		android_textSize="30dp"
-        		android:id="@+id/navigation_button_three"
-        		android:layout_toRightOf="@id/navigation_button_two">
-        </Button>
-        
-                <Button android:text="haha3" android:layout_width ="wrap_content"
-        		android:layout_alignParentTop="true"
-        		android:layout_height="50dp"
-        		android:layout_marginTop="5dp"        		
-        		android:layout_marginLeft="10dp"
-        		android_textSize="30dp"
-        		android:id="@+id/navigation_button_four"
-        		android:layout_toRightOf="@id/navigation_button_three">
-        </Button>
-        
-        <Button android:text="haha4" android:layout_width ="wrap_content"
-        		android:layout_alignParentTop="true"
-        		android:layout_height="50dp"
-        		android:layout_marginTop="5dp"        		
-        		android:layout_marginLeft="10dp"
-        		android_textSize="30dp"
-        		android:id="@+id/navigation_button_five"
-        		android:layout_toRightOf="@id/navigation_button_four">
-        </Button>
-        
+
+  <org.me.TagStore.ui.TagStackUIButtonAdapter
+    android:id="@+id/button_adapter"
+        android:layout_alignParentTop="true"    
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"/>
+          
+           
 	<GridView xmlns:android="http://schemas.android.com/apk/res/android"   
+        android:layout_below="@id/button_adapter"	    
    		android:id="@+id/grid_list_view"
-		android:layout_below="@id/navigation_button_one"   		
    		android:layout_width="fill_parent"
    		android:layout_height="fill_parent"
-    	android:padding="5dp"
+   		android:paddingLeft="5dp"
+   		android:paddingRight="5dp"
     	android:verticalSpacing="5dp"
     	android:horizontalSpacing="20dp"
     	android:numColumns="2"
