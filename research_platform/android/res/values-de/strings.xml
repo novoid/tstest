@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">TagStore</string>
+    <string name="app_name">tagstore</string>
     <string name="edit_text_field"></string>
     <string name="directory_name_string">Verzeichniss: </string>
-    <string name="tag_accept">TagMe!</string>
+    <string name="tag_accept">Tag!</string>
     <string name="file_name">Dateiname:</string>
     <string name="cancel">Abbrechen</string>
     <string name="create">Erstellen</string>
@@ -19,10 +19,10 @@
     <string name="num_columns">Anzahl der Spalten:</string>
     <string name="reset_factory_settings">Werkseinstellungen</string>
     <string name="reset">Zurücksetzen</string>
-    <string name="reset_factory_setting">Durch drücken des Zurücksetzen Knopf werden alle gespeicherten Einstellungen und Tags entfernt und der TagStore auf Werkseinstellung zurückversetzt.</string>
+    <string name="reset_factory_setting">Durch drücken des Zurücksetzen Knopf werden alle gespeicherten Einstellungen und Tags entfernt und der tagstore auf Werkseinstellung zurückversetzt.</string>
     <string name="string_back">Zurück</string>
     <string name="enable_notification_string">Status Benachrichigungen aktivieren</string>
-    <string name="enable_notification_description">Wenn diese Option aktiviert ist, zeigt TagStore eine Benachrichtigung an sobald eine neue Datei empfangen wird.</string>
+    <string name="enable_notification_description">Wenn diese Option aktiviert ist, zeigt tagstore eine Benachrichtigung an sobald eine neue Datei empfangen wird.</string>
     <string name="tagstore_directories">Verzeichnisse</string>
     <string name="sync_tagstore">Synch</string>
     <string name="about_tagstore">Info</string>
@@ -34,7 +34,7 @@
     <string name="bytes">Bytes</string>
     <string name="format_delete">Die Datei %s wurde gelöscht.</string>
     <string name="error_format_delete">Die Datei %s konnte nicht gelöscht werden.</string>
-    <string name="error_format_add_file">Die Datei %s konnte nicht zum TagStore hinzugefügt werden!</string>
+    <string name="error_format_add_file">Die Datei %s konnte nicht zum tagstore hinzugefügt werden!</string>
     <string name="error_format_file_removed">Die Datei %s existiert nicht mehr.</string>
     <string name="options">Optionen</string>
     <string name="details">Details</string>

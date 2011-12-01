@@ -78,7 +78,7 @@ public class MainPageAdapter extends FragmentStatePagerAdapter implements
 		// build default fragments
 		//
 		m_cached_view_class = getCurrentViewClass();
-		addFragment(m_cached_view_class, m_context.getString(R.string.tagstore));
+		addFragment(m_cached_view_class, m_context.getString(R.string.app_name));
 		addFragment(ConfigurationTabActivity.class.getName(), m_context.getString(R.string.configuration));
 		addPendingFileItem();
 	}

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">TagStore</string>
+    <string name="app_name">tagstore</string>
     <string name="edit_text_field"></string>
     <string name="directory_name_string">Directory:</string>
-    <string name="tag_accept">TagMe!</string>
+    <string name="tag_accept">Tag!</string>
     <string name="file_name">File name:</string>
     <string name="cancel">Cancel</string>
     <string name="create">Create</string>
@@ -22,7 +22,7 @@
     <string name="reset_factory_setting">By hitting reset button, the database will remove stored tags / settings. No other files will be modified</string>
     <string name="string_back">Back</string>
     <string name="enable_notification_string">Enable status bar notification</string>
-    <string name="enable_notification_description">When enabled, TagStore displays a status bar notification when a new file arrives in one of the observed directories.</string>
+    <string name="enable_notification_description">When enabled, tagstore displays a status bar notification when a new file arrives in one of the observed directories.</string>
     <string name="tagstore_directories">Directories</string>
     <string name="sync_tagstore">Sync</string>
     <string name="about_tagstore">About</string>
@@ -34,7 +34,7 @@
     <string name="bytes">Bytes</string>
     <string name="format_delete">The file %s was deleted.</string>
     <string name="error_format_delete">Failed to delete file %s.</string>
-    <string name="error_format_add_file">Failed to add %s to TagStore!</string>
+    <string name="error_format_add_file">Failed to add %s to tagstore!</string>
     <string name="error_format_file_removed">File %s  no longer exists.</string>
     <string name="options">Options</string>
     <string name="details">Details</string>
@@ -57,11 +57,11 @@
     <string name="choose_one">Choose one:</string>
     <string name="ignore">Ignore</string>
     <string name="rename">Rename</string>
-    <string name="help_file_options">Help: ignore means that the file stays on the disk but it is excluded from the TagStore</string>
+    <string name="help_file_options">Help: ignore means that the file stays on the disk but it is excluded from the tagstore</string>
     <string name="old_tags">Old tags:</string>
     <string name="error_no_file_name">No file name entered!</string>
     <string name="error_same_file_name">The new file name is the same as the old file name</string>
-    <string name="error_file_name_not_unique">Another file with that name already exists in the TagStore</string>
+    <string name="error_file_name_not_unique">Another file with that name already exists in the tagstore</string>
     <string name="error_file_name_present">A file with that name already exists</string>
     <string name="error_failed_rename">Failed to rename</string>
     <string name="tag_me">Tag me!</string>
@@ -78,5 +78,12 @@
     <string name="tag_files">Num. of files:</string>
     <string name="tag_link">Num. of linked tags:</string>
     <string name="file_date">Date:</string>
-    <string name="tagstore">TagStore</string>
+    <string name="select_directory">Select a directory in which to copy the file</string>
+    <string name="error_wrong_action">Error: wrong action</string>
+    <string name="error_no_directories">Please define observed directories first in the tagstore!</string>
+    <string name="error_failed_retrieve_parameters">Failed to retrieve parameters</string>
+    <string name="error_file_target_directory">A file with that name is already present in that directory</string>
+    <string name="error_file_removed">The file has been deleted</string>
+    <string name="error_failed_share">Failed to share file</string>
+    <string name="share_success">Successfully shared file</string>
 </resources>
