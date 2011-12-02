@@ -15,16 +15,19 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="service.c">
+    <ClCompile Include="FsLogFile.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="filewriter.c">
+    <ClCompile Include="Service.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="logfile.c">
+    <ClCompile Include="TagstoreConfig.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="tagstore_config.c">
+    <ClCompile Include="FileWriter.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="RegistryWindows.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
   </ItemGroup>
@@ -32,15 +35,22 @@
     <None Include="addservice.cmd" />
     <None Include="removeservice.cmd" />
     <None Include="tagstore.cfg" />
+    <None Include="copyservice.cmd" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="filewriter.h">
+    <ClInclude Include="FsLogFile.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="logfile.h">
+    <ClInclude Include="TagstoreConfig.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="tagstore_config.h">
+    <ClInclude Include="FileWriter.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="SingeltonHolder.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="RegistryWindows.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

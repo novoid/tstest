@@ -43,6 +43,9 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <ExecutablePath>$(SolutionDir)flmon\objchk_win7_x86\i386;$(ExecutablePath)</ExecutablePath>
+    <ReferencePath>$(SolutionDir)flmon\objchk_win7_x86\i386\;$(ReferencePath)</ReferencePath>
+    <LibraryPath>$(SolutionDir)flmon\objchk_win7_x86\i386\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -59,7 +62,15 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>flmon.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>$(ProjectDir)copyservice.cmd</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -79,20 +90,24 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="filewriter.c" />
-    <ClCompile Include="logfile.c" />
-    <ClCompile Include="service.c" />
-    <ClCompile Include="tagstore_config.c" />
+    <ClCompile Include="FileWriter.cpp" />
+    <ClCompile Include="FsLogFile.cpp" />
+    <ClCompile Include="RegistryWindows.cpp" />
+    <ClCompile Include="Service.cpp" />
+    <ClCompile Include="TagstoreConfig.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="addservice.cmd" />
+    <None Include="copyservice.cmd" />
     <None Include="removeservice.cmd" />
     <None Include="tagstore.cfg" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="filewriter.h" />
-    <ClInclude Include="logfile.h" />
-    <ClInclude Include="tagstore_config.h" />
+    <ClInclude Include="FileWriter.h" />
+    <ClInclude Include="FsLogFile.h" />
+    <ClInclude Include="RegistryWindows.h" />
+    <ClInclude Include="SingeltonHolder.h" />
+    <ClInclude Include="TagstoreConfig.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

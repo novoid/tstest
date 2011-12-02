@@ -1,8 +1,8 @@
-﻿Der Buildvorgang wurde am 16.11.2011 10:05:10 gestartet.
-     1>Projekt "D:\Daten\Projekte\FileMonitor\flmonflt\flmonflt.vcxproj" auf Knoten "2", build Ziel(e).
+﻿Der Buildvorgang wurde am 01.12.2011 15:56:20 gestartet.
+     1>Projekt "D:\Daten\Projekte\FileMonitor\flmonflt\flmonflt.vcxproj" auf Knoten "4", build Ziel(e).
      1>Build:
          builddrv_chk_x86.cmd
-         OACR monitor running already
+         Launching OACR monitor
          path contains nonexistant d:\program files (x86)\microsoft visual studio 10.0\common7\tools\bin, removing
          BUILD: Compile and Link for x86
          
@@ -10,7 +10,7 @@
          
          BUILD: Computing Include file dependencies:
          
-         BUILD: Start time: Wed Nov 16 10:05:10 2011
+         BUILD: Start time: Thu Dec 01 15:56:21 2011
          BUILD: Examining d:\daten\projekte\filemonitor\flmonflt directory for files to compile.
          
              d:\daten\projekte\filemonitor\flmonflt 
@@ -21,17 +21,18 @@
          BUILD: Compiling and Linking d:\daten\projekte\filemonitor\flmonflt directory
          
          Configuring OACR for 'root:x86chk' - <OACR on>
-         BUILD: Finish time: Wed Nov 16 10:05:11 2011
+         BUILD: Finish time: Thu Dec 01 15:56:25 2011
          BUILD: Done
          
          
          
              0 files compiled - 1 Warning
          
-                 1 Datei(en) kopiert.
-                 1 Datei(en) kopiert.
-     1>Die Erstellung des Projekts "D:\Daten\Projekte\FileMonitor\flmonflt\flmonflt.vcxproj" ist abgeschlossen, build Ziel(e).
+         Der Netzwerkpfad wurde nicht gefunden.
+                 0 Datei(en) kopiert.
+     1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\Microsoft.MakeFile.Targets(38,5): warning MSB5021: Die ausführbare Datei der Aufgabe wird aufgrund eines Abbruchs des Buildvorgangs beendet.
+     1>Die Erstellung des Projekts "D:\Daten\Projekte\FileMonitor\flmonflt\flmonflt.vcxproj" ist abgeschlossen, build Ziel(e) -- FEHLER.
 
-Das Erstellen war erfolgreich.
+Fehler beim Erstellen
 
-Verstrichene Zeit 00:00:00.69
+Verstrichene Zeit 00:17:46.81

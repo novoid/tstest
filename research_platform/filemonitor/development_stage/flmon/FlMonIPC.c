@@ -179,6 +179,18 @@ unsigned int __stdcall FlMonIPCSendMessage(PFLMONIPC ipc,
 }
 
 
+
+/*! .
+
+	\param [in] size Is alway the count of characters excluding termination.
+	\param [out]
+	\param [in,out]
+
+	\pre
+	\post
+	\return
+
+*/
 unsigned int __stdcall FlMonIPCSendAddWatchDir(PFLMONIPC ipc, WCHAR * str, unsigned int size)
 {
 	char message[FLMESSAGE_MAXSIZE];

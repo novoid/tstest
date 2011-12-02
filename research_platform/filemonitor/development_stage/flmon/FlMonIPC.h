@@ -13,7 +13,7 @@ extern "C" {
 
 
 
-#define FLMESSAGE_MAXSIZE			1024
+#define FLMESSAGE_MAXSIZE			2048
 
 
 #define FLTIPC_SUCCESS						0
