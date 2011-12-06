@@ -6,7 +6,7 @@ import org.me.TagStore.core.TagValidator;
 import android.content.Context;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.widget.Toast;
+
 
 /**
  * This class is used to check if the current entered tagline confirms to the restrictions of tags. It checks for disallowed characters and in case
@@ -16,11 +16,6 @@ import android.widget.Toast;
  */
 public class UITagTextWatcher implements TextWatcher {
 
-	/**
-	 * stores the toast for ui notifications
-	 */
-	private Toast m_toast;
-	
 	/**
 	 * stores the context
 	 */
@@ -41,7 +36,6 @@ public class UITagTextWatcher implements TextWatcher {
 		// init members
 		//
 		m_context = context;
-		m_toast = null;
 		m_is_tag = is_tag;
 	}
 	
@@ -59,33 +53,20 @@ public class UITagTextWatcher implements TextWatcher {
 		//
 		if (TagValidator.containsReservedCharacters(tag_text))
 		{
-			if (m_toast == null)
+			if (m_is_tag)
 			{
-				String reserved_characters;
-				
-				if (m_is_tag)
-				{
-					//
-					// get reserved character string localized
-					//
-					reserved_characters = m_context.getString(R.string.reserved_character_tag);
-				}
-				else
-				{
-					reserved_characters = m_context.getString(R.string.reserved_character_file_name);
-				}
-				
 				//
-				// create the toast
+				// reserved character error message for tag
 				//
-				m_toast = Toast.makeText(m_context, reserved_characters, Toast.LENGTH_SHORT);
+				ToastManager.getInstance().displayToastWithString(R.string.reserved_character_tag);
 			}
-			
-			
-			//
-			// now display the toast
-			//
-			m_toast.show();
+			else
+			{
+				//
+				// reserved character error message for file name
+				//
+				ToastManager.getInstance().displayToastWithString(R.string.reserved_character_file_name);
+			}
 			
 			//
 			// clear the old text

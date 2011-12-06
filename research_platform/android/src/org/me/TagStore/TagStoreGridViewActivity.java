@@ -24,6 +24,7 @@ import org.me.TagStore.ui.IconViewItemBuilder;
 import org.me.TagStore.ui.IconViewListAdapter;
 import org.me.TagStore.ui.IconViewScrollListener;
 import org.me.TagStore.ui.TagStackUIButtonAdapter;
+import org.me.TagStore.ui.ToastManager;
 
 import android.app.Activity;
 import android.content.Context;
@@ -95,15 +96,9 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 		Logger.i("TagStoreListViewActivity::onPause");
 
 		//
-		// is there a scroll listener
+		// cancel any active toast
 		//
-		if (m_scroll_listener != null) {
-			//
-			// deactivate toast
-			//
-			m_scroll_listener.cancelToast();
-		}
-
+		ToastManager.getInstance().cancelToast();
 	}
 
 	public void onStart() { 

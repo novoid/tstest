@@ -16,11 +16,12 @@ import org.me.TagStore.ui.CommonDialogFragment;
 import org.me.TagStore.ui.DialogIds;
 import org.me.TagStore.ui.DialogItemOperations;
 import org.me.TagStore.ui.MainPageAdapter;
+import org.me.TagStore.ui.StatusBarNotification;
+import org.me.TagStore.ui.ToastManager;
 import org.me.TagStore.ui.UIEditorActionListener;
 import org.me.TagStore.ui.UITagTextWatcher;
 
 import android.app.Activity;
-import android.app.NotificationManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -35,7 +36,6 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class AddFileTagActivity extends Fragment implements
 		OptionsDialogCallback, RenameDialogCallback {
@@ -89,10 +89,11 @@ public class AddFileTagActivity extends Fragment implements
 	private final static int NUMBER_POPULAR_TAGS = s_tag_button_ids.length;
 
 	/**
-	 * displays toast for user notifications
+	 * status bar notification
 	 */
-	private Toast m_toast;
-
+	private StatusBarNotification m_status_bar;
+	
+	
 	@Override
 	public void renamedFile(String old_file_name, String new_file) {
 
@@ -250,13 +251,10 @@ public class AddFileTagActivity extends Fragment implements
 			setCurrentPreferenceTagLine(tag_line);
 		}
 
-		if (m_toast != null) {
-			//
-			// cancel any on-going toast when switching the view
-			//
-			m_toast.cancel();
-		}
-
+		//
+		// cancel any on-going toast when switching the view
+		//
+		ToastManager.getInstance().cancelToast();
 	}
 
 	/**
@@ -290,6 +288,10 @@ public class AddFileTagActivity extends Fragment implements
 		//
 		m_dialog_operations = new DialogItemOperations(this, getActivity(), getFragmentManager());
 		
+		//
+		// create status bar
+		//
+		m_status_bar = new StatusBarNotification(getActivity().getApplicationContext());
 	}
 
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -958,74 +960,19 @@ public class AddFileTagActivity extends Fragment implements
 	 * removes notification from notification manager
 	 */
 	protected void removeNotification() {
-
+		
 		//
-		// get notification service name
+		// remove status bar notification when enabled
 		//
-		String ns_name = Context.NOTIFICATION_SERVICE;
-
-		//
-		// get activity
-		//
-		Activity activity = getActivity();
-		if (activity != null)
+		if (m_status_bar.isStatusBarNotificationEnabled())
 		{
 			//
-			// get notification service manager instance
+			// cancel it
 			//
-			NotificationManager notification_manager = (NotificationManager) activity.getSystemService(ns_name);
-			
-			if (notification_manager != null)
-			{
-				//
-				// clear notification
-				//
-				notification_manager.cancel(ConfigurationSettings.NOTIFICATION_ID);
-			}
+			m_status_bar.removeStatusBarNotification();
 		}
 	}
 
-	/**
-	 * displays the toast
-	 * @param resource_id string resource id to be shown as the text
-	 */
-	private void displayToast(int resource_id) {
-		
-		//
-		// get activity
-		//
-		Activity activity = getActivity();
-		if (activity == null)
-			return;
-		
-		//
-		// get translated resource
-		//
-		String text = activity.getString(resource_id);
-		
-		if (m_toast == null)
-		{
-			//
-			// construct toast
-			//
-			m_toast = Toast.makeText(activity, text, Toast.LENGTH_SHORT);
-		}
-		else
-		{
-			//
-			// update toast
-			//
-			m_toast.setText(text);
-		}
-		
-		//
-		// show the toast
-		//
-		m_toast.show();
-	}
-		
-	
-	
 	/**
 	 * performs the tagging
 	 */
@@ -1043,7 +990,7 @@ public class AddFileTagActivity extends Fragment implements
 		//
 		// first validate the tags
 		//
-		if (!FileTagUtility.validateTags(tag_text, getActivity(), m_text_view)) {
+		if (!FileTagUtility.validateTags(tag_text, m_text_view)) {
 
 			//
 			// done for now
@@ -1066,15 +1013,21 @@ public class AddFileTagActivity extends Fragment implements
 		}
 
 		//
+		// extract file name from path
+		//
+		String file_name = new File(m_file_name).getName();
+		
+		
+		//
 		// check if the file name contains invalid characters
 		//
-		if (TagValidator.containsReservedCharacters(m_file_name))
+		if (TagValidator.containsReservedCharacters(file_name))
 		{
 			//
-			// not allowed
+			// display toast
 			//
-			displayToast(R.string.reserved_character_file_name);
-
+			ToastManager.getInstance().displayToastWithString(R.string.reserved_character_file_name);
+			Logger.e("invalid character found in " + file_name);
 			//
 			// launch rename dialog
 			//
@@ -1088,12 +1041,12 @@ public class AddFileTagActivity extends Fragment implements
 		//
 		// check if the file name is a reserved keyword
 		//
-		if (TagValidator.isReservedKeyword(m_file_name))
+		if (TagValidator.isReservedKeyword(file_name))
 		{
 			//
 			// not allowed
 			//
-			displayToast(R.string.reserved_keyword_file_name);
+			ToastManager.getInstance().displayToastWithString(R.string.reserved_keyword_file_name);
 			
 			//
 			// launch rename dialog
@@ -1107,7 +1060,7 @@ public class AddFileTagActivity extends Fragment implements
 		//
 		// add file
 		//
-		if (FileTagUtility.addFile(m_file_name, tag_text, true, getActivity()) == false) {
+		if (FileTagUtility.addFile(m_file_name, tag_text, true) == false) {
 			//
 			// failed to tag
 			//

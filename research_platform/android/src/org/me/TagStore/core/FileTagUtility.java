@@ -10,11 +10,11 @@ import java.util.Set;
 import java.util.StringTokenizer;
 
 import org.me.TagStore.R;
+import org.me.TagStore.ui.ToastManager;
 
 import android.content.Context;
 import android.webkit.MimeTypeMap;
 import android.widget.EditText;
-import android.widget.Toast;
 
 /**
  * this class is responsible to provide helper functions which deal parsing of tags and adding / deleting files and their associated data to the database 
@@ -183,7 +183,7 @@ public class FileTagUtility {
 	 * adds a file to the database
 	 * @param tag_text 
 	 */
-	private static boolean addFileToDB(String file_name, String tag_text, Context ctx) {
+	private static boolean addFileToDB(String file_name, String tag_text) {
 
 		String mime_type = "";
 
@@ -275,7 +275,7 @@ public class FileTagUtility {
 	 * @param write_log true if to the log should be written
 	 * @param tag_text tags of the file
 	 */
-	public static boolean addFile(String file_name, String tag_text, boolean write_log, Context ctx) {
+	public static boolean addFile(String file_name, String tag_text, boolean write_log) {
 		
 		//
 		// check if file exists
@@ -283,33 +283,11 @@ public class FileTagUtility {
 		File file = new File(file_name);
 		if (!file.exists())
 		{
-			if (ctx == null)
-				return false;
+			//
+			// display error toast
+			//
+			ToastManager.getInstance().displayToastWithFormat(R.string.error_format_file_removed, file_name);
 			
-			//
-			// get localized error format string
-			//
-			String error_format = ctx.getString(R.string.error_format_file_removed);
-			
-			//
-			// format the error
-			//
-			String msg = String.format(error_format, file_name);
-			
-			
-			//
-			// inform user that it failed to add the file
-			//
-			Toast toast = Toast
-					.makeText(ctx,
-							msg,
-							Toast.LENGTH_SHORT);
-
-			//
-			// display toast
-			//
-			toast.show();
-
 			//
 			// done
 			//
@@ -319,35 +297,13 @@ public class FileTagUtility {
 		//
 		// first add the file
 		//
-		if (!FileTagUtility.addFileToDB(file_name, tag_text, ctx)) {
-			
-			if (ctx == null)
-				return false;
+		if (!FileTagUtility.addFileToDB(file_name, tag_text)) {
 			
 			//
-			// get localized error format string
+			// display error toast
 			//
-			String error_format = ctx.getString(R.string.error_format_add_file);
+			ToastManager.getInstance().displayToastWithFormat(R.string.error_format_add_file, file_name);
 			
-			//
-			// format the error
-			//
-			String msg = String.format(error_format, file_name);
-			
-			
-			//
-			// inform user that it failed to add the file
-			//
-			Toast toast = Toast
-					.makeText(ctx,
-							msg,
-							Toast.LENGTH_SHORT);
-
-			//
-			// display toast
-			//
-			toast.show();
-
 			//
 			// done
 			//
@@ -359,30 +315,11 @@ public class FileTagUtility {
 		//
 		if (!FileTagUtility.processTags(file_name, tag_text)) {
 			
-			if (ctx == null)
-				return false;
+			//
+			// display error toast
+			//
+			ToastManager.getInstance().displayToastWithFormat(R.string.error_format_add_file, file_name);
 			
-			//
-			// get localized error format string
-			//
-			String error_format = ctx.getString(R.string.error_format_add_file);
-			
-			//
-			// format the error
-			//
-			String msg = String.format(error_format, file_name);
-			
-			//
-			// inform user that it failed to process tags
-			//
-			Toast toast = Toast.makeText(ctx,
-					msg, Toast.LENGTH_SHORT);
-
-			//
-			// display toast
-			//
-			toast.show();
-
 			//
 			// remove file from database store
 			//
@@ -478,7 +415,6 @@ public class FileTagUtility {
 		//
 		// check for success
 		//
-		String msg;
 		if (file_deleted) {
 			
 			//
@@ -491,49 +427,19 @@ public class FileTagUtility {
 			//
 			file_writer.writeTagstoreFiles();	
 			
-			if (ctx == null)
-				return;
-			
 			//
-			// get localized format string
+			// display toast
 			//
-			String format_delete = ctx.getString(R.string.format_delete);
+			ToastManager.getInstance().displayToastWithFormat(R.string.format_delete, file_name);
 			
-			//
-			// format the string
-			//
-			msg = String.format(format_delete, file_name);
-			
-			
-		
-			
-
 		} else {
 			
-			if (ctx == null)
-				return;
-			
 			//
-			// get localized format string
+			// display toast
 			//
-			String format_error_delete = ctx.getString(R.string.error_format_delete);
-			
-			//
-			// format the string
-			//
-			msg = String.format(format_error_delete, file_name);
+			ToastManager.getInstance().displayToastWithFormat(R.string.error_format_delete, file_name);
 		}
 
-		//
-		// create toast
-		//
-		Toast toast = Toast.makeText(ctx, msg,
-				Toast.LENGTH_SHORT);
-
-		//
-		// display toast
-		//
-		toast.show();
 	}
 
 	/**
@@ -541,7 +447,7 @@ public class FileTagUtility {
 	 * @param tags to be checked
 	 * @return true
 	 */
-	public static boolean validateTags(String tags, Context ctx, EditText edit_text) {
+	public static boolean validateTags(String tags, EditText edit_text) {
 		
 		//
 		// first split the tags
@@ -549,23 +455,11 @@ public class FileTagUtility {
 		Set<String> tag_list = splitTagText(tags);
 		if (tag_list.isEmpty())
 		{
-			if (ctx != null)
-			{
-				//
-				// must be at least one tag
-				//
-				String message = ctx.getString(R.string.one_tag_minimum);
-			
-				Toast toast = Toast.makeText(ctx,
-						message,
-						Toast.LENGTH_SHORT);
-
-				//
-				// display toast
-				//
-				toast.show();
-			}
-			
+			//
+			// must be at least one tag
+			//
+			ToastManager.getInstance().displayToastWithString(R.string.one_tag_minimum);
+		
 			//
 			// failed
 			//
@@ -580,22 +474,10 @@ public class FileTagUtility {
 			
 			if (TagValidator.isReservedKeyword(current_tag))
 			{
-				if (ctx != null)
-				{
-					//
-					// the tag line has at least one reserved keyword in use
-					//
-					String message = ctx.getString(R.string.reserved_keyword);
-				
-					Toast toast = Toast.makeText(ctx,
-							message,
-							Toast.LENGTH_SHORT);
-
-					//
-					// display toast
-					//
-					toast.show();				
-				}
+				//
+				// reserved keyword
+				//
+				ToastManager.getInstance().displayToastWithString(R.string.reserved_keyword);
 
 				if (edit_text != null)
 				{
@@ -630,7 +512,7 @@ public class FileTagUtility {
 	 * @param context context which is invoked in case of errors
 	 * @return true on success
 	 */
-	public static boolean retagFile(String filename, String tags, boolean write_log, Context context) {
+	public static boolean retagFile(String filename, String tags, boolean write_log) {
 		
 		//
 		// instantiate database manager
@@ -650,7 +532,7 @@ public class FileTagUtility {
 		//
 		// re-add them to the store
 		//
-		return FileTagUtility.addFile(filename, tags, write_log, context);
+		return FileTagUtility.addFile(filename, tags, write_log);
 	}
 	
 	

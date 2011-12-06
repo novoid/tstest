@@ -8,6 +8,7 @@ import org.me.TagStore.core.ConfigurationSettings;
 import org.me.TagStore.core.Logger;
 import org.me.TagStore.core.SyncFileWriter;
 import org.me.TagStore.core.SyncManager;
+import org.me.TagStore.ui.ToastManager;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -20,7 +21,6 @@ import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class SynchronizeTagStoreActivity extends Fragment {
 
@@ -130,17 +130,7 @@ public class SynchronizeTagStoreActivity extends Fragment {
 			//
 			// the media is currently not accessible
 			//
-			String media_available = getActivity().getString(R.string.error_media_not_mounted);
-			
-			//
-			// create toast
-			//
-			Toast toast = Toast.makeText(getActivity(), media_available, Toast.LENGTH_SHORT);
-			
-			//
-			// display toast
-			//
-			toast.show();
+			ToastManager.getInstance().displayToastWithString(R.string.error_media_not_mounted);
 			
 			//
 			// done
@@ -217,16 +207,9 @@ public class SynchronizeTagStoreActivity extends Fragment {
 		else
 		{
 			//
-			// get localized string
+			// no updates found
 			//
-			String no_updates = getActivity().getString(R.string.no_update);
-
-			
-			//
-			// display toast
-			//
-			Toast toast = Toast.makeText(getActivity(), no_updates, Toast.LENGTH_SHORT);
-			toast.show();
+			ToastManager.getInstance().displayToastWithString(R.string.no_update);
 		}
 	
 		//
@@ -238,7 +221,7 @@ public class SynchronizeTagStoreActivity extends Fragment {
 	
 	/**
 	 * This class executes the synchronization task
-	 * @author Johnseyii
+	 * @author Johannes Anderwald
 	 *
 	 */
 	private class SyncTask implements Runnable {
@@ -289,9 +272,7 @@ public class SynchronizeTagStoreActivity extends Fragment {
 			// lets update the gui
 			//
 			syncCallback(performed_sync);
-			
 		}
-		
 	}
 
 

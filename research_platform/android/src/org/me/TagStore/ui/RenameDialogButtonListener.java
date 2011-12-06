@@ -9,13 +9,11 @@ import org.me.TagStore.core.Logger;
 import org.me.TagStore.core.TagValidator;
 import org.me.TagStore.interfaces.RenameDialogCallback;
 
-import android.content.Context;
 import android.os.Environment;
 import android.support.v4.app.DialogFragment;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.EditText;
-import android.widget.Toast;
 
 /**
  * This class is used to verify the entered file name of rename dialog. If the file name is unique, the file
@@ -29,16 +27,6 @@ public class RenameDialogButtonListener implements OnClickListener
 	 * stores the dialog
 	 */
 	private final View m_view;
-	
-	/**
-	 * stores the context
-	 */
-	private final Context m_ctx;
-	
-	/**
-	 * stores toast
-	 */
-	private Toast m_toast;
 	
 	/**
 	 * stores the current item name / path
@@ -75,43 +63,8 @@ public class RenameDialogButtonListener implements OnClickListener
 		m_view = view;
 		m_item = item;
 		m_callback = callback;
-		m_toast = null;
 		m_is_tag = is_tag;
-		m_ctx = m_view.getContext();
 		m_fragment = fragment;
-	}
-	
-	
-	/**
-	 * displays the toast
-	 * @param resource_id string resource id to be shown as the text
-	 */
-	private void displayToast(int resource_id) {
-		
-		//
-		// get translated resource
-		//
-		String text = m_ctx.getString(resource_id);
-		
-		if (m_toast == null)
-		{
-			//
-			// construct toast
-			//
-			m_toast = Toast.makeText(m_ctx, text, Toast.LENGTH_SHORT);
-		}
-		else
-		{
-			//
-			// update toast
-			//
-			m_toast.setText(text);
-		}
-		
-		//
-		// show the toast
-		//
-		m_toast.show();
 	}
 	
 	/**
@@ -158,7 +111,7 @@ public class RenameDialogButtonListener implements OnClickListener
 			//
 			// one tag minimum
 			//
-			displayToast(R.string.one_tag_minimum);
+			ToastManager.getInstance().displayToastWithString(R.string.one_tag_minimum);
 			return;
 		}
 		
@@ -177,7 +130,7 @@ public class RenameDialogButtonListener implements OnClickListener
 				//
 				// tag already exists
 				// 
-				displayToast(R.string.error_tag_exists);
+				ToastManager.getInstance().displayToastWithString(R.string.error_tag_exists);
 				markString(edit_text, new_item_name, current_tag);
 				return;
 			}
@@ -190,7 +143,7 @@ public class RenameDialogButtonListener implements OnClickListener
 				//
 				// not allowed
 				//
-				displayToast(R.string.reserved_keyword);
+				ToastManager.getInstance().displayToastWithString(R.string.reserved_keyword);
 				markString(edit_text, new_item_name, current_tag);
 				return;
 			}
@@ -203,7 +156,7 @@ public class RenameDialogButtonListener implements OnClickListener
 				//
 				// not allowed
 				//
-				displayToast(R.string.reserved_character_tag);
+				ToastManager.getInstance().displayToastWithString(R.string.reserved_character_tag);
 				return;			
 			}
 		}
@@ -213,7 +166,7 @@ public class RenameDialogButtonListener implements OnClickListener
 			//
 			// can't rename one tag to multiple tags
 			//
-			displayToast(R.string.error_one_tag_maximum);
+			ToastManager.getInstance().displayToastWithString(R.string.error_one_tag_maximum);
 			return;
 		}
 		
@@ -250,7 +203,7 @@ public class RenameDialogButtonListener implements OnClickListener
 			//
 			// failed to rename file SHIT
 			//
-			displayToast(R.string.error_failed_rename);
+			ToastManager.getInstance().displayToastWithString(R.string.error_failed_rename);
 			
 			//
 			// dismiss dialog
@@ -269,7 +222,7 @@ public class RenameDialogButtonListener implements OnClickListener
 			//
 			// file name is empty
 			//
-			displayToast(R.string.error_no_file_name);
+			ToastManager.getInstance().displayToastWithString(R.string.error_no_file_name);
 			return;
 		}
 		
@@ -283,7 +236,7 @@ public class RenameDialogButtonListener implements OnClickListener
 			//
 			// new file name equals old name
 			//
-			displayToast(R.string.error_same_file_name);
+			ToastManager.getInstance().displayToastWithString(R.string.error_same_file_name);
 			return;
 		}
 		
@@ -295,7 +248,7 @@ public class RenameDialogButtonListener implements OnClickListener
 			//
 			// not allowed
 			//
-			displayToast(R.string.reserved_keyword_file_name);
+			ToastManager.getInstance().displayToastWithString(R.string.reserved_keyword_file_name);
 			return;
 		}
 		
@@ -307,7 +260,7 @@ public class RenameDialogButtonListener implements OnClickListener
 			//
 			// not allowed
 			//
-			displayToast(R.string.reserved_character_file_name);
+			ToastManager.getInstance().displayToastWithString(R.string.reserved_character_file_name);
 			return;			
 		}
 		
@@ -320,7 +273,7 @@ public class RenameDialogButtonListener implements OnClickListener
 			//
 			// file name is not unique
 			//
-			displayToast(R.string.error_file_name_not_unique);
+			ToastManager.getInstance().displayToastWithString(R.string.error_file_name_not_unique);
 			return;
 		}
 
@@ -333,7 +286,7 @@ public class RenameDialogButtonListener implements OnClickListener
 			//
 			// card is not accessible
 			//
-			displayToast(R.string.error_media_not_mounted);
+			ToastManager.getInstance().displayToastWithString(R.string.error_media_not_mounted);
 			return;
 		}
 				
@@ -347,7 +300,7 @@ public class RenameDialogButtonListener implements OnClickListener
 			//
 			// the name is already taken
 			//
-			displayToast(R.string.error_file_name_present);
+			ToastManager.getInstance().displayToastWithString(R.string.error_file_name_present);
 			return;
 		}
 		
@@ -375,7 +328,7 @@ public class RenameDialogButtonListener implements OnClickListener
 			//
 			// failed to rename file
 			//
-			displayToast(R.string.error_failed_rename);
+			ToastManager.getInstance().displayToastWithString(R.string.error_failed_rename);
 			
 			//
 			// dismiss dialog

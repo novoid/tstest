@@ -18,11 +18,6 @@ import android.widget.EditText;
 public class RetagButtonClickListener  implements OnClickListener
 {
 	/**
-	 * stores the dialog
-	 */
-	private final View m_view;
-	
-	/**
 	 * stores the file which is re-tagged
 	 */
 	private final String m_file;
@@ -44,18 +39,16 @@ public class RetagButtonClickListener  implements OnClickListener
 	
 	/**
 	 * constructor of class RetagButtonClickListener
-	 * @param alert_dialog alert dialog
 	 * @param current_file file which is retagged
 	 * @param callback callback interface
+	 * @param fragment dialog this click listener is bound to
 	 */
-	public RetagButtonClickListener(View view,
-			String current_file, RetagDialogCallback callback, DialogFragment fragment) 
+	public RetagButtonClickListener(View view, String current_file, RetagDialogCallback callback, DialogFragment fragment) 
 	{
 		//
 		// init members
 		//
 		m_callback = callback;
-		m_view = view;
 		m_file = current_file;
 		m_fragment = fragment;
 		
@@ -88,7 +81,7 @@ public class RetagButtonClickListener  implements OnClickListener
 		//
 		// validate the tags now
 		//
-		if (!FileTagUtility.validateTags(tag_text, m_view.getContext(), m_tag_field))
+		if (!FileTagUtility.validateTags(tag_text, m_tag_field))
 		{
 			//
 			// failed
@@ -99,7 +92,7 @@ public class RetagButtonClickListener  implements OnClickListener
 		//
 		// retag the file
 		//
-		boolean result = FileTagUtility.retagFile(m_file, tag_text, true, m_view.getContext());
+		boolean result = FileTagUtility.retagFile(m_file, tag_text, true);
 		
 		if (result)
 		{

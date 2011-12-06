@@ -280,7 +280,7 @@ public class SyncManager {
 				//
 				// add file
 				//
-				FileTagUtility.addFile(file_name, entry.m_tags, false, m_context);
+				FileTagUtility.addFile(file_name, entry.m_tags, false);
 			}
 		}
 		
@@ -343,7 +343,7 @@ public class SyncManager {
 				//
 				// retag file
 				//
-				FileTagUtility.retagFile(file_name, entry.m_tags, false, m_context);
+				FileTagUtility.retagFile(file_name, entry.m_tags, false);
 			}
 		}
 		

@@ -18,7 +18,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.webkit.MimeTypeMap;
-import android.widget.Toast;
+
 
 /**
  * This class is used to perform common dialog operations. It performs all necessary tasks for creating dialogs and displaying the items
@@ -286,17 +286,7 @@ public class DialogItemOperations {
 			//
 			// the media is currently not accessible
 			//
-			String media_available = m_activity.getString(R.string.error_media_not_mounted);
-			
-			//
-			// create toast
-			//
-			Toast toast = Toast.makeText(m_activity_group, media_available, Toast.LENGTH_SHORT);
-			
-			//
-			// display toast
-			//
-			toast.show();
+			ToastManager.getInstance().displayToastWithString(R.string.error_media_not_mounted);
 			
 			//
 			// done
@@ -325,26 +315,9 @@ public class DialogItemOperations {
 		if (file.exists() == false) {
 			
 			//
-			// get localized error format
+			// display error format
 			//
-			String error_format = m_activity.getString(R.string.error_format_file_removed);
-			
-			//
-			// format the error
-			//
-			String msg = String.format(error_format, item_path);
-			
-			//
-			// create the toast
-			//
-			Toast toast = Toast.makeText(m_activity_group,
-					msg,
-					Toast.LENGTH_SHORT);
-
-			//
-			// display toast
-			//
-			toast.show();
+			ToastManager.getInstance().displayToastWithFormat(R.string.error_format_file_removed, item_path);
 
 			//
 			// FIXME: refresh perhaps?

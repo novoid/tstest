@@ -3,20 +3,14 @@ package org.me.TagStore.core;
 import java.io.File;
 import java.util.ArrayList;
 
-import org.me.TagStore.MainPagerActivity;
-import org.me.TagStore.R;
 import org.me.TagStore.core.DBManager;
 import org.me.TagStore.core.FileSystemObserver;
 import org.me.TagStore.core.Logger;
 import org.me.TagStore.interfaces.FileSystemObserverNotification;
+import org.me.TagStore.ui.StatusBarNotification;
 
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.IBinder;
 
 public class FileWatchdogService extends Service implements org.me.TagStore.core.StorageTimerTask.TimerTaskCallback {
@@ -25,11 +19,6 @@ public class FileWatchdogService extends Service implements org.me.TagStore.core
 	 * file system observer class
 	 */
 	private FileSystemObserver m_observer = null;
-
-	/**
-	 * notification manager
-	 */
-	private NotificationManager m_notification_manager;
 
 	/**
 	 * stores external registered notifications
@@ -45,6 +34,11 @@ public class FileWatchdogService extends Service implements org.me.TagStore.core
 	 * notification handle
 	 */
 	private FileSystemObserverNotification m_notification;
+
+	/**
+	 * holds the status bar notification
+	 */
+	private StatusBarNotification m_status_bar;
 	
 	@Override
 	public void onCreate() {
@@ -59,16 +53,6 @@ public class FileWatchdogService extends Service implements org.me.TagStore.core
 		// acquire instance
 		//
 		m_observer = FileSystemObserver.acquireInstance();
-
-		//
-		// get notification service name
-		//
-		String ns_name = Context.NOTIFICATION_SERVICE;
-
-		//
-		// get notification service manager instance
-		//
-		m_notification_manager = (NotificationManager) getSystemService(ns_name);
 
 		//
 		// create array list for external observers
@@ -86,6 +70,12 @@ public class FileWatchdogService extends Service implements org.me.TagStore.core
 
 			}
 		};
+		
+		//
+		// construct bar notification
+		//
+		m_status_bar = new StatusBarNotification(getApplicationContext());
+		
 
 	}
 
@@ -125,18 +115,6 @@ public class FileWatchdogService extends Service implements org.me.TagStore.core
 		// get observed list
 		//
 		ArrayList<String> observed_directory_list = db_man.getDirectories();
-
-		if (observed_directory_list == null) {
-			//
-			// no directories observed or error
-			//
-			Logger.i("FileWatchdogService::notificationCallback directory list is empty");
-
-			//
-			// nothing more to do
-			//
-			return;
-		}
 
 		//
 		// loop list to see if the change was from an observed directory
@@ -183,95 +161,19 @@ public class FileWatchdogService extends Service implements org.me.TagStore.core
 			notification.notify(file_name, type);
 		}
 
-		
-		//
-		// get settings
-		//
-		SharedPreferences settings = getSharedPreferences(
-				ConfigurationSettings.TAGSTORE_PREFERENCES_NAME,
-				Context.MODE_PRIVATE);
-		
 		//
 		// are notification settings enabled
 		//
-		boolean enable_notifications = settings.getBoolean(ConfigurationSettings.SHOW_TOOLBAR_NOTIFICATIONS, true);
-		if (enable_notifications)
+		if (m_status_bar.isStatusBarNotificationEnabled())
 		{
 			//
 			// add tool bar notification
 			//
-			addStatusBarNotification(file_name);
+			m_status_bar.addStatusBarNotification(file_name);
 		}
 	}
 
-	/**
-	 * adds a notification to the status bar
-	 * 
-	 * @param filename
-	 *            to be added
-	 */
-	private void addStatusBarNotification(final String filename) {
 
-		//
-		// construct new notification
-		//
-		Notification notification = new Notification(R.drawable.tagstore,
-				"TagStore", System.currentTimeMillis());
-
-		//
-		// get application context
-		//
-		Context context = getApplicationContext();
-
-		//
-		// get new file localized
-		//
-		String new_file = context.getString(R.string.new_file);
-		
-		//
-		// get notification description localized
-		//
-		String description = context.getString(R.string.status_bar);
-		
-		//
-		// set notification title
-		//
-		CharSequence contentTitle = new_file;
-
-		//
-		// set notification text
-		//
-		CharSequence contentText = description;
-
-		//
-		// construct new intent
-		//
-		Intent notificationIntent = new Intent(getApplicationContext(),
-				MainPagerActivity.class);
-
-		//
-		// construct pending intent
-		//
-		PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
-				notificationIntent, Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
-
-		//
-		// setup notification details
-		//
-		notification.setLatestEventInfo(context, contentTitle, contentText,
-				contentIntent);
-
-		//
-		// pass notification to manager
-		//
-		m_notification_manager.notify(ConfigurationSettings.NOTIFICATION_ID,
-				notification);
-
-		//
-		// done
-		//
-		Logger.i("Notified notification manager");
-	}
 
 	@Override
 	public void onDestroy() {

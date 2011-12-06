@@ -931,6 +931,31 @@ public class DBManager {
 	}
 
 	/**
+	 * return true when file is already pending
+	 * @param file_name
+	 * @return
+	 */
+	public boolean isPendingFile(String file_name) {
+		
+		if (m_db == null)
+			return false;
+		
+		Cursor cursor = m_db.query(PENDING_FILE_TABLE_NAME,
+				new String[] { PENDING_FIELD_ID}, PENDING_FIELD_PATH + "=?",
+				new String[] { file_name }, null, null, null);
+
+		//
+		// get first entry of result set
+		//
+		String id = getFirstEntryOfResultSet(cursor);
+		
+		if (id == null)
+			return false;
+		else
+			return true;		
+	}
+	
+	/**
 	 * set tag reference count
 	 * 
 	 * @param tag
@@ -1384,9 +1409,13 @@ public class DBManager {
 	 */
 	public ArrayList<String> getDirectories() {
 
-		if (m_db == null)
-			return null;
+		//
+		// construct array list
+		//
+		ArrayList<String> list = new ArrayList<String>();
 		
+		if (m_db == null)
+			return list;
 		
 		//
 		// read directories
@@ -1394,11 +1423,6 @@ public class DBManager {
 		Cursor cursor = m_db.query(DIRECTORY_TABLE_NAME,
 				new String[] { DIRECTORY_FIELD_PATH }, null, null, null,
 				null, null);
-
-		//
-		// construct array list
-		//
-		ArrayList<String> list = new ArrayList<String>();
 
 		//
 		// collect result

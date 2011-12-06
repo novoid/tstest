@@ -1,12 +1,9 @@
 package org.me.TagStore;
 
 import org.me.TagStore.R;
-import org.me.TagStore.core.ConfigurationSettings;
 import org.me.TagStore.core.Logger;
+import org.me.TagStore.ui.StatusBarNotification;
 
-import android.app.NotificationManager;
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -27,6 +24,16 @@ public class NotificationSettingsActivity extends Fragment {
 	 */
 	private CheckBox m_enable_notification_button;
 
+	/**
+	 * reference to status bar helper
+	 */
+	private StatusBarNotification m_status_bar;
+	
+	/**
+	 * initial status bar setting
+	 */
+	private boolean m_init_status_bar_enabled;
+	
 	public void onCreate(Bundle savedInstanceState) {
 
 		//
@@ -54,24 +61,25 @@ public class NotificationSettingsActivity extends Fragment {
 		m_enable_notification_button = (CheckBox) view
 				.findViewById(R.id.button_enable_notification);
 
+		//
+		// build status bar notification
+		//
+		m_status_bar = new StatusBarNotification(getActivity().getApplicationContext());
+		
+		//
+		// get current settings
+		//
+		m_init_status_bar_enabled = m_status_bar.isStatusBarNotificationEnabled();
+		
+		//
+		// set button
+		//
 		if (m_enable_notification_button != null) {
-			//
-			// get settings
-			//
-			SharedPreferences settings = getActivity().getSharedPreferences(
-					ConfigurationSettings.TAGSTORE_PREFERENCES_NAME,
-					Context.MODE_PRIVATE);
-
-			//
-			// are notification settings enabled
-			//
-			boolean enable_notifications = settings.getBoolean(
-					ConfigurationSettings.SHOW_TOOLBAR_NOTIFICATIONS, true);
 
 			//
 			// set state
 			//
-			m_enable_notification_button.setChecked(enable_notifications);
+			m_enable_notification_button.setChecked(m_init_status_bar_enabled);
 		}
 
 		//
@@ -88,52 +96,37 @@ public class NotificationSettingsActivity extends Fragment {
 		super.onPause();
 		
 		Logger.i("NotificationSetting::onPause");
+
+		//
+		// default is checked
+		//
+		boolean current_status_bar_enabled = true;
 		
 		//
-		// get settings
+		// get current setting
 		//
-		SharedPreferences settings = getActivity().getSharedPreferences(
-				ConfigurationSettings.TAGSTORE_PREFERENCES_NAME,
-				Context.MODE_PRIVATE);
-		//
-		// get settings editor
-		//
-		SharedPreferences.Editor editor = settings.edit();
-
-		//
-		// are notification settings enabled
-		//
-		boolean enable_notifications = settings.getBoolean(
-				ConfigurationSettings.SHOW_TOOLBAR_NOTIFICATIONS, true);
-
-		//
-		// set current file
-		//
-		editor.putBoolean(ConfigurationSettings.SHOW_TOOLBAR_NOTIFICATIONS,
-				m_enable_notification_button.isChecked());
-
-		//
-		// and commit the changes
-		//
-		editor.commit();
-
-		if (enable_notifications
-				&& m_enable_notification_button.isChecked() == false) {
+		if (m_enable_notification_button != null)
+		{
 			//
-			// get notification service name
+			// is it checked
 			//
-			String ns_name = Context.NOTIFICATION_SERVICE;
-
+			current_status_bar_enabled = m_enable_notification_button.isChecked();
+		}
+		
+		//
+		// update status bar notification settings
+		//
+		m_status_bar.setStatusBarNotificationState(current_status_bar_enabled);
+		
+		//
+		// was it activated before and now deactivated
+		//
+		if (m_init_status_bar_enabled && current_status_bar_enabled == false) {
+			
 			//
-			// get notification service manager instance
+			// cancel notification if it exists
 			//
-			NotificationManager notification_manager = (NotificationManager) getActivity()
-					.getSystemService(ns_name);
-
-			//
-			// clear notification if it exists
-			//
-			notification_manager.cancel(ConfigurationSettings.NOTIFICATION_ID);
+			m_status_bar.removeStatusBarNotification();
 		}
 
 	}

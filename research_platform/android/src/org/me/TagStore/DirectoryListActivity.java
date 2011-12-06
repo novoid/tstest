@@ -13,7 +13,6 @@ import android.widget.BaseAdapter;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.io.File;
 import java.util.HashMap;
@@ -28,6 +27,7 @@ import org.me.TagStore.core.Logger;
 import org.me.TagStore.core.MainServiceConnection;
 import org.me.TagStore.core.PendingFileChecker;
 import org.me.TagStore.core.ServiceLaunchRunnable;
+import org.me.TagStore.ui.ToastManager;
 
 public class DirectoryListActivity extends ListFragment {
 
@@ -135,14 +135,7 @@ public class DirectoryListActivity extends ListFragment {
 		//
 		// inform user that the entry was already present
 		//
-		String message = getActivity().getApplicationContext().getString(R.string.directory_present);
-		Toast toast = Toast.makeText(getActivity(),
-				message, Toast.LENGTH_SHORT);
-
-		//
-		// display toast
-		//
-		toast.show();
+		ToastManager.getInstance().displayToastWithString(R.string.directory_present);
 	}
 
 	@Override
@@ -399,8 +392,17 @@ public class DirectoryListActivity extends ListFragment {
 			//
 			queryAddNewDirectories(directory);			
 		}
+		
+		//
+		// cancel any on-going toast when switching the view
+		//
+		ToastManager.getInstance().cancelToast();		
 	}
 
+	/**
+	 * adds all files from the that directory to the pending file list
+	 * @param directory_path
+	 */
 	private void queryAddNewDirectories(String directory_path) {
 		
 		//
@@ -543,17 +545,7 @@ public class DirectoryListActivity extends ListFragment {
 			//
 			// the media is currently not accessible
 			//
-			String media_available = getActivity().getString(R.string.error_media_not_mounted);
-			
-			//
-			// create toast
-			//
-			Toast toast = Toast.makeText(getActivity(), media_available, Toast.LENGTH_SHORT);
-			
-			//
-			// display toast
-			//
-			toast.show();
+			ToastManager.getInstance().displayToastWithString(R.string.error_media_not_mounted);
 			
 			//
 			// done
@@ -623,17 +615,7 @@ public class DirectoryListActivity extends ListFragment {
 			//
 			// the tagstore directory storage directory can not be removed
 			//
-			String media_available = getActivity().getString(R.string.error_tagstore_directory);
-			
-			//
-			// create toast
-			//
-			Toast toast = Toast.makeText(getActivity(), media_available, Toast.LENGTH_SHORT);
-			
-			//
-			// display toast
-			//
-			toast.show();
+			ToastManager.getInstance().displayToastWithString(R.string.error_tagstore_directory);
 			return;
 		}		
 		

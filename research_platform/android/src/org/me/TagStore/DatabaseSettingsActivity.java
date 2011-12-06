@@ -1,5 +1,6 @@
 package org.me.TagStore;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import org.me.TagStore.R;
@@ -10,18 +11,20 @@ import org.me.TagStore.core.MainServiceConnection;
 import org.me.TagStore.core.ServiceLaunchRunnable;
 import org.me.TagStore.core.SyncFileLog;
 import org.me.TagStore.ui.MainPageAdapter;
+import org.me.TagStore.ui.StatusBarNotification;
+import org.me.TagStore.ui.ToastManager;
 
-import android.app.NotificationManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.Toast;
+
 
 public class DatabaseSettingsActivity extends Fragment {
 
@@ -40,6 +43,11 @@ public class DatabaseSettingsActivity extends Fragment {
 	 */
 	private MainServiceConnection m_connection;
 	
+	/**
+	 * status bar notification
+	 */
+	private StatusBarNotification m_status_bar; 
+	
 	public void onCreate(Bundle savedInstanceState) {
 
 		//
@@ -51,8 +59,26 @@ public class DatabaseSettingsActivity extends Fragment {
 		// informal debug message
 		//
 		Logger.i("DatabaseSettingsActivity::onCreate");
+		
+		//
+		// build status bar
+		//
+		m_status_bar = new StatusBarNotification(getActivity().getApplicationContext());
 	}
 
+	public void onPause() {
+
+		//
+		// call super method
+		//
+		super.onPause();
+
+		//
+		// cancel any on-going toast when switching the view
+		//
+		ToastManager.getInstance().cancelToast();
+	}	
+	
 	 public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle saved) {
 			
 		 //
@@ -148,28 +174,10 @@ public class DatabaseSettingsActivity extends Fragment {
 	 */
 	protected void updateUIDatabaseCallback(boolean reset_database) {
 
-		Toast toast;
-		
 		//
 		// re-enable reset button
 		//
 		m_reset_button.setEnabled(true);
-		
-		if (reset_database) {
-			//
-			// successfully deleted database
-			//
-			String text = getActivity().getString(R.string.reset_database);
-			toast = Toast.makeText(getActivity(),
-					text, Toast.LENGTH_SHORT);
-		} else {
-			//
-			// failed to reset database
-			//
-			String text = getActivity().getString(R.string.error_reset_database);			
-			toast = Toast.makeText(getActivity(),
-					text, Toast.LENGTH_SHORT);
-		}
 		
 		//
 		// get main page adapter
@@ -197,10 +205,17 @@ public class DatabaseSettingsActivity extends Fragment {
 		//
 		clearCurrentFile();		
 
-		//
-		// display toast
-		//
-		toast.show();
+		if (reset_database) {
+			//
+			// successfully deleted database
+			//
+			ToastManager.getInstance().displayToastWithString(R.string.reset_database);
+		} else {
+			//
+			// failed to reset database
+			//
+			ToastManager.getInstance().displayToastWithString(R.string.error_reset_database);			
+		}
 	}
 
 	/**
@@ -209,37 +224,16 @@ public class DatabaseSettingsActivity extends Fragment {
 	private void clearNotification()
 	{
 		//
-		// get settings
-		//
-		SharedPreferences settings = getActivity().getSharedPreferences(
-				ConfigurationSettings.TAGSTORE_PREFERENCES_NAME,
-				Context.MODE_PRIVATE);
-		
-		//
 		// are notification settings enabled
 		//
-		boolean enable_notifications = settings.getBoolean(ConfigurationSettings.SHOW_TOOLBAR_NOTIFICATIONS, true);
-		
-		//
-		// check notification settings are enabled
-		//
-		if (!enable_notifications)
-			return;
-		
-		//
-		// get notification service name
-		//
-		String ns_name = Context.NOTIFICATION_SERVICE;
-
-		//
-		// get notification service manager instance
-		//
-		NotificationManager notification_manager = (NotificationManager) getActivity().getSystemService(ns_name);
-
-		//
-		// clear notification
-		//
-		notification_manager.cancel(ConfigurationSettings.NOTIFICATION_ID);
+		boolean enabled_status_bar = m_status_bar.isStatusBarNotificationEnabled();
+		if(enabled_status_bar)
+		{
+			//
+			// cancel notification
+			//
+			m_status_bar.removeStatusBarNotification();
+		}
 	}
 	
 	/**
@@ -286,6 +280,13 @@ public class DatabaseSettingsActivity extends Fragment {
 			DBManager db_man = DBManager.getInstance();
 
 			//
+			// get default storage directory
+			//
+			String default_storage_path = Environment.getExternalStorageDirectory().getAbsolutePath();
+			default_storage_path += File.separator + ConfigurationSettings.TAGSTORE_DIRECTORY;
+			default_storage_path += File.separator + getString(R.string.storage_directory);			
+			
+			//
 			// get observed directories
 			//
 			ArrayList<String> observed_directory_list = db_man.getDirectories();
@@ -307,11 +308,23 @@ public class DatabaseSettingsActivity extends Fragment {
 			// reset the database
 			//
 			boolean reset_database = db_man.resetDatabase(getActivity());
-			
-			//
-			// clear sync log
-			//
-			//clearSyncLog();
+			if (reset_database)
+			{
+				//
+				// add default storage directory
+				//
+				db_man.addDirectory(default_storage_path);
+				
+				//
+				// re-register path with watch dog service
+				//
+				m_connection.registerDirectory(default_storage_path);
+				
+				//
+				// clear sync log
+				//
+				clearSyncLog();
+			}
 			
 			//
 			// invoke callback

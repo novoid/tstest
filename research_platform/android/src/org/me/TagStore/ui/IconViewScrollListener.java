@@ -9,8 +9,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.view.Gravity;
 import android.widget.AbsListView;
-import android.widget.Toast;
 import android.widget.AbsListView.OnScrollListener;
+import android.widget.Toast;
 
 public class IconViewScrollListener implements OnScrollListener {
 
@@ -35,28 +35,9 @@ public class IconViewScrollListener implements OnScrollListener {
 	}
 
 	/**
-	 * stores the toast
-	 */
-	Toast m_toast;
-
-	/**
 	 * old toast position
 	 */
 	int m_item_offset = 0;
-
-	/**
-	 * cancels the active toast if any
-	 */
-	public void cancelToast() {
-
-		if (m_toast != null) {
-			//
-			// cancel the active toast
-			//
-			Logger.i("Canceling toast");
-			m_toast.cancel();
-		}
-	}
 
 	@Override
 	public void onScroll(AbsListView view, int firstVisibleItem,
@@ -125,39 +106,14 @@ public class IconViewScrollListener implements OnScrollListener {
 		item_name = item_name.substring(0, 1);
 
 		//
-		// and to upper case
+		// display toast
 		//
-		item_name = item_name.toUpperCase();
-
-		if (m_toast == null) {
-
-			//
-			// create toast
-			//
-			m_toast = Toast.makeText(m_context, item_name,
-					Toast.LENGTH_SHORT);
-
-		} else {
-			//
-			// update text
-			//
-			m_toast.setText(item_name);
-		}
-
-		//
-		// set toast position
-		//
-		m_toast.setGravity(Gravity.RIGHT | Gravity.CENTER_VERTICAL, 10, 0);
+		ToastManager.getInstance().displayToastWithStringAndGravity(item_name, Toast.LENGTH_SHORT, Gravity.RIGHT | Gravity.CENTER_VERTICAL, 10, 0);
 
 		//
 		// store item offset
 		//
 		m_item_offset = offset;
-
-		//
-		// display toast
-		//
-		m_toast.show();
 	}
 
 	@Override

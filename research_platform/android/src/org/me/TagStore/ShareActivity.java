@@ -10,7 +10,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.me.TagStore.core.DBManager;
+
 import org.me.TagStore.core.Logger;
+import org.me.TagStore.ui.StatusBarNotification;
 
 import android.app.ListActivity;
 import android.content.Intent;
@@ -33,7 +35,12 @@ public class ShareActivity extends ListActivity {
 	/**
 	 * stores the source file name without path
 	 */
-	private String m_file_name;
+	private String m_file_name = null;
+	
+	/**
+	 * stores the source file path
+	 */
+	private String m_file_path = null;
 	
 	/**
 	 * directory name key
@@ -44,8 +51,16 @@ public class ShareActivity extends ListActivity {
 	 * stores mapping for list view
 	 */
 	private ArrayList<HashMap<String, Object>> m_ListViewMap;
+
+	/**
+	 * reference to database manager
+	 */
+	private DBManager m_db;
 	
-	
+	/**
+	 * status bar notification
+	 */
+	private StatusBarNotification m_status_bar;
 	
 	   public void onCreate(Bundle savedInstanceState) {
 
@@ -58,6 +73,17 @@ public class ShareActivity extends ListActivity {
 		   // set layout
 		   //
 		   setContentView(R.layout.share_list_view);
+		   
+		   //
+		   // initialize database manager
+		   //
+		   m_db = DBManager.getInstance();
+		   m_db.initialize(this);
+		   
+		   //
+		   // build status bar
+		   //
+		   m_status_bar = new StatusBarNotification(getApplicationContext());
 		   
 		   //
 		   // get intent
@@ -147,11 +173,108 @@ public class ShareActivity extends ListActivity {
 			}
 		   
 			//
+			// check if the file path is valid
+			// some apps like ES Explorer use a private content resolver for particular file types
+			// which results in a messed path i.e content://com.package.name/instanceid/path/to/file
+			//
+			File file = new File(path);
+			if (file.exists())
+			{
+				//
+				// store file name
+				//
+				m_file_path = path;
+				
+				//
+				// check if the file is already pending
+				// 
+				if (m_db.isPendingFile(path))
+				{
+					//
+					// notify user that the file is already added but not yet tagged
+					//
+					displayToast(R.string.file_present_tagstore_not_tagged);
+					finish();
+					return;
+					
+				}else if (m_db.getFileId(m_file_path) != -1)
+				{
+					//
+					// notify user that the file is already shared
+					//
+					displayToast(R.string.file_present_tagstore);
+					finish();
+					return;
+				}
+				else if (isFileInObservedDirectory(path))
+				{
+					//
+					// the file is in a observed directory
+					// just add it
+					//
+					m_db.addPendingFile(path);
+					
+					//
+					// check if status bar notifications are enabled
+					//
+					if (m_status_bar.isStatusBarNotificationEnabled())
+					{
+						//
+						// add status bar notification
+						//
+						m_status_bar.addStatusBarNotification(path);
+						
+						//
+						// done
+						//
+						finish();
+						return;
+					}
+				}
+				
+			}
+			
+			//
 			// store file name
 			//
 			m_file_name = path.substring(index+1);
 	   }
-	
+
+	   /**
+	    * checks if the file is in the observed directory list
+	    * @param path path to check
+	    * @return true when it is in a observed directory list
+	    */
+	   private boolean isFileInObservedDirectory(String path) {
+		   
+		   //
+		   // get parent directory
+		   //
+		   String parent_directory = new File(path).getParent();
+		   if (parent_directory == null)
+			   return false;
+		   
+		   //
+		   // get observed directories
+		   //
+		   ArrayList<String> directories = m_db.getDirectories();
+		   for(String directory : directories)
+		   {
+			   if (directory.equals(parent_directory))
+				   return true;
+		   }
+		   
+		   //
+		   // not in observed list
+		   //
+		   return false;
+	   }
+	   
+	   
+	   /**
+	    * displays toast
+	    * @param id
+	    */
 	   private void displayToast(int id) {
 		   
 		   //
@@ -164,8 +287,6 @@ public class ShareActivity extends ListActivity {
 		   //
 		   Toast toast = Toast.makeText(this, message, Toast.LENGTH_LONG);
 		   toast.show();
-		   
-		   
 	   }
 	   
 	   
@@ -176,15 +297,9 @@ public class ShareActivity extends ListActivity {
 	   private boolean initializeListView() {
 		   
 		   //
-		   // initialize database manager
-		   //
-		   DBManager db_man = DBManager.getInstance();
-		   db_man.initialize(this);
-		   
-		   //
 		   // get list of directories
 		   //
-		   ArrayList<String> directories = db_man.getDirectories();
+		   ArrayList<String> directories = m_db.getDirectories();
 		   if (directories.size() == 0)
 		   {
 			   //

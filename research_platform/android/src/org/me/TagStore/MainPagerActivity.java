@@ -14,6 +14,7 @@ import org.me.TagStore.core.TagStackManager;
 import org.me.TagStore.core.TagStoreFileChecker;
 import org.me.TagStore.ui.MainPageAdapter;
 import org.me.TagStore.ui.TabPageIndicator;
+import org.me.TagStore.ui.ToastManager;
 
 import android.os.Bundle;
 import android.os.Environment;
@@ -215,9 +216,11 @@ public class MainPagerActivity extends FragmentActivity {
 		//
 		m_timer_task.addCallback(m_file_checker);
 		m_timer_task.addCallback(m_configuration_checker);
-		
 	}
 	
+	/**
+	 * initializes the database
+	 */
 	private void initDatabase() {
 		
 		long start = System.currentTimeMillis();
@@ -248,6 +251,9 @@ public class MainPagerActivity extends FragmentActivity {
 		}
 	}
 	
+	/**
+	 * initializes the file checker
+	 */
 	private void initChecker() {
 		
 		//
@@ -266,7 +272,10 @@ public class MainPagerActivity extends FragmentActivity {
 		m_timer_task.addCallback(m_file_checker);
 	}
 	
-	public void initConfiguration() {
+	/**
+	 * initializes the configuration checker
+	 */
+	private void initConfiguration() {
 		
 		//
 		// construct configuration checker
@@ -284,6 +293,16 @@ public class MainPagerActivity extends FragmentActivity {
 		m_timer_task.addCallback(m_configuration_checker);
 	}
 	
+	/**
+	 * initializes the toast manager
+	 */
+	private void initToastManager()
+	{
+		//
+		// initializes the toast manager
+		//
+		ToastManager.buildToastManager(getApplicationContext());
+	}
 	
 	public void onCreate(Bundle savedInstanceState) {
 
@@ -313,6 +332,11 @@ public class MainPagerActivity extends FragmentActivity {
 		// let the tagstore checker run
 		//
 		initChecker();
+		
+		//
+		// init toast manager
+		//
+		initToastManager();
 		
 		//
 		// launch file watch dog service asynchronously

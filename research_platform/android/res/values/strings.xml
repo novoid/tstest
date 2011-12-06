@@ -88,4 +88,6 @@
     <string name="share_success">Successfully shared file</string>
     <string name="storage_directory">storage</string>
     <string name="error_tagstore_directory">The tagstore storage directory is unremovable</string>
+    <string name="file_present_tagstore">The file is already included in the tagstore</string>
+    <string name="file_present_tagstore_not_tagged">The file is already included in the tagstore but has not yet been tagged</string>
 </resources>

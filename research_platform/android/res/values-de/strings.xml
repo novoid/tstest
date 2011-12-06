@@ -88,4 +88,6 @@
     <string name="old_tags">Aktuelle Tags:</string>
     <string name="select_directory">Wählen Sie ein Verzeichniss aus, in dass diese Datei kopiert werden soll.</string>
     <string name="error_tagstore_directory">Das tagstore Verzeichniss kann nicht entfernt werden</string>
+    <string name="file_present_tagstore">Die Datei ist bereits im tagstore vorhanden</string>
+    <string name="file_present_tagstore_not_tagged">Die Datei ist bereits im tagstore vorhanden, wurde aber noch nicht getaggt</string>
 </resources>
