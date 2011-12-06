@@ -86,4 +86,6 @@
     <string name="error_file_removed">The file has been deleted</string>
     <string name="error_failed_share">Failed to share file</string>
     <string name="share_success">Successfully shared file</string>
+    <string name="storage_directory">storage</string>
+    <string name="error_tagstore_directory">The tagstore storage directory is unremovable</string>
 </resources>

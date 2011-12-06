@@ -9,6 +9,7 @@ import org.me.TagStore.core.DBManager;
 import org.me.TagStore.core.FileTagUtility;
 import org.me.TagStore.core.Logger;
 import org.me.TagStore.core.PendingFileChecker;
+import org.me.TagStore.core.TagValidator;
 import org.me.TagStore.interfaces.OptionsDialogCallback;
 import org.me.TagStore.interfaces.RenameDialogCallback;
 import org.me.TagStore.ui.CommonDialogFragment;
@@ -985,6 +986,47 @@ public class AddFileTagActivity extends Fragment implements
 	}
 
 	/**
+	 * displays the toast
+	 * @param resource_id string resource id to be shown as the text
+	 */
+	private void displayToast(int resource_id) {
+		
+		//
+		// get activity
+		//
+		Activity activity = getActivity();
+		if (activity == null)
+			return;
+		
+		//
+		// get translated resource
+		//
+		String text = activity.getString(resource_id);
+		
+		if (m_toast == null)
+		{
+			//
+			// construct toast
+			//
+			m_toast = Toast.makeText(activity, text, Toast.LENGTH_SHORT);
+		}
+		else
+		{
+			//
+			// update toast
+			//
+			m_toast.setText(text);
+		}
+		
+		//
+		// show the toast
+		//
+		m_toast.show();
+	}
+		
+	
+	
+	/**
 	 * performs the tagging
 	 */
 	protected void performTag() {
@@ -1023,6 +1065,45 @@ public class AddFileTagActivity extends Fragment implements
 			return;
 		}
 
+		//
+		// check if the file name contains invalid characters
+		//
+		if (TagValidator.containsReservedCharacters(m_file_name))
+		{
+			//
+			// not allowed
+			//
+			displayToast(R.string.reserved_character_file_name);
+
+			//
+			// launch rename dialog
+			//
+			CommonDialogFragment dialog_fragment = CommonDialogFragment.newInstance(m_file_name, false, DialogIds.DIALOG_RENAME);
+			dialog_fragment.setDialogItemOperation(m_dialog_operations);
+			dialog_fragment.show(getFragmentManager(), "FIXME");
+			return;			
+		}
+		
+		
+		//
+		// check if the file name is a reserved keyword
+		//
+		if (TagValidator.isReservedKeyword(m_file_name))
+		{
+			//
+			// not allowed
+			//
+			displayToast(R.string.reserved_keyword_file_name);
+			
+			//
+			// launch rename dialog
+			//
+			CommonDialogFragment dialog_fragment = CommonDialogFragment.newInstance(m_file_name, false, DialogIds.DIALOG_RENAME);
+			dialog_fragment.setDialogItemOperation(m_dialog_operations);
+			dialog_fragment.show(getFragmentManager(), "FIXME");
+			return;
+		}
+		
 		//
 		// add file
 		//

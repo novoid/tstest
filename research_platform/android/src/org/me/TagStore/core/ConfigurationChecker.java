@@ -1,12 +1,8 @@
 package org.me.TagStore.core;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+
+import org.me.TagStore.R;
 
 import android.content.Context;
 import android.os.Environment;
@@ -32,78 +28,128 @@ public class ConfigurationChecker implements org.me.TagStore.core.StorageTimerTa
 		m_context = context;
 	}
 	
+
 	/**
-	 * copys the contents of the file
-	 * @param reader reader of resource file
-	 * @param writer writer of the target file
+	 * returns the full path of directory residing on the external disk
+	 * @param relative_path relative path to be appended to the path of the external disk
+	 * @return String
 	 */
-	private void copyFile(BufferedReader reader, BufferedWriter writer) {
+	private String getFullPath (String relative_path) {
 		
-		try
-		{
-			do
-			{
-				//
-				// read line
-				//
-				String line = reader.readLine();
-				if (line == null)
-					break;
-			
-				//
-				// write line
-				//
-				writer.write(line);
-				writer.newLine();
-			
-			}while(true);
-		}
-		catch(IOException exc)
-		{
-			exc.printStackTrace();
-		}
+		//
+		// get sdcard directory
+		//
+		String path = Environment.getExternalStorageDirectory().getAbsolutePath();
+		
+		//
+		// append relative path
+		//
+		path += File.separator + relative_path;
+		
+		//
+		// done
+		//
+		return path;
 	}
 	
 	/**
-	 * copies the resource
-	 * @param resource_name name of the resource
-	 * @param target_name target file name
+	 * constructs directory if not existing
+	 * @param path to be checked
 	 */
-	private void copyResource(String resource_name, File target_name) {
+	private boolean createDirectoryIfNotExists(String path)
+	{
+		File file = new File(path);
 		
-		try
+		//
+		// check if it exists
+		//
+		if (file.exists())
+		{
+			if (file.isFile())
+			{
+				Logger.e("Error: path " + path + " is a file !!!");
+				return false;
+			}
+		}
+		else
 		{
 			//
-			// open input stream
+			// create directory
 			//
-			InputStream raw_stream = m_context.getAssets().open(resource_name);
-		
-			//
-			// create reader
-			//
-			BufferedReader reader = new BufferedReader(new InputStreamReader(raw_stream, "UTF8"));
-		
-			//
-			// create writer
-			//
-			BufferedWriter writer = new BufferedWriter(new FileWriter(target_name, false));
-		
-			//
-			// copy file
-			//
-			copyFile(reader, writer);
-			
-			//
-			// close file objects
-			//
-			reader.close();
-			writer.close();
+			boolean created = file.mkdir();
+			if (!created)
+			{
+				Logger.e("Error: failed to create directory: " + ConfigurationSettings.CONFIGURATION_DIRECTORY);
+				return false;
+			}			
 		}
-		catch(IOException exc)
-		{
-			Logger.e("Exception while copying resource: " + resource_name);
-		}
+		
+		//
+		// done
+		//
+		return true;
 	}
+	
+	/**
+	 * copies to resource file to the target location if it does not yet exist
+	 * @param resource_name name of resource file
+	 */
+	private boolean copyResourceIfNotExists(String resource_name) {
+		
+		//
+		// get full path
+		//
+		String resource_path = getFullPath(ConfigurationSettings.CONFIGURATION_DIRECTORY) + File.separator + resource_name;
+		
+		//
+		// does it exist
+		//
+		File file = new File(resource_path);
+		if (!file.exists())
+		{
+			//
+			// copy default resource from asset
+			//
+			return IOUtils.copyResource(m_context, ConfigurationSettings.CFG_FILENAME, file);			
+		}
+
+		//
+		// file already exists
+		//
+		return true;
+	}
+	
+	/**
+	 * initializes the configuration
+	 * @return
+	 */
+	private boolean initConfiguration() {
+		
+		//
+		// construct default directories
+		//
+		if(!createDirectoryIfNotExists(getFullPath(ConfigurationSettings.TAGSTORE_DIRECTORY)))
+				return false;
+		if (!createDirectoryIfNotExists(getFullPath(ConfigurationSettings.CONFIGURATION_DIRECTORY)))
+				return false;
+		if (!createDirectoryIfNotExists(getFullPath(ConfigurationSettings.TAGSTORE_DIRECTORY) + File.separator + m_context.getString(R.string.storage_directory)))
+				return false;
+		
+		//
+		// copy default configuration if does not yet exist
+		//
+		if (!copyResourceIfNotExists(ConfigurationSettings.CFG_FILENAME))
+			return false;
+		
+		if (!copyResourceIfNotExists(ConfigurationSettings.LOG_FILENAME))
+			return false;
+		
+		//
+		// done initializing configuration
+		//
+		return true;
+	}
+	
 	
 	/**
 	 * called when the disk is available
@@ -113,64 +159,28 @@ public class ConfigurationChecker implements org.me.TagStore.core.StorageTimerTa
 		Logger.i("ConfigurationChecker::diskAvailable");
 		
 		//
-		// get sdcard directory
+		// initialize the configuration
 		//
-		String path = Environment.getExternalStorageDirectory().getAbsolutePath();
-		
-		//
-		// append seperator
-		//
-		path += File.separator + ConfigurationSettings.LOG_DIRECTORY;
-		
-		//
-		// check if it exists
-		//
-		File file = new File(path);
-		if (!file.exists())
+		if (!initConfiguration())
 		{
-			//
-			// create directory
-			//
-			boolean created = file.mkdir();
-			if (!created)
-			{
-				Logger.e("Error: failed to create directory: " + ConfigurationSettings.LOG_DIRECTORY);
-				return;
-			}
-		}
-
-		//
-		// check if cfg file exists
-		//
-		File cfg_file = new File(path + File.separator + ConfigurationSettings.CFG_FILENAME);
-		if (!cfg_file.exists())
-		{
-			//
-			// copy default config
-			//
-			copyResource(ConfigurationSettings.CFG_FILENAME, cfg_file);
+			Logger.e("ConfigurationChecker::initConfiguration failed - retrying later");
+			return;
 		}
 		
 		//
-		// check if tgs file exists
-		//
-		File tgs_file = new File(path + File.separator + ConfigurationSettings.LOG_FILENAME);
-		if (!tgs_file.exists())
-		{
-			//
-			// copy default config
-			//
-			copyResource(ConfigurationSettings.LOG_FILENAME, tgs_file);
-		}
-		
-		//
-		// now unregister ourselves
+		// successfully initialized the configuration, lets remove us from the scheduler
 		//
 		StorageTimerTask task = StorageTimerTask.acquireInstance();
 		task.removeCallback(this);
 	}
 
+	/**
+	 * called when disk is not available
+	 */
 	public void diskNotAvailable() {
 		
+		//
+		// no op
+		//
 	}
 }

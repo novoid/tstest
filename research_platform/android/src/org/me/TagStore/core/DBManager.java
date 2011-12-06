@@ -50,6 +50,11 @@ public class DBManager {
 	private final static int DATABASE_VERSION = 13;
 
 	/**
+	 * directory field id
+	 */
+	private static final String DIRECTORY_FIELD_ID = "did";
+
+	/**
 	 * table name for the observed directory table
 	 */
 	private final static String DIRECTORY_TABLE_NAME = "directory";
@@ -179,6 +184,7 @@ public class DBManager {
 	 * sync hash sum
 	 */
 	private final static String SYNC_FIELD_HASH_SUM = "sync_hash_sum";
+
 
 	/**
 	 * gets an instance of the database manager
@@ -1328,30 +1334,49 @@ public class DBManager {
 	 */
 	public boolean removeDirectory(String directory_path) {
 
-		try {
-			//
-			// delete directory from observed table list
-			//
-			long rows_affected = m_db.delete(DIRECTORY_TABLE_NAME,
-					DIRECTORY_FIELD_PATH + "=?",
-					new String[] { directory_path });
+		//
+		// delete directory from observed table list
+		//
+		long rows_affected = m_db.delete(DIRECTORY_TABLE_NAME,
+				DIRECTORY_FIELD_PATH + "=?",
+				new String[] { directory_path });
 
-			//
-			// informal debug message
-			//
-			Logger.i("DBManager::removeDirectory> executeInsert: "
-					+ rows_affected);
+		//
+		// informal debug message
+		//
+		Logger.i("DBManager::removeDirectory> executeInsert: "
+				+ rows_affected);
 
-			//
-			// done
-			//
-			return true;
-		} catch (SQLException exc) {
-			Logger.e("DBManager::removeDirectory> exception occured");
-			return false;
-		}
+		//
+		// done
+		//
+		return rows_affected != 0;
 	}
 
+	/**
+	 * queries the directory table if the passed directory path is added to the list of observed directories
+	 * @param directory_path directory path to check
+	 * @return true when it is observed false if not
+	 */
+	public boolean isDirectoryObserved(String directory_path) {
+		
+		Cursor cursor = m_db.query(DIRECTORY_TABLE_NAME,
+				new String[] { DIRECTORY_FIELD_ID }, DIRECTORY_FIELD_PATH + "=?",
+				new String[] { directory_path }, null, null, null);
+
+		//
+		// get first entry of result set
+		//
+		String id = getFirstEntryOfResultSet(cursor);
+		
+		if (id == null)
+			return false;
+		else
+			return true;
+	}
+	
+	
+	
 	/**
 	 * returns all observed directories
 	 * 
@@ -1634,7 +1659,7 @@ public class DBManager {
 		// construct the directory table
 		//
 		layout = new SQLTableLayout(DIRECTORY_TABLE_NAME);
-		layout.addFieldToSQLTableLayout("did", "INTEGER primary key",
+		layout.addFieldToSQLTableLayout(DIRECTORY_FIELD_ID, "INTEGER primary key",
 				"directory id");
 		layout.addFieldToSQLTableLayout(DIRECTORY_FIELD_PATH, "TEXT",
 				"path of directory");

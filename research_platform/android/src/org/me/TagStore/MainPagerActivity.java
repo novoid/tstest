@@ -1,6 +1,9 @@
 package org.me.TagStore;
 
+import java.io.File;
+
 import org.me.TagStore.core.ConfigurationChecker;
+import org.me.TagStore.core.ConfigurationSettings;
 import org.me.TagStore.core.DBManager;
 import org.me.TagStore.core.Logger;
 import org.me.TagStore.core.MainFileSystemObserverNotification;
@@ -13,6 +16,7 @@ import org.me.TagStore.ui.MainPageAdapter;
 import org.me.TagStore.ui.TabPageIndicator;
 
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.view.KeyEvent;
@@ -228,6 +232,20 @@ public class MainPagerActivity extends FragmentActivity {
 		
 		Logger.e("DB startup time: " + diff);
 		
+		//
+		// check if the default storage directory is registered
+		//
+		String path = Environment.getExternalStorageDirectory().getAbsolutePath();
+		path += File.separator + ConfigurationSettings.TAGSTORE_DIRECTORY;
+		path += File.separator + getString(R.string.storage_directory);
+		
+		if (!db_man.isDirectoryObserved(path))
+		{
+			//
+			// register path
+			//
+			db_man.addDirectory(path);
+		}
 	}
 	
 	private void initChecker() {

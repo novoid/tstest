@@ -224,7 +224,10 @@ public class FileDialogBrowser extends ListActivity {
 		//
 		FileFilter fileFilter = new FileFilter() {
 		    public boolean accept(File file) {
-		        return file.isDirectory() && (!file.getName().equals(ConfigurationSettings.LOG_DIRECTORY));
+		    	//
+		    	// only accept directories but don't include the tagstore directory
+		    	//
+		        return file.isDirectory() && (!file.getName().equals(ConfigurationSettings.TAGSTORE_DIRECTORY));
 		    }
 		};
 		

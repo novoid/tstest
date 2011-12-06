@@ -121,9 +121,15 @@ public class ConfigurationSettings {
 	public static final String SHOW_TOOLBAR_NOTIFICATIONS = "toolbar_notifications";
 	
 	/**
+	 * root directory
+	 */
+	public final static String TAGSTORE_DIRECTORY = "tagstore"; 
+	
+	
+	/**
 	 * log directory name
 	 */
-	public final static String LOG_DIRECTORY = ".tagstore";
+	public final static String CONFIGURATION_DIRECTORY = "tagstore/.tagstore";
 
 	/**
 	 * log file name

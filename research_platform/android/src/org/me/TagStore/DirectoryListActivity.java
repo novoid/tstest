@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.ArrayList;
 
 import org.me.TagStore.R;
+import org.me.TagStore.core.ConfigurationSettings;
 import org.me.TagStore.core.DBManager;
 import org.me.TagStore.core.DirectoryChangeWorker;
 import org.me.TagStore.core.FileTagUtility;
@@ -40,6 +41,12 @@ public class DirectoryListActivity extends ListFragment {
 	 */
 	private static final String DIRECTORY_NAME = "DIRECTORY_NAME";
 
+	
+	/**
+	 * if the entry is a directory
+	 */
+	private static final String DIRECTORY_ENTRY = "DIRECTORY_ENTRY";
+	
 	/**
 	 * stores directory image key
 	 */
@@ -61,6 +68,11 @@ public class DirectoryListActivity extends ListFragment {
 	 * stores the connection handle to the watch dog service
 	 */
 	private MainServiceConnection m_connection;
+	
+	/**
+	 * stores the path to the tagstore storage directory
+	 */
+	private String m_tagstore_directory;
 	
 	
 	@Override
@@ -141,6 +153,12 @@ public class DirectoryListActivity extends ListFragment {
 		//
 		super.onCreate(savedInstanceState);
 		
+		//
+		// initialize tagstore directory
+		//
+		m_tagstore_directory = Environment.getExternalStorageDirectory().getAbsolutePath();
+		m_tagstore_directory += File.separator + ConfigurationSettings.TAGSTORE_DIRECTORY;
+		m_tagstore_directory += File.separator + getString(R.string.storage_directory);
 		
 		//
 		// informal debug message
@@ -261,13 +279,6 @@ public class DirectoryListActivity extends ListFragment {
 		// read listed directories
 		//
 		ArrayList<String> directory_list = db_man.getDirectories();
-
-		if (directory_list == null) {
-			//
-			// no directories
-			//
-			return;
-		}
 
 		//
 		// now add them to the database
@@ -461,7 +472,7 @@ public class DirectoryListActivity extends ListFragment {
 	 */
 	protected void addItem(String item_name, boolean is_directory) {
 
-		//
+		//s
 		// construct new entry
 		//
 		HashMap<String, Object> map_entry = new HashMap<String, Object>();
@@ -472,17 +483,42 @@ public class DirectoryListActivity extends ListFragment {
 		map_entry.put(DIRECTORY_NAME, item_name);
 
 		if (is_directory) {
+			
+			if (!item_name.equals(m_tagstore_directory))
+			{
+				//
+				// add remove button
+				//
+				map_entry.put(DIRECTORY_IMAGE,
+						new Integer(R.drawable.remove_button));
+			}
+			else
+			{
+				//
+				// default tagstore storage directory
+				//
+				map_entry.put(DIRECTORY_IMAGE,
+						new Integer(R.drawable.storage_button));
+			}
+			
 			//
-			// add remove button
+			// it is a directory entry
 			//
-			map_entry.put(DIRECTORY_IMAGE,
-					new Integer(R.drawable.remove_button));
+			map_entry.put(DIRECTORY_ENTRY,
+					new Boolean(true));
+			
 		} else {
 			//
 			// add "add directory" button
 			//
 			map_entry.put(DIRECTORY_IMAGE,
 					new Integer(R.drawable.add_directory));
+			
+			//
+			// not a directory entry
+			//
+			map_entry.put(DIRECTORY_ENTRY,
+					new Boolean(false));
 		}
 
 		//
@@ -490,39 +526,12 @@ public class DirectoryListActivity extends ListFragment {
 		//
 		m_ListViewMap.add(map_entry);
 	}
-
-	@Override
-	public void onListItemClick(ListView listView, View view, int position,
-			long id) {
-
-		Logger.d("Item " + id + " was clicked");
-
-		//
-		// first item is add directory item
-		//
-		if (id != 0) {
-			
-			//
-			// remove item
-			//
-			m_ListViewMap.remove((int)id);
-
-			//
-			// re-create list adapter, how inefficient ;)
-			//
-			DirectoryListAdapter list_adapter = new DirectoryListAdapter(this);
-
-			//
-			// set list adapter to list view
-			//
-			setListAdapter(list_adapter);
-
-			//
-			// done
-			//
-			return;
-		}
-
+	
+	/**
+	 * launches the file dialog browser
+	 */
+	private void launchFileDialogBrowser() {
+		
 		//
 		// get current storage state
 		//
@@ -574,6 +583,79 @@ public class DirectoryListActivity extends ListFragment {
 		//
 
 		startActivityForResult(new_intent, DirectoryListActivity.DIRECTORY_LIST_REQUEST_CODE);
+	}
+	
+	
+	@Override
+	public void onListItemClick(ListView listView, View view, int position,
+			long id) {
+
+		Logger.d("Item " + id + " was clicked");
+
+		//
+		// get entry
+		//
+		HashMap<String, Object> map_entry = m_ListViewMap.get((int)id);
+		
+		//
+		// is it a directory
+		//
+		boolean directory_entry = ((Boolean)map_entry.get(DIRECTORY_ENTRY)).booleanValue();
+		if (!directory_entry)
+		{
+			//
+			// launch browser
+			//
+			launchFileDialogBrowser();
+			return;
+		}
+		
+		//
+		// get directory path
+		//
+		String path = (String)map_entry.get(DIRECTORY_NAME);
+		
+		//
+		// is it the default tagstore directory
+		//
+		if (m_tagstore_directory.equals(path))
+		{
+			//
+			// the tagstore directory storage directory can not be removed
+			//
+			String media_available = getActivity().getString(R.string.error_tagstore_directory);
+			
+			//
+			// create toast
+			//
+			Toast toast = Toast.makeText(getActivity(), media_available, Toast.LENGTH_SHORT);
+			
+			//
+			// display toast
+			//
+			toast.show();
+			return;
+		}		
+		
+		//
+		// remove item
+		//
+		m_ListViewMap.remove((int)id);
+
+		//
+		// re-create list adapter, how inefficient ;)
+		//
+		DirectoryListAdapter list_adapter = new DirectoryListAdapter(this);
+
+		//
+		// set list adapter to list view
+		//
+		setListAdapter(list_adapter);
+
+		//
+		// done
+		//
+		return;
 	}
 
 	/**

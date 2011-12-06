@@ -183,7 +183,7 @@ public class RenameDialogButtonListener implements OnClickListener
 			}
 			
 			//
-			// check if the file name is a reserved keyword
+			// check if the tag is a reserved keyword
 			//
 			if (TagValidator.isReservedKeyword(current_tag))
 			{
@@ -193,6 +193,18 @@ public class RenameDialogButtonListener implements OnClickListener
 				displayToast(R.string.reserved_keyword);
 				markString(edit_text, new_item_name, current_tag);
 				return;
+			}
+			
+			//
+			// check if the file name contains reserved characters
+			//
+			if (TagValidator.containsReservedCharacters(current_tag))
+			{
+				//
+				// not allowed
+				//
+				displayToast(R.string.reserved_character_tag);
+				return;			
 			}
 		}
 
@@ -288,6 +300,19 @@ public class RenameDialogButtonListener implements OnClickListener
 		}
 		
 		//
+		// check if the file name contains reserved characters
+		//
+		if (TagValidator.containsReservedCharacters(new_file_name))
+		{
+			//
+			// not allowed
+			//
+			displayToast(R.string.reserved_character_file_name);
+			return;			
+		}
+		
+		
+		//
 		// check if there is already a file with that name entered
 		//
 		if (FileTagUtility.isFilenameAlreadyTaken(new_file_name))
@@ -303,7 +328,7 @@ public class RenameDialogButtonListener implements OnClickListener
 		// check first if the card is accessible
 		//
 		String state = Environment.getExternalStorageState();
-		if (!Environment.MEDIA_MOUNTED.equals(state) && !Environment.MEDIA_MOUNTED_READ_ONLY.equals(state))
+		if (!Environment.MEDIA_MOUNTED.equals(state))
 		{
 			//
 			// card is not accessible

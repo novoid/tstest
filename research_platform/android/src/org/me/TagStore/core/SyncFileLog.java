@@ -103,7 +103,7 @@ public class SyncFileLog {
 		//
 		// append seperator
 		//
-		path += File.separator + ConfigurationSettings.LOG_DIRECTORY;
+		path += File.separator + ConfigurationSettings.CONFIGURATION_DIRECTORY;
 
 		//
 		// create file object
