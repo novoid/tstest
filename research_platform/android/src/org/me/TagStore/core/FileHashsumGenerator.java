@@ -38,6 +38,85 @@ public class FileHashsumGenerator {
 		return algorithm;
 	}
 	
+	/**
+	 * converts the byte hashsum into a printable string
+	 * @param message containing hashsum
+	 * @return printable string
+	 */
+	private static String getHashsumString(byte [] message) {
+		
+		//
+		// construct string buffer
+		//
+		StringBuffer hex_buffer = new StringBuffer();
+		
+		for(byte hex : message)
+		{
+			//
+			// convert integer to hex
+			//
+			String hex_string = Integer.toHexString(hex & 0xFF);
+			
+			if (hex_string.length() < 2)
+			{
+				//
+				// hex string is 8
+				// 
+				hex_string = "0" + hex_string;
+			}
+			
+			//
+			// append hex string
+			//
+			hex_buffer.append(hex_string);
+		}
+		
+		//
+		// get hex buffer
+		//
+		return hex_buffer.toString();
+		
+	}
+	
+	/**
+	 * reads a file into a message digest
+	 * @param in_stream file input stream
+	 * @param digest message digest
+	 * @throws IOException when exception while reading
+	 */
+	private static void readFile(FileInputStream in_stream, MessageDigest digest) throws IOException {
+		
+		
+		//
+		// read file 
+		//
+		byte[] buffer = new byte[1024];
+		
+		do
+		{
+			int length;
+			
+
+				//
+				// read into buffer
+				//
+				length = in_stream.read(buffer);
+				
+
+			if (length < 0)
+				break;
+			
+			
+			//
+			// update message digest
+			//
+			digest.update(buffer, 0, length);
+			
+		
+		}while(true);
+	}
+	
+	
 	public static String generateFileHashsum(Context context, String file_name) {
 		
 		//
@@ -82,30 +161,7 @@ public class FileHashsumGenerator {
 			//
 			// read file 
 			//
-			byte[] buffer = new byte[1024];
-			
-			do
-			{
-				int length = -1;
-				
-
-					//
-					// read into buffer
-					//
-					length = in_stream.read(buffer);
-					
-
-				if (length < 0)
-					break;
-				
-				
-				//
-				// update message digest
-				//
-				digest.update(buffer, 0, length);
-				
-			
-			}while(true);
+			readFile(in_stream, digest);
 			
 			//
 			// get the message digest
@@ -113,35 +169,9 @@ public class FileHashsumGenerator {
 			byte [] message = digest.digest();
 			
 			//
-			// construct string buffer
+			// get result
 			//
-			StringBuffer hex_buffer = new StringBuffer();
-			
-			for(byte hex : message)
-			{
-				//
-				// convert integer to hex
-				//
-				String hex_string = Integer.toHexString(hex & 0xFF);
-				
-				if (hex_string.length() < 2)
-				{
-					//
-					// hex string is 8
-					// 
-					hex_string = "0" + hex_string;
-				}
-				
-				//
-				// append hex string
-				//
-				hex_buffer.append(hex_string);
-			}
-			
-			//
-			// get hex buffer
-			//
-			result = hex_buffer.toString();
+			result = getHashsumString(message);
 			
 		} catch (NoSuchAlgorithmException e) {
 

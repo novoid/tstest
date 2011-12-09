@@ -90,4 +90,5 @@
     <string name="error_tagstore_directory">Das tagstore Verzeichniss kann nicht entfernt werden</string>
     <string name="file_present_tagstore">Die Datei ist bereits im tagstore vorhanden</string>
     <string name="file_present_tagstore_not_tagged">Die Datei ist bereits im tagstore vorhanden, wurde aber noch nicht getaggt</string>
+    <string name="no_app_registered">Es ist kein Programm instaliert, die Datei %s öffnen kann</string>
 </resources>

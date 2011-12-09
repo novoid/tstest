@@ -18,6 +18,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.webkit.MimeTypeMap;
+import android.widget.Toast;
 
 
 /**
@@ -386,9 +387,18 @@ public class DialogItemOperations {
 		//
 		intent.setDataAndType(uri_file, mime_type);
 
-		//
-		// start activity
-		//
-		m_activity_group.startActivity(intent);
+		try
+		{
+			//
+			// start activity
+			//
+			m_activity_group.startActivity(intent);
+		}catch(android.content.ActivityNotFoundException exc)
+		{
+			//
+			// no activity registered for this file type
+			//
+			ToastManager.getInstance().displayToastWithFormat(R.string.no_app_registered, new File(item_path).getName(), Toast.LENGTH_SHORT);
+		}
 	}
 }

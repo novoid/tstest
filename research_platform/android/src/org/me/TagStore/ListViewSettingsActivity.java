@@ -414,42 +414,44 @@ public class ListViewSettingsActivity extends Fragment {
 
 		Logger.i("toggleListViewUIElements enable" + enable);
 
+		if (m_cloud_view_button != null) {
+			//
+			// unselect cloud view
+			//
+			m_cloud_view_button.setChecked(!enable);
+		}
+		
+		if (m_list_view_button != null) {
+			//
+			// select list view
+			//
+			m_list_view_button.setChecked(enable);
+			Logger.d("toggleListViewUIElements true");
+		}
+		
+		if (m_seek_bar_list_view != null) {
+			//
+			// enable seek bar
+			//
+			m_seek_bar_list_view.setEnabled(enable);
+		}
+
+		if (m_alphabetic_sort_mode != null) {
+			//
+			// enable alphabetic sort mode
+			//
+			m_alphabetic_sort_mode.setEnabled(enable);
+		}
+
+		if (m_popular_sort_mode != null) {
+			//
+			// enable popular sort mode
+			//
+			m_popular_sort_mode.setEnabled(enable);
+		}
+
+		
 		if (enable) {
-			if (m_cloud_view_button != null) {
-				//
-				// unselect cloud view
-				//
-				m_cloud_view_button.setChecked(false);
-			}
-
-			if (m_list_view_button != null) {
-				//
-				// select list view
-				//
-				m_list_view_button.setChecked(true);
-				Logger.d("toggleListViewUIElements true");
-			}
-
-			if (m_seek_bar_list_view != null) {
-				//
-				// enable seek bar
-				//
-				m_seek_bar_list_view.setEnabled(true);
-			}
-
-			if (m_alphabetic_sort_mode != null) {
-				//
-				// enable alphabetic sort mode
-				//
-				m_alphabetic_sort_mode.setEnabled(true);
-			}
-
-			if (m_popular_sort_mode != null) {
-				//
-				// enable popular sort mode
-				//
-				m_popular_sort_mode.setEnabled(true);
-			}
 
 			if (m_popular_sort_mode != null && m_alphabetic_sort_mode != null) {
 				//
@@ -464,44 +466,6 @@ public class ListViewSettingsActivity extends Fragment {
 				}
 			}
 
-		} else {
-
-			if (m_cloud_view_button != null) {
-				//
-				// enable cloud view
-				//
-				m_cloud_view_button.setChecked(true);
-			}
-
-			if (m_list_view_button != null) {
-				//
-				// disable list view
-				//
-				m_list_view_button.setChecked(false);
-			}
-
-			if (m_seek_bar_list_view != null) {
-				//
-				// disable seek bar
-				//
-				m_seek_bar_list_view.setEnabled(false);
-			}
-
-			if (m_alphabetic_sort_mode != null) {
-				//
-				// enable alphabetic sort mode
-				//
-				m_alphabetic_sort_mode.setEnabled(false);
-			}
-
-			if (m_popular_sort_mode != null) {
-				//
-				// enable popular sort mode
-				//
-				m_popular_sort_mode.setEnabled(false);
-			}
-
-		}
-
+		} 
 	}
 }

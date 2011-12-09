@@ -173,6 +173,23 @@ public class ShareActivity extends ListActivity {
 			}
 		   
 			//
+			// store file name
+			//
+			m_file_name = path.substring(index+1);			
+			
+			//
+			// check file
+			//
+			checkFile(path);
+	   }
+
+	   /**
+	    * checks if the file is already included in the tagstore
+	    * @param path
+	    */
+	   private void checkFile(String path) {
+		   
+			//
 			// check if the file path is valid
 			// some apps like ES Explorer use a private content resolver for particular file types
 			// which results in a messed path i.e content://com.package.name/instanceid/path/to/file
@@ -233,13 +250,9 @@ public class ShareActivity extends ListActivity {
 				}
 				
 			}
-			
-			//
-			// store file name
-			//
-			m_file_name = path.substring(index+1);
 	   }
-
+	   
+	   
 	   /**
 	    * checks if the file is in the observed directory list
 	    * @param path path to check
