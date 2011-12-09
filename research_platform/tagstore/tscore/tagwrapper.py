@@ -194,6 +194,7 @@ class TagWrapper():
         """
         returns a list of all files stored in the config file
         """
+        
         files = []
         self.__settings.beginGroup(self.GROUP_FILES_NAME)
         for file in self.__settings.childGroups():
@@ -375,6 +376,12 @@ class TagWrapper():
 #                tags.remove(old_tag_name)
 #                tags.append(new_tag_name)
 #                self.__set_tags(file["filename"], tags)
+
+    def sync_settings(self):
+        """
+        flushes all pending changes to disk and reloads the file in case it has been changed by another application, i.e. sync app
+        """
+        self.__settings.sync()
 
     def remove_tag(self, tag_name):
         """

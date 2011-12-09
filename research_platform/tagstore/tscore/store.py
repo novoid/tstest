@@ -452,6 +452,9 @@ class Store(QtCore.QObject):
             self.__log.info("__handle_file_changes: no notifications on android stores")
             return
         
+        # sync any changes if the´sync was active
+        self.__tag_wrapper.sync_settings()
+        
         ## this method does not handle the renaming or deletion of the store directory itself (only childs)
         existing_files = set(self.__file_system.get_files(path))
         existing_dirs = set(self.__file_system.get_directories(path))
@@ -463,7 +466,6 @@ class Store(QtCore.QObject):
         added = list((existing_files | existing_dirs) - data_files)
         removed = list(data_files - (existing_files | existing_dirs))
     
-
         #names = self.__pending_changes.get_added_names()
         #for name in names:
         #    self.__log.info(name)
@@ -517,6 +519,9 @@ class Store(QtCore.QObject):
         return self.__store_config_wrapper.get_tag_seperator()
 
     def get_store_path(self):
+        """
+        returns the root of the tagstore
+        """
         return self.__path
     
     def get_pending_changes(self):
@@ -888,6 +893,13 @@ class Store(QtCore.QObject):
         """        
         return self.__watcher_path
     
+    def get_android_root_directory(self):
+        """
+        returns the root directory of the android removable storage drive
+        """
+        res = self.__path[:self.__path.find("/tagstore")] ###FIXME hardcoded constant
+        return res
+    
     def __is_android_store(self):
         """
         returns True if the store is an android store
@@ -957,5 +969,16 @@ class Store(QtCore.QObject):
         
         # remove lock file
         self.__file_system.remove_file(path)
+
+    def finish_sync(self):
+        """
+        writes all changes to the config file / sync file
+        """
+        
+        if self.__tag_wrapper != None:
+            self.__tag_wrapper.sync_settings()
+        
+        if self.__sync_tag_wrapper != None:
+            self.__sync_tag_wrapper.sync_settings()
 
 ## end

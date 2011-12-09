@@ -56,8 +56,6 @@ class TsConstants(object):
     
     SETTING_VOCABULARY_CONFIGURABLE = "vocabulary_configurable"
     
-    SETTING_SYNCHRONIZABLE_STORE = "synchronizable_store"
-
     ## these constants are NOT used at the config file - it is a "gui setting name"
     SETTING_CATEGORY_VOCABULARY = "category_vocabulary"
     SETTING_ITEMS = "store_items"
@@ -69,6 +67,7 @@ class TsConstants(object):
     SETTING_CURRENT_LANGUAGE = "current_language"
     SETTING_SYNC_TAG = "sync_tag"
     SETTING_ANDROID_STORE ="android_store"
+    SETTING_ANDROID_STORE_PATH="android_store_path"
     
     SETTING_ADDITIONAL_IGNORED_EXTENSIONS = "additional_ignored_extensions"
     

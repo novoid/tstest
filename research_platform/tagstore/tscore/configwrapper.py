@@ -284,6 +284,18 @@ class ConfigWrapper(QtCore.QObject):
         """
         return self.__get_setting(TsConstants.SETTING_ANDROID_STORE)
     
+    def get_android_store_path(self):
+        """
+        returns the android storage path
+        """
+        return self.__get_setting(TsConstants.SETTING_ANDROID_STORE_PATH)
+    
+    def set_android_store_path(self, setting_value):
+        """
+        stores setting of the android store path
+        """
+        return self.__put_setting(TsConstants.SETTING_ANDROID_STORE_PATH, setting_value)
+    
     def get_datestamp_hidden(self):
         """
         returns "True" or "False" in case date-stamps are requested
@@ -293,21 +305,6 @@ class ConfigWrapper(QtCore.QObject):
         else:    
             return False
 
-    def get_syncronizable_store(self):
-        """
-        returns a dictionary with the store id and the store path 
-        of the store to be synchronized with an android application
-        KEYS: "id", "path" 
-        """
-        store_id = self.__get_setting(TsConstants.SETTING_SYNCHRONIZABLE_STORE)
-        
-        if(store_id is None or store_id == ""):
-            return None
-        
-        store_path = self.get_store_path(store_id)
-        
-        return dict(id=unicode(store_id), path=unicode(store_path))
-        
     def get_vocabulary_configurable(self):
         """
         returns "True" or "False" in case the vocabulary options are configurable

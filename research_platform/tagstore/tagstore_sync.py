@@ -3,7 +3,7 @@
 # -*- coding: utf-8 -*-
 
 ## this file is part of tagstore_admin, an alternative way of storing and retrieving information
-## Copyright (C) 2010  Karl Voit, Christoph Friedl, Wolfgang Wintersteller
+## Copyright (C) 2010  Karl Voit, Christoph Friedl, Wolfgang Wintersteller, Johannes Anderwald
 ##
 ## This program is free software; you can redistribute it and/or modify it under the terms
 ## of the GNU General Public License as published by the Free Software Foundation; either
@@ -31,12 +31,11 @@ from tscore.loghelper import LogHelper
 from tscore.configwrapper import ConfigWrapper
 from tscore.tsconstants import TsConstants
 from tscore.store import Store
-from tscore.tagwrapper import TagWrapper
 from tsgui.syncdialog import SyncDialogController
 
 class SyncController(QtCore.QObject):
     
-    def __init__(self, application, store_path, verbose = False):
+    def __init__(self, application, source_store_path, target_store_path, auto_sync, verbose = False):
         """
         initialize the controller
         """
@@ -44,12 +43,20 @@ class SyncController(QtCore.QObject):
         
         # init components
         self.__application = application
-        self.__store_path = store_path
+        self.__source_store_path = source_store_path
+        self.__target_store_path = target_store_path
+        self.__auto_sync = auto_sync
+
         self.__main_config = None
         self.__store_config = None
-        self.__store = None
+        self.__source_store = None
+        self.__target_store = None
         self.__sync_dialog = None
         self.__conflict_file_list = None
+        self.__source_items = None
+        self.__target_items = None
+        self.__target_sync_items = None
+        
         
         # default values
         self.STORE_CONFIG_DIR = TsConstants.DEFAULT_STORE_CONFIG_DIR
@@ -81,6 +88,7 @@ class SyncController(QtCore.QObject):
             self.STORE_DESCRIBING_NAV_DIRS.append(self.trUtf8("descriptions"))#self.STORE_DESCRIBING_NAVIGATION_DIR_EN))  
             self.STORE_CATEGORIZING_NAV_DIRS.append(self.trUtf8("categories"))#self.STORE_CATEGORIZING_NAVIGATION_DIR_EN)) 
             self.STORE_EXPIRED_DIRS.append(self.trUtf8("expired_items"))#STORE_EXPIRED_DIR_EN)) 
+            
         ## reset language 
         self.change_language(self.CURRENT_LANGUAGE)
             
@@ -112,44 +120,66 @@ class SyncController(QtCore.QObject):
             self.__emit_not_syncable(self.trUtf8("No config file found for the given path"))
             return
 
-        # construct config wrapper for the tagstore
-        self.__store_config = ConfigWrapper(self.__store_path)
-        if self.__store_config is None:    
-            self.__emit_not_syncable(self.trUtf8("No store found for the given path"))
-            return
 
-        # get current language from main config file and apply it
-        self.CURRENT_LANGUAGE = self.__main_config.get_current_language();
-        self.change_language(self.CURRENT_LANGUAGE)
-        
-        # prepare all parameters for creating the store object
-        self.__prepare_store_params()        
-        
-        # construct store object
-        self.__store = Store(self.__store_config.get_store_id(), self.__store_path, 
-              self.STORE_CONFIG_DIR + "/" + self.STORE_CONFIG_FILE_NAME,
-              self.STORE_CONFIG_DIR + "/" + self.STORE_TAGS_FILE_NAME,
-              self.STORE_CONFIG_DIR + "/" + self.STORE_VOCABULARY_FILE_NAME,
-              self.STORE_NAVIGATION_DIRS,
-              self.STORE_STORAGE_DIRS, 
-              self.STORE_DESCRIBING_NAV_DIRS,
-              self.STORE_CATEGORIZING_NAV_DIRS,
-              self.STORE_EXPIRED_DIRS,
-              self.__main_config.get_expiry_prefix())
-        self.__store.init()
+        search_source_path = False
+        found_source_path = False
+        if self.__source_store_path != None and self.__source_store_path != "":
+            search_source_path = True
 
-        
+        search_target_path = False
+        found_target_path = False
+        if self.__target_store_path != None and self.__target_store_path != "":
+            search_target_path = True
+
         ## create a temporary store list
         ## add the desc and cat tags which are needed in the admin-dialog
         tmp_store_list = []
-        for current_store_item in self.__main_config.get_stores():
-            store_name = current_store_item["path"].split("/").pop()
+        store_list = self.__main_config.get_stores()
+        
+        # add android store
+        # when registered
+        android_source_path = self.__main_config.get_android_store_path()
+        if android_source_path != None and android_source_path != "":
+            store_item = {}
+            store_item["path"] = android_source_path
+            store_item["name"] = "Android"
+            store_list.append(store_item)
+        
+        # enumerate all stores and add their names and paths
+        store_name = None
+        for current_store_item in store_list:
+            
+            if current_store_item.has_key("name"):
+                store_name = current_store_item["name"]
+            else:
+                store_name = current_store_item["path"].split("/").pop()
+                
+            store_path = current_store_item["path"]
             current_store_item["name"] = store_name
-            current_store_item["path"] = current_store_item["path"]
+            current_store_item["path"] = store_path
+            
             tmp_store_list.append(current_store_item)
+            # find source target list
+            if search_source_path:
+                if store_path == self.__source_store_path:
+                    found_source_path = True
+                    
+            if search_target_path:
+                if store_path == self.__target_store_path:
+                    found_target_path = True
+        
+        if search_source_path and found_source_path == False:
+            # source store is not registered
+            self.__emit_not_syncable(self.trUtf8("Source tagstore not registered in main config"))
+            return
+        
+        if search_target_path and found_target_path == False:
+            # source store is not registered
+            self.__emit_not_syncable(self.trUtf8("Target tagstore not registered in main config"))
+            return
         
         if self.__sync_dialog is None:
-            self.__sync_dialog = SyncDialogController(self.__store.get_name(), tmp_store_list)
+            self.__sync_dialog = SyncDialogController(tmp_store_list, self.__source_store_path, self.__target_store_path, self.__auto_sync)
             self.__sync_dialog.get_view().setModal(True)
             #self.__tag_dialog.set_parent(self.sender().get_view())
             self.__sync_dialog.connect(self.__sync_dialog, QtCore.SIGNAL("sync_store"), self.__sync_store_action)
@@ -157,6 +187,8 @@ class SyncController(QtCore.QObject):
             self.__sync_dialog.connect(self.__sync_dialog, QtCore.SIGNAL("handle_cancel()"), self.__handle_sync_cancel)
 
         self.__sync_dialog.show_dialog()
+        if self.__auto_sync:
+            self.__sync_dialog.start_auto_sync()
 
     def __handle_resolve_conflict(self, file_item, action):
 
@@ -164,14 +196,19 @@ class SyncController(QtCore.QObject):
         self.__conflict_file_list.remove(file_item)
         
         source_item = file_item["source_item"]
-        target_path = file_item["target"]
+        target_item = file_item["target_item"]
+        source_store = file_item["source_store"]
+        target_store = file_item["target_store"]
+        target_file_path = self.__create_target_file_path(target_store, target_item)
         
-        self.__log.info("handle_resolve_conclict: source_item %s target_path %s" %(source_item, target_path))
+        self.__log.info("handle_resolve_conclict: source_item %s target_item %s action % s" %(source_item, target_item, action))
+        
+        
         
         if action == "replace":
             # sync the file and their tags
-            self.__sync_new_file(source_item, target_path);
-        
+            self.__sync_conflict_file(source_store, target_store, source_item, target_item, target_file_path)
+
         # launch conflict dialog
         self.__show_conflict_dialog() 
             
@@ -180,7 +217,7 @@ class SyncController(QtCore.QObject):
         removes the lock from the affected tagstores
         """
         
-        self.__store.remove_sync_lock_file()
+        self.__source_store.remove_sync_lock_file()
         self.__target_store.remove_sync_lock_file()
     
     def __create_lock_file(self):
@@ -189,12 +226,12 @@ class SyncController(QtCore.QObject):
         """
         
         # check if the store is in use by another sync operation
-        if self.__store.is_sync_active() or self.__target_store.is_sync_active():
+        if self.__source_store.is_sync_active() or self.__target_store.is_sync_active():
             # sync is already active
             return False
         
         # create lock file in source tagstore
-        result = self.__store.create_sync_lock_file()
+        result = self.__source_store.create_sync_lock_file()
         if not result:
             # failed to create lock file
             return result
@@ -203,7 +240,7 @@ class SyncController(QtCore.QObject):
         result = self.__target_store.create_sync_lock_file()
         if not result:
             # delete lock file from source tagstore
-            self.__store.remove_sync_lock_file()
+            self.__source_store.remove_sync_lock_file()
 
 
         # done
@@ -214,17 +251,82 @@ class SyncController(QtCore.QObject):
         displays the conflict dialogs when there are one or more conflicts
         """
         
-        if len(self.__conflict_file_list) > 0:
-            # displays conflict dialogs
+        while len(self.__conflict_file_list) > 0:
+        
+            # get first item
             current_item = self.__conflict_file_list[0]
-            self.__sync_dialog.set_status_msg("Syncing " + current_item["source_item"])
-            self.__sync_dialog.show_conflict_dialog("Conflict", current_item["message"], current_item)
-        else:
-            msg = "Sync completed on " + datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
-            self.__sync_dialog.set_status_msg(msg)
-            self.__sync_dialog.toggle_sync_button(True)
-            self.__remove_lock_file()
+            
+            # extract paramters
+            source_item = current_item["source_item"]
+            target_item = current_item["target_item"]
+            source_store = current_item["source_store"]
+            target_store = current_item["target_store"]
+            target_items = current_item["target_items"]
+            target_sync_items = current_item["target_sync_items"]
+            
+            # do we need to sync
+            sync_success = self.__sync_item(source_store, target_store, target_items, target_sync_items, source_item, False)
+            if sync_success:
+                # remove item
+                # conflict has been solved by a previous conflict resolution
+                self.__conflict_file_list.remove(current_item)
+                continue
+
+            # update status dialog
+            message = ("Syncing %s" % source_item)            
+            self.__sync_dialog.set_status_msg(message)
+            
+            # replace dialog message
+            message = ("Do you want to replace file %s with %s" % (self.__get_full_file_path(target_store, target_item), self.__get_full_file_path(source_store, source_item))) 
+            self.__sync_dialog.show_conflict_dialog("Conflict", message, current_item)
+            
+            return
+        # end while
+        
+        # conflict list empty
+        msg = "Sync completed on " + datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+
+        # flush all changes
+        self.__flush_changes()
+
+
+        self.__sync_dialog.set_status_msg(msg)
+        self.__sync_dialog.toggle_sync_button(True)
+        self.__remove_lock_file()
+            
+    def __create_source_store(self, source_store):
+        
+        """
+        create the source store object
+        """
     
+        # construct config wrapper for the tagstore
+        self.__store_config = ConfigWrapper(source_store)
+        if self.__store_config is None:    
+            self.__emit_not_syncable(self.trUtf8("No source store found for the given path"))
+            return    
+    
+        # construct store object
+        self.__source_store = Store(self.__store_config.get_store_id(), source_store, 
+              self.STORE_CONFIG_DIR + "/" + self.STORE_CONFIG_FILE_NAME,
+              self.STORE_CONFIG_DIR + "/" + self.STORE_TAGS_FILE_NAME,
+              self.STORE_CONFIG_DIR + "/" + self.STORE_VOCABULARY_FILE_NAME,
+              self.STORE_NAVIGATION_DIRS,
+              self.STORE_STORAGE_DIRS, 
+              self.STORE_DESCRIBING_NAV_DIRS,
+              self.STORE_CATEGORIZING_NAV_DIRS,
+              self.STORE_EXPIRED_DIRS,
+              self.__main_config.get_expiry_prefix())
+        self.__source_store.init()
+    
+    def __flush_changes(self):
+        
+        if self.__source_store != None:
+            self.__source_store.finish_sync()
+        
+        if self.__target_store != None:
+            self.__target_store.finish_sync()
+            
     def __create_target_store(self, target_store):
         """
         create the target store object
@@ -249,16 +351,13 @@ class SyncController(QtCore.QObject):
               self.__main_config.get_expiry_prefix())
         self.__target_store.init()        
 
-        # init sync log        
-        self.__target_store.init_sync_log(self.__store.get_name())
-
     def __get_file_items_with_sync_tag(self):
         """
         returns all files which have the associated sync tag
         """
         
         # get source items
-        source_items = self.__store.get_items()
+        source_items = self.__source_store.get_items()
 
         # get current sync tag
         sync_tag = self.__main_config.get_sync_tag()
@@ -269,7 +368,7 @@ class SyncController(QtCore.QObject):
         # enumerate all items
         for source_item in source_items:
             
-            if self.__has_sync_tag(source_item, sync_tag):
+            if self.__has_sync_tag(self.__source_store, source_item, sync_tag):
                 # item is tagged with sync tag
                 source_sync_items.append(source_item)
                 continue
@@ -277,203 +376,211 @@ class SyncController(QtCore.QObject):
         # done
         return source_sync_items
 
+
+    def __prepare_sync(self, source_store, target_store):
+        """
+        prepares the sync
+        """
+        
+        # initialize the store objects
+        self.__init_stores(source_store, target_store)
+        
+        # get sync style
+        android_sync = self.__source_store.is_android_store() or self.__target_store.is_android_store()
+        
+        # get source items
+        if android_sync:
+            self.__source_items = self.__get_file_items_with_sync_tag()
+        else:
+            self.__source_items = self.__source_store.get_items()
+
+        # get target items
+        self.__target_items = self.__target_store.get_items()
+
+        # get target sync items
+        self.__target_sync_items = self.__target_store.get_sync_items()
+
     def __sync_store_action(self, source_store, target_store):
         """
-        starts the sync
+        initializes the sync
         """
 
-        # create target store
-        self.__create_target_store(target_store)
-        
-        # create the lock file     
-        lock_file = self.__create_lock_file()
-        if not lock_file:
-            self.__log.info("another sync is in progress please wait untill it is finished")
-            self.__sync_dialog.set_status_msg("Another sync is pending, please wait untill it is finished")
-            self.__sync_dialog.toggle_sync_button(True)            
-            return        
-
-        
-        # get target items
-        target_items = self.__target_store.get_items()
-        
-        # get target sync items
-        target_sync_items = self.__target_store.get_sync_items()
-        
-        # get all syncable file items
-        source_items = self.__get_file_items_with_sync_tag()
- 
-        # informal debug prints
-        self.__log.info("Source Store: %s Android %d" % (self.__store.get_store_path(), self.__store.is_android_store()))
-        self.__log.info("Target Store: %s Android %d" % (self.__target_store.get_store_path(), self.__target_store.is_android_store()))
-        
         # conflict list
         self.__conflict_file_list = []
-        
-        # enumerate all items
-        for source_item in source_items:
-            
-            
-            # update status message
-            self.__sync_dialog.set_status_msg("Syncing " + source_item)
-            self.__log.info("syncing: %s" % source_item)
-            
-            # is there such an entry in the target tagstore
-            target_item = self.__find_item_in_store(target_items, source_item)
-        
-            # does the file exist in the target tagstore
-            if target_item is None:
-                
-                # file does not exist
-                # was it already synced once?
-                target_sync_item = self.__find_item_in_store(target_sync_items, source_item)
-                
-                if target_sync_item is None:
-                    
-                    # create target path
-                    target_file_path = self.__create_target_file_path(source_item)
-        
-                    # check if file already exists
-                    if os.path.exists(target_file_path):
-                        
-                        # a file in the default sync directory already exists
-                        # is it equal
-                        files_equal = self.__are_files_equal(source_item, source_item)
-                        if not files_equal: 
-                            self.__log.info("[Conflict] File: '%s' already exists" % target_file_path)
-                        
-                            current_item = {}
-                            current_item["source_item"] = source_item
-                            current_item["target"] = self.__get_target_file_path(source_item)
-                            current_item["message"] = "Do you want to overwrite the file " \
-                                 + current_item["target"] + " with " + current_item["source_item"];
-                        
-                            self.__conflict_file_list.append(current_item)
-                        else:
-                            self.__log.info("[SYNC] File '%s' already present in target, syncing tags only" % source_item)
-                            self.__sync_new_file(source_item, self.__create_target_file_path(source_item), copy_file=False)
-                    else:
-                        
-                        # sync new file
-                        self.__log.info("[SYNC] File: '%s' is synced" % target_file_path)
-                        self.__sync_new_file(source_item, target_file_path)
-                else:
-                    # the file was already synced once, skipping
-                    self.__log.info("[SKIP] File '%s' was already synced once" % target_sync_item)
-            
-            else:
-                
-                # is the source file equal to the target file
-                files_equal = self.__are_files_equal(source_item, target_item)
-                if not files_equal:
-                    
-                    # get sync date of file
-                    target_sync_item = self.__find_item_in_store(target_sync_items, target_item)
-                    if not target_sync_item:
-                        # there is no sync item for file
-                        self.__log.info("[Conflict] File '%s' -> %s' was added in the tagstore simultaneously" % (source_item, target_item))
-                        
-                        current_item = {}
-                        current_item["source_item"] = source_item
-                        current_item["target"] = self.__get_target_file_path(target_item)
-                        current_item["message"] = "Do you want to overwrite the file " \
-                             + current_item["target"] + " with " + current_item["source_item"];
-                        self.__conflict_file_list.append(current_item)
-                        continue
 
-                    # IMPLEMENT me
-                    
-                    #str_local_time = time.ctime(mod_time)
+        # start with source tagstore -> target tagstore
+        self.__handle_sync(source_store, target_store, True)
 
-                    # get sync time
-                    str_sync_gm_time = self.__target_store.get_sync_file_timestamp(target_sync_item)
-                    sync_gm_time = time.strptime(str_sync_gm_time, "%Y-%m-%d %H:%M:%S")
-
-                    # get source modification time                    
-                    mod_time = os.path.getmtime(self.__get_source_file_path(source_item))
-                    source_gm_time = time.gmtime(mod_time)
-                    
-                    # get target modification time
-                    mod_time = os.path.getmtime(self.__get_target_file_path(target_item))
-                    target_gm_time = time.gmtime(mod_time)
-                
-                    if source_gm_time <= sync_gm_time:
-                        # file was not modified since last sync 
-                        # sync new tags
-                        self.__log.info("[SYNC] No source modification, tags of file '%s' are synced" % source_item)
-                        self.__sync_new_tags(source_item, target_item)
-                        continue
-                    
-                    if target_gm_time <= sync_gm_time:
-                        # target file was not modified
-                        self.__log.info("[SYNC] Updating file '%s' and tags" % source_item)
-                        continue
-                     
-                    # both files were modified at the same time
-                    # are all tags equal?
-                    if self.__are_all_tags_equal(source_item, target_item):
-                        # sync the file
-                        self.__log.info("[SYNC] Updating file '%s'" % source_item)
-                        self.__sync_new_file(source_item, self.__get_target_file_path(target_item))
-                    else:
-                        # conflict both files different and tags are different
-                        self.__log.info("[Conflict] Both files and tags are modified '%'" % target_item)
-                        current_item = {}
-                        current_item["source_item"] = source_item
-                        current_item["target"] = self.__get_target_file_path(target_item)
-                        current_item["message"] = "Do you want to overwrite the file " \
-                             + current_item["target"] + " with " + current_item["source_item"];
-                        self.__conflict_file_list.append(current_item)
-                    
-                else:
-                    # files are equal
-                    # sync tags
-                    self.__log.info("[SYNC] Tags of file '%s' are synced" % source_item)
-                    self.__sync_new_tags(source_item, target_item)
-                    
-        # end for
+        # push changes from target store to source tagstore
+        self.__handle_sync(target_store, source_store, False)
+        
+        self.__log.info("Number of conflicts %d" %(len(self.__conflict_file_list)))
         
         # launch conflict dialog
         self.__show_conflict_dialog()
         
-        # done
-        #self.emit(QtCore.SIGNAL("sync_success"))
-    
-    def __has_sync_tag(self, source_item, sync_tag):
+    def __handle_sync(self, source_store, target_store, create_lock):
         """
-        checks if the file has the sync tag associated
+        executes a sync
         """
         
-        # get describing tags
-        source_item_describing_tags = self.__store.get_describing_tags_for_item(source_item)
+        # prepare the sync
+        self.__prepare_sync(source_store, target_store)
+
+        # now create the lock files
+        if create_lock:
+            lock_file = self.__create_lock_file()
+            if not lock_file:
+                self.__log.info("another sync is in progress please wait untill it is finished")
+                self.__sync_dialog.set_status_msg("Another sync is pending, please wait untill it is finished")
+                self.__sync_dialog.toggle_sync_button(True)            
+                return       
+
+        # start the sync
+        self.__start_sync(self.__source_store, self.__target_store, self.__source_items, self.__target_items, self.__target_sync_items)
+
+    def __sync_item(self, source_store, target_store, target_items, target_sync_items, source_item, add_conflict_list=True):
         
-        if source_item_describing_tags != None:
-            if sync_tag in source_item_describing_tags:
-                return True
+        # is there such an item in the target tagstore
+        target_item = self.__find_item_in_store(target_items, source_item)
         
-        # get categorising tags
-        source_item_categorising_tags = self.__store.get_categorizing_tags_for_item(source_item)
-        if source_item_categorising_tags != None:
-            if sync_tag in source_item_categorising_tags:
-                return True
+        # does the file exist in the target tagstore
+        if target_item != None:
+            return self.__sync_existing_item(source_store, target_store, target_items, target_sync_items, source_item, target_item, add_conflict_list)    
+        else:
+            return self.__sync_new_item(source_store, target_store, target_items, target_sync_items, source_item, add_conflict_list)
+
+    def __sync_new_item(self, source_store, target_store, target_items, target_sync_items, source_item, add_conflict_list):   
+
+
+        # file does not exist
+        # was it already synced once?
+        target_sync_item = self.__find_item_in_store(target_sync_items, source_item)
+        if target_sync_item:
+            #the file was already synced once, skipping
+            self.__log.info("[SKIP] File '%s' was already synced once" % target_sync_item)
+            return True
+
+        # file was not synced before, lets check if it exists in the target destination store
+        # create target path
+        target_file_path = self.__create_target_file_path(target_store, source_item)
         
-        # tag not found
+        # check if file already exists
+        if not os.path.exists(target_file_path):
+            # file does not yet exist
+            self.__log.info("[SYNC] New File: '%s' is synced" % source_item)
+            self.__sync_new_file(source_store, target_store, source_item, target_file_path)
+            return True
+        
+        # create target item
+        target_item = self.__create_target_file_item(target_store, source_item)
+            
+        # the file already exists
+        # is it the same file
+        files_equal = self.__are_files_equal(source_store, target_store, source_item, target_item)
+        if files_equal:
+            # file is present, just sync the tags
+            self.__log.info("[SYNC] File '%s' already present in target, syncing tags only" % source_item)
+            self.__sync_new_file(source_store, target_store, source_item, target_file_path, copy_file=False)
+            return False
+            
+        # sync conflict
+        self.__log.info("[Conflict] File: '%s' already exists" % target_file_path)
+        if add_conflict_list:
+            self.__add_conflict_item(source_store, target_store, target_items, target_sync_items, source_item, target_item)
         return False
+        
+        
+    def __sync_existing_item(self, source_store, target_store, target_items, target_sync_items, source_item, target_item, add_conflict_list):
+        """
+        syncs an existing item
+        """
+        
+        # check if the source file is equal
+        files_equal = self.__are_files_equal(source_store, target_store, source_item, target_item)
+        if files_equal:
+            # files are equal
+            # sync tags
+            self.__log.info("[SYNC] Tags of file '%s' are synced" % source_item)
+            self.__sync_new_tags(source_store, target_store, source_item, target_item)
+            return True
+
+        # okay files are not equal, lets get a sync date
+        target_sync_item = (target_item in target_sync_items)
+        if not target_sync_item:
+            # there is no sync item for file
+            self.__log.info("[Conflict] File '%s' -> %s' was added in the tagstore simultaneously" % (source_item, target_item))
+            if add_conflict_list:
+                self.__add_conflict_item(source_store, target_store, target_items, target_sync_items, source_item, target_item)
+            return False
+
+        # get sync time
+        str_sync_gm_time = target_store.get_sync_file_timestamp(target_item)
+        sync_gm_time = time.strptime(str_sync_gm_time, "%Y-%m-%d %H:%M:%S")
+
+        # get source modification time
+        mod_time = os.path.getmtime(self.__get_full_file_path(source_store, source_item))
+        source_gm_time = time.gmtime(mod_time)
+                    
+        # get target modification time
+        mod_time = os.path.getmtime(self.__get_full_file_path(target_store, target_item))
+        target_gm_time = time.gmtime(mod_time)
+               
+        # was source file modified
+        if source_gm_time <= sync_gm_time:
+            # file was not modified since last sync 
+            # sync new tags
+            self.__log.info("[SYNC] No source modification, tags of file '%s' are synced" % source_item)
+            self.__sync_new_tags(source_store, target_store, source_item, target_item)
+            return True
+
+        # source modified, lets check target file
+        if target_gm_time <= sync_gm_time:
+            # target file was not modified
+            self.__log.info("[SYNC] Updating file '%s' and tags" % source_item)
+            shutil.copy2(self.__get_full_file_path(source_store, source_item), self.__get_full_file_path(target_store, target_item))
+            self.__sync_new_tags(source_store, target_store, source_item, target_item)            
+            return True
+
+        # source and target file have been modified, do their tags match
+        if self.__are_all_tags_equal(source_store, target_store, source_item, target_item):
+            # sync the file
+            self.__log.info("[SYNC] Updating file '%s'" % source_item)
+            self.__sync_new_file(source_item, self.__get_target_file_path(target_item))
+            return True
+
+        # both files and tags are modified
+        self.__log.info("[Conflict] Both files and tags are modified '%s'" % target_item)
+        if add_conflict_list:
+            self.__add_conflict_item(source_store, target_store, target_items, target_sync_items, source_item, target_item)
+        return False
+
+    def __start_sync(self, source_store, target_store, source_items, target_items, target_sync_items):
+        """
+        starts the sync
+        """
+        
+        for source_item in source_items:
+            
+            # sync item
+            self.__log.info("[SYNC] Current Item: %s" % source_item)
+            self.__sync_item(source_store, target_store, target_items, target_sync_items, source_item)
+        
     
-    def __are_all_tags_equal(self, source_item, target_item, sync_tag):
+    def __are_all_tags_equal(self, source_store, target_store, source_item, target_item):
         """
         checks if all tags from the source item and target item are equal
         """
         
-        source_describing_tags = self.__store.get_describing_tags_for_item(source_item)
-        target_describing_tags = self.__target_store.get_describing_tags_for_item(target_item)
+        source_describing_tags = source_store.get_describing_tags_for_item(source_item)
+        target_describing_tags = target_store.get_describing_tags_for_item(target_item)
         
         if source_describing_tags != target_describing_tags:
             return False
         
         # get categorizing tags
-        source_categorising_tags = self.__store.get_categorizing_tags_for_item(source_item)
-        target_categorising_tags = self.__target_store.get_categorizing_tags_for_item(target_item)
+        source_categorising_tags = source_store.get_categorizing_tags_for_item(source_item)
+        target_categorising_tags = target_store.get_categorizing_tags_for_item(target_item)
 
         if source_categorising_tags != target_categorising_tags:
             return False
@@ -481,25 +588,25 @@ class SyncController(QtCore.QObject):
         # all equal
         return True
     
-    def __sync_new_tags(self, source_item, target_item):
+    def __sync_new_tags(self, source_store, target_store, source_item, target_item):
         """
-        syncs new tags and removes deleted tags
+        syncs new tags
         """
 
         # get describing tags
-        target_describing_sync_tags = set(self.__target_store.get_describing_sync_tags_for_item(target_item))
-        target_describing_tags = set(self.__target_store.get_describing_tags_for_item(target_item))
-        source_describing_tags = set(self.__store.get_describing_tags_for_item(source_item))
+        target_describing_sync_tags = set(target_store.get_describing_sync_tags_for_item(target_item))
+        target_describing_tags = set(target_store.get_describing_tags_for_item(target_item))
+        source_describing_tags = set(source_store.get_describing_tags_for_item(source_item))
         
         # get categorizing tags
-        target_categorizing_sync_tags = set(self.__target_store.get_categorizing_sync_tags_for_item(target_item))
-        target_categorizing_tags = set(self.__target_store.get_categorizing_tags_for_item(target_item))
-        source_categorizing_tags = set(self.__store.get_categorizing_tags_for_item(source_item))
+        target_categorizing_sync_tags = set(target_store.get_categorizing_sync_tags_for_item(target_item))
+        target_categorizing_tags = set(target_store.get_categorizing_tags_for_item(target_item))
+        source_categorizing_tags = set(source_store.get_categorizing_tags_for_item(source_item))
     
         if target_describing_tags == source_describing_tags and\
             target_categorizing_tags == source_categorizing_tags:
             self.__log.info("no changes found")
-            self.__target_store.set_sync_tags(target_item, source_describing_tags, source_categorizing_tags)
+            target_store.set_sync_tags(target_item, source_describing_tags, source_categorizing_tags)
             return
 
         new_describing_tags = (source_describing_tags - target_describing_sync_tags) | target_describing_tags
@@ -514,36 +621,56 @@ class SyncController(QtCore.QObject):
         new_categorizing_tags = (source_categorizing_tags - target_categorizing_sync_tags) | target_categorizing_tags
     
         # now sync the tags
-        self.__target_store.add_item_with_tags(target_item, new_describing_tags, new_categorizing_tags)
+        target_store.add_item_with_tags(target_item, new_describing_tags, new_categorizing_tags)
         
         # update the sync tags
-        self.__target_store.set_sync_tags(target_item, source_describing_tags, source_categorizing_tags)
+        target_store.set_sync_tags(target_item, source_describing_tags, source_categorizing_tags)
     
-    def __sync_new_file(self, source_item, target_file_path, copy_file=True):
+    def __sync_conflict_file(self, source_store, target_store, source_item, target_item, target_file_path):
+        """
+        replaces the target file with the source file
+        """
+        
+        # get describing tags from file
+        describing_tag_list = source_store.get_describing_tags_for_item(source_item)
+        
+        # get categorizing tags from file
+        categorizing_tag_list = source_store.get_categorizing_tags_for_item(source_item)
+
+        # replace file
+        shutil.copy2(self.__get_full_file_path(source_store, source_item), target_file_path)
+
+        # replace current entry
+        target_store.add_item_with_tags(target_item, describing_tag_list, categorizing_tag_list)
+
+        # set the sync tags
+        target_store.set_sync_tags(target_item, describing_tag_list, categorizing_tag_list)
+    
+    def __sync_new_file(self, source_store, target_store, source_item, target_file_path, copy_file=True):
         """
         copies the new file and its associated tags
         """
         
         # get describing tags from file
-        describing_tag_list = self.__store.get_describing_tags_for_item(source_item)
+        describing_tag_list = source_store.get_describing_tags_for_item(source_item)
         
         # get categorizing tags from file
-        categorizing_tag_list = self.__store.get_categorizing_tags_for_item(source_item)
+        categorizing_tag_list = source_store.get_categorizing_tags_for_item(source_item)
         
         if copy_file:
             # copy file
-            shutil.copy2(self.__get_source_file_path(source_item), target_file_path)
+            shutil.copy2(self.__get_full_file_path(source_store, source_item), target_file_path)
         
         # create target file item name
-        target_item = self.__create_target_file_item(source_item)
+        target_item = self.__create_target_file_item(target_store, source_item)
         
         # add to tagstore
-        self.__target_store.add_item_with_tags(target_item, describing_tag_list, categorizing_tag_list)
+        target_store.add_item_with_tags(target_item, describing_tag_list, categorizing_tag_list)
         
         # set the sync tags
-        self.__target_store.set_sync_tags(target_item, describing_tag_list, categorizing_tag_list)
+        target_store.set_sync_tags(target_item, describing_tag_list, categorizing_tag_list)
         
-    def __create_target_file_item(self, source_item):
+    def __create_target_file_item(self, target_store, source_item):
         """
         creates the target file name
         """
@@ -552,21 +679,21 @@ class SyncController(QtCore.QObject):
         if position != -1:
             source_item = source_item[position+1:len(source_item)]
 
-        if self.__target_store.is_android_store():
+        if target_store.is_android_store():
             # get directories
-            storage_dir = self.__target_store.get_storage_directory()
-            tagstore_dir = self.__target_store.get_store_path()
+            storage_dir = target_store.get_android_root_directory()
+            tagstore_dir = target_store.get_storage_directory()
             
             # extract storage directory name
-            directory = storage_dir[len(tagstore_dir)+1:len(storage_dir)] + "\\" + source_item
-
+            # replace path seperators with %5C which is required
+            directory = tagstore_dir[len(storage_dir)+1:len(tagstore_dir)] + "\\" + source_item
+            directory = directory.replace("/", "\\")
             return directory
-        
         else:
             return source_item
 
 
-    def __create_target_file_path(self, source_item):
+    def __create_target_file_path(self, target_store, source_item):
         """
         creates the target file path
         """
@@ -574,42 +701,27 @@ class SyncController(QtCore.QObject):
         if position != -1:
             source_item = source_item[position+1:len(source_item)]
   
-        return self.__target_store.get_storage_directory() + "/" + source_item
+        return target_store.get_storage_directory() + "/" + source_item
     
-    def __get_target_file_path(self, target_file):
-        """
-        returns the target file path of the file
-        """
-        
-        # check if it is android store
-        if self.__target_store.is_android_store():
-            # android stores have the full path encoded in the file name
-            return self.__target_store.get_store_path() + "/" + target_file
-        else:
-            # normal stores place their files in the storage directories
-            return self.__target_store.get_storage_directory() + "/" + target_file
+    def __get_full_file_path(self, store, file_item):
     
-    def __get_source_file_path(self, source_file):
-        """
-        returns the source file path
-        """
-        
         # check if it is an android store
-        if self.__store.is_android_store():
-            # android stores have the full path in the file name
-            return self.__store.get_store_path() + "/" + source_file
+        if store.is_android_store():
+            # android store items have the full path encoded from the root directory
+            return store.get_android_root_directory() + "/" + file_item
         else:
-            return self.__store.get_storage_directory() + "/" + source_file
-        
-    def __are_files_equal(self, source_file, target_file):
+            # normal tagstores include their files in the storage directory
+            return store.get_storage_directory() + "/" + file_item
+            
+    def __are_files_equal(self, source_store, target_store, source_file, target_file):
         """
         compares both files if there are equal
         """
         
         # get file locations
-        source_path = self.__get_source_file_path(source_file)
-        target_path = self.__get_target_file_path(target_file)
-    
+        source_path = self.__get_full_file_path(source_store, source_file)
+        target_path = self.__get_full_file_path(target_store, target_file)
+        
         # check for equality        
         return filecmp.cmp(source_path, target_path, 0)
         
@@ -709,12 +821,72 @@ class SyncController(QtCore.QObject):
 #        self.CURRENT_LANGUAGE = self.trUtf8("en")
         self.CURRENT_LANGUAGE = self.trUtf8(locale)
 
+    def __init_stores(self, source_store, target_store):
+        """
+        initializes the store objects
+        """
+        
+        # get current language from main config file and apply it
+        self.CURRENT_LANGUAGE = self.__main_config.get_current_language();
+        self.change_language(self.CURRENT_LANGUAGE)
+        
+        # prepare all parameters for creating the store object
+        self.__prepare_store_params()
+        
+        # create the source store
+        self.__create_source_store(source_store)
+        
+        # create the target store
+        self.__create_target_store(target_store)
+
+        #init sync log for the source store
+        self.__source_store.init_sync_log(self.__target_store.get_name())
+        
+        # init sync log for the target store        
+        self.__target_store.init_sync_log(self.__source_store.get_name())
+        
+    def __has_sync_tag(self, source_store, source_item, sync_tag):
+        """
+        checks if the file has the sync tag associated
+        """
+        
+        # get describing tags
+        source_item_describing_tags = source_store.get_describing_tags_for_item(source_item)
+        
+        if source_item_describing_tags != None:
+            if sync_tag in source_item_describing_tags:
+                return True
+        
+        # get categorising tags
+        source_item_categorising_tags = source_store.get_categorizing_tags_for_item(source_item)
+        if source_item_categorising_tags != None:
+            if sync_tag in source_item_categorising_tags:
+                return True
+        
+        # tag not found
+        return False
+
+    def __add_conflict_item(self, source_store, target_store, target_items, target_sync_items, source_item, target_item):
+        """
+        adds a conflict item to the conflict list
+        """
+        
+        current_item = {}
+        current_item["source_item"] = source_item
+        current_item["target_item"] = target_item
+        current_item["source_store"] = source_store
+        current_item["target_store"] = target_store
+        current_item["target_items"] = target_items
+        current_item["target_sync_items"] = target_sync_items
+
+        self.__conflict_file_list.append(current_item)
+
 class ApplicationController(QtCore.QObject):
     """
     a small helper class to launch the sync-dialog as a standalone application
     this helper connects to the signals emitted by the sync controller and does the handling
     """
-    def __init__(self, application, path, verbose):
+    def __init__(self, application, source_store, target_store, auto_sync, verbose):
         QtCore.QObject.__init__(self)
         
         self.LOG_LEVEL = logging.INFO
@@ -726,12 +898,8 @@ class ApplicationController(QtCore.QObject):
         ## create a config object to get the registered store paths
         self.__main_config = ConfigWrapper(TsConstants.CONFIG_PATH)
         
-        # store path
-        self.__store_path = path
-        
-      
         ## create the object
-        self.__sync_widget = SyncController(application, self.__store_path, verbose_mode)
+        self.__sync_widget = SyncController(application, source_store, target_store, auto_sync, verbose_mode)
         
         ## connect to the signal(s)
         self.connect(self.__sync_widget, QtCore.SIGNAL("sync_cancel"), self.__handle_sync_cancel)
@@ -762,39 +930,52 @@ class ApplicationController(QtCore.QObject):
 if __name__ == '__main__':  
   
     ## initialize and configure the optionparser
-    usage = "\nThis program opens a dialog used for tagging an item placed in a tagstore directory."
-    opt_parser = OptionParser("tagstore_sync.py -s <store path>")
-    opt_parser.add_option("-s", "--store", dest="store_path", help="absolute  or relative path to the tagstore")
+    usage = "\nThis program opens a dialog used for syncing two distinct tagstores."
+    opt_parser = OptionParser("tagstore_sync.py [-source_store=<source_store>] [-target_store=<target_store>]")
+    
+    
+    opt_parser.add_option("-s", "--source_store", dest="source_store", help="absolute or relative path to the source tagstore")
+    opt_parser.add_option("-t", "--target_store", dest="target_store", help="absolute or relative path to the target tagstore")
+    opt_parser.add_option("-a", "--auto_sync", dest="auto_sync", action="store_true", help="automatically start the sync process")
+    #opt_parser.add_option("-c", "--hide_conflict", dest="conflict", help="")
+            
     opt_parser.add_option("-v", "--verbose", dest="verbose", action="store_true", help="start programm with detailed output")
 
     (options, args) = opt_parser.parse_args()
-    
+
+    source_store = None
+    target_store = None
+    auto_sync = False
     verbose_mode = False
-    retag_mode = False
-    dry_run = False
-    
-    store_name = None
-    item_name = None
     
     if options.verbose:
         verbose_mode = True
-    #if options.retag:
-    #    retag_mode = True
-    if options.store_path:
-        store_path = options.store_path
-    else:
-        print "no store name given"
-        opt_parser.print_help()
-        sys.exit()
+        
+    if options.source_store:
+        source_store = options.source_store
+
+    if options.target_store:
+        target_store = options.target_store
+
+    if options.auto_sync:
+        auto_sync = True
+    
+    # check if source store is the same as the target store
+    if source_store != None and target_store != None:
+        if source_store == target_store:
+            print "Error: source and target store are the same"
+            print source_store
+            print target_store
+            print auto_sync
+            opt_parser.print_help()
+            sys.exit()
         
     tagstore_tag = QtGui.QApplication(sys.argv)
     tagstore_tag.setApplicationName("tagstore_sync")
     tagstore_tag.setOrganizationDomain("www.tagstore.org")
     tagstore_tag.UnicodeUTF8
     
-    appcontroller = ApplicationController(tagstore_tag, store_path, verbose_mode)
-
-
+    appcontroller = ApplicationController(tagstore_tag, source_store, target_store, auto_sync, verbose_mode)
     tagstore_tag.exec_()
     
 def quit_application():
