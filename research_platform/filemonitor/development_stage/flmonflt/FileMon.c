@@ -830,8 +830,9 @@ FLT_PREOP_CALLBACK_STATUS
 
 	if (!NT_SUCCESS(status))
 	{
-		DBGPRINT_ARG2("[flmonflt:POSTOP:MJ_READ] FltGetFileNameInformation failed. Code: 0x%x, TLIRP: 0x%x.\n", 
-			status, IoGetTopLevelIrp());
+		//DBGPRINT_ARG2("[flmonflt:POSTOP:MJ_READ] FltGetFileNameInformation failed. Code: 0x%x, TLIRP: 0x%x.\n", 
+		//	status, IoGetTopLevelIrp());
+
 		return FLT_PREOP_SUCCESS_NO_CALLBACK;
 	}
 
@@ -875,8 +876,9 @@ FLT_POSTOP_CALLBACK_STATUS
 
 	if (!NT_SUCCESS(Data->IoStatus.Status)) 
 	{
-		DBGPRINT_ARG1("[flmonflt:POSTOP:MJ_READ] Error status or reparse_state. Code: 0x%x.\n", 
-			Data->IoStatus.Status);
+		//DBGPRINT_ARG1("[flmonflt:POSTOP:MJ_READ] Error status or reparse_state. Code: 0x%x.\n", 
+		//	Data->IoStatus.Status);
+
 		return FLT_POSTOP_FINISHED_PROCESSING;
 	}
 
@@ -1026,71 +1028,94 @@ NTSTATUS
 	PAGED_CODE();
 
 	
-
-
-	if (InputBufferLength < 2
-		|| InputBufferC == NULL
-		|| InputBufferC[0] != MAGIC_MESSAGE_PREFIX)
+	if (InputBufferLength < 2)
 	{
-		DBGPRINT("[flmonflt] Userspace notify, Invalid message format.\n");
+		DBGPRINT("[flmonflt] Userspace notify, Invalid message format, Buffer < 2.\n");
+		return STATUS_INVALID_PARAMETER;
+	}
+
+	if (InputBufferC == NULL)
+	{
+		DBGPRINT("[flmonflt] Userspace notify, Invalid message format, InputBufferC == NULL.\n");
+		return STATUS_INVALID_PARAMETER;
+	}
+
+	if (InputBufferC[0] != MAGIC_MESSAGE_PREFIX)
+	{
+		DBGPRINT("[flmonflt] Userspace notify, Invalid message format, Prefix invalid.\n");
 		return STATUS_INVALID_PARAMETER;
 	}
 
 	//DBGPRINT("[flmonflt] Userspace notify.\n");
-	DBGPRINT_ARG2("[flmonflt] Userspace notify, size=%d, CMD='%c'.\n", InputBufferLength, (int)InputBufferC[1]);
+	DBGPRINT_ARG2("[flmonflt] Userspace notify, size=%d, CMD='%c'.\n", InputBufferLength, (char)InputBufferC[1]);
 
 
-	if (InputBufferC[1] == MESSAGE_CMD_ADD_WATCHDIR)
+	try
 	{
-		Path.Length = InputBufferLength-2;
-		Path.MaximumLength = InputBufferLength-2;
-		Path.Buffer = InputBufferC+2;
 
-
-		if (Path.Length == 0)
+		if (InputBufferC[1] == MESSAGE_CMD_ADD_WATCHDIR)
 		{
-			DBGPRINT_ARG1("[flmonflt] Userspace notify, Invalid path length. LEN=%d\n", Path.Length);
+			Path.Length = InputBufferLength-2;
+			Path.MaximumLength = InputBufferLength-2;
+			Path.Buffer = InputBufferC+2;
+
+
+			if (Path.Length == 0)
+			{
+				DBGPRINT_ARG1("[flmonflt] Userspace notify, Invalid path length. LEN=%d\n", Path.Length);
+				return STATUS_INVALID_PARAMETER;
+			}
+
+			if (!DirectoriesToWatchAdd(&Path))
+			{
+				DBGPRINT_ARG1("[flmonflt] Userspace notify, Directory added: 0x%x\n", STATUS_SUCCESS);
+				return STATUS_SUCCESS;
+			}
+			else
+			{
+				DBGPRINT_ARG1("[flmonflt] Userspace notify, Directory exists: 0x%x\n", STATUS_OBJECTID_EXISTS);
+				return STATUS_OBJECTID_EXISTS;
+			}
+
+		}
+		else if (InputBufferC[1] == MESSAGE_CMD_CLEAR_WATCHDIR)
+		{
+			DirectoriesToWatchClear(FALSE);
+		}
+		else if (InputBufferC[1] == MESSAGE_CMD_START_FILTER)
+		{
+			FlStartFiltering();
+		}
+		else if (InputBufferC[1] == MESSAGE_CMD_STOP_FILTER)
+		{
+			FlStopFiltering();
+		}
+		else if (InputBufferC[1] == MESSAGE_CMD_FILTER_STATE)
+		{
+			DBGPRINT_ARG1("[flmonflt] Filter state: %d.\n", FlFilterState());
+
+			if (OutputBufferLength >= 1)
+			{
+				((char*)OutputBuffer)[0] = FlFilterState();
+				*ReturnOutputBufferLength = 1;
+
+			
+			}
+			else
+			{
+				*ReturnOutputBufferLength = 0;
+			}
+		}
+		else
+		{
+			DBGPRINT("[flmonflt] Userspace notify, Invalid command format.\n");
 			return STATUS_INVALID_PARAMETER;
 		}
 
-		if (!DirectoriesToWatchAdd(&Path))
-			return STATUS_SUCCESS;
-		else
-			return STATUS_OBJECTID_EXISTS;
+	} 
+	except( EXCEPTION_EXECUTE_HANDLER ) {
 
-	}
-	else if (InputBufferC[1] == MESSAGE_CMD_CLEAR_WATCHDIR)
-	{
-		DirectoriesToWatchClear(FALSE);
-	}
-	else if (InputBufferC[1] == MESSAGE_CMD_START_FILTER)
-	{
-		FlStartFiltering();
-	}
-	else if (InputBufferC[1] == MESSAGE_CMD_STOP_FILTER)
-	{
-		FlStopFiltering();
-	}
-	else if (InputBufferC[1] == MESSAGE_CMD_FILTER_STATE)
-	{
-		DBGPRINT_ARG1("[flmonflt] Filter state: %d.\n", FlFilterState());
-
-		if (OutputBufferLength >= 1)
-		{
-			((char*)OutputBuffer)[0] = FlFilterState();
-			*ReturnOutputBufferLength = 1;
-
-			
-		}
-		else
-		{
-			*ReturnOutputBufferLength = 0;
-		}
-	}
-	else
-	{
-		DBGPRINT("[flmonflt] Userspace notify, Invalid command format.\n");
-		return STATUS_INVALID_PARAMETER;
+		return GetExceptionCode();
 	}
 
 	return STATUS_SUCCESS;

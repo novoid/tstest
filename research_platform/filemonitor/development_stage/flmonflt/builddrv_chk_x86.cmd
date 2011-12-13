@@ -3,7 +3,7 @@
 set CHK=chk
 set BUILD_OTIONS=/w /b 
 set WDM_ROOT=D:\WinDDK\7600.16385.1\
-set REMOTE_IP=192.168.0.202
+set REMOTE_IP=192.168.0.201
 set BASE_PROJ_DRIVE=d:
 set BASE_PROJ_PATH=D:\Daten\Projekte\FileMonitor\flmonflt
 

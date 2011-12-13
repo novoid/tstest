@@ -20,6 +20,8 @@ extern "C" {
 #define FLTIPC_ERROR						1
 #define FLTIPC_PORT_CLOSED					2
 #define FLTIPC_MESSAGESIZE_EXCEEDED			3
+#define FLTIPC_DIR_EXISTS					4
+#define FLTIPC_INVALID_PARAMETER			5
 
 
 

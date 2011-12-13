@@ -36,6 +36,7 @@
     <None Include="removeservice.cmd" />
     <None Include="tagstore.cfg" />
     <None Include="copyservice.cmd" />
+    <None Include="tsmonservice.reg" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FsLogFile.h">

@@ -24,9 +24,15 @@
     <ClInclude Include="FlMonIPC.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="fludebug.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FlMonIPC.c">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="main.c">
       <Filter>Quelldateien</Filter>
     </ClCompile>
   </ItemGroup>

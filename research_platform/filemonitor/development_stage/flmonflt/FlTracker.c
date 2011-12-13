@@ -522,7 +522,7 @@ unsigned int
 
 */
 unsigned int
-	FlTrackerInfoToUserspace(PFLDRIVERDATA driver)
+	FlTrackerInfoToUserspace(PFLDRIVERDATA driver, BOOLEAN onlybestone)
 {
 	POCTRACKER_ENTRY t;
 	unsigned int i = 0;
@@ -552,7 +552,10 @@ unsigned int
 		return 0;
 	}
 
-	t = driver->Tracker->FirstEntry;
+	if (onlybestone)
+		t = FlTrackerGetBestEntry(driver->Tracker);
+	else
+		t = driver->Tracker->FirstEntry;
 
 	while(t)
 	{
@@ -606,6 +609,13 @@ unsigned int
 		else 
 			DBGPRINT_ARG1("[flmonflt] Send error %d.\n", status);
 	
+
+		if (onlybestone)
+		{
+			i = 1;
+			break;
+		}
+
 		t = t->NextEntry;
 		i++;
 	}

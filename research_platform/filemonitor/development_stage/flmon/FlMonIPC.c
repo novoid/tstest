@@ -6,6 +6,7 @@
 #include <Fltuser.h>
 #include <stdio.h>
 #include "../flmonflt/FlIpc.h"
+#include "fludebug.h"
 #include "FlMonIPC.h"
 
 
@@ -51,12 +52,12 @@ BOOLEAN __stdcall FlMonIPCOpen(PFLMONIPC ipc)
 	{
 		if (hResult == HRESULT_FROM_WIN32(ERROR_INVALID_HANDLE)) 
 		{
-			printf("Port is disconnected.\n");
+			DBGUPRINT("Port is disconnected.\n");
 			return FALSE;
 		} 
 		else
 		{
-			printf("Error occured. Code = 0x%X\n", hResult);
+			DBGUPRINT1("Error occured. Code = 0x%X\n", hResult);
 			return FALSE;
 		}
 	}
@@ -69,7 +70,7 @@ void __stdcall FlMonIPCClose(PFLMONIPC ipc)
 	if (!ipc || ipc->Port == INVALID_HANDLE_VALUE)
 		return;
 
-	printf("Closing port: 0x%X\n", ipc->Port);
+	DBGUPRINT1("Closing port: 0x%X\n", ipc->Port);
 	CloseHandle(ipc->Port);
 	ipc->Port = INVALID_HANDLE_VALUE;
 }
@@ -96,12 +97,12 @@ unsigned int __stdcall FlMonIPCReadMessage(PFLMONIPC ipc,
 
 	if (!ipc || !msg_size)
 	{
-		printf("FlMonIPCReadMessage: Invalid parameter.\n");
+		DBGUPRINT("FlMonIPCReadMessage: Invalid parameter.\n");
 		return FLTIPC_ERROR;
 	}
 
 
-	printf("Port reading message.\n");
+	DBGUPRINT("Port reading message.\n");
 
 	hResult = FilterGetMessage(
 		ipc->Port,
@@ -113,9 +114,9 @@ unsigned int __stdcall FlMonIPCReadMessage(PFLMONIPC ipc,
 
 	if (!SUCCEEDED(hResult)) 
 	{
-		if (hResult == HRESULT_FROM_WIN32(ERROR_INVALID_HANDLE)) 
+		if (hResult == HRESULT_FROM_WIN32(ERROR_INVALID_HANDLE))
 		{
-			printf("Port is disconnected.\n");
+			DBGUPRINT("Port is disconnected.\n");
 			return FLTIPC_PORT_CLOSED;
 		} 
 		else
@@ -131,7 +132,7 @@ unsigned int __stdcall FlMonIPCReadMessage(PFLMONIPC ipc,
 		memcpy(msg, message.Message+1, FLMESSAGE_MAXSIZE-1);
 		*type = message.Message[0];
 
-		printf("Message OK, Type=%c, Message='%s'.\n", *type, msg);
+		DBGUPRINT2("Message OK, Type=%c, Message='%s'.\n", *type, msg);
 
 		return FLTIPC_SUCCESS;
 	}
@@ -153,7 +154,7 @@ unsigned int __stdcall FlMonIPCSendMessage(PFLMONIPC ipc,
 	if (!send_message)
 		return 0;
 
-	printf("Trying to send %d bytes.\n", send_size);
+	DBGUPRINT1("Trying to send %d bytes.\n", send_size);
 
 
 	hr = FilterSendMessage(
@@ -164,18 +165,20 @@ unsigned int __stdcall FlMonIPCSendMessage(PFLMONIPC ipc,
 		reply_size,
 		&res_size);
 
-	if (!SUCCEEDED(hr)) 
+	if (hr != S_OK) 
 	{
-		printf("Send failed.\n");
+		DBGUPRINT("Send failed.\n");
+		DBGUPRINT1("Send result size = %d.\n", res_size);
+		DBGUPRINT1("Send result value = 0x%x.\n", hr);
 	}
 	else
 	{
-		printf("Send OK, return count: %d.\n", res_size);
+		DBGUPRINT1("Send OK, return count: %d.\n", res_size);
+		DBGUPRINT1("Send result value = 0x%x.\n", hr);
 	}
 
-	printf("Send result size = %d.\n", res_size);
 
-	return res_size;
+	return hr;
 }
 
 
@@ -207,14 +210,28 @@ unsigned int __stdcall FlMonIPCSendAddWatchDir(PFLMONIPC ipc, WCHAR * str, unsig
 	message[0] = MAGIC_MESSAGE_PREFIX;
 	message[1] = MESSAGE_CMD_ADD_WATCHDIR;
 
-	memcpy(message, str, size * sizeof(WCHAR));
+	memcpy(message+2, str, size * sizeof(WCHAR));
 
-	r = FlMonIPCSendMessage(ipc, message, size * sizeof(WCHAR) + 2, NULL, 0);
+	r = FlMonIPCSendMessage(ipc, message, size * sizeof(WCHAR) + 2, 
+		NULL, 0);
 
-	if (r)
+	if (!r)
 		return FLTIPC_SUCCESS;
 	else
+	{
+		if (r == HRESULT_FROM_WIN32(ERROR_INVALID_PARAMETER))
+		{
+			DBGUPRINT("ERROR_INVALID_PARAMETER\n");
+			return FLTIPC_INVALID_PARAMETER;
+		}
+		else if (r == HRESULT_FROM_WIN32(ERROR_OBJECT_ALREADY_EXISTS))
+		{
+			DBGUPRINT("ERROR_OBJECT_ALREADY_EXISTS\n");
+			return FLTIPC_DIR_EXISTS;
+		}
+
 		return FLTIPC_ERROR;
+	}
 }
 
 unsigned int __stdcall FlMonIPCSendClearWatchDir(PFLMONIPC ipc)

@@ -2,6 +2,7 @@
 
 386_OBJECTS=\
  $(OBJ_PATH)\$O\flmonipc.obj \
+ $(OBJ_PATH)\$O\main.obj \
 
 
 

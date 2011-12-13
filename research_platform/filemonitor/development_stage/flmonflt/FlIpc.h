@@ -1,4 +1,7 @@
 
+#ifndef __FLIPC_H__
+#define __FLIPC_H__
+
 
 #define MAGIC_MESSAGE_PREFIX			'f'
 
@@ -11,3 +14,6 @@
 #define MESSAGE_CMD_START_FILTER		'd'
 #define MESSAGE_CMD_FILTER_STATE		'e'
 
+
+
+#endif

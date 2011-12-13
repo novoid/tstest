@@ -185,7 +185,7 @@ void
 		DBGPRINT("[flmonflt] ----------------------------------------------\n");
 
 
-		FlTrackerInfoToUserspace(DriverInfoData);
+		FlTrackerInfoToUserspace(DriverInfoData, TRUE);
 
 		FlTrackerClean(DriverInfoData->Tracker);
 		

@@ -101,6 +101,7 @@
     <None Include="copyservice.cmd" />
     <None Include="removeservice.cmd" />
     <None Include="tagstore.cfg" />
+    <None Include="tsmonservice.reg" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FileWriter.h" />

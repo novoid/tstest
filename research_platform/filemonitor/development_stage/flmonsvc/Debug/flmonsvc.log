@@ -1,15 +1,25 @@
-﻿Der Buildvorgang wurde am 02.12.2011 21:42:18 gestartet.
+﻿Der Buildvorgang wurde am 13.12.2011 16:58:09 gestartet.
      1>Projekt "D:\Daten\Projekte\FileMonitor\flmonsvc\flmonsvc.vcxproj" auf Knoten "2", build Ziel(e).
      1>InitializeBuildStatus:
          "Debug\flmonsvc.unsuccessfulbuild" wird erstellt, da "AlwaysCreate" angegeben wurde.
        ClCompile:
-         Alle Ausgaben sind aktuell.
+         D:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /wd4996 /analyze- /errorReport:prompt FileWriter.cpp
+         FileWriter.cpp
        ManifestResourceCompile:
          Alle Ausgaben sind aktuell.
        Link:
-         Alle Ausgaben sind aktuell.
+         D:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"D:\Daten\Projekte\FileMonitor\Debug\flmonsvc.exe" /INCREMENTAL /NOLOGO flmon.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Debug\flmonsvc.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"D:\Daten\Projekte\FileMonitor\Debug\flmonsvc.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\Daten\Projekte\FileMonitor\Debug\flmonsvc.lib" /MACHINE:X86 Debug\flmonsvc.exe.embed.manifest.res
+         Debug\FileWriter.obj
+         Debug\FsLogFile.obj
+         Debug\RegistryWindows.obj
+         Debug\Service.obj
+         Debug\TagstoreConfig.obj
        Manifest:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /out:"Debug\flmonsvc.exe.embed.manifest" /manifest Debug\flmonsvc.exe.intermediate.manifest
          Alle Ausgaben sind aktuell.
+       LinkEmbedManifest:
+         Alle Ausgaben sind aktuell.
+         flmonsvc.vcxproj -> D:\Daten\Projekte\FileMonitor\Debug\flmonsvc.exe
        PostBuildEvent:
          D:\Daten\Projekte\FileMonitor\flmonsvc\copyservice.cmd
          :VCEnd
@@ -21,4 +31,4 @@
 
 Das Erstellen war erfolgreich.
 
-Verstrichene Zeit 00:00:00.09
+Verstrichene Zeit 00:00:01.36

@@ -28,12 +28,15 @@ private:
 
 	RegistryWindows	m_Registry;
 
+	static string m_BaseDirectory;
+
 public:
 
 
 	FileWriter();
 	~FileWriter();
 
+	static void SetBaseDirectory(string dirname) { m_BaseDirectory = dirname; }
 
 	string CurrentFilename();
 	unsigned int Write(string text);

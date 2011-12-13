@@ -65,7 +65,7 @@ unsigned int
 
 
 unsigned int
-	FlTrackerInfoToUserspace(PFLDRIVERDATA driver);
+	FlTrackerInfoToUserspace(PFLDRIVERDATA driver, BOOLEAN onlybestone);
 
 BOOLEAN
 	FlTrackerSetRead(	POCTRACKER tracker,

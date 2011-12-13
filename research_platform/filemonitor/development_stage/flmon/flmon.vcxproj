@@ -98,9 +98,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="FlMonIPC.h" />
+    <ClInclude Include="fludebug.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FlMonIPC.c" />
+    <ClCompile Include="main.c" />
   </ItemGroup>
   <ItemGroup>
     <None Include="buildus_dbg_x86.cmd" />
