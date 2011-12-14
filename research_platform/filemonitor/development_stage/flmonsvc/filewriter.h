@@ -5,6 +5,7 @@
 
 #include <string>
 #include <time.h>
+#include "SingeltonHolder.h"
 #include "RegistryWindows.h"
 #include "fslogfile.h"
 
@@ -39,7 +40,7 @@ public:
 	static void SetBaseDirectory(string dirname) { m_BaseDirectory = dirname; }
 
 	string CurrentFilename();
-	unsigned int Write(string text);
+	unsigned int Write(char type, string text);
 
 
 	bool NeedNewFile();
@@ -48,5 +49,8 @@ public:
 	unsigned int GetRegLastFilename(string& filename);
 
 };
+
+
+typedef SingeltonHolder<FileWriter> SingeltonFileWriter;
 
 #endif

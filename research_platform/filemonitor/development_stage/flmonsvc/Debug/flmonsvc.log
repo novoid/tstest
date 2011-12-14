@@ -1,10 +1,15 @@
-﻿Der Buildvorgang wurde am 13.12.2011 16:58:09 gestartet.
+﻿Der Buildvorgang wurde am 14.12.2011 22:05:59 gestartet.
      1>Projekt "D:\Daten\Projekte\FileMonitor\flmonsvc\flmonsvc.vcxproj" auf Knoten "2", build Ziel(e).
      1>InitializeBuildStatus:
          "Debug\flmonsvc.unsuccessfulbuild" wird erstellt, da "AlwaysCreate" angegeben wurde.
        ClCompile:
-         D:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /wd4996 /analyze- /errorReport:prompt FileWriter.cpp
+         D:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /wd4996 /analyze- /errorReport:prompt FileWriter.cpp Service.cpp TagstoreConfig.cpp
+         TagstoreConfig.cpp
+     1>d:\daten\projekte\filemonitor\flmonsvc\tagstoreconfig.cpp(216): warning C4018: '<': Konflikt zwischen 'signed' und 'unsigned'
+     1>d:\daten\projekte\filemonitor\flmonsvc\tagstoreconfig.cpp(337): warning C4018: '<': Konflikt zwischen 'signed' und 'unsigned'
+         Service.cpp
          FileWriter.cpp
+         Code wird generiert...
        ManifestResourceCompile:
          Alle Ausgaben sind aktuell.
        Link:
@@ -23,12 +28,3 @@
        PostBuildEvent:
          D:\Daten\Projekte\FileMonitor\flmonsvc\copyservice.cmd
          :VCEnd
-                 1 Datei(en) kopiert.
-       FinalizeBuildStatus:
-         Die Datei "Debug\flmonsvc.unsuccessfulbuild" wird gelöscht.
-         Aktualisieren des Timestamps von "Debug\flmonsvc.lastbuildstate".
-     1>Die Erstellung des Projekts "D:\Daten\Projekte\FileMonitor\flmonsvc\flmonsvc.vcxproj" ist abgeschlossen, build Ziel(e).
-
-Das Erstellen war erfolgreich.
-
-Verstrichene Zeit 00:00:01.36

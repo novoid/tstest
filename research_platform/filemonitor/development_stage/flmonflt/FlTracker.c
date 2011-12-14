@@ -574,9 +574,9 @@ unsigned int
 		// build message
 		//
 		if (t->Type == OCTRACKER_TYPE_DIR)
-			message[0] = MESSAGE_NOTIFY_DIR;
+			message[0] = MESSAGE_NOTIFY_DIR_OPEN;
 		else if (t->Type == OCTRACKER_TYPE_FILE)
-			message[0] = MESSAGE_NOTIFY_FILE;
+			message[0] = MESSAGE_NOTIFY_FILE_READ;
 		else
 			message[0] = '\0';
 
