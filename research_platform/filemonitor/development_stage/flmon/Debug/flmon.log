@@ -1,8 +1,8 @@
-﻿Der Buildvorgang wurde am 13.12.2011 00:33:32 gestartet.
+﻿Der Buildvorgang wurde am 20.12.2011 09:03:20 gestartet.
      1>Projekt "D:\Daten\Projekte\FileMonitor\flmon\flmon.vcxproj" auf Knoten "2", build Ziel(e).
      1>Build:
          buildus_dbg_x86.cmd
-         OACR monitor running already
+         Launching OACR monitor
          path contains nonexistant \bin\, removing
          path contains nonexistant d:\program files (x86)\microsoft visual studio 10.0\common7\tools\bin, removing
          BUILD: Compile and Link for x86
@@ -11,27 +11,32 @@
          
          BUILD: Computing Include file dependencies:
          
-         BUILD: Start time: Tue Dec 13 00:33:32 2011
+         BUILD: Start time: Tue Dec 20 09:03:22 2011
          BUILD: Examining d:\daten\projekte\filemonitor\flmon directory for files to compile.
          
              d:\daten\projekte\filemonitor\flmon 
          
          Invalidating OACR warning log for 'root:x86chk'
+             d:\daten\projekte\filemonitor\flmon - 2 source files (395 lines)
+         
          BUILD: Saving d:\winddk\7600.16385.1\build.dat...
          
          BUILD: Compiling d:\daten\projekte\filemonitor\flmon directory
          
          Configuring OACR for 'root:x86chk' - <OACR on>
+         Compiling - flmonipc.c
+         Compiling - main.c
+         Compiling - generating code...
          Building Library - objchk_win7_x86\i386\flmon.lib
          BUILD: Linking for d:\daten\projekte\filemonitor\flmon directory
          
          Linking Executable - objchk_win7_x86\i386\flmon.dll
-         BUILD: Finish time: Tue Dec 13 00:33:33 2011
+         BUILD: Finish time: Tue Dec 20 09:03:31 2011
          BUILD: Done
          
          
          
-             0 files compiled - 2 Warnings
+             4 files compiled - 4 Warnings - 395 LPS
          
              1 library built
          
@@ -48,4 +53,4 @@
 
 Das Erstellen war erfolgreich.
 
-Verstrichene Zeit 00:00:00.92
+Verstrichene Zeit 00:00:11.15

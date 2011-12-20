@@ -594,7 +594,7 @@ FLT_POSTOP_CALLBACK_STATUS
 			)
 		{
 			DBGPRINT_ARG1("[flmonflt:POSTOP:MJ_CREATE] File not found '%wZ'\n", &nameInfo->Name);
-			FlTrackerClean(&OcTracker);
+			//FlTrackerClean(&OcTracker);
 			FltReleaseFileNameInformation(nameInfo);
 			return FLT_POSTOP_FINISHED_PROCESSING;
 		}

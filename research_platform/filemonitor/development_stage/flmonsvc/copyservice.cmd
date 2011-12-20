@@ -1,0 +1,1 @@
+copy D:\Daten\Projekte\FileMonitor\Debug\flmonsvc.exe \\192.168.0.201\userspace\flmonsvc.exe

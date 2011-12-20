@@ -1,19 +1,18 @@
-﻿Der Buildvorgang wurde am 19.12.2011 13:57:02 gestartet.
+﻿Der Buildvorgang wurde am 20.12.2011 12:04:09 gestartet.
      1>Projekt "D:\Daten\Projekte\FileMonitor\flmonsvc\flmonsvc.vcxproj" auf Knoten "2", build Ziel(e).
      1>InitializeBuildStatus:
          "Debug\flmonsvc.unsuccessfulbuild" wird erstellt, da "AlwaysCreate" angegeben wurde.
        ClCompile:
-         D:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /wd4996 /analyze- /errorReport:prompt TagstoreConfig.cpp
-         TagstoreConfig.cpp
-     1>d:\daten\projekte\filemonitor\flmonsvc\tagstoreconfig.cpp(228): warning C4018: '<': Konflikt zwischen 'signed' und 'unsigned'
-     1>d:\daten\projekte\filemonitor\flmonsvc\tagstoreconfig.cpp(293): warning C4101: 'ov': Unreferenzierte lokale Variable
-     1>d:\daten\projekte\filemonitor\flmonsvc\tagstoreconfig.cpp(372): warning C4018: '<': Konflikt zwischen 'signed' und 'unsigned'
-     1>d:\daten\projekte\filemonitor\flmonsvc\tagstoreconfig.cpp(394): warning C4018: '<': Konflikt zwischen 'signed' und 'unsigned'
+         D:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /wd4996 /analyze- /errorReport:prompt FileWriter.cpp FlRuleSet.cpp
+         FlRuleSet.cpp
+         FileWriter.cpp
+         Code wird generiert...
        ManifestResourceCompile:
          Alle Ausgaben sind aktuell.
        Link:
          D:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"D:\Daten\Projekte\FileMonitor\Debug\flmonsvc.exe" /INCREMENTAL /NOLOGO flmon.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Debug\flmonsvc.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"D:\Daten\Projekte\FileMonitor\Debug\flmonsvc.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\Daten\Projekte\FileMonitor\Debug\flmonsvc.lib" /MACHINE:X86 Debug\flmonsvc.exe.embed.manifest.res
          Debug\FileWriter.obj
+         Debug\FlRuleSet.obj
          Debug\FsLogFile.obj
          Debug\RegistryWindows.obj
          Debug\Service.obj
@@ -35,4 +34,4 @@
 
 Das Erstellen war erfolgreich.
 
-Verstrichene Zeit 00:00:01.17
+Verstrichene Zeit 00:00:02.00

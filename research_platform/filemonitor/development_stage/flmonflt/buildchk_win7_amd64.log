@@ -68,15 +68,15 @@ oacr invalidate root:amd64chk /autocleanqueue
 1> /wd4627
 1> /homeparams
 1> /FID:\WinDDK\7600.16385.1\inc\api\warning.h
-1> .\fltracker.c 
-1>fltracker.c
-1>d:\daten\projekte\filemonitor\flmonflt\fltracker.c(739) : warning C4018: '>' : signed/unsigned mismatch
+1> .\filemon.c 
+1>filemon.c
+1>d:\daten\projekte\filemonitor\flmonflt\filemon.c(1058) : warning C4244: '=' : conversion from 'ULONG' to 'USHORT', possible loss of data
 1>warnings in directory d:\daten\projekte\filemonitor\flmonflt
-1>d:\daten\projekte\filemonitor\flmonflt\fltracker.c(739) : warning C4018: '>' : signed/unsigned mismatch
-1>d:\daten\projekte\filemonitor\flmonflt\fltracker.c(834) : warning C4018: '>' : signed/unsigned mismatch
-1>d:\daten\projekte\filemonitor\flmonflt\fltracker.c(834) : warning C4018: '>' : signed/unsigned mismatch
-1>d:\daten\projekte\filemonitor\flmonflt\fltracker.c(842) : warning C4018: '>' : signed/unsigned mismatch
-1>d:\daten\projekte\filemonitor\flmonflt\fltracker.c(842) : warning C4018: '>' : signed/unsigned mismatch
+1>d:\daten\projekte\filemonitor\flmonflt\filemon.c(1058) : warning C4244: '=' : conversion from 'ULONG' to 'USHORT', possible loss of data
+1>d:\daten\projekte\filemonitor\flmonflt\filemon.c(1059) : warning C4244: '=' : conversion from 'ULONG' to 'USHORT', possible loss of data
+1>d:\daten\projekte\filemonitor\flmonflt\filemon.c(1059) : warning C4244: '=' : conversion from 'ULONG' to 'USHORT', possible loss of data
+1>d:\daten\projekte\filemonitor\flmonflt\filemon.c(1060) : warning C4133: '=' : incompatible types - from 'unsigned char *' to 'PWCH'
+1>d:\daten\projekte\filemonitor\flmonflt\filemon.c(1060) : warning C4133: '=' : incompatible types - from 'unsigned char *' to 'PWCH'
 1> D:\WinDDK\7600.16385.1\Bin\x86\oacr\oacrlink /out:d:\daten\projekte\filemonitor\flmonflt\objchk_win7_amd64\amd64\flmonflt.sys /machine:amd64 @d:\daten\projekte\filemonitor\flmonflt\objchk_win7_amd64\amd64\lnk.rsp
 1>Microsoft (R) Incremental Linker Version 9.00.30729.207
 1>Copyright (C) Microsoft Corporation.  All rights reserved.

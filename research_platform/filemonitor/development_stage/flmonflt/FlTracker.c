@@ -807,6 +807,7 @@ POCTRACKER_ENTRY
 	KMutexAquire(&tracker->Mutex);
 
 
+
 	if (!tracker)
 	{
 		KMutexRelease(&tracker->Mutex);
@@ -820,29 +821,28 @@ POCTRACKER_ENTRY
 	}
 
 
-	dir = file = t = tracker->FirstEntry;
+	t = tracker->FirstEntry;
+	DBGPRINT_ARG1("[flmonflt] Trackercount: %d\n", tracker->Count);
 
-	if (t->Type == OCTRACKER_TYPE_DIR)
-		last_dcount = t->Count;
-	else
-		last_fcount = t->Count;
 
-	while(t->NextEntry)
+	while(t)
 	{
 		if (t->Type == OCTRACKER_TYPE_DIR)
 		{
-			if (t->Count > last_dcount)
+			if ((int)t->Count > last_dcount)
 			{
 				last_dcount = t->Count;
 				dir = t;
+				DBGPRINT_ARG1("[flmonflt] Last dcount: %d\n", last_dcount);
 			}
 		}
 		else if (t->Type == OCTRACKER_TYPE_FILE)
 		{
-			if (t->WasRead && t->Count > last_fcount)
+			if (t->WasRead && (int)t->Count > last_fcount)
 			{
 				file = t;
 				last_fcount = t->Count;
+				DBGPRINT_ARG1("[flmonflt] Last fcount: %d\n", last_fcount);
 			}
 		}
 
@@ -850,6 +850,8 @@ POCTRACKER_ENTRY
 	}
 
 	KMutexRelease(&tracker->Mutex);
+
+	DBGPRINT_ARG2("[flmonflt] FD: 0x%x, 0x%x\n", file, dir);
 
 	if (file)
 		return file;

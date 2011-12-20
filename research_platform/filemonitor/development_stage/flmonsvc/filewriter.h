@@ -40,7 +40,8 @@ public:
 	static void SetBaseDirectory(string dirname) { m_BaseDirectory = dirname; }
 
 	string CurrentFilename();
-	unsigned int Write(char type, string text);
+	unsigned int Write(char type, string path);
+	bool RulesApply(char type, string& path);
 
 
 	bool NeedNewFile();

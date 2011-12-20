@@ -30,6 +30,9 @@
     <ClCompile Include="RegistryWindows.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="FlRuleSet.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="addservice.cmd" />
@@ -52,6 +55,9 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="RegistryWindows.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="FlRuleSet.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

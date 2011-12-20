@@ -1,4 +1,4 @@
-﻿Der Buildvorgang wurde am 13.12.2011 17:10:19 gestartet.
+﻿Der Buildvorgang wurde am 20.12.2011 12:49:22 gestartet.
      1>Projekt "D:\Daten\Projekte\FileMonitor\flmonflt\flmonflt.vcxproj" auf Knoten "2", build Ziel(e).
      1>Build:
          builddrv_chk_x64.cmd
@@ -11,7 +11,7 @@
          
          BUILD: Computing Include file dependencies:
          
-         BUILD: Start time: Tue Dec 13 17:10:19 2011
+         BUILD: Start time: Tue Dec 20 12:49:22 2011
          BUILD: Examining d:\daten\projekte\filemonitor\flmonflt directory for files to compile.
          
              d:\daten\projekte\filemonitor\flmonflt 
@@ -22,13 +22,13 @@
          BUILD: Compiling and Linking d:\daten\projekte\filemonitor\flmonflt directory
          
          Configuring OACR for 'root:amd64chk' - <OACR on>
-         Compiling - fltracker.c
+         Compiling - filemon.c
          1>warnings in directory d:\daten\projekte\filemonitor\flmonflt
-     1>d:\daten\projekte\filemonitor\flmonflt\fltracker.c(739): warning C4018: '>' : signed/unsigned mismatch
-     1>d:\daten\projekte\filemonitor\flmonflt\fltracker.c(834): warning C4018: '>' : signed/unsigned mismatch
-     1>d:\daten\projekte\filemonitor\flmonflt\fltracker.c(842): warning C4018: '>' : signed/unsigned mismatch
+     1>d:\daten\projekte\filemonitor\flmonflt\filemon.c(1058): warning C4244: '=' : conversion from 'ULONG' to 'USHORT', possible loss of data
+     1>d:\daten\projekte\filemonitor\flmonflt\filemon.c(1059): warning C4244: '=' : conversion from 'ULONG' to 'USHORT', possible loss of data
+     1>d:\daten\projekte\filemonitor\flmonflt\filemon.c(1060): warning C4133: '=' : incompatible types - from 'unsigned char *' to 'PWCH'
          Linking Executable - objchk_win7_amd64\amd64\flmonflt.sys
-         BUILD: Finish time: Tue Dec 13 17:10:20 2011
+         BUILD: Finish time: Tue Dec 20 12:49:23 2011
          BUILD: Done
          
          
@@ -43,4 +43,4 @@
 
 Das Erstellen war erfolgreich.
 
-Verstrichene Zeit 00:00:00.94
+Verstrichene Zeit 00:00:01.04

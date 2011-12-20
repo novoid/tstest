@@ -1,0 +1,4 @@
+1>warnings in directory d:\daten\projekte\filemonitor\flmonflt
+1>d:\daten\projekte\filemonitor\flmonflt\filemon.c(1058) : warning C4244: '=' : conversion from 'ULONG' to 'USHORT', possible loss of data
+1>d:\daten\projekte\filemonitor\flmonflt\filemon.c(1059) : warning C4244: '=' : conversion from 'ULONG' to 'USHORT', possible loss of data
+1>d:\daten\projekte\filemonitor\flmonflt\filemon.c(1060) : warning C4133: '=' : incompatible types - from 'unsigned char *' to 'PWCH'
