@@ -19,6 +19,9 @@ from tagcompleter import TagCompleterWidget
 from tscore.enums import ECategorySetting, ETagErrorEnum
 from tsgui.tagdialogstate import TagDialogState
 from tscore.specialcharhelper import SpecialCharHelper
+from tsgui.helpdialog import HelpDialog
+from tscore.configwrapper import ConfigWrapper
+from tscore.tsconstants import TsConstants
 
 class TagDialog(QtGui.QDialog):
 
@@ -62,6 +65,8 @@ class TagDialog(QtGui.QDialog):
         self.__tag_label_list = []
         self.__category_label_list = []
 
+        self.__tag_help_window = HelpDialog("tagdialog")
+
         self.setObjectName("TagDialog")
         self.setWindowModality(QtCore.Qt.WindowModal)
         self.__baseLayout = QtGui.QHBoxLayout()
@@ -74,9 +79,7 @@ class TagDialog(QtGui.QDialog):
         self.__baseLayout.addWidget(self.__mainwidget)
         
         self.__help_button = QtGui.QToolButton()
-        icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("./tsresources/images/help.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.__help_button.setIcon(icon)
+        self.__help_button.setIcon(QtGui.QIcon("./tsresources/images/help.png"))
         
         self.__property_button = QtGui.QPushButton()
         self.__tag_button = QtGui.QPushButton()
@@ -319,6 +322,7 @@ class TagDialog(QtGui.QDialog):
         ## pass the signal to the normal parent chain
     
     def closeEvent(self, event):
+        self.emit(QtCore.SIGNAL("cancel_clicked()"))
         event.ignore()
         self.hide()
     
@@ -709,6 +713,9 @@ class TagDialog(QtGui.QDialog):
     def set_retag_mode(self):
         self.__property_button.setEnabled(False)
         self.__close_button.setText(self.trUtf8("Cancel"))
+        
+    def get_tag_help_window(self):
+        return self.__tag_help_window
 
 class TagDialogController(QtCore.QObject):
     """
@@ -722,6 +729,8 @@ class TagDialogController(QtCore.QObject):
         self.__max_tags = max_tags
         self.__store_name = store_name
         self.__expiry_prefix = expiry_prefix
+
+        self.__config_wrapper = ConfigWrapper(TsConstants.CONFIG_PATH)
         
         self.__log = logging.getLogger("TagStoreLogger")
         self.__tag_separator = tag_separator
@@ -738,7 +747,11 @@ class TagDialogController(QtCore.QObject):
         self.connect(self.__tag_dialog, QtCore.SIGNAL("property_clicked()"), QtCore.SIGNAL("open_store_admin_dialog()"))
     
     def __help_clicked(self):
-        self.__tag_dialog.show_tooltip("HELP HELP HEl....")
+        if self.__tag_dialog.get_tag_help_window().isVisible() == False:
+            self.__tag_dialog.get_tag_help_window().move(
+                self.__tag_dialog.pos().x() + self.__tag_dialog.width() - 100, 
+                self.__tag_dialog.pos().y() - 25)
+            self.__tag_dialog.get_tag_help_window().show()
 
     def __handle_no_items(self):
         """
@@ -912,12 +925,23 @@ class TagDialogController(QtCore.QObject):
         self.__is_shown = True
         self.__tag_dialog.show()
         self.__log.debug("show tag-dialog")
+
+        if (self.__config_wrapper.get_show_tag_help() and 
+            not self.__tag_dialog.get_tag_help_window().isVisible()):
+            self.__tag_dialog.get_tag_help_window().move(
+                self.__tag_dialog.pos().x() + self.__tag_dialog.width() - 100, 
+                self.__tag_dialog.pos().y() - 25)
+            self.__tag_dialog.get_tag_help_window().show()
         
     def hide_dialog(self):
         if not self.__is_shown:
             return
         self.__is_shown = False
         self.__tag_dialog.clear_tag_line()
+
+        if self.__tag_dialog.get_tag_help_window().isVisible():
+            self.__tag_dialog.get_tag_help_window().hide()
+
         self.__tag_dialog.hide()
         self.__log.debug("hide tag-dialog")
         
@@ -933,4 +957,5 @@ class TagDialogController(QtCore.QObject):
     def set_store_name(self, store_name):
         self.__store_name = store_name
         self.__tag_dialog.set_store_label_text(store_name)
+        
 ## END

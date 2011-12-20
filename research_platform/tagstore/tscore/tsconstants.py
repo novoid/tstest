@@ -73,6 +73,15 @@ class TsConstants(object):
     
     SETTING_EXPIRY_PREFIX = "expiry_prefix"
     
+    SETTING_SHOW_TAG_HELP = "show_tag_help"
+    SETTING_SHOW_MY_TAGS_HELP = "show_my_tags_help"
+    SETTING_SHOW_DATESTAMPS_HELP = "show_datestamps_help"
+    SETTING_SHOW_EXPIRY_DATE_HELP = "show_expiry_date_help"
+    SETTING_SHOW_RETAGING_HELP = "show_retagging_help"
+    SETTING_SHOW_RENAME_TAGS_HELP = "show_rename_tags_help"
+    SETTING_SHOW_STORE_MANAGEMENT_HELP = "show_store_management_help"
+    SETTING_SHOW_SYNC_SETTINGS_HELP = "show_sync_settings_help"
+    
     DATESTAMP_FORMAT_DAY = "%Y-%m-%d"
     DATESTAMP_FORMAT_MONTH = "%Y-%m"
     
@@ -101,6 +110,15 @@ class TsConstants(object):
     DEFAULT_DATESTAMP_HIDDEN = "false"
     DEFAULT_ADDITIONAL_IGNORED_EXTENSIONS = ""
     DEFAULT_SYNC_TAG = "android"
+    
+    DEFAULT_SHOW_TAG_HELP = "true"
+    DEFAULT_SHOW_MY_TAGS_HELP = "true"
+    DEFAULT_SHOW_DATESTAMPS_HELP ="true"
+    DEFAULT_SHOW_EXPIRY_DATE_HELP ="true"
+    DEFAULT_SHOW_RETAGING_HELP ="true"
+    DEFAULT_SHOW_RENAME_TAGS_HELP ="true"
+    DEFAULT_SHOW_STORE_MANAGEMENT_HELP ="true"
+    DEFAULT_SHOW_SYNC_SETTINGS_HELP ="true"
     
     def __init__(self):
         pass

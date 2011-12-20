@@ -138,6 +138,16 @@ class ConfigWrapper(QtCore.QObject):
         self.__log.info("max_tags=%s" % self.get_max_tags())
         self.__log.info("num_popular_tags=%s" % self.get_num_popular_tags())
         self.__log.info("sync_tag=%s" % self.get_sync_tag())
+        
+        self.__log.info("show_wizard=%s" % self.get_show_wizard())
+        self.__log.info("show_tag_help=%s" % self.get_show_tag_help())
+        self.__log.info("show_my_tags_help=%s" % self.get_show_my_tags_help())
+        self.__log.info("show_datestamps_help=%s" % self.get_show_datestamps_help())
+        self.__log.info("show_expiry_date_help=%s" % self.get_show_expiry_date_help())
+        self.__log.info("show_retagging_help=%s" % self.get_show_retagging_help())
+        self.__log.info("show_rename_tags_help=%s" % self.get_show_rename_tags_help())
+        self.__log.info("show_store_management_help=%s" % self.get_show_store_management_help())
+        self.__log.info("show_sync_settings_help=%s" % self.get_show_sync_settings_help())
         self.__log.info("[stores]")
         self.__log.info("***************************************************************")
         self.__log.info("END - APPLICATION CONFIGURATION")
@@ -375,9 +385,9 @@ class ConfigWrapper(QtCore.QObject):
     
     def get_show_wizard(self):
         value = self.__get_setting(TsConstants.SETTING_SHOW_WIZARD)
-        if value == "true":
-            return True
-        return False
+        if value == "false":
+            return False
+        return True
     
     def set_show_wizard(self, show):
         """
@@ -388,9 +398,9 @@ class ConfigWrapper(QtCore.QObject):
 
     def get_first_start(self):
         value = self.__get_setting(TsConstants.SETTING_FIRST_START)
-        if value == "true":
-            return True
-        return False
+        if value == "false":
+            return False
+        return True
     
     def set_first_start(self, first_start):
         """
@@ -503,4 +513,114 @@ class ConfigWrapper(QtCore.QObject):
         
         return str(new_id_int)
 
+    def set_show_tag_help(self, state):
+        """
+        set to false if the tag help should not be automatically shown
+        set to "true" if you want to re-activate
+        """
+        self.__put_setting(TsConstants.SETTING_SHOW_TAG_HELP, state)
+        
+    def get_show_tag_help(self):
+        value = self.__get_setting(TsConstants.SETTING_SHOW_TAG_HELP)
+        if value == "false":
+            return False
+        return True
+    
+    def set_show_my_tags_help(self, state):
+        """
+        set to false if the automatic help should not be shown on selection 
+        of the "My Tag" tab
+        set to "true" if you want to re-activate
+        """
+        self.__put_setting(TsConstants.SETTING_SHOW_MY_TAGS_HELP, state)
+        
+    def get_show_my_tags_help(self):
+        value = self.__get_setting(TsConstants.SETTING_SHOW_MY_TAGS_HELP)
+        if value == "false":
+            return False
+        return True
+    
+    def set_show_datestamps_help(self, state):
+        """
+        set to false if the automatic help should not be shown on selection 
+        of the "Datestamps" tab
+        set to "true" if you want to re-activate
+        """
+        self.__put_setting(TsConstants.SETTING_SHOW_DATESTAMPS_HELP, state)
+        
+    def get_show_datestamps_help(self):
+        value = self.__get_setting(TsConstants.SETTING_SHOW_DATESTAMPS_HELP)
+        if value == "false":
+            return False
+        return True
+    
+    def set_show_expiry_date_help(self, state):
+        """
+        set to false if the automatic help should not be shown on selection 
+        of the "Expiry Date" tab
+        set to "true" if you want to re-activate
+        """
+        self.__put_setting(TsConstants.SETTING_SHOW_EXPIRY_DATE_HELP, state)
+        
+    def get_show_expiry_date_help(self):
+        value = self.__get_setting(TsConstants.SETTING_SHOW_EXPIRY_DATE_HELP)
+        if value == "false":
+            return False
+        return True
+    
+    def set_show_retagging_help(self, state):
+        """
+        set to false if the automatic help should not be shown on selection 
+        of the "Re-Tagging" tab
+        set to "true" if you want to re-activate
+        """
+        self.__put_setting(TsConstants.SETTING_SHOW_RETAGING_HELP, state)
+        
+    def get_show_retagging_help(self):
+        value = self.__get_setting(TsConstants.SETTING_SHOW_RETAGING_HELP)
+        if value == "false":
+            return False
+        return True
+    
+    def set_show_rename_tags_help(self, state):
+        """
+        set to false if the automatic help should not be shown on selection 
+        of the "Rename Tags" tab
+        set to "true" if you want to re-activate
+        """
+        self.__put_setting(TsConstants.SETTING_SHOW_RENAME_TAGS_HELP, state)
+        
+    def get_show_rename_tags_help(self):
+        value = self.__get_setting(TsConstants.SETTING_SHOW_RENAME_TAGS_HELP)
+        if value == "false":
+            return False
+        return True
+    
+    def set_show_store_management_help(self, state):
+        """
+        set to false if the automatic help should not be shown on selection 
+        of the "Store Management" tab
+        set to "true" if you want to re-activate
+        """
+        self.__put_setting(TsConstants.SETTING_SHOW_STORE_MANAGEMENT_HELP, state)
+        
+    def get_show_store_management_help(self):
+        value = self.__get_setting(TsConstants.SETTING_SHOW_STORE_MANAGEMENT_HELP)
+        if value == "false":
+            return False
+        return True
+   
+    def set_show_sync_settings_help(self, state):
+        """
+        set to false if the automatic help should not be shown on selection 
+        of the "Sync Settings" tab
+        set to "true" if you want to re-activate
+        """
+        self.__put_setting(TsConstants.SETTING_SHOW_SYNC_SETTINGS_HELP, state)
+        
+    def get_show_sync_settings_help(self):
+        value = self.__get_setting(TsConstants.SETTING_SHOW_SYNC_SETTINGS_HELP)
+        if value == "false":
+            return False
+        return True
 ## end

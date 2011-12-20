@@ -22,6 +22,8 @@ from tscore.enums import ECategorySetting, EDateStampFormat
 from tscore.vocabularywrapper import VocabularyWrapper
 from tscore.specialcharhelper import SpecialCharHelper
 from tscore.tagwrapper import TagWrapper
+from tsgui.helpdialog import HelpDialog
+from tsgui.wizard import Wizard
 
 class StorePreferencesView(QtGui.QDialog):
     """
@@ -38,6 +40,8 @@ class StorePreferencesView(QtGui.QDialog):
         self.__layout = QtGui.QVBoxLayout(self)
         
         self.__tab_widget = QtGui.QTabWidget()
+
+        self.setWindowTitle("tagstore Manager")
         
         self.__apply_button = QtGui.QPushButton(self.trUtf8("Save"))
         self.__cancel_button = QtGui.QPushButton(self.trUtf8("Cancel"))
@@ -54,6 +58,7 @@ class StorePreferencesView(QtGui.QDialog):
         
         self.connect(self.__apply_button, QtCore.SIGNAL("clicked()"), QtCore.SIGNAL("apply_clicked()"))
         self.connect(self.__cancel_button, QtCore.SIGNAL("clicked()"), QtCore.SIGNAL("cancel_clicked()"))
+        self.connect(self.__tab_widget, QtCore.SIGNAL("currentChanged(int)"), QtCore.SIGNAL("tab_changed(int)"))
         
     def add_preference_tab(self, preference_widget, title):
         """
@@ -93,6 +98,9 @@ class StorePreferencesView(QtGui.QDialog):
         
         QtGui.QWhatsThis.showText(tip_position, message, parent)
         
+    def closeEvent(self, event):
+        self.emit(QtCore.SIGNAL("cancel_clicked()"))
+        
         
 class BasePreferenceView(QtGui.QWidget):
     
@@ -104,12 +112,22 @@ class BasePreferenceView(QtGui.QWidget):
         self.__main_panel = QtGui.QWidget()
         self.__main_panel.setLayout(self.__main_layout)
         
+        self.__layout = QtGui.QHBoxLayout()
         self.__base_layout = QtGui.QVBoxLayout()
+        
+        self._help_button = QtGui.QToolButton()
+        self._help_button.setIcon(QtGui.QIcon("./tsresources/images/help.png"))
         
         self.__base_layout.addWidget(self.__description_label)
         self.__base_layout.addWidget(self.__main_panel)
         
-        self.setLayout(self.__base_layout)
+        self.__layout.addLayout(self.__base_layout)
+        self.__layout.addWidget(self._help_button, 0, QtCore.Qt.AlignTop)
+        
+        self.setLayout(self.__layout)
+
+        self.connect(self._help_button, QtCore.SIGNAL("clicked()"), 
+                     QtCore.SIGNAL("help_clicked()"))
             
     def set_description(self, description):
         """
@@ -152,10 +170,14 @@ class BasePreferenceController(QtCore.QObject):
         self._view = self._create_view()
         ## a list with dictionary elements containing store name, setting and value
         self._settings_dict_list = []
+        
+        self._dialog = None
+        self._config_wrapper = ConfigWrapper(TsConstants.CONFIG_PATH)
     
         ## a view can emit a "setting_changed" signal. 
         ## the controller will to the necessary steps to handle this change
         self.connect(self._view, QtCore.SIGNAL("setting_changed"), self._handle_gui_setting_change)
+        self.connect(self._view, QtCore.SIGNAL("help_clicked()"), self._help_clicked)
     
     def _create_view(self):
         """
@@ -193,6 +215,12 @@ class BasePreferenceController(QtCore.QObject):
     
     def get_view(self):
         return self._view
+    
+    def _help_clicked(self):
+        raise Exception("method must be re-implemented by sublass")
+    
+    def set_dialog(self, dialog):
+        self._dialog = dialog
         
 class MultipleStorePreferenceView(BasePreferenceView):
     
@@ -292,6 +320,8 @@ class StoreAdminView(BasePreferenceView):
         
         self.__selected_store = None
         
+        self.__store_management_help_window = HelpDialog("Store Management")
+        
         self.__store_list_view = QtGui.QListWidget()
         
         self.__central_widget = QtGui.QWidget()
@@ -361,6 +391,10 @@ class StoreAdminView(BasePreferenceView):
         add a new store path to be shown in the list view
         """
         self.__store_list_view.addItem(QtGui.QListWidgetItem(store_name))
+        
+    def get_store_management_help_window(self):
+        return self.__store_management_help_window
+    
         
 class StoreAdminController(BasePreferenceController):
     
@@ -444,6 +478,25 @@ class StoreAdminController(BasePreferenceController):
     def _add_additional_settings(self):
         pass
     
+    def _help_clicked(self):
+        if not self._view.get_store_management_help_window().isVisible():
+            self._view.get_store_management_help_window().move(
+                self._dialog.pos().x() + self._dialog.width() - 100, 
+                self._dialog.pos().y() - 25)
+            self._view.get_store_management_help_window().show()
+            
+    def handle_auto_help(self):
+        if (self._config_wrapper.get_show_store_management_help() and 
+            not self._view.get_store_management_help_window().isVisible()):
+            self._view.get_store_management_help_window().show()
+            self._view.get_store_management_help_window().move(
+                self._dialog.pos().x() + self._dialog.width() - 100, 
+                self._dialog.pos().y() - 25)
+            
+    def handle_close_event(self):
+        self._view.get_store_management_help_window().hide()
+        
+    
 class VocabularyAdminView(MultipleStorePreferenceView):
 
     def __init__(self, store_list=None, parent=None):
@@ -452,6 +505,8 @@ class VocabularyAdminView(MultipleStorePreferenceView):
         self.set_description(self.trUtf8("Avoid similar tags (uni, university, ...) by resticting yourself to your set of tags"))
 
         self.__selected_vocabulary = None
+        
+        self.__my_tags_help_window = HelpDialog("My Tags")
 
         self.__radio_layout = QtGui.QVBoxLayout()
 
@@ -612,6 +667,9 @@ class VocabularyAdminView(MultipleStorePreferenceView):
         """
         self.__checkbox_mandatory.setChecked(is_mandatory)
         
+    def get_my_tags_help_window(self):
+        return self.__my_tags_help_window
+        
 class VocabularyAdminController(MultipleStorePreferenceController):
     
     def __init__(self, store_list):
@@ -643,6 +701,24 @@ class VocabularyAdminController(MultipleStorePreferenceController):
     
     def set_settings_editable(self, enabled):
         self.get_view().enable_radio_buttons(enabled)
+        
+    def _help_clicked(self):
+        if not self._view.get_my_tags_help_window().isVisible():
+            self._view.get_my_tags_help_window().move(
+                self._dialog.pos().x() + self._dialog.width() - 100, 
+                self._dialog.pos().y() - 25)
+            self._view.get_my_tags_help_window().show()
+            
+    def handle_auto_help(self):
+        if (self._config_wrapper.get_show_my_tags_help() and 
+            not self._view.get_my_tags_help_window().isVisible()):
+            self._view.get_my_tags_help_window().move(
+                self._dialog.pos().x() + self._dialog.width() - 100, 
+                self._dialog.pos().y() - 25)
+            self._view.get_my_tags_help_window().show()
+            
+    def handle_close_event(self):
+        self._view.get_my_tags_help_window().hide()
  
 class ReTaggingView(MultipleStorePreferenceView):
     def __init__(self, store_list=None, parent=None):
@@ -650,6 +726,8 @@ class ReTaggingView(MultipleStorePreferenceView):
         self.set_description(self.trUtf8("Re-tag already tagged items"))
         
         self.__selected_item = None
+        
+        self.__retagging_help_window = HelpDialog("Re-Tagging")
         
         self.__item_list_view = QtGui.QListWidget()
         
@@ -687,6 +765,9 @@ class ReTaggingView(MultipleStorePreferenceView):
         
     def get_selected_item(self):
         return self.__selected_item
+    
+    def get_retagging_help_window(self):
+        return self.__retagging_help_window
   
 class ReTaggingController(MultipleStorePreferenceController):
     
@@ -713,6 +794,24 @@ class ReTaggingController(MultipleStorePreferenceController):
         if store_name == self._current_store:
             if setting_name == TsConstants.SETTING_ITEMS:
                 self.get_view().set_item_list(setting_value)
+                
+    def _help_clicked(self):
+        if not self._view.get_retagging_help_window().isVisible():
+            self._view.get_retagging_help_window().move(
+                self._dialog.pos().x() + self._dialog.width() - 100, 
+                self._dialog.pos().y() - 25)
+            self._view.get_retagging_help_window().show()
+            
+    def handle_auto_help(self):
+        if (self._config_wrapper.get_show_retagging_help() and 
+            not self._view.get_retagging_help_window().isVisible()):
+            self._view.get_retagging_help_window().move(
+                self._dialog.pos().x() + self._dialog.width() - 100, 
+                self._dialog.pos().y() - 25)
+            self._view.get_retagging_help_window().show()
+            
+    def handle_close_event(self):
+        self._view.get_retagging_help_window().hide()
     
 class TagAdminView(MultipleStorePreferenceView):
     
@@ -723,6 +822,8 @@ class TagAdminView(MultipleStorePreferenceView):
 
         self.__selected_desc_tag = None
         self.__selected_cat_tag = None
+        
+        self.__rename_tags_help_window = HelpDialog("Rename Tags")
 
         self.__desc_tag_list_view = QtGui.QListWidget()
         self.__cat_tag_list_view = QtGui.QListWidget()
@@ -875,6 +976,9 @@ class TagAdminView(MultipleStorePreferenceView):
             vocabulary_list.append(unicode(self.__cat_tag_list_view.item(index).text()))
         return set(vocabulary_list)
     
+    def get_rename_tags_help_window(self):
+        return self.__rename_tags_help_window
+    
 
 class TagAdminController(MultipleStorePreferenceController):
     
@@ -920,12 +1024,32 @@ class TagAdminController(MultipleStorePreferenceController):
             self.get_view().clear_describing_tags()
             self.get_view().enable_cat_widgets(True)
             self.get_view().set_describing_tags(None)
+            
+    def _help_clicked(self):
+        if not self._view.get_rename_tags_help_window().isVisible():
+            self._view.get_rename_tags_help_window().move(
+                self._dialog.pos().x() + self._dialog.width() - 100, 
+                self._dialog.pos().y() - 25)
+            self._view.get_rename_tags_help_window().show()
+            
+    def handle_auto_help(self):
+        if (self._config_wrapper.get_show_rename_tags_help() and 
+            not self._view.get_rename_tags_help_window().isVisible()):
+            self._view.get_rename_tags_help_window().move(
+                self._dialog.pos().x() + self._dialog.width() - 100, 
+                self._dialog.pos().y() - 25)
+            self._view.get_rename_tags_help_window().show()
+            
+    def handle_close_event(self):
+        self._view.get_rename_tags_help_window().hide()
     
 class DatestampAdminView(MultipleStorePreferenceView):
 
     def __init__(self, store_list=None):
         MultipleStorePreferenceView.__init__(self, store_list)
         self.set_description(self.trUtf8("You can enable datestamps to be provided automatically at the tagging dialog"))
+        
+        self.__datestamps_help_window = HelpDialog("Datestamps")
         
         self.__radio_layout = QtGui.QVBoxLayout()
 
@@ -984,6 +1108,9 @@ class DatestampAdminView(MultipleStorePreferenceView):
     def set_datestamp_hidden(self, is_hidden):
         self.__checkbox_hidden_datestamp.setChecked(is_hidden)
         
+    def get_datestamps_help_window(self):
+        return self.__datestamps_help_window
+        
 class DatestampAdminController(MultipleStorePreferenceController):
     
     def __init__(self, store_list):
@@ -1009,6 +1136,24 @@ class DatestampAdminController(MultipleStorePreferenceController):
     def _add_additional_settings(self):
         pass
     
+    def _help_clicked(self):
+        if not self._view.get_datestamps_help_window().isVisible():
+            self._view.get_datestamps_help_window().move(
+                self._dialog.pos().x() + self._dialog.width() - 100, 
+                self._dialog.pos().y() - 25)
+            self._view.get_datestamps_help_window().show()
+            
+    def handle_auto_help(self):
+        if (self._config_wrapper.get_show_datestamps_help() and 
+            not self._view.get_datestamps_help_window().isVisible()):
+            self._view.get_datestamps_help_window().move(
+                self._dialog.pos().x() + self._dialog.width() - 100, 
+                self._dialog.pos().y() - 25)
+            self._view.get_datestamps_help_window().show()
+            
+    def handle_close_event(self):
+        self._view.get_datestamps_help_window().hide()
+    
 class ExpiryAdminView(BasePreferenceView):
 
     def __init__(self, storparent=None):
@@ -1016,6 +1161,8 @@ class ExpiryAdminView(BasePreferenceView):
         self.set_description(self.trUtf8("Define a prefix for giving files an expiry date."))
         
         self.__prefix = ""
+        
+        self.__expiry_date_help_window = HelpDialog("Expiry Date")
         
         self.__radio_layout = QtGui.QVBoxLayout()
 
@@ -1080,6 +1227,9 @@ class ExpiryAdminView(BasePreferenceView):
         
     def is_expiry_enabled(self):
         return self.__radio_activated.isChecked()
+    
+    def get_expiry_date_help_window(self):
+        return self.__expiry_date_help_window
         
 
 class ExpiryAdminController(BasePreferenceController):
@@ -1107,7 +1257,25 @@ class ExpiryAdminController(BasePreferenceController):
                     if prefix is None or prefix == "":
                         self.get_view().show_tooltip(self.trUtf8("Please provide a prefix, when this setting is enabled"))
                         return
-                    setting["SETTING_VALUE"] = prefix        
+                    setting["SETTING_VALUE"] = prefix 
+
+    def _help_clicked(self):
+        if not self._view.get_expiry_date_help_window().isVisible():
+            self._view.get_expiry_date_help_window().move(
+                self._dialog.pos().x() + self._dialog.width() - 100, 
+                self._dialog.pos().y() - 25)
+            self._view.get_expiry_date_help_window().show()
+                
+    def handle_auto_help(self):
+        if (self._config_wrapper.get_show_expiry_date_help() and 
+            not self._view.get_expiry_date_help_window().isVisible()):
+            self._view.get_expiry_date_help_window().move(
+                self._dialog.pos().x() + self._dialog.width() - 100, 
+                self._dialog.pos().y() - 25)
+            self._view.get_expiry_date_help_window().show()
+            
+    def handle_close_event(self):
+        self._view.get_expiry_date_help_window().hide()
 
 class SyncTagstoreView(BasePreferenceView):
 
@@ -1116,6 +1284,8 @@ class SyncTagstoreView(BasePreferenceView):
         self.set_description(self.trUtf8("Please define a tag, which makes all files associated with it, to be sync-able."))
 
         self.__sync_tag = ""
+        
+        self.__sync_settings_help_window = HelpDialog("Sync Settings")
         
         self.__radio_layout = QtGui.QVBoxLayout()
 
@@ -1187,6 +1357,9 @@ class SyncTagstoreView(BasePreferenceView):
     def is_sync_tag_enabled(self):
         return self.__radio_activated.isChecked()
     
+    def get_sync_settings_help_window(self):
+        return self.__sync_settings_help_window
+    
 
 class SyncTagstoreController(BasePreferenceController):
     
@@ -1214,7 +1387,25 @@ class SyncTagstoreController(BasePreferenceController):
                     if sync_tag is None or sync_tag == "":
                         self.get_view().show_tooltip(self.trUtf8("Please define a tag which is used for syncing."))
                         return
-                    setting["SETTING_VALUE"] = sync_tag   
+                    setting["SETTING_VALUE"] = sync_tag
+                    
+    def _help_clicked(self):
+        if not self._view.get_sync_settings_help_window().isVisible():
+            self._view.get_sync_settings_help_window().move(
+                self._dialog.pos().x() + self._dialog.width() - 100, 
+                self._dialog.pos().y() - 25)
+            self._view.get_sync_settings_help_window().show()
+                
+    def handle_auto_help(self):
+        if (self._config_wrapper.get_show_sync_settings_help() and 
+            not self._view.get_sync_settings_help_window().isVisible()):
+            self._view.get_sync_settings_help_window().move(
+                self._dialog.pos().x() + self._dialog.width() - 100, 
+                self._dialog.pos().y() - 25)
+            self._view.get_sync_settings_help_window().show()
+                
+    def handle_close_event(self):
+        self._view.get_sync_settings_help_window().hide()
         
 class StorePreferencesController(QtCore.QObject):
     
@@ -1237,6 +1428,7 @@ class StorePreferencesController(QtCore.QObject):
         self.__first_time_init = True
         self.__first_start = False
         self.__progressbar = None
+
         
         self.TAB_NAME_STORE = self.trUtf8("Store Management")
         self.TAB_NAME_DATESTAMP = self.trUtf8("Datestamps")
@@ -1254,6 +1446,8 @@ class StorePreferencesController(QtCore.QObject):
             
         self.connect(self.__dialog, QtCore.SIGNAL("apply_clicked()"), self.__handle_save)
         self.connect(self.__dialog, QtCore.SIGNAL("cancel_clicked()"), self.__handle_cancel)
+        self.connect(self.__dialog, QtCore.SIGNAL("tab_changed(int)"), self.__handle_auto_help)
+        
     def set_main_config(self, main_config):
         self.__main_config = main_config
 
@@ -1425,7 +1619,8 @@ class StorePreferencesController(QtCore.QObject):
                         
                 self.__log.info("%s, setting: %s, value: %s" % (property["STORE_NAME"], 
                                 property["SETTING_NAME"], property["SETTING_VALUE"]))
-        
+                
+        self.__close_help_windows()
         self.__dialog.close()
     
     def __get_store_config_by_name(self, store_name):
@@ -1434,6 +1629,7 @@ class StorePreferencesController(QtCore.QObject):
         return None
      
     def __handle_cancel(self):
+        self.__close_help_windows()
         self.__dialog.close()
     
     def remove_store_item(self, store_name):
@@ -1475,8 +1671,11 @@ class StorePreferencesController(QtCore.QObject):
         self.__first_start = first_start
         if first_start:
             self.__main_config.set_first_start(False)
+            if self.__main_config.get_show_wizard():
+                self.wizard = Wizard()
+                self.wizard.get_view().exec_()
+                self.__main_config.set_show_wizard("false")
             self.select_store_admin_tab()
-            ## TODO: show wizard ...
     
     def set_parent(self, parent):
 #        self.__dialog.setParent(parent)
@@ -1504,6 +1703,15 @@ class StorePreferencesController(QtCore.QObject):
         self.__progressbar.reset()
     
     def show_dialog(self):
+        self.__controller_datestamp.set_dialog(self.__dialog)
+        self.__controller_expiry_admin.set_dialog(self.__dialog)
+        self.__controller_retag.set_dialog(self.__dialog)
+        self.__controller_store_admin.set_dialog(self.__dialog)
+        self.__controller_sync_store.set_dialog(self.__dialog)
+        self.__controller_tag_admin.set_dialog(self.__dialog)
+        self.__controller_vocabulary.set_dialog(self.__dialog)
+        
+        self.set_first_start(self.__main_config.get_first_start())
         self.__dialog.show()
         
     def hide_dialog(self):
@@ -1511,5 +1719,32 @@ class StorePreferencesController(QtCore.QObject):
         
     def get_view(self):
         return self.__dialog
-
+    
+    def __handle_auto_help(self, selected_index):
+        
+        if self.__dialog.isVisible():
+            if selected_index == 0:
+                self.__controller_vocabulary.handle_auto_help()
+            elif selected_index == 1:
+                self.__controller_datestamp.handle_auto_help()
+            elif selected_index == 2:
+                self.__controller_expiry_admin.handle_auto_help()
+            elif selected_index == 3:
+                self.__controller_retag.handle_auto_help()
+            elif selected_index == 4:
+                self.__controller_tag_admin.handle_auto_help()
+            elif selected_index == 5:
+                self.__controller_store_admin.handle_auto_help()
+            elif selected_index == 6:
+                self.__controller_sync_store.handle_auto_help()
+                
+    def __close_help_windows(self):
+        self.__controller_datestamp.handle_close_event()
+        self.__controller_expiry_admin.handle_close_event()
+        self.__controller_retag.handle_close_event()
+        self.__controller_store_admin.handle_close_event()
+        self.__controller_sync_store.handle_close_event()
+        self.__controller_tag_admin.handle_close_event()
+        self.__controller_vocabulary.handle_close_event()
+      
 ## end
