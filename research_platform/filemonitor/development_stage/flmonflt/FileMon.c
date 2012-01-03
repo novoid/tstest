@@ -249,7 +249,7 @@ NTSTATUS
 		VERSION);
 
 
-#ifdef CHECKED
+#ifdef DBG
 	
 	DBGPRINT("[flmonflt] Checked build.\n");
 	KMutexInit(&DebugPrintMutex);
@@ -1055,9 +1055,9 @@ NTSTATUS
 
 		if (InputBufferC[1] == MESSAGE_CMD_ADD_WATCHDIR)
 		{
-			Path.Length = InputBufferLength-2;
-			Path.MaximumLength = InputBufferLength-2;
-			Path.Buffer = InputBufferC+2;
+			Path.Length = (USHORT)InputBufferLength-2;
+			Path.MaximumLength = (USHORT)InputBufferLength-2;
+			Path.Buffer = (PWCH)(InputBufferC+2);
 
 
 			if (Path.Length == 0)

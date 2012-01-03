@@ -63,6 +63,7 @@
     <None Include="builddrv_chk_x64.cmd">
       <Filter>build\x64</Filter>
     </None>
+    <None Include="flmon_driver.reg" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FileMon.c">

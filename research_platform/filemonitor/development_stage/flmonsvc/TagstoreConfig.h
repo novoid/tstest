@@ -30,6 +30,8 @@ struct Tagstore
 };
 
 
+class TsDeletedWatcher;
+
 class TagstoreConfig
 {
 
@@ -37,7 +39,8 @@ private:
 
 	string m_ConfigFilename;
 	vector<Tagstore> m_Stores;
-	vector<string> m_Subpaths;
+	vector<string> m_SubpathsReadWatch;
+	vector<string> m_SubpathsDeleteWatch;
 	HANDLE m_ConfigReadLock;
 
 	// Config file change watcher
@@ -47,6 +50,8 @@ private:
 	HANDLE		m_ThreadStopWait;
 	
 	PFLMONIPC	m_IPC;
+
+	TsDeletedWatcher * m_pDeleteWatcher;
 
 private:
 
@@ -62,7 +67,8 @@ public:
 	TagstoreConfig(string filename);
 	~TagstoreConfig();
 
-	void SetSubpaths();
+	void SetSubpathsReadWatch();
+	void SetSubpathsDeleteWatch();
 
 	void SetIPC(PFLMONIPC ipc) { m_IPC = ipc; }
 	void SetFilename(string filename) { m_ConfigFilename = filename; Read(); }
@@ -86,10 +92,7 @@ public:
 	Tagstore operator[](int index) { return m_Stores[index]; }
 
 	int UpdateDriverStores();
-
-	bool InstallChangeHandler();
-	void UninstallChangeHandler();
-
+	int RestartDeleteWatchers();
 	
 
 };

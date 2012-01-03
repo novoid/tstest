@@ -1,0 +1,53 @@
+﻿Der Buildvorgang wurde am 03.01.2012 18:44:43 gestartet.
+     1>Projekt "D:\Daten\Projekte\FileMonitor\flmonsvc\flmonsvc.vcxproj" auf Knoten "2", build Ziel(e).
+     1>InitializeBuildStatus:
+         Aktualisieren des Timestamps von "Release\flmonsvc.unsuccessfulbuild".
+       ClCompile:
+         Alle Ausgaben sind aktuell.
+         D:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /D WIN32 /D NDEBUG /D _CONSOLE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt DirectoryWatcher.cpp FileDeletedWatcher.cpp FileWriter.cpp FlRuleSet.cpp FsLogFile.cpp RegistryWindows.cpp Service.cpp TagstoreConfig.cpp ThreadWrapper.cpp TsDeletedWatcher.cpp
+         DirectoryWatcher.cpp
+         FileDeletedWatcher.cpp
+         FileWriter.cpp
+     1>FileWriter.cpp(54): warning C4996: 'localtime': This function or variable may be unsafe. Consider using localtime_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 D:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\time.inl(112): Siehe Deklaration von 'localtime'
+         FlRuleSet.cpp
+         FsLogFile.cpp
+     1>FsLogFile.cpp(54): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 D:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\stdio.h(234): Siehe Deklaration von 'fopen'
+     1>FsLogFile.cpp(117): warning C4996: 'localtime': This function or variable may be unsafe. Consider using localtime_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 D:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\time.inl(112): Siehe Deklaration von 'localtime'
+         RegistryWindows.cpp
+         Service.cpp
+         TagstoreConfig.cpp
+     1>TagstoreConfig.cpp(237): warning C4018: '<': Konflikt zwischen 'signed' und 'unsigned'
+     1>TagstoreConfig.cpp(302): warning C4101: 'ov': Unreferenzierte lokale Variable
+     1>TagstoreConfig.cpp(381): warning C4018: '<': Konflikt zwischen 'signed' und 'unsigned'
+     1>TagstoreConfig.cpp(403): warning C4018: '<': Konflikt zwischen 'signed' und 'unsigned'
+     1>TagstoreConfig.cpp(476): warning C4018: '<': Konflikt zwischen 'signed' und 'unsigned'
+     1>TagstoreConfig.cpp(480): warning C4018: '<': Konflikt zwischen 'signed' und 'unsigned'
+         ThreadWrapper.cpp
+         TsDeletedWatcher.cpp
+     1>TsDeletedWatcher.cpp(16): warning C4018: '<': Konflikt zwischen 'signed' und 'unsigned'
+         Code wird generiert...
+       Link:
+         D:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"D:\Daten\Projekte\FileMonitor\Release\flmonsvc.exe" /INCREMENTAL:NO /NOLOGO flmon.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Release\flmonsvc.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /PDB:"D:\Daten\Projekte\FileMonitor\Release\flmonsvc.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\Daten\Projekte\FileMonitor\Release\flmonsvc.lib" /MACHINE:X86 Release\DirectoryWatcher.obj
+         Release\FileDeletedWatcher.obj
+         Release\FileWriter.obj
+         Release\FlRuleSet.obj
+         Release\FsLogFile.obj
+         Release\RegistryWindows.obj
+         Release\Service.obj
+         Release\TagstoreConfig.obj
+         Release\ThreadWrapper.obj
+         Release\TsDeletedWatcher.obj
+         flmonsvc.vcxproj -> D:\Daten\Projekte\FileMonitor\Release\flmonsvc.exe
+       Manifest:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /outputresource:"D:\Daten\Projekte\FileMonitor\Release\flmonsvc.exe;#1" /manifest Release\flmonsvc.exe.intermediate.manifest
+       FinalizeBuildStatus:
+         Die Datei "Release\flmonsvc.unsuccessfulbuild" wird gelöscht.
+         Aktualisieren des Timestamps von "Release\flmonsvc.lastbuildstate".
+     1>Die Erstellung des Projekts "D:\Daten\Projekte\FileMonitor\flmonsvc\flmonsvc.vcxproj" ist abgeschlossen, build Ziel(e).
+
+Das Erstellen war erfolgreich.
+
+Verstrichene Zeit 00:00:05.92

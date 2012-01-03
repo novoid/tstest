@@ -41,7 +41,6 @@ oacr invalidate root:x86chk /autocleanqueue
 1> /D_MT=1
 1> -DUNICODE
 1> -D_UNICODE
-1> -DDEBUG
 1> /DDEPRECATE_DDK_FUNCTIONS=1
 1> /DMSC_NOOPT
 1> /DNTDDI_VERSION=0x06010000
@@ -72,12 +71,7 @@ oacr invalidate root:x86chk /autocleanqueue
 1> /FID:\WinDDK\7600.16385.1\inc\api\warning.h
 1> .\flmonipc.c .\main.c 
 1>flmonipc.c
-1>d:\daten\projekte\filemonitor\flmon\flmonipc.c(164) : warning C4090: 'function' : different 'const' qualifiers
-1>warnings in directory d:\daten\projekte\filemonitor\flmon
-1>d:\daten\projekte\filemonitor\flmon\flmonipc.c(164) : warning C4090: 'function' : different 'const' qualifiers
 1>main.c
-1>d:\daten\projekte\filemonitor\flmon\main.c(7) : warning C4007: 'main' : must be '__cdecl'
-1>d:\daten\projekte\filemonitor\flmon\main.c(7) : warning C4007: 'main' : must be '__cdecl'
 1>Generating Code...
 1> D:\WinDDK\7600.16385.1\Bin\x86\oacr\oacrlink /lib /out:d:\daten\projekte\filemonitor\flmon\objchk_win7_x86\i386\flmon.lib @d:\daten\projekte\filemonitor\flmon\objchk_win7_x86\i386\lib.rsp
 1>Microsoft (R) Library Manager Version 9.00.30729.207

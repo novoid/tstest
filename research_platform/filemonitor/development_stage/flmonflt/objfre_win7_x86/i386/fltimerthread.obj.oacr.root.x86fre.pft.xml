@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DEFECTS>
+<OACRDEFECTCOUNT>1</OACRDEFECTCOUNT>
+<OACRERRORCOUNT>0</OACRERRORCOUNT>
+<DEFECT _seq="1"><SFA><LINE>62</LINE><COLUMN>19</COLUMN><FILENAME>fltimerthread.c</FILENAME><FILEPATH>d:\daten\projekte\filemonitor\flmonflt\</FILEPATH></SFA><DEFECTCODE>28155</DEFECTCODE><DESCRIPTION>The function being assigned or passed should be a KSTART_ROUTINE function:  Add the declaration 'KSTART_ROUTINE TimerThreadExecRoutine;' before the current first declaration of TimerThreadExecRoutine.</DESCRIPTION><FUNCTION>FlTimerThreadCreate</FUNCTION><FUNCLINE>37</FUNCLINE><PATH/></DEFECT>
+</DEFECTS>

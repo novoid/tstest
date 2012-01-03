@@ -23,8 +23,9 @@ using namespace std;
 class FsLogFile
 {
 
-	string m_Filename;
-	FILE * m_Fildes;
+	string	m_Filename;
+	FILE *	m_Fildes;
+	HANDLE	m_hWriteMutex;
 
 
 public:

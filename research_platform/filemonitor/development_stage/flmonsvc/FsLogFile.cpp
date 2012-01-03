@@ -23,12 +23,13 @@ using namespace std;
 FsLogFile::FsLogFile()
 {
 	m_Fildes = NULL;
-	
+	m_hWriteMutex = CreateMutex(NULL, FALSE, NULL);
 }
 
 FsLogFile::~FsLogFile()
 {
 	Close();
+	CloseHandle(m_hWriteMutex);
 }
 
 
@@ -122,11 +123,14 @@ unsigned int FsLogFile::Write(string text, BOOLEAN addtime,
 
 	complete_text = complete_text + text;
 
-	fwrite(complete_text.c_str(), complete_text.size(), 1, m_Fildes);
+	WaitForSingleObject(m_hWriteMutex, INFINITE);
 
+	fwrite(complete_text.c_str(), complete_text.size(), 1, m_Fildes);
 	fflush(m_Fildes);
 
-	cout << complete_text;
+	ReleaseMutex(m_hWriteMutex);
+
+	
 
 #ifdef _DEBUG
 

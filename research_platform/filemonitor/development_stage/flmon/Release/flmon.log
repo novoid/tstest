@@ -1,0 +1,47 @@
+﻿Der Buildvorgang wurde am 03.01.2012 18:39:29 gestartet.
+     1>Projekt "D:\Daten\Projekte\FileMonitor\flmon\flmon.vcxproj" auf Knoten "2", build Ziel(e).
+     1>Build:
+         buildus_x86.cmd
+         OACR monitor running already
+         path contains nonexistant \bin\, removing
+         path contains nonexistant d:\program files (x86)\microsoft visual studio 10.0\common7\tools\bin, removing
+         BUILD: Compile and Link for x86
+         
+         BUILD: Loading d:\winddk\7600.16385.1\build.dat...
+         
+         BUILD: Computing Include file dependencies:
+         
+         BUILD: Start time: Tue Jan 03 18:39:29 2012
+         BUILD: Examining d:\daten\projekte\filemonitor\flmon directory for files to compile.
+         
+             d:\daten\projekte\filemonitor\flmon 
+         
+         Invalidating OACR warning log for 'root:x86fre'
+             d:\daten\projekte\filemonitor\flmon - 1 source files (317 lines)
+         
+         BUILD: Saving d:\winddk\7600.16385.1\build.dat...
+         
+         BUILD: Compiling d:\daten\projekte\filemonitor\flmon directory
+         
+         Configuring OACR for 'root:x86fre' - <OACR on>
+         Compiling - flmonipc.c
+         Building Library - objfre_win7_x86\i386\flmon.lib
+         BUILD: Linking for d:\daten\projekte\filemonitor\flmon directory
+         
+         Linking Executable - objfre_win7_x86\i386\flmon.dll
+         BUILD: Finish time: Tue Jan 03 18:39:30 2012
+         BUILD: Done
+         
+         
+         
+             3 files compiled - 2 Warnings
+         
+             1 library built
+         
+             1 executable built
+         
+     1>Die Erstellung des Projekts "D:\Daten\Projekte\FileMonitor\flmon\flmon.vcxproj" ist abgeschlossen, build Ziel(e).
+
+Das Erstellen war erfolgreich.
+
+Verstrichene Zeit 00:00:01.44

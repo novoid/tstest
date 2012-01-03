@@ -19,6 +19,12 @@
     <Filter Include="build\x86">
       <UniqueIdentifier>{88d288ea-dbc7-4059-8932-4169aca8d637}</UniqueIdentifier>
     </Filter>
+    <Filter Include="build\x86\dbg">
+      <UniqueIdentifier>{89c95682-6cdf-4ffa-aa0d-f2693b09f10b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="build\x86\release">
+      <UniqueIdentifier>{195e9b63-da6e-4c3d-a2e1-c174ad58dd6f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FlMonIPC.h">
@@ -41,13 +47,22 @@
     <None Include="postbuild.cmd" />
     <None Include="flmon.def" />
     <None Include="buildus_dbg_x86.cmd">
-      <Filter>build\x86</Filter>
-    </None>
-    <None Include="cleanus_dbg_x86.cmd">
-      <Filter>build\x86</Filter>
+      <Filter>build\x86\dbg</Filter>
     </None>
     <None Include="rebuildus_dbg_x86.cmd">
-      <Filter>build\x86</Filter>
+      <Filter>build\x86\dbg</Filter>
+    </None>
+    <None Include="cleanus_dbg_x86.cmd">
+      <Filter>build\x86\dbg</Filter>
+    </None>
+    <None Include="buildus_x86.cmd">
+      <Filter>build\x86\release</Filter>
+    </None>
+    <None Include="cleanus_x86.cmd">
+      <Filter>build\x86\release</Filter>
+    </None>
+    <None Include="rebuildus_x86.cmd">
+      <Filter>build\x86\release</Filter>
     </None>
   </ItemGroup>
 </Project>

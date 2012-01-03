@@ -1,21 +1,9 @@
-﻿Der Buildvorgang wurde am 12.12.2011 22:10:29 gestartet.
-     1>Projekt "D:\Daten\Projekte\FileMonitor\flmonflt\flmonflt.vcxproj" auf Knoten "2", rebuild Ziel(e).
-     1>CoreClean:
-         cleandrv_chk_x86.cmd
-         Das System kann den angegebenen Pfad nicht finden.
-         D:\Daten\Projekte\FileMonitor\flmonflt\*.obj konnte nicht gefunden werden
-       Rebuild:
-         rebuilddrv_chk_x86.cmd
-         
-         D:\Daten\Projekte\FileMonitor\flmonflt>set BASE_PROJ_DRIVE=d: 
-         
-         D:\Daten\Projekte\FileMonitor\flmonflt>set BASE_PROJ_PATH=D:\Daten\Projekte\Diplomarbeit\filemonwdm 
-         
-         D:\Daten\Projekte\FileMonitor\flmonflt>cd D:\Daten\Projekte\Diplomarbeit\filemonwdm\obj_win7_amd64\amd64 
-         Das System kann den angegebenen Pfad nicht finden.
-         
-         D:\Daten\Projekte\FileMonitor\flmonflt>del /Q *.obj *.sys 
-         D:\Daten\Projekte\FileMonitor\flmonflt\*.obj konnte nicht gefunden werden
+﻿Der Buildvorgang wurde am 03.01.2012 19:25:33 gestartet.
+     1>Projekt "D:\Daten\Projekte\FileMonitor\flmonflt\flmonflt.vcxproj" auf Knoten "2", build Ziel(e).
+     1>Build:
+         builddrv_chk_x86.cmd
+         Der Befehl "#set" ist entweder falsch geschrieben oder
+         konnte nicht gefunden werden.
          OACR monitor running already
          path contains nonexistant d:\program files (x86)\microsoft visual studio 10.0\common7\tools\bin, removing
          BUILD: Compile and Link for x86
@@ -24,7 +12,7 @@
          
          BUILD: Computing Include file dependencies:
          
-         BUILD: Start time: Mon Dec 12 22:10:29 2011
+         BUILD: Start time: Tue Jan 03 19:25:33 2012
          BUILD: Examining d:\daten\projekte\filemonitor\flmonflt directory for files to compile.
          
              d:\daten\projekte\filemonitor\flmonflt 
@@ -35,10 +23,22 @@
          BUILD: Compiling and Linking d:\daten\projekte\filemonitor\flmonflt directory
          
          Configuring OACR for 'root:x86chk' - <OACR on>
-         BUILD: Finish time: Mon Dec 12 22:10:29 2011
+         Compiling - filemon.c
+         Compiling - fldebug.c
+         Compiling - fldirectorylist.c
+         Compiling - flmutex.c
+         Compiling - fltracker.c
+         Compiling - flucfilename.c
+         Compiling - fltimerthread.c
+         Compiling - generating code...
+         Linking Executable - objchk_win7_x86\i386\flmonflt.sys
+         BUILD: Finish time: Tue Jan 03 19:25:36 2012
          BUILD: Done
          
          
          
-             0 files compiled - 1 Warning
+             9 files compiled - 1 Warning
          
+             1 executable built
+         
+     1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\Microsoft.MakeFile.Targets(38,5): warning MSB5021: Die ausführbare Datei der Aufgabe wird aufgrund eines Abbruchs des Buildvorgangs beendet.

@@ -22,6 +22,11 @@
 using namespace std;
 
 
+
+#define MESSAGE_NOTIFY_FILE_DELETE		'x'
+
+
+
 class FileWriter : public FsLogFile
 {
 

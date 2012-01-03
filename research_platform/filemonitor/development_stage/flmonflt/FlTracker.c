@@ -736,7 +736,7 @@ POCTRACKER_ENTRY
 
 	while(t->NextEntry)
 	{
-		if (t->Count > last_count)
+		if (t->Count > (unsigned int)last_count)
 		{
 			last_count = t->Count;
 			r = t;

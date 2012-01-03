@@ -8,6 +8,6 @@ rem DEBUG
 sc create FileMonitorWatcher binpath= "%FLSVCBIN%" DisplayName= "%FLSVCDISPLAYNAME%"
 
 rem RELEASE
-rem sc create FileMonitorWatcher binpath= "%FLSVCBIN%"
+rem sc create FileMonitorWatcher DisplayName= "%FLSVCDISPLAYNAME%" binpath= "%FLSVCBIN%"
 
 pause

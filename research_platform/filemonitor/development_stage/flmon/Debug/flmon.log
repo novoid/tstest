@@ -1,8 +1,8 @@
-﻿Der Buildvorgang wurde am 20.12.2011 09:03:20 gestartet.
+﻿Der Buildvorgang wurde am 03.01.2012 18:42:09 gestartet.
      1>Projekt "D:\Daten\Projekte\FileMonitor\flmon\flmon.vcxproj" auf Knoten "2", build Ziel(e).
      1>Build:
          buildus_dbg_x86.cmd
-         Launching OACR monitor
+         OACR monitor running already
          path contains nonexistant \bin\, removing
          path contains nonexistant d:\program files (x86)\microsoft visual studio 10.0\common7\tools\bin, removing
          BUILD: Compile and Link for x86
@@ -11,7 +11,7 @@
          
          BUILD: Computing Include file dependencies:
          
-         BUILD: Start time: Tue Dec 20 09:03:22 2011
+         BUILD: Start time: Tue Jan 03 18:42:10 2012
          BUILD: Examining d:\daten\projekte\filemonitor\flmon directory for files to compile.
          
              d:\daten\projekte\filemonitor\flmon 
@@ -31,26 +31,19 @@
          BUILD: Linking for d:\daten\projekte\filemonitor\flmon directory
          
          Linking Executable - objchk_win7_x86\i386\flmon.dll
-         BUILD: Finish time: Tue Dec 20 09:03:31 2011
+         BUILD: Finish time: Tue Jan 03 18:42:11 2012
          BUILD: Done
          
          
          
-             4 files compiled - 4 Warnings - 395 LPS
+             4 files compiled - 2 Warnings - 395 LPS
          
              1 library built
          
              1 executable built
          
-                 1 Datei(en) kopiert.
-         D:\Daten\Projekte\FileMonitor\flmon\objchk_win7_x86\i386\flmon.dll
-         D:\Daten\Projekte\FileMonitor\flmon\objchk_win7_x86\i386\flmon.exe
-         D:\Daten\Projekte\FileMonitor\flmon\objchk_win7_x86\i386\flmon.exp
-         D:\Daten\Projekte\FileMonitor\flmon\objchk_win7_x86\i386\flmon.lib
-         D:\Daten\Projekte\FileMonitor\flmon\objchk_win7_x86\i386\flmon.pdb
-                 5 Datei(en) kopiert.
      1>Die Erstellung des Projekts "D:\Daten\Projekte\FileMonitor\flmon\flmon.vcxproj" ist abgeschlossen, build Ziel(e).
 
 Das Erstellen war erfolgreich.
 
-Verstrichene Zeit 00:00:11.15
+Verstrichene Zeit 00:00:01.31

@@ -6,7 +6,7 @@
 
 
 
-#ifdef CHECKED
+#ifdef DBG
 
 KMUTEX		DebugPrintMutex;	
 
@@ -282,7 +282,7 @@ void
 
 
 void 
-	PrintCallbackData(PFLT_CALLBACK_DATA Data) { ; }
+	PrintCallbackData(PFLT_CALLBACK_DATA Data) { UNREFERENCED_PARAMETER(Data); }
 
 
 

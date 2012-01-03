@@ -4,6 +4,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include "TsDeletedWatcher.h"
 #include "fslogfile.h"
 #include "tagstoreconfig.h"
 
@@ -27,7 +28,8 @@ TagstoreConfig::TagstoreConfig(string filename)
 	m_lThreadID = -1;
 	m_ConfigReadLock = CreateMutex(0, FALSE, NULL);
 
-	SetSubpaths();
+	SetSubpathsReadWatch();
+	SetSubpathsDeleteWatch();
 }
 
 TagstoreConfig::TagstoreConfig()
@@ -35,21 +37,28 @@ TagstoreConfig::TagstoreConfig()
 	m_ThreadHandle = INVALID_HANDLE_VALUE;
 	m_lThreadID = -1;
 	m_ConfigReadLock = CreateMutex(0, FALSE, NULL);
+	m_pDeleteWatcher = NULL;
 
-	SetSubpaths();
+	SetSubpathsReadWatch();
+	SetSubpathsDeleteWatch();
 }
 
 TagstoreConfig::~TagstoreConfig()
 {
-	
+	delete m_pDeleteWatcher;
 }
 
 
-void TagstoreConfig::SetSubpaths()
+void TagstoreConfig::SetSubpathsReadWatch()
 {
-	m_Subpaths.push_back("Ablage");
-	m_Subpaths.push_back("Beschreibungen");
-	m_Subpaths.push_back("Kategorien");
+	m_SubpathsReadWatch.push_back("Ablage");
+	m_SubpathsReadWatch.push_back("Beschreibungen");
+	m_SubpathsReadWatch.push_back("Kategorien");
+}
+
+void TagstoreConfig::SetSubpathsDeleteWatch()
+{
+	m_SubpathsDeleteWatch.push_back("Ablage");
 }
 
 string TagstoreConfig::GetDirFromFilepath(string path)
@@ -360,7 +369,7 @@ int TagstoreConfig::UpdateDriverStores()
 
 	unsigned int psize = 0;
 	WCHAR wdir[1024];
-	unsigned int subcount = m_Subpaths.size();
+	unsigned int subcount = m_SubpathsReadWatch.size();
 	bool only_basepath = (subcount == 0);
 	
 	if (only_basepath)
@@ -402,7 +411,7 @@ int TagstoreConfig::UpdateDriverStores()
 			{
 				WCHAR wsubdir[2048];
 				wsubdir[0] = '\0';
-				strsubpath = dosdevice + "\\" + m_Subpaths[n];
+				strsubpath = dosdevice + "\\" + m_SubpathsReadWatch[n];
 
 				//SingeltonLogfile::Instance()->WriteS("Using path: ",
 				//	(only_basepath) ? dosdevice : strsubpath);
@@ -444,39 +453,39 @@ int TagstoreConfig::UpdateDriverStores()
 	return TSC_SUCCESS;
 }
 
-
-bool TagstoreConfig::InstallChangeHandler()
+int TagstoreConfig::RestartDeleteWatchers()
 {
-	SingeltonLogfile::Instance()->Write("Installing config change handler.\n");
 
-	m_bRunThread = true;
+	SingeltonLogfile::Instance()->Write1("Adding delete watchers: ", StoreCount());
+	SingeltonLogfile::Instance()->Write1("Subpaths (del): ", m_SubpathsDeleteWatch.size());
+	
 
-	if (m_ThreadHandle == INVALID_HANDLE_VALUE)
+	if (m_pDeleteWatcher)
+		delete m_pDeleteWatcher;
+
+
+	m_pDeleteWatcher = new TsDeletedWatcher();
+	
+	if (!m_pDeleteWatcher)
 	{
-		m_ThreadHandle = CreateThread(NULL, NULL, &StartConfigWatchThread, (LPVOID)this, NULL, (LPDWORD) &m_lThreadID);
+		SingeltonLogfile::Instance()->Write("Error allocating delete watcher threads.\n");
+		return 0;
 	}
 
-	if (m_ThreadHandle == INVALID_HANDLE_VALUE)
-		return false;
-	return true;
+
+	for (int i=0; i < StoreCount(); i++)
+	{
+		string base = m_Stores[i].Path;
+
+		for (int n = 0; n < m_SubpathsDeleteWatch.size(); n++)
+		{
+			string path = base + string("\\") + m_SubpathsDeleteWatch[n];
+			m_pDeleteWatcher->AddDirectory(path);
+		}
+
+	}
+
+	return TSC_SUCCESS;
 }
 
-
-void TagstoreConfig::UninstallChangeHandler()
-{
-	SingeltonLogfile::Instance()->Write("Uninstalling config change handler.\n");
-
-	//BOOLEAN b = CancelIo(m_DirectoryHandle);
-
-	//SingeltonLogfile::Instance()->Write1("CancelIo:\n", b);
-
-
-	m_bRunThread = false;
-
-	DWORD r = WaitForSingleObject(m_ThreadStopWait, 2000);
-	CloseHandle(m_ThreadStopWait);
-
-	if (r == WAIT_TIMEOUT)
-		SingeltonLogfile::Instance()->Write("Wait for thread exit timed out\n");
-}
 

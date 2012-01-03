@@ -48,7 +48,7 @@ BOOLEAN
 	unsigned int i = 0;
 	PWCHAR	buf;
 
-#ifdef CHECKED
+#ifdef DBG
 	UNICODE_STRING teststr;
 #endif
 
@@ -74,7 +74,7 @@ BOOLEAN
 	DBGPRINT("[flmonflt] Directory list initialized.\n");
 	DBGPRINT_ARG1("[flmonflt] Directory list count: %d\n", DriverInfoData->PathsToMonitorCount);
 
-#ifdef CHECKED
+#ifdef DBG
 
 	RtlInitUnicodeString(&teststr, PATH_TO_MONITOR_TEST);
 	DirectoriesToWatchAdd(&teststr);

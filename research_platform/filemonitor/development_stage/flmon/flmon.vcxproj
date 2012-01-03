@@ -26,7 +26,7 @@
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>Makefile</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
@@ -54,6 +54,13 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <NMakeBuildCommandLine>buildus_x86.cmd</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine>rebuildus_x86.cmd</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine>cleanus_x86.cmd</NMakeCleanCommandLine>
+    <NMakePreprocessorDefinitions>$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+    <ExecutablePath>$(WINDDK_DIR)\bin\;$(ExecutablePath)</ExecutablePath>
+    <IncludePath>$(WINDDK_DIR)\inc\ddk\;$(WINDDK_DIR)\inc\api\;$(IncludePath)</IncludePath>
+    <LibraryPath>$(WINDDK_DIR)\lib\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -106,10 +113,13 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="buildus_dbg_x86.cmd" />
+    <None Include="buildus_x86.cmd" />
     <None Include="cleanus_dbg_x86.cmd" />
+    <None Include="cleanus_x86.cmd" />
     <None Include="flmon.def" />
     <None Include="postbuild.cmd" />
     <None Include="rebuildus_dbg_x86.cmd" />
+    <None Include="rebuildus_x86.cmd" />
     <None Include="Sources" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

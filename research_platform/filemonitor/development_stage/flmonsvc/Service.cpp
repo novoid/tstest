@@ -10,7 +10,6 @@
 #include "filewriter.h"
 
 
-//#define TSCONFIG_AUTOREAD		1
 
 
 #define DEFAULT_LOGPATH			"C:\\twservice.log"
@@ -87,15 +86,9 @@ DWORD InitService()
 
 	SingeltonTSConfig::Instance()->SetIPC(&mIPC);
 	SingeltonTSConfig::Instance()->UpdateDriverStores();
+	//SingeltonTSConfig::Instance()->RestartDeleteWatchers();
+	
 
-#ifdef TSCONFIG_AUTOREAD
-	if (!SingeltonTSConfig::Instance()->InstallChangeHandler())
-	{
-		SingeltonLogfile::Instance()->Write("Unable to install TS Configfilewatcher, store configuration changes will not be updated.\n");
-	}
-#else
-	SingeltonLogfile::Instance()->Write("TS Configfilewatcher not enabled, store configuration changes will not be updated automatically.\n");
-#endif
 	
 
 	return FLSV_SUCCESS;
@@ -104,10 +97,6 @@ DWORD InitService()
 DWORD StopService()
 {
 	SingeltonLogfile::Instance()->Write("Cleanup in progress.\n");
-
-#ifdef TSCONFIG_AUTOREAD
-	SingeltonTSConfig::Instance()->UninstallChangeHandler();
-#endif
 
 	FlMonIPCClose(&mIPC);
 

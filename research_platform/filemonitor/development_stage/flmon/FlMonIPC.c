@@ -161,7 +161,7 @@ unsigned int __stdcall FlMonIPCSendMessage(PFLMONIPC ipc,
 		ipc->Port,
 		(LPVOID)send_message,
 		send_size,
-		reply_message,
+		(LPVOID)reply_message,
 		reply_size,
 		&res_size);
 

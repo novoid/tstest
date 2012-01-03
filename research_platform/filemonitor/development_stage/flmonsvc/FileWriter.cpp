@@ -117,6 +117,8 @@ unsigned int FileWriter::Write(char type, string path)
 		t = "DIR_OPEN";
 	else if (type == MESSAGE_NOTIFY_FILE_READ)
 		t = "FIL_OPEN";
+	else if (type == MESSAGE_NOTIFY_FILE_DELETE)
+		t = "FIL_DELE";
 
 	path = t + ";" + path + "\n";
 	r = FsLogFile::Write(path, TRUE, ";");

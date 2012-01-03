@@ -105,6 +105,7 @@
     <None Include="cleandrv_x64.cmd" />
     <None Include="cleandrv_x86.cmd" />
     <None Include="flmonflt.inf" />
+    <None Include="flmon_driver.reg" />
     <None Include="readme.txt" />
     <None Include="rebuilddrv_chk_x64.cmd" />
     <None Include="rebuilddrv_chk_x86.cmd" />

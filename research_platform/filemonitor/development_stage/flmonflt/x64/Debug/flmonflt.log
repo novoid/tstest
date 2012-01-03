@@ -1,4 +1,4 @@
-﻿Der Buildvorgang wurde am 20.12.2011 12:49:22 gestartet.
+﻿Der Buildvorgang wurde am 03.01.2012 19:24:54 gestartet.
      1>Projekt "D:\Daten\Projekte\FileMonitor\flmonflt\flmonflt.vcxproj" auf Knoten "2", build Ziel(e).
      1>Build:
          builddrv_chk_x64.cmd
@@ -11,7 +11,7 @@
          
          BUILD: Computing Include file dependencies:
          
-         BUILD: Start time: Tue Dec 20 12:49:22 2011
+         BUILD: Start time: Tue Jan 03 19:24:55 2012
          BUILD: Examining d:\daten\projekte\filemonitor\flmonflt directory for files to compile.
          
              d:\daten\projekte\filemonitor\flmonflt 
@@ -23,24 +23,17 @@
          
          Configuring OACR for 'root:amd64chk' - <OACR on>
          Compiling - filemon.c
-         1>warnings in directory d:\daten\projekte\filemonitor\flmonflt
-     1>d:\daten\projekte\filemonitor\flmonflt\filemon.c(1058): warning C4244: '=' : conversion from 'ULONG' to 'USHORT', possible loss of data
-     1>d:\daten\projekte\filemonitor\flmonflt\filemon.c(1059): warning C4244: '=' : conversion from 'ULONG' to 'USHORT', possible loss of data
-     1>d:\daten\projekte\filemonitor\flmonflt\filemon.c(1060): warning C4133: '=' : incompatible types - from 'unsigned char *' to 'PWCH'
+         Compiling - fldebug.c
+         Compiling - fldirectorylist.c
+         Compiling - fltracker.c
          Linking Executable - objchk_win7_amd64\amd64\flmonflt.sys
-         BUILD: Finish time: Tue Dec 20 12:49:23 2011
+         BUILD: Finish time: Tue Jan 03 19:25:00 2012
          BUILD: Done
          
          
          
-             3 files compiled - 5 Warnings
+             6 files compiled - 2 Warnings - 2,529 LPS
          
              1 executable built
          
-                 1 Datei(en) kopiert.
-                 1 Datei(en) kopiert.
-     1>Die Erstellung des Projekts "D:\Daten\Projekte\FileMonitor\flmonflt\flmonflt.vcxproj" ist abgeschlossen, build Ziel(e).
-
-Das Erstellen war erfolgreich.
-
-Verstrichene Zeit 00:00:01.04
+     1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\Microsoft.MakeFile.Targets(38,5): warning MSB5021: Die ausführbare Datei der Aufgabe wird aufgrund eines Abbruchs des Buildvorgangs beendet.
