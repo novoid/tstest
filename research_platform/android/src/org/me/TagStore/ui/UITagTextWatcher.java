@@ -3,7 +3,6 @@ package org.me.TagStore.ui;
 import org.me.TagStore.R;
 import org.me.TagStore.core.TagValidator;
 
-import android.content.Context;
 import android.text.Editable;
 import android.text.TextWatcher;
 
@@ -17,11 +16,6 @@ import android.text.TextWatcher;
 public class UITagTextWatcher implements TextWatcher {
 
 	/**
-	 * stores the context
-	 */
-	private final Context m_context;
-	
-	/**
 	 * stores the setting if it is a tag
 	 */
 	private final boolean m_is_tag;
@@ -30,12 +24,11 @@ public class UITagTextWatcher implements TextWatcher {
 	 * constructor of class UITagTextWatcher
 	 * @param context which is used to construct notifications
 	 */
-	public UITagTextWatcher(Context context, boolean is_tag) {
+	public UITagTextWatcher(boolean is_tag) {
 		
 		//
 		// init members
 		//
-		m_context = context;
 		m_is_tag = is_tag;
 	}
 	

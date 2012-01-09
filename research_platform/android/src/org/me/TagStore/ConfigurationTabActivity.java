@@ -1,17 +1,29 @@
 package org.me.TagStore;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
 import org.me.TagStore.R;
+import org.me.TagStore.core.ConfigurationSettings;
+import org.me.TagStore.core.DatabaseResetTask;
+import org.me.TagStore.core.EventDispatcher;
 import org.me.TagStore.core.Logger;
+import org.me.TagStore.core.MainServiceConnection;
+import org.me.TagStore.core.ServiceLaunchRunnable;
+import org.me.TagStore.core.VocabularyManager;
+import org.me.TagStore.interfaces.DatabaseResetCallback;
 import org.me.TagStore.ui.MainPageAdapter;
+import org.me.TagStore.ui.StatusBarNotification;
+import org.me.TagStore.ui.ToastManager;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
-import android.view.View;
-import android.widget.ListView;
-import android.widget.SimpleAdapter;
+import android.preference.Preference;
+import android.preference.Preference.OnPreferenceChangeListener;
+import android.preference.Preference.OnPreferenceClickListener;
+import android.preference.PreferenceActivity;
 
 /**
  * This class displays various configuration settings and launches the
@@ -20,29 +32,38 @@ import android.widget.SimpleAdapter;
  * @author Johannes Anderwald
  * 
  */
-public class ConfigurationTabActivity extends ListFragment {
+public class ConfigurationTabActivity extends PreferenceActivity implements OnPreferenceClickListener, DatabaseResetCallback, OnPreferenceChangeListener {
+
+	
+	private static final int RESET_DIALOG_ID = 10;
+	
+	/**
+	 * stores connection to the service
+	 */
+	private MainServiceConnection m_connection = null;
 
 	/**
-	 * key name for item name
+	 * stores handle to the status bar manager
 	 */
-	private static final String ITEM_NAME = "ITEM_NAME";
+	private StatusBarNotification m_status_bar = null;
 
-	/**
-	 * key name for class to be launched
-	 */
-	private static final String ITEM_CLASS_NAME = "ITEM_CLASS_NAME";
-
-	/**
-	 * key for item image
-	 */
-	private static final String ITEM_IMAGE = "ITEM_IMAGE";
-
-	/**
-	 * holds list map
-	 */
-	protected ArrayList<HashMap<String, Object>> m_ListMap;
-
-
+	public void onStop() {
+		
+		//
+		// call base class
+		//
+		super.onStop();
+		
+		//
+		// unregister us from the event dispatcher
+		//
+		//
+		// register us with event dispatcher
+		//
+		EventDispatcher.getInstance().unregisterEvent(EventDispatcher.EventId.DATABASE_RESET_EVENT, this);
+	}
+	
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 
@@ -56,12 +77,61 @@ public class ConfigurationTabActivity extends ListFragment {
 		//
 		super.onCreate(savedInstanceState);
 
+
+		//
+		// load preferences from resource
+		//
+		addPreferencesFromResource(R.xml.preferences);
+
 		//
 		// initialize configuration tab
 		//
 		initialize();
-
 	}
+	
+	protected Dialog onCreateDialog(int id) {
+		
+		if (id == ConfigurationTabActivity.RESET_DIALOG_ID)
+		{
+			//
+			// construct new alert builder
+			//
+			AlertDialog.Builder builder = new AlertDialog.Builder(
+					this);
+			builder.setTitle(R.string.reset_factory_settings);
+			builder.setMessage(R.string.database_reset_question);
+			builder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int whichButton) {
+
+					//
+					// create database reset worker
+					//
+					Thread database_worker = new Thread(new DatabaseResetTask(ConfigurationTabActivity.this.getApplicationContext(), m_connection));
+				
+					//
+					// start the thread
+					//
+					database_worker.start();                
+            	}
+			});
+		
+			builder.setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int whichButton) {
+					}
+			});
+		
+			//
+			// construct dialog
+			//
+			return builder.create();
+		}
+		
+		//
+		// unknown dialog requested
+		//
+		return null;
+	}
+	
 	
 	public void onResume() {
 		
@@ -78,350 +148,401 @@ public class ConfigurationTabActivity extends ListFragment {
 		super.onPause();
 		
 		Logger.i("ConfigurationTabActivity::onPause");
+	}
+	
+	private void addClickListener(String preference_name, boolean click_listener, boolean change_listener) {
+		
+		//
+		// find preference name
+		//
+		Preference preference = findPreference(preference_name);
+		if (preference == null)
+		{
+			Logger.e("Error: preference " + preference_name + " not found");
+			return;
+		}
+		
+		if (click_listener)
+		{
+			//
+			// add click listener
+			//
+			preference.setOnPreferenceClickListener(this);
+
+		}
+		
+		if (change_listener)
+		{
+			//
+			// add change listener
+			//
+			preference.setOnPreferenceChangeListener(this);
+		}
 		
 	}
 	
 	
-	/**
-	 * adds the directory settings to configuration item
-	 */
-	private void addDirectoryConfigurationItem() {
-
-		//
-		// construct map entries
-		//
-		HashMap<String, Object> directory_map_entry = new HashMap<String, Object>();
-
-		//
-		// get localized string
-		//
-		String item_name = super.getActivity().getApplicationContext().getString(R.string.tagstore_directories);
-		
-		
-		//
-		// set name
-		//
-		directory_map_entry.put(ITEM_NAME, item_name);
-
-		//
-		// TODO: make image
-		//
-		directory_map_entry.put(ITEM_IMAGE, R.drawable.options_selected);
-
-		//
-		// FIXME: hard coded class name
-		//
-		directory_map_entry.put(ITEM_CLASS_NAME,
-				"org.me.TagStore.DirectoryListActivity");
-
-		//
-		// add entry
-		//
-		m_ListMap.add(directory_map_entry);
-	}
-
-	/**
-	 * adds the synchronization configuration item to the configuration list
-	 */
-	private void addSynchronizeConfigurationItem() {
-
-		//
-		// construct synchronize setting
-		//
-		HashMap<String, Object> synchronize_map_entry = new HashMap<String, Object>();
-
-		//
-		// get localized string
-		//
-		String item_name = super.getActivity().getApplicationContext().getString(R.string.sync_tagstore);
-		
-		//
-		// set name
-		//
-		synchronize_map_entry.put(ITEM_NAME, item_name);
-
-		//
-		// FIXME: hard coded class name
-		//
-		synchronize_map_entry.put(ITEM_CLASS_NAME,
-				"org.me.TagStore.SynchronizeTagStoreActivity");
-
-		//
-		// TODO: make image
-		//
-		synchronize_map_entry.put(ITEM_IMAGE, R.drawable.refresh);
-
-		//
-		// add entry
-		//
-		m_ListMap.add(synchronize_map_entry);
-	}
-
-	private void addInfoConfigurationItem() {
-
-		//
-		// construct synchronize setting
-		//
-		HashMap<String, Object> info_map_entry = new HashMap<String, Object>();
-
-		//
-		// get localized string
-		//
-		String item_name = super.getActivity().getApplicationContext().getString(R.string.about_tagstore);
-		
-		//
-		// set name
-		//
-		info_map_entry.put(ITEM_NAME, item_name);
-		
-		//
-		// FIXME: hard coded class name
-		//
-		info_map_entry.put(ITEM_CLASS_NAME, "org.me.TagStore.InfoTab");
-
-		//
-		// TODO: make image
-		//
-		info_map_entry.put(ITEM_IMAGE, R.drawable.info);
-
-		//
-		// add entry
-		//
-		m_ListMap.add(info_map_entry);
-	}
-
-	private void addListViewConfigurationItem() {
-
-		//
-		// construct synchronize setting
-		//
-		HashMap<String, Object> info_map_entry = new HashMap<String, Object>();
-
-		
-		//
-		// get localized string
-		//
-		String item_name = super.getActivity().getApplicationContext().getString(R.string.listview_settings);
-		
-		//
-		// set name
-		//
-		info_map_entry.put(ITEM_NAME, item_name);
-		
-		//
-		// FIXME: hard coded class name
-		//
-		info_map_entry.put(ITEM_CLASS_NAME,
-				"org.me.TagStore.ListViewSettingsActivity");
-
-		//
-		// TODO: make image
-		//
-		info_map_entry.put(ITEM_IMAGE, R.drawable.options_selected);
-
-		//
-		// add entry
-		//
-		m_ListMap.add(info_map_entry);
-	}
-
-	/**
-	 * adds database configuration item
-	 */
-	private void addDatabaseConfigurationItem() {
-
-		//
-		// construct synchronize setting
-		//
-		HashMap<String, Object> info_map_entry = new HashMap<String, Object>();
-
-		//
-		// get localized string
-		//
-		String item_name = super.getActivity().getApplicationContext().getString(R.string.database_options);
-		
-		//
-		// set name
-		//
-		info_map_entry.put(ITEM_NAME, item_name);
-		
-		//
-		// FIXME: hard coded class name
-		//
-		info_map_entry.put(ITEM_CLASS_NAME,
-				"org.me.TagStore.DatabaseSettingsActivity");
-
-		//
-		// TODO: make image
-		//
-		info_map_entry.put(ITEM_IMAGE, R.drawable.options_selected);
-
-		//
-		// add entry
-		//
-		m_ListMap.add(info_map_entry);
-	}
-
-	/**
-	 * adds database configuration item
-	 */
-	private void addNotificationConfigurationItem() {
-
-		//
-		// construct synchronize setting
-		//
-		HashMap<String, Object> info_map_entry = new HashMap<String, Object>();
-
-		//
-		// get localized string
-		//
-		String item_name = super.getActivity().getApplicationContext().getString(R.string.notification_settings);
-		
-		//
-		// set name
-		//
-		info_map_entry.put(ITEM_NAME, item_name);
-		
-		//
-		// FIXME: hard coded class name
-		//
-		info_map_entry.put(ITEM_CLASS_NAME,
-				"org.me.TagStore.NotificationSettingsActivity");
-
-		//
-		// TODO: make image
-		//
-		info_map_entry.put(ITEM_IMAGE, R.drawable.options_selected);
-
-		//
-		// add entry
-		//
-		m_ListMap.add(info_map_entry);
-	}
 	
-	/**
-	 * called to initialize the list view
-	 */
 	private void initialize() {
 
 		//
-		// construct hash map
+		// add click listeners
 		//
-		m_ListMap = new ArrayList<HashMap<String, Object>>();
-
-		//
-		// add directory configuration item
-		//
-		addDirectoryConfigurationItem();
-
-		//
-		// add list view configuration item
-		//
-		addListViewConfigurationItem();
-
-		//
-		// add database configuration item
-		//
-		addDatabaseConfigurationItem();
-
-		//
-		// add notification configuration item
-		//
-		addNotificationConfigurationItem();
+		addClickListener(ConfigurationSettings.DIRECTORY_PREFERENCE, true, false);
+		addClickListener(ConfigurationSettings.DISPLAY_PREFERENCE, false, true);
+		addClickListener(ConfigurationSettings.NOTIFICATION_PREFERENCE, false, true);
+		addClickListener(ConfigurationSettings.VOCABULARY_PREFERENCE, false, true);
+		addClickListener(ConfigurationSettings.DATABASE_PREFERENCE, true, false);
+		addClickListener(ConfigurationSettings.ICON_VIEW_ITEM_ROW_PREFERENCE, false, true);
+		addClickListener(ConfigurationSettings.ICON_VIEW_SORT_MODE_PREFERENCE, false, true);
 		
 		//
-		// add synchronization configuration item
+		// build main service connection
 		//
-		addSynchronizeConfigurationItem();
-
-		//
-		// add info configuration item
-		//
-		addInfoConfigurationItem();
-
+		m_connection  = new MainServiceConnection();
 		
 		//
-		// now create simple adapter to display the entries
+		// construct service launcher
 		//
-		SimpleAdapter adapter = new SimpleAdapter(this.getActivity(), m_ListMap,
-				R.layout.configuration_tab_row, new String[] { ITEM_NAME,
-						ITEM_IMAGE }, new int[] { R.id.configuration_item,
-						R.id.configuration_item_image });
+		ServiceLaunchRunnable launcher = new ServiceLaunchRunnable(getApplicationContext(), m_connection);
+		
 		//
-		// set list adapter
+		// create a thread which will start the service
 		//
-		setListAdapter(adapter);
+		Thread launcher_thread = new Thread(launcher);
+		
+		//
+		// now start the thread
+		//
+		launcher_thread.start();		
+		
+		//
+		// build status bar
+		//
+		m_status_bar  = new StatusBarNotification(getApplicationContext());		
+		
+		//
+		// acquire shared settings
+		//
+		SharedPreferences settings = getSharedPreferences(
+				ConfigurationSettings.TAGSTORE_PREFERENCES_NAME,
+				Context.MODE_PRIVATE);
+
+		//
+		// get current list view
+		//
+		String current_view_class = settings.getString(
+				ConfigurationSettings.CURRENT_LIST_VIEW_CLASS,
+				ConfigurationSettings.DEFAULT_LIST_VIEW_CLASS);
+
+		//
+		// enables / disables options
+		//
+		toggleDisplayPreference(current_view_class);
+		
+		//
+		// register us with event dispatcher
+		//
+		EventDispatcher.getInstance().registerEvent(EventDispatcher.EventId.DATABASE_RESET_EVENT, this);
+		
 	}
 
+
 	@Override
-	public void onListItemClick(ListView listView, View view, int position,
-			long id) {
+	public boolean onPreferenceClick(Preference preference) {
 
-		//
-		// get map entry
-		//
-		HashMap<String, Object> map_entry = m_ListMap.get(position);
-
-		//
-		// get the associated item class name
-		//
-		String class_name = (String) map_entry.get(ITEM_CLASS_NAME);
-
-		//
-		// get associated item name
-		//
-		String item_name = (String) map_entry.get(ITEM_NAME);
+		Logger.e("pref: clicked on " + preference.getKey());
+		
+		final String key = preference.getKey();
+		
+		if (key.equals(ConfigurationSettings.DIRECTORY_PREFERENCE))
+		{
+			//
+			// launch directory activity
+			//
+			Intent intent = new Intent(ConfigurationTabActivity.this, DirectoryListActivity.class);
+			super.startActivity(intent);
+			return true;
+		}
+		else if (key.equals(ConfigurationSettings.DATABASE_PREFERENCE))
+		{
+			//
+			// launch alert dialog for reset
+			//
+			showDialog(RESET_DIALOG_ID);
+			return true;
+		}
+		return false;		
+	}
+	
+	/**
+	 * updates a preference enabled state
+	 * @param preference_name preference name to be updated
+	 * @param enabled if it should be enabled
+	 */
+	private void togglePreferenceState(String preference_name, boolean enabled) {
+		
+		Preference pref = findPreference(preference_name);
+		if (pref != null)
+		{
+			pref.setEnabled(enabled);
+		}
+	}
+	
+	
+	private void toggleDisplayPreference(String value) {
 		
 		//
-		// check if it is supported
+		// check if icon view is selected
 		//
-		if (class_name == null || class_name.length() == 0) {
+		boolean icon_view = value.equals(ConfigurationSettings.ICON_LIST_VIEW_CLASS);
+		
+		//
+		// enable/disable state
+		//
+		togglePreferenceState(ConfigurationSettings.ICON_VIEW_ITEM_ROW_PREFERENCE, icon_view);
+		togglePreferenceState(ConfigurationSettings.ICON_VIEW_SORT_MODE_PREFERENCE, icon_view);
+	}
+	
+
+	@Override
+	public boolean onPreferenceChange(Preference preference, Object newValue) {
+
+		//
+		// get preference key
+		//
+		String key = preference.getKey();
+		if (key.equals(ConfigurationSettings.DISPLAY_PREFERENCE))
+		{
+			//
+			// get selected item
+			//
+			String default_display_class = (String)newValue;
 			
 			//
-			// BUG detected:
+			// update view
 			//
-			Logger.e("Error: no class name for item: " + item_name);
-			return;
+			toggleDisplayPreference(default_display_class);
+			Logger.e("DisplayClass: " + default_display_class);
+			//
+			// save display preferences
+			//
+			saveDisplayPreferences(default_display_class, null, null);
+			return true;
 		}
+		else if(key.equals(ConfigurationSettings.ICON_VIEW_ITEM_ROW_PREFERENCE))
+		{
+			//
+			// save display preferences
+			//
+			saveDisplayPreferences(null, (String)newValue, null);
+			return true;
+		}
+		else if (key.equals(ConfigurationSettings.ICON_VIEW_SORT_MODE_PREFERENCE))
+		{
+			//
+			// save display preferences
+			//
+			saveDisplayPreferences(null, null, (String)newValue);
+			return true;
+		}
+		else if (key.equals(ConfigurationSettings.NOTIFICATION_PREFERENCE))
+		{
+			//
+			// get check box preference
+			//
+			Boolean value = (Boolean)newValue;
+			//
+			// update status bar notification settings
+			//
+			Logger.e("key: " + key + " value: " + value);
+			m_status_bar.setStatusBarNotificationState(value);
+			if (!m_status_bar.isStatusBarNotificationEnabled())
+			{
+				//
+				// cancel notifications if shown
+				//
+				m_status_bar.removeStatusBarNotification();
+			}
+			return true;
+		}
+		else if (key.equals(ConfigurationSettings.VOCABULARY_PREFERENCE))
+		{
+			//
+			// get new value
+			//
+			Boolean value = (Boolean)newValue;
+			
+			//
+			// get instance of vocabulary manager
+			//
+			VocabularyManager voc_manager = VocabularyManager.getInstance();
+			
+			if (value.booleanValue())
+			{
+				//
+				// verify that it exists
+				//
+				if (!voc_manager.doesVocabularyFileExist())
+				{
+					//
+					// display warning toast
+					//
+					ToastManager.getInstance().displayToastWithString(R.string.error_vocabulary_file_not_exists);
+					return false;
+				}
+			}
+			
+			//
+			// set new state
+			//
+			voc_manager.setControlledVocabularyState(value.booleanValue());
+			return true;
+		}
+		return false;
+	}
+	
+	
+	
+	/**
+	 * saves the display settings
+	 * @param default_display_class default display class
+	 * @param items_per_row items per row icon view
+	 * @param sort_mode sort mode for icon view
+	 */
+	private void saveDisplayPreferences(String default_display_class, String items_per_row, String sort_mode) {
+		
+		//
+		// acquire shared settings
+		//
+		SharedPreferences settings = getSharedPreferences(
+				ConfigurationSettings.TAGSTORE_PREFERENCES_NAME,
+				Context.MODE_PRIVATE);
+
+		//
+		// get editor
+		//
+		SharedPreferences.Editor editor = settings.edit();
+
+		if (items_per_row != null)
+		{
+			try
+			{
+				//
+				// convert to integer
+				//
+				int items_row = Integer.parseInt(items_per_row);
+				
+				//
+				// store number of rows
+				//
+				editor.putInt(ConfigurationSettings.NUMBER_OF_ITEMS_PER_ROW, items_row);
+				
+			}catch(NumberFormatException exc)
+			{
+				Logger.e("NumberFromatException while parsing: items_per_row:" + items_per_row);
+			}
+
+		}
+		if (default_display_class != null)
+		{
+			//
+			// set list view mode
+			//
+			editor.putString(ConfigurationSettings.CURRENT_LIST_VIEW_CLASS, default_display_class);
+		}
+		
+		if (sort_mode != null)
+		{
+			//
+			// store sort mode
+			//
+			editor.putString(ConfigurationSettings.CURRENT_LIST_VIEW_SORT_MODE, sort_mode);
+		}
+		
+		//
+		// now commit changes
+		//
+		editor.commit();
+	}
+	
+	
+	/**
+	 * updates the ui after the database has been reset
+	 * @param reset_database if true the database has successfully been reset
+	 */
+	protected void updateUIDatabaseCallback(boolean reset_database) {
 
 		//
 		// get main page adapter
 		//
 		MainPageAdapter adapter = MainPageAdapter.getInstance();
-		
+
 		//
-		// HACK: when the add file fragment is present
-		// remove add file fragment
-		// change tab to trigger change
-		// add configuration item
-		// change tab
-		// add add file fragment
+		// is the add file tag fragment present
 		//
-		
-		boolean add_file_present = adapter.isAddFileTagFragmentActive();
-		if (add_file_present)
+		if (adapter.isAddFileTagFragmentActive())
 		{
+			//
+			// hide that fragment as the database is now empty
+			//
 			adapter.removeAddFileTagFragment();
-			adapter.setCurrentFragmentByIndex(0);
+				
+			//
+			// clear notification settings
+			//
+			clearNotification();
 		}
-		
-		adapter.addFragmentByIndex(class_name, item_name, 2);
-		adapter.setCurrentFragmentByIndex(2);
-		
-		if (add_file_present)
+
+
+		if (reset_database) {
+			//
+			// successfully deleted database
+			//
+			ToastManager.getInstance().displayToastWithString(R.string.reset_database);
+		} else {
+			//
+			// failed to reset database
+			//
+			ToastManager.getInstance().displayToastWithString(R.string.error_reset_database);			
+		}
+	}
+
+	/**
+	 * clears any active status bar notification when enabled
+	 */
+	private void clearNotification()
+	{
+		//
+		// are notification settings enabled
+		//
+		boolean enabled_status_bar = m_status_bar.isStatusBarNotificationEnabled();
+		if(enabled_status_bar)
 		{
 			//
-			// get localized new file
+			// cancel notification
 			//
-			String new_file = getString(
-					R.string.new_file);
-			
-			//
-			// rebuild tabs
-			//
-			adapter.addFragment(AddFileTagActivity.class.getName(),
-					new_file);	
+			m_status_bar.removeStatusBarNotification();
 		}
+	}
+	
+	
+	/**
+	 * callback which is invoked when database worker has been reset
+	 * @param reset_database if true the database has been reset
+	 */
+	public void onDatabaseResetResult(final boolean success) {
+		//
+		// run on ui thread
+		//
+		runOnUiThread(new Runnable() {
+		    public void run() {
+		    	updateUIDatabaseCallback(success);
+		    }
+		});
 		
 	}
+
+	
+	
 }

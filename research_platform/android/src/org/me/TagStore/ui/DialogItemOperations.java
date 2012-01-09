@@ -1,25 +1,21 @@
 package org.me.TagStore.ui;
 
 import java.io.File;
+
+import junit.framework.Assert;
+
 import org.me.TagStore.R;
 import org.me.TagStore.core.FileTagUtility;
 import org.me.TagStore.core.Logger;
-import org.me.TagStore.interfaces.GeneralDialogCallback;
-import org.me.TagStore.interfaces.OptionsDialogCallback;
-import org.me.TagStore.interfaces.RenameDialogCallback;
-import org.me.TagStore.interfaces.RetagDialogCallback;
 
 import android.app.Dialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Environment;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.webkit.MimeTypeMap;
-import android.widget.Toast;
-
 
 /**
  * This class is used to perform common dialog operations. It performs all necessary tasks for creating dialogs and displaying the items
@@ -28,11 +24,6 @@ import android.widget.Toast;
  */
 public class DialogItemOperations {
 
-	/**
-	 * fragment which is the owner of the DialogItemOperations
-	 */
-	private final Fragment m_activity;
-	
 	/**
 	 * activity of the fragment
 	 */
@@ -44,16 +35,20 @@ public class DialogItemOperations {
 	private final FragmentManager m_fragment_manager;
 	
 	/**
+	 * new fragment
+	 */
+	private CommonDialogFragment m_fragment = null;
+	
+	
+	/**
 	 * constructor of class DialogItemOperations
-	 * @param activity owner activity for the dialogs
 	 * @param activity_group owner of activity which is assed for launching / sharing files
 	 */
-	public DialogItemOperations(Fragment activity, FragmentActivity activity_group, FragmentManager fragment_manager) {
+	public DialogItemOperations(FragmentActivity activity_group, FragmentManager fragment_manager) {
 		
 		//
 		// initialize activity
 		//
-		m_activity = activity;
 		m_activity_group = activity_group;
 		m_fragment_manager = fragment_manager;
 	}
@@ -76,26 +71,30 @@ public class DialogItemOperations {
 		switch (id) {
 
 		case DialogIds.DIALOG_GENERAL_FILE_MENU:
-			dialog = FileDialogBuilder.buildGeneralFileDialog(m_activity_group, (GeneralDialogCallback)m_activity);
+			dialog = FileDialogBuilder.buildGeneralFileDialog(m_activity_group, fragment);
 			break;
 			
 		case DialogIds.DIALOG_DETAILS:
-			dialog = FileDialogBuilder.buildDetailDialogFile(m_activity_group, item_name);
+			dialog = FileDialogBuilder.buildDetailDialogFile(m_activity_group, item_name, fragment);
 			break;
 		case DialogIds.DIALOG_RENAME:
-			dialog = FileDialogBuilder.buildRenameDialogFile(m_activity_group, item_name, is_tag, true, (RenameDialogCallback)m_activity, fragment);
+			dialog = FileDialogBuilder.buildRenameDialogFile(m_activity_group, item_name, is_tag, true, fragment);
 			break;
 		case DialogIds.DIALOG_RETAG:
-			dialog = FileDialogBuilder.buildRetagDialogFile(m_activity_group, item_name, (RetagDialogCallback)m_activity, fragment);
+			dialog = FileDialogBuilder.buildRetagDialogFile(m_activity_group, item_name, fragment);
 			break;
 		case DialogIds.DIALOG_GENERAL_TAG_MENU:
-			dialog = FileDialogBuilder.buildGeneralTagDialog(m_activity_group, (GeneralDialogCallback)m_activity);
+			dialog = FileDialogBuilder.buildGeneralTagDialog(m_activity_group, fragment);
 			break;			
 		case DialogIds.DIALOG_DETAILS_TAG:
-			dialog = FileDialogBuilder.buildTagDetailDialog(m_activity_group, item_name);
+			dialog = FileDialogBuilder.buildTagDetailDialog(m_activity_group, item_name, fragment);
 			break;
 		case DialogIds.DIALOG_OPTIONS:
-			dialog = FileDialogBuilder.buildOptionsDialogFile(m_activity_group, item_name, (OptionsDialogCallback)m_activity, fragment);
+			dialog = FileDialogBuilder.buildOptionsDialogFile(m_activity_group, item_name, fragment);
+			break;
+		case DialogIds.DIALOG_OPEN_AS:
+			dialog = FileDialogBuilder.buildOpenAsDialog(m_activity_group, item_name, fragment);
+			break;
 		}
 		return dialog;
 	}
@@ -114,19 +113,27 @@ public class DialogItemOperations {
 			//
 			// launch retag dialog
 			//
-			CommonDialogFragment fragment = CommonDialogFragment.newInstance(item_path, is_tag, DialogIds.DIALOG_RETAG);
-			fragment.setDialogItemOperation(this);
-			fragment.show(m_fragment_manager, "FIXME");		
+			m_fragment = CommonDialogFragment.newInstance(m_activity_group, item_path, is_tag, DialogIds.DIALOG_RETAG);
+			m_fragment.setDialogItemOperation(this);
+			m_fragment.show(m_fragment_manager, "FIXME");		
 		}
-		
-		if (action_id == FileDialogBuilder.MENU_ITEM_ENUM.MENU_ITEM_RENAME)
+		else if (action_id == FileDialogBuilder.MENU_ITEM_ENUM.MENU_ITEM_OPEN_AS)
+		{
+			//
+			// launch open as dialog
+			//
+			m_fragment = CommonDialogFragment.newInstance(m_activity_group, item_path, is_tag, DialogIds.DIALOG_OPEN_AS);
+			m_fragment.setDialogItemOperation(this);			
+			m_fragment.show(m_fragment_manager, "FIXME");	
+		}
+		else if (action_id == FileDialogBuilder.MENU_ITEM_ENUM.MENU_ITEM_RENAME)
 		{
 			//
 			// launch rename dialog
 			//
-			CommonDialogFragment fragment = CommonDialogFragment.newInstance(item_path, is_tag, DialogIds.DIALOG_RENAME);
-			fragment.setDialogItemOperation(this);			
-			fragment.show(m_fragment_manager, "FIXME");		
+			m_fragment = CommonDialogFragment.newInstance(m_activity_group, item_path, is_tag, DialogIds.DIALOG_RENAME);
+			m_fragment.setDialogItemOperation(this);			
+			m_fragment.show(m_fragment_manager, "FIXME");		
 		}
 		else if (action_id == FileDialogBuilder.MENU_ITEM_ENUM.MENU_ITEM_DETAILS)
 		{
@@ -138,18 +145,18 @@ public class DialogItemOperations {
 				//
 				// launch tag details dialog
 				//
-				CommonDialogFragment fragment = CommonDialogFragment.newInstance(item_path, is_tag, DialogIds.DIALOG_DETAILS_TAG);
-				fragment.setDialogItemOperation(this);				
-				fragment.show(m_fragment_manager, "FIXME");		
+				m_fragment = CommonDialogFragment.newInstance(m_activity_group, item_path, is_tag, DialogIds.DIALOG_DETAILS_TAG);
+				m_fragment.setDialogItemOperation(this);				
+				m_fragment.show(m_fragment_manager, "FIXME");		
 			}
 			else
 			{
 				//
 				// launch file details dialog
 				//
-				CommonDialogFragment fragment = CommonDialogFragment.newInstance(item_path, is_tag, DialogIds.DIALOG_DETAILS);
-				fragment.setDialogItemOperation(this);				
-				fragment.show(m_fragment_manager, "FIXME");		
+				m_fragment = CommonDialogFragment.newInstance(m_activity_group, item_path, is_tag, DialogIds.DIALOG_DETAILS);
+				m_fragment.setDialogItemOperation(this);				
+				m_fragment.show(m_fragment_manager, "FIXME");		
 			}
 		} else if (action_id == FileDialogBuilder.MENU_ITEM_ENUM.MENU_ITEM_DELETE) 
 		{
@@ -172,7 +179,7 @@ public class DialogItemOperations {
 				//
 				// remove the file
 				//
-				FileTagUtility.removeFile(item_path, m_activity_group);
+				FileTagUtility.removeFile(item_path, true);
 			}
 
 			//
@@ -192,6 +199,16 @@ public class DialogItemOperations {
 			// send file
 			//
 			return sendFile(item_path);
+		}
+		else if (action_id == FileDialogBuilder.MENU_ITEM_ENUM.MENU_ITEM_OPEN_AS_AUDIO ||
+			     action_id == FileDialogBuilder.MENU_ITEM_ENUM.MENU_ITEM_OPEN_AS_IMAGE ||
+			     action_id == FileDialogBuilder.MENU_ITEM_ENUM.MENU_ITEM_OPEN_AS_TEXT  ||
+			     action_id == FileDialogBuilder.MENU_ITEM_ENUM.MENU_ITEM_OPEN_AS_VIDEO)
+		{
+			//
+			// open file as
+			//
+			openFileAs(item_path, action_id);
 		}
 		
 		//
@@ -332,12 +349,47 @@ public class DialogItemOperations {
 		return true;
 	}
 	
-	
 	/**
-	 * launches a file with the default registered application
-	 * @param item_path path of the file
+	 * opens the file with specified content type
+	 * @param item_path item path
+	 * @param action_id action id
 	 */
-	private void launchFile(String item_path) {
+	private void openFileAs(String item_path, FileDialogBuilder.MENU_ITEM_ENUM action_id) {
+		
+		String mime_type ="";
+		
+		if (action_id == FileDialogBuilder.MENU_ITEM_ENUM.MENU_ITEM_OPEN_AS_AUDIO)
+		{
+			mime_type = "audio/*";
+		}
+		else if (action_id == FileDialogBuilder.MENU_ITEM_ENUM.MENU_ITEM_OPEN_AS_IMAGE)
+		{
+			mime_type = "image/*";
+		}
+		else if (action_id == FileDialogBuilder.MENU_ITEM_ENUM.MENU_ITEM_OPEN_AS_VIDEO)
+		{
+			mime_type = "video/*";
+		}
+		else if (action_id == FileDialogBuilder.MENU_ITEM_ENUM.MENU_ITEM_OPEN_AS_TEXT)
+		{
+			mime_type = "text/plain";
+		}
+		else
+		{
+			//
+			// unexpected
+			//
+			Logger.e("BUG detected in openFileAs");
+			return;
+		}
+
+		//
+		// launch file
+		//
+		performLaunch(item_path, mime_type, false);
+	}
+
+	private void performLaunch(String item_path, String mime_type, boolean launch_open_as_dialog) {
 		
 		//
 		// check if it is mounted
@@ -365,7 +417,41 @@ public class DialogItemOperations {
 		// create uri from file
 		//
 		Uri uri_file = Uri.fromFile(new File(item_path));
-
+		
+		//
+		// set intent data type
+		//
+		intent.setDataAndType(uri_file, mime_type);
+		
+		
+		
+		try
+		{
+			//
+			// start activity
+			//
+			Assert.assertTrue(m_activity_group != null);
+			m_activity_group.startActivity(intent);
+		}catch(android.content.ActivityNotFoundException exc)
+		{
+			//
+			// file failed to launch, launch open as dialog
+			//
+			if (launch_open_as_dialog)
+			{
+				m_fragment = CommonDialogFragment.newInstance(m_activity_group, item_path, false, DialogIds.DIALOG_OPEN_AS);
+				m_fragment.setDialogItemOperation(this);			
+				m_fragment.show(m_fragment_manager, "FIXME");
+			}
+		}
+	}
+	
+	/**
+	 * launches a file with the default registered application
+	 * @param item_path path of the file
+	 */
+	private void launchFile(String item_path) {
+		
 		//
 		// get mime type map instance
 		//
@@ -383,22 +469,8 @@ public class DialogItemOperations {
 		String mime_type = mime_map.getMimeTypeFromExtension(file_extension);
 
 		//
-		// set intent data type
+		// launch file in external application
 		//
-		intent.setDataAndType(uri_file, mime_type);
-
-		try
-		{
-			//
-			// start activity
-			//
-			m_activity_group.startActivity(intent);
-		}catch(android.content.ActivityNotFoundException exc)
-		{
-			//
-			// no activity registered for this file type
-			//
-			ToastManager.getInstance().displayToastWithFormat(R.string.no_app_registered, new File(item_path).getName(), Toast.LENGTH_SHORT);
-		}
+		performLaunch(item_path, mime_type, true);
 	}
 }

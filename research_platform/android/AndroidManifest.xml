@@ -28,9 +28,6 @@
 		<activity android:name=".SynchronizeTagStoreActivity" />
 		<activity android:name=".TagStoreCloudViewActivity" />	
 		<activity android:name=".TagStoreGridViewActivity" />				
-		<activity android:name=".ListViewSettingsActivity" />
-		<activity android:name=".DatabaseSettingsActivity" />
-		<activity android:name=".NotificationSettingsActivity" />
 		<activity android:name="org.me.TagStore.ShareActivity" android:label="@string/app_name">
 		    <intent-filter> 
 		      <action android:name="android.intent.action.SEND"/>    

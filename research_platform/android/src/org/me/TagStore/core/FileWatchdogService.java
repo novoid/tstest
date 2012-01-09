@@ -93,7 +93,7 @@ public class FileWatchdogService extends Service implements org.me.TagStore.core
 			// file was deleted
 			// remove file from store
 			//
-			FileTagUtility.removeFile(file_name, null);
+			FileTagUtility.removeFile(file_name, false);
 
 			//
 			// done
@@ -279,6 +279,7 @@ public class FileWatchdogService extends Service implements org.me.TagStore.core
 				//
 				for(String path : observed_directory_list){
 					
+					Logger.i("observing directory: " + path);
 					boolean result = m_observer.addObserver(path, m_notification);
 					if (!result)
 					{

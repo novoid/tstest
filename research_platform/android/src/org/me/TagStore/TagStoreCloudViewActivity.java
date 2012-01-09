@@ -1,12 +1,16 @@
 package org.me.TagStore;
 
+import java.util.ArrayList;
+
+import org.me.TagStore.core.EventDispatcher;
 import org.me.TagStore.core.Logger;
 import org.me.TagStore.core.TagStackManager;
-import org.me.TagStore.interfaces.CloudViewClickListener;
+import org.me.TagStore.interfaces.ItemViewClickListener;
 import org.me.TagStore.interfaces.GeneralDialogCallback;
 import org.me.TagStore.interfaces.BackKeyCallback;
 import org.me.TagStore.interfaces.RenameDialogCallback;
 import org.me.TagStore.interfaces.RetagDialogCallback;
+import org.me.TagStore.interfaces.TagEventNotification;
 import org.me.TagStore.interfaces.TagStackUIButtonCallback;
 import org.me.TagStore.ui.CloudViewSurfaceAdapter;
 import org.me.TagStore.ui.CloudViewTouchListener;
@@ -25,9 +29,10 @@ import android.view.ViewGroup;
 public class TagStoreCloudViewActivity extends Fragment implements GeneralDialogCallback, 
 																   		 RenameDialogCallback, 
 																   		 BackKeyCallback,																   
-																   		 CloudViewClickListener,
+																   		 ItemViewClickListener,
 																   		 RetagDialogCallback, 
-																   		 TagStackUIButtonCallback																   		 
+																   		 TagStackUIButtonCallback,
+                                                                         TagEventNotification																   		 
 {
 	/**
 	 * stores the cloud view
@@ -96,6 +101,67 @@ public class TagStoreCloudViewActivity extends Fragment implements GeneralDialog
 		}
 	}
 
+	public void onStop() {
+		
+		//
+		// call base method
+		//
+		super.onStop();
+		
+		//
+		// unregister us with event dispatcher
+		//
+		unregisterEvents(getEvents());
+	}
+		
+	/**
+	 * unregisters the events from the event dispatcher
+	 * @param events
+	 */
+	private void unregisterEvents(final ArrayList<EventDispatcher.EventId> events) {
+		
+		for(EventDispatcher.EventId event : events)
+		{
+			//
+			// unregister event
+			//
+			EventDispatcher.getInstance().unregisterEvent(event, this);
+		}
+	}
+
+	private void registerEvents(final ArrayList<EventDispatcher.EventId> events) {
+		
+		for(EventDispatcher.EventId event : events)
+		{
+			//
+			// unregister event
+			//
+			EventDispatcher.getInstance().registerEvent(event, this);
+		}		
+	}
+	
+	private ArrayList<EventDispatcher.EventId> getEvents() {
+		
+		ArrayList<EventDispatcher.EventId> events = new ArrayList<EventDispatcher.EventId>();
+		
+		//
+		// add interested events
+		//
+		events.add(EventDispatcher.EventId.TAG_STACK_BUTTON_EVENT);
+		events.add(EventDispatcher.EventId.TAG_STACK_LONG_BUTTON_EVENT);
+		events.add(EventDispatcher.EventId.BACK_KEY_EVENT);
+		events.add(EventDispatcher.EventId.ITEM_CLICK_EVENT);
+		events.add(EventDispatcher.EventId.ITEM_LONG_CLICK_EVENT);
+		events.add(EventDispatcher.EventId.FILE_TAGGED_EVENT);		
+		events.add(EventDispatcher.EventId.FILE_RENAMED_EVENT);
+		events.add(EventDispatcher.EventId.TAG_RENAMED_EVENT);
+		events.add(EventDispatcher.EventId.FILE_RETAG_EVENT);
+		events.add(EventDispatcher.EventId.ITEM_MENU_EVENT);
+		events.add(EventDispatcher.EventId.ITEM_CONFLICT_EVENT);
+		return events;
+	}
+	
+	
 	public void onCreate(Bundle savedInstanceState) {
 
 		//
@@ -111,14 +177,19 @@ public class TagStoreCloudViewActivity extends Fragment implements GeneralDialog
 		//
 		// create common dialog operations object 
 		//
-		m_dialog_operations = new DialogItemOperations(this, getActivity(), getFragmentManager());
+		m_dialog_operations = new DialogItemOperations(getActivity(), getFragmentManager());
+		
+		//
+		// register us with event dispatcher
+		//
+		registerEvents(getEvents());
 	}
 
 	
 	
 	public void renamedFile(String old_file_name, String new_file)
 	{
-		
+		Logger.e("old:" + old_file_name + " new_file:" + new_file);
 		//
 		// refresh view
 		//
@@ -200,12 +271,6 @@ public class TagStoreCloudViewActivity extends Fragment implements GeneralDialog
 		//
 		m_view = (CloudViewSurfaceAdapter)view.findViewById(R.id.tagstore_cloud_view); 
 		
-		
-		//
-		// set click listener
-		//
-		m_view.setCloudViewClickListener(this);
-		
 		//
 		// construct cloud touch listener
 		//
@@ -230,18 +295,13 @@ public class TagStoreCloudViewActivity extends Fragment implements GeneralDialog
 		if (m_tag_stack_adapter != null)
 		{
 			//
-			// init with our callback
-			//
-			m_tag_stack_adapter.setTagStackUIButtonCallback(this);
-			
-			//
 			// refresh view
 			//
 			m_tag_stack_adapter.refresh();
-		}	
+		}
 		return view;
 	}
-
+	
 	public void onBackPressed() {
 		
 		//
@@ -266,12 +326,15 @@ public class TagStoreCloudViewActivity extends Fragment implements GeneralDialog
 		//
 		m_dialog_operations.performDialogItemOperation(m_current_tag, m_is_tag, action_id);
 
-		//
-		// dismiss fragment
-		//
-		m_fragment.dismiss();
+		if (m_fragment != null)
+		{
+			//
+			// dismiss fragment
+			//
+			m_fragment.dismiss();
+			m_fragment = null;
+		}
 
-		
 		//
 		// refresh view
 		//
@@ -292,15 +355,7 @@ public class TagStoreCloudViewActivity extends Fragment implements GeneralDialog
 	}
 
 	@Override
-	public void onListItemClick(String item_name, boolean is_tag) {
-		
-		if (!is_tag)
-		{
-			//
-			// launch item
-			//
-			launchItem(item_name);
-		}
+	public void onListItemClick(final String item_name, final boolean is_tag) {
 		
 		//
 		// refresh tag stack on the ui thread
@@ -309,6 +364,15 @@ public class TagStoreCloudViewActivity extends Fragment implements GeneralDialog
 
 			@Override
 			public void run() {
+				
+				if (!is_tag)
+				{
+					//
+					// launch item
+					//
+					launchItem(item_name);
+				}
+				
 				//
 				// rebuild tag stack
 				//
@@ -387,7 +451,7 @@ public class TagStoreCloudViewActivity extends Fragment implements GeneralDialog
 			//
 			// construct new common dialog fragment which will show the dialog
 			//
-			m_fragment = CommonDialogFragment.newInstance(m_item_name, m_is_tag, m_dialog_id);
+			m_fragment = CommonDialogFragment.newInstance(getActivity(), m_item_name, m_is_tag, m_dialog_id);
 			m_fragment.setDialogItemOperation(m_dialog_op);
 			m_fragment.show(getFragmentManager(), "FIXME");
 		}
@@ -406,7 +470,7 @@ public class TagStoreCloudViewActivity extends Fragment implements GeneralDialog
 
 	@Override
 	public void tagButtonClicked(String tag) {
-		Logger.i("tagButtonClicked");
+		Logger.i("tagButtonClicked: " + tag);
 		
 		//
 		// get tag stack manager
@@ -432,6 +496,9 @@ public class TagStoreCloudViewActivity extends Fragment implements GeneralDialog
 	@Override
 	public boolean tagButtonLongClicked(String tag) {
 		
+		
+		Logger.i("tagButtonLongClicked: " + tag);
+		
 		//
 		// save current tag
 		//
@@ -441,7 +508,7 @@ public class TagStoreCloudViewActivity extends Fragment implements GeneralDialog
 		//
 		// construct new common dialog fragment which will show the dialog
 		//
-		m_fragment = CommonDialogFragment.newInstance(tag, true, DialogIds.DIALOG_GENERAL_TAG_MENU);
+		m_fragment = CommonDialogFragment.newInstance(getActivity(), tag, true, DialogIds.DIALOG_GENERAL_TAG_MENU);
 		m_fragment.setDialogItemOperation(m_dialog_operations);
 		m_fragment.show(getFragmentManager(), "FIXME");
 		
@@ -450,4 +517,15 @@ public class TagStoreCloudViewActivity extends Fragment implements GeneralDialog
 		//
 		return true;
 	}
+
+	public void notifyFileTagged(String file_name) {
+
+		Logger.i("notifyFileTagged: " + file_name);
+		//
+		// refresh view
+		//
+		refreshView();
+		
+	}	
+	
 }

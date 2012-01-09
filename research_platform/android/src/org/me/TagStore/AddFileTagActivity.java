@@ -2,14 +2,18 @@ package org.me.TagStore;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 
 import org.me.TagStore.R;
 import org.me.TagStore.core.ConfigurationSettings;
 import org.me.TagStore.core.DBManager;
+import org.me.TagStore.core.EventDispatcher;
 import org.me.TagStore.core.FileTagUtility;
 import org.me.TagStore.core.Logger;
 import org.me.TagStore.core.PendingFileChecker;
 import org.me.TagStore.core.TagValidator;
+import org.me.TagStore.core.VocabularyManager;
 import org.me.TagStore.interfaces.OptionsDialogCallback;
 import org.me.TagStore.interfaces.RenameDialogCallback;
 import org.me.TagStore.ui.CommonDialogFragment;
@@ -76,7 +80,7 @@ public class AddFileTagActivity extends Fragment implements
 	/**
 	 * stores popular tags
 	 */
-	private ArrayList<String> m_popular_tags;
+	private LinkedHashSet<String> m_popular_tags;
 
 	/**
 	 * reference to auto complete field
@@ -92,7 +96,6 @@ public class AddFileTagActivity extends Fragment implements
 	 * status bar notification
 	 */
 	private StatusBarNotification m_status_bar;
-	
 	
 	@Override
 	public void renamedFile(String old_file_name, String new_file) {
@@ -118,16 +121,30 @@ public class AddFileTagActivity extends Fragment implements
 				//
 				file_name_text_view.setText(m_file_name);
 			}
+			
+			//
+			// perform tag
+			//
+			performTag();
+		}
+		else if (old_file_name.compareTo(m_rename_file_name) == 0)
+		{
+			//
+			// the existing file in the tagstore got renamed
+			//
+			performTag();
 		}
 		
 		//
-		// tag it
+		// a file got renamed which does not interest us at the moment
 		//
-		performTag();
 	}
 
 	@Override
 	public void renamedTag(String old_tag_name, String new_tag_name) {
+		
+		Logger.i("renamedTag: old_tag_name: " + old_tag_name + " new_tag_name:" + new_tag_name);
+		
 		//
 		// first scan the active buttons if the old tag name is present
 		//
@@ -153,22 +170,19 @@ public class AddFileTagActivity extends Fragment implements
 		//
 		// search in popular list
 		//
-		for (String current_tag : m_popular_tags) {
-			if (current_tag.compareTo(old_tag_name) == 0) {
-				//
-				// add new tag
-				//
-				m_popular_tags.add(m_popular_tags.indexOf(current_tag),
-						new_tag_name);
-
-				//
-				// remove old tag
-				//
-				m_popular_tags.remove(current_tag);
-				return;
-			}
+		if (m_popular_tags.contains(old_tag_name))
+		{
+			//
+			// remove old tag name
+			//
+			m_popular_tags.remove(old_tag_name);
+			
+			//
+			// add new tag name
+			//
+			m_popular_tags.add(new_tag_name);
 		}
-
+		
 		//
 		// FIXME: should the current tag line be updated too?
 		//
@@ -218,7 +232,7 @@ public class AddFileTagActivity extends Fragment implements
 			//
 			// display dialog
 			//
-			CommonDialogFragment dialog_fragment = CommonDialogFragment.newInstance(m_rename_file_name, false, DialogIds.DIALOG_RENAME);
+			CommonDialogFragment dialog_fragment = CommonDialogFragment.newInstance(getActivity(), m_rename_file_name, false, DialogIds.DIALOG_RENAME);
 			dialog_fragment.setDialogItemOperation(m_dialog_operations);
 			dialog_fragment.show(getFragmentManager(), "FIXME");
 		}
@@ -273,7 +287,20 @@ public class AddFileTagActivity extends Fragment implements
 		initialize(getView(), true);
 	}
 
-
+	public void onStop() {
+		
+		//
+		// inform base class
+		//
+		super.onStop();
+		
+		//
+		// unregister us from event dispatcher
+		//
+		EventDispatcher.getInstance().unregisterEvent(EventDispatcher.EventId.TAG_RENAMED_EVENT, this);
+		EventDispatcher.getInstance().unregisterEvent(EventDispatcher.EventId.FILE_RENAMED_EVENT, this);
+		EventDispatcher.getInstance().unregisterEvent(EventDispatcher.EventId.ITEM_CONFLICT_EVENT, this);
+	}
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -286,12 +313,19 @@ public class AddFileTagActivity extends Fragment implements
 		//
 		// construct on create dialog operations object
 		//
-		m_dialog_operations = new DialogItemOperations(this, getActivity(), getFragmentManager());
+		m_dialog_operations = new DialogItemOperations(getActivity(), getFragmentManager());
 		
 		//
 		// create status bar
 		//
 		m_status_bar = new StatusBarNotification(getActivity().getApplicationContext());
+		
+		//
+		// register us with the event dispatcher
+		//
+		EventDispatcher.getInstance().registerEvent(EventDispatcher.EventId.TAG_RENAMED_EVENT, this);
+		EventDispatcher.getInstance().registerEvent(EventDispatcher.EventId.FILE_RENAMED_EVENT, this);
+		EventDispatcher.getInstance().unregisterEvent(EventDispatcher.EventId.ITEM_CONFLICT_EVENT, this);		
 	}
 
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -553,8 +587,7 @@ public class AddFileTagActivity extends Fragment implements
 		//
 		// add text changed listener
 		//
-		m_text_view.addTextChangedListener(new UITagTextWatcher(getActivity(),
-				true));
+		m_text_view.addTextChangedListener(new UITagTextWatcher(true));
 
 		//
 		// get the tag me button
@@ -624,13 +657,13 @@ public class AddFileTagActivity extends Fragment implements
 		}
 	}
 
-	/**
-	 * initializes the tag buttons
-	 * 
-	 * @return
-	 */
-	private boolean initializeTagButtons(View view) {
-
+	private void initTags() {
+		
+		//
+		// new tags list
+		//
+		m_popular_tags = new LinkedHashSet<String>();
+		
 		//
 		// acquire database manager instance
 		//
@@ -639,8 +672,48 @@ public class AddFileTagActivity extends Fragment implements
 		//
 		// get popular tags
 		//
-		m_popular_tags = db_man.getPopularTags();
+		ArrayList<String> tags = db_man.getPopularTags();
+		if (tags != null)
+		{
+			//
+			// add all tags
+			//
+			m_popular_tags.addAll(tags);
+		}
+		
+		//
+		// check if controlled vocabulary is on
+		//
+		if (VocabularyManager.getInstance().getControlledVocabularyState())
+		{
+			//
+			// also add controlled vocabular entries
+			//
+			HashSet<String> vocabulary = VocabularyManager.getInstance().getVocabulary();
+			if (vocabulary != null)
+			{
+				//
+				// add all vocabulary entries
+				//
+				m_popular_tags.addAll(vocabulary);
+			}
+		}
+	}
+	
+	
+	
+	/**
+	 * initializes the tag buttons
+	 * 
+	 * @return
+	 */
+	private boolean initializeTagButtons(View view) {
 
+		//
+		// init tags
+		//
+		initTags();
+		
 		if (m_popular_tags == null || m_popular_tags.size() == 0) {
 			//
 			// no tags to add
@@ -699,12 +772,9 @@ public class AddFileTagActivity extends Fragment implements
 		//
 		int number_tags = Math.min(NUMBER_POPULAR_TAGS, m_popular_tags.size());
 
-		for (int index = 0; index < number_tags; index++) {
-			//
-			// get popular tag
-			//
-			String popular_tag = m_popular_tags.get(0);
-
+		int index = 0;
+		for(String popular_tag : m_popular_tags.toArray(new String[1]))
+		{
 			//
 			// initialize popular button
 			//
@@ -714,14 +784,21 @@ public class AddFileTagActivity extends Fragment implements
 			//
 			// remove tag
 			//
-			m_popular_tags.remove(0);
+			m_popular_tags.remove(popular_tag);
+			
+			//
+			// update index
+			//
+			index++;
+			if (index >= number_tags)
+				break;
 		}
 
 		if (number_tags < NUMBER_POPULAR_TAGS) {
 			//
 			// hide tag buttons
 			//
-			for (int index = number_tags; index < NUMBER_POPULAR_TAGS; index++) {
+			for (index = number_tags; index < NUMBER_POPULAR_TAGS; index++) {
 				//
 				// find button
 				//
@@ -845,7 +922,7 @@ public class AddFileTagActivity extends Fragment implements
 				//
 				// grab first tag
 				//
-				String new_tag = m_popular_tags.get(0);
+				String new_tag = m_popular_tags.toArray(new String[1])[0];
 
 				//
 				// check if the view was found
@@ -1006,7 +1083,7 @@ public class AddFileTagActivity extends Fragment implements
 			//
 			// show options dialog
 			//
-			CommonDialogFragment dialog_fragment = CommonDialogFragment.newInstance(m_file_name, false, DialogIds.DIALOG_OPTIONS);
+			CommonDialogFragment dialog_fragment = CommonDialogFragment.newInstance(getActivity(), m_file_name, false, DialogIds.DIALOG_OPTIONS);
 			dialog_fragment.setDialogItemOperation(m_dialog_operations);
 			dialog_fragment.show(getFragmentManager(), "FIXME");
 			return;
@@ -1028,10 +1105,11 @@ public class AddFileTagActivity extends Fragment implements
 			//
 			ToastManager.getInstance().displayToastWithString(R.string.reserved_character_file_name);
 			Logger.e("invalid character found in " + file_name);
+			
 			//
 			// launch rename dialog
 			//
-			CommonDialogFragment dialog_fragment = CommonDialogFragment.newInstance(m_file_name, false, DialogIds.DIALOG_RENAME);
+			CommonDialogFragment dialog_fragment = CommonDialogFragment.newInstance(getActivity(), m_file_name, false, DialogIds.DIALOG_RENAME);
 			dialog_fragment.setDialogItemOperation(m_dialog_operations);
 			dialog_fragment.show(getFragmentManager(), "FIXME");
 			return;			
@@ -1051,7 +1129,7 @@ public class AddFileTagActivity extends Fragment implements
 			//
 			// launch rename dialog
 			//
-			CommonDialogFragment dialog_fragment = CommonDialogFragment.newInstance(m_file_name, false, DialogIds.DIALOG_RENAME);
+			CommonDialogFragment dialog_fragment = CommonDialogFragment.newInstance(getActivity(), m_file_name, false, DialogIds.DIALOG_RENAME);
 			dialog_fragment.setDialogItemOperation(m_dialog_operations);
 			dialog_fragment.show(getFragmentManager(), "FIXME");
 			return;
@@ -1060,13 +1138,19 @@ public class AddFileTagActivity extends Fragment implements
 		//
 		// add file
 		//
-		if (FileTagUtility.addFile(m_file_name, tag_text, true) == false) {
+		if (FileTagUtility.tagFile(m_file_name, tag_text, true) == false) {
+			
 			//
 			// failed to tag
 			//
 			return;
 		}
 
+		//
+		// dispatch tagged event
+		//
+		EventDispatcher.getInstance().signalEvent(EventDispatcher.EventId.FILE_TAGGED_EVENT, new Object[]{m_file_name});
+		
 		Logger.i("AddFileTag::performTag file : " + m_file_name
 				+ " added to database");
 

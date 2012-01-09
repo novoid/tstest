@@ -103,7 +103,7 @@ public class IconViewScrollListener implements OnScrollListener {
 		//
 		// trim name
 		//
-		item_name = item_name.substring(0, 1);
+		item_name = item_name.substring(0, 1).toUpperCase();
 
 		//
 		// display toast

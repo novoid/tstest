@@ -4,10 +4,10 @@ import java.io.File;
 import java.util.Set;
 
 import org.me.TagStore.R;
+import org.me.TagStore.core.EventDispatcher;
 import org.me.TagStore.core.FileTagUtility;
 import org.me.TagStore.core.Logger;
 import org.me.TagStore.core.TagValidator;
-import org.me.TagStore.interfaces.RenameDialogCallback;
 
 import android.os.Environment;
 import android.support.v4.app.DialogFragment;
@@ -39,11 +39,6 @@ public class RenameDialogButtonListener implements OnClickListener
 	private final boolean m_is_tag;
 	
 	/**
-	 * stores the call back
-	 */
-	private final RenameDialogCallback m_callback;
-	
-	/**
 	 * stores the dialog fragment
 	 */
 	private final DialogFragment m_fragment;
@@ -54,7 +49,7 @@ public class RenameDialogButtonListener implements OnClickListener
 	 * @param file file name
 	 * @param callback callback to be invoked
 	 */
-	public RenameDialogButtonListener(View view, String item, boolean is_tag, RenameDialogCallback callback, DialogFragment fragment) {
+	public RenameDialogButtonListener(View view, String item, boolean is_tag, DialogFragment fragment) {
 		
 		
 		//
@@ -62,7 +57,6 @@ public class RenameDialogButtonListener implements OnClickListener
 		//
 		m_view = view;
 		m_item = item;
-		m_callback = callback;
 		m_is_tag = is_tag;
 		m_fragment = fragment;
 	}
@@ -186,12 +180,14 @@ public class RenameDialogButtonListener implements OnClickListener
 		if (renamed)
 		{
 			//
-			// invoke call back
+			// prepare event args
 			//
-			if (m_callback != null)
-			{
-				m_callback.renamedTag(m_item, new_tag);
-			}
+			Object [] event_args = new Object[] {m_item, new_tag};
+			
+			//
+			// signal event
+			//
+			EventDispatcher.getInstance().signalEvent(EventDispatcher.EventId.TAG_RENAMED_EVENT, event_args);
 			
 			//
 			// dismiss the dialog
@@ -311,12 +307,14 @@ public class RenameDialogButtonListener implements OnClickListener
 		if (renamed)
 		{
 			//
-			// invoke call back
+			// prepare event args
 			//
-			if (m_callback != null)
-			{
-				m_callback.renamedFile(file.getPath(), new_file_obj.getPath());
-			}
+			Object [] event_args = new Object[] {file.getPath(), new_file_obj.getPath()};
+			
+			//
+			// signal event
+			//
+			EventDispatcher.getInstance().signalEvent(EventDispatcher.EventId.FILE_RENAMED_EVENT, event_args);
 			
 			//
 			// dismiss the dialog

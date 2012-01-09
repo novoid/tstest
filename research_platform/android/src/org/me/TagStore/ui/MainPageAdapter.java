@@ -4,13 +4,10 @@ import java.util.ArrayList;
 
 import junit.framework.Assert;
 
-import org.me.TagStore.AddFileTagActivity;
-import org.me.TagStore.ConfigurationTabActivity;
 import org.me.TagStore.R;
 import org.me.TagStore.core.ConfigurationSettings;
 import org.me.TagStore.core.Logger;
 import org.me.TagStore.core.PendingFileChecker;
-import org.me.TagStore.interfaces.BackKeyCallback;
 import org.me.TagStore.interfaces.TabPageIndicatorCallback;
 
 import android.content.Context;
@@ -79,7 +76,6 @@ public class MainPageAdapter extends FragmentStatePagerAdapter implements
 		//
 		m_cached_view_class = getCurrentViewClass();
 		addFragment(m_cached_view_class, m_context.getString(R.string.app_name));
-		addFragment(ConfigurationTabActivity.class.getName(), m_context.getString(R.string.configuration));
 		addPendingFileItem();
 	}
 
@@ -102,7 +98,7 @@ public class MainPageAdapter extends FragmentStatePagerAdapter implements
 			//
 			// add pending file fragment
 			//
-			addFragment(AddFileTagActivity.class.getName(), m_context.getString(R.string.new_file));
+			addFragment(ConfigurationSettings.TAG_FILE_ACTIVITY_CLASS_NAME, m_context.getString(R.string.new_file));
 		}
 	}
 
@@ -192,19 +188,21 @@ public class MainPageAdapter extends FragmentStatePagerAdapter implements
 	 */
 	public void removeAddFileTagFragment() {
 
-		for(Fragment fragment : m_fragments)
+		//
+		// check if there are at least 2 fragments
+		//
+		if (m_fragments.size() > 1)
 		{
-			if (fragment instanceof AddFileTagActivity)
-			{
-				int index = m_fragments.indexOf(fragment);
-				
-				m_fragments.remove(index);
-				m_titles.remove(index);
-				
-				//m_page_adapter.notifyDataSetChanged();	
-				m_tab_indicator.setCurrentItem(index - 1);
-				break;
-			}
+			//
+			// the add file tag fragment follows the current view class
+			//
+			m_fragments.remove(1);
+			m_titles.remove(1);
+			
+			//
+			// change tab index to first one
+			//
+			m_tab_indicator.setCurrentItem(0);
 		}
 	}
 
@@ -246,14 +244,17 @@ public class MainPageAdapter extends FragmentStatePagerAdapter implements
 	 */
 	public boolean isAddFileTagFragmentActive() {
 		
-		for(Fragment fragment : m_fragments)
+		if (m_fragments.size() > 1)
 		{
-			if (fragment instanceof AddFileTagActivity)
-			{
-				return true;
-			}
+			//
+			// add file fragment is already present
+			//
+			return true;
 		}
 		
+		//
+		// not present
+		//
 		return false;
 	}
 	
@@ -352,38 +353,6 @@ public class MainPageAdapter extends FragmentStatePagerAdapter implements
 		int old_position = m_tab_indicator.getCurrentItem();
 		
 		Logger.i("onPageSelected new_position: " + position + " old position: " + old_position);
-		
-		
-		if (old_position == 2 && position == 1)
-		{
-			if (old_position == m_fragments.size())
-			{
-				//
-				// tab was already removed
-				//
-				return;
-			}
-			
-			//	
-			// remove every fragment on back button except add file fragment
-			//
-			Fragment fragment = m_fragments.get(old_position);
-			if (!(fragment instanceof AddFileTagActivity)) {
-				
-				//
-				// remove fragment from list
-				//
-				m_fragments.remove(old_position);
-				m_titles.remove(old_position);
-				
-				//
-				// refresh HACK: it seems ViewPager only fetches the item position when tab
-				// was changed multiple times
-				//
-				m_tab_indicator.setCurrentItem(0);
-				m_tab_indicator.setCurrentItem(1);				
-			}
-		}
 	}
 
 	/**
@@ -392,47 +361,5 @@ public class MainPageAdapter extends FragmentStatePagerAdapter implements
 	 */
 	public int getCurrentItem() {
 		return m_tab_indicator.getCurrentItem();
-	}
-	
-	public boolean notifyBackKeyPressed() {
-
-		//
-		// get current fragment
-		//
-		int index = m_tab_indicator.getCurrentItem();
-
-		
-		try
-		{
-			//
-			// get fragment at that position
-			//
-			Fragment fragment = m_fragments.get(index);
-
-			//
-			// cast into backkey callback
-			//
-			BackKeyCallback callback = (BackKeyCallback)fragment;
-			
-			//
-			// invoke callback
-			//
-			callback.backKeyPressed();
-			
-			//
-			// done
-			//
-			return true;
-		}
-		catch(ClassCastException exc)
-		{
-			Logger.e("ClassCastException while accessing index: " + index);
-			return false;
-		}
-		catch(IndexOutOfBoundsException exc)
-		{
-			Logger.e("Error: IndexOutOfBoundsException while accessing index " + index);
-			return false;
-		}
 	}
 }

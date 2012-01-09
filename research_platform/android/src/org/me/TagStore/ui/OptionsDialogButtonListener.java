@@ -1,7 +1,7 @@
 package org.me.TagStore.ui;
 
 import org.me.TagStore.R;
-import org.me.TagStore.interfaces.OptionsDialogCallback;
+import org.me.TagStore.core.EventDispatcher;
 
 import android.support.v4.app.DialogFragment;
 import android.view.View;
@@ -22,11 +22,6 @@ public class OptionsDialogButtonListener implements OnClickListener
 	private final View m_view;
 	
 	/**
-	 * stores the callback
-	 */
-	private final OptionsDialogCallback m_callback;
-
-	/**
 	 * stores the fragment which holds the dialog
 	 */
 	private final DialogFragment m_fragment;
@@ -36,8 +31,7 @@ public class OptionsDialogButtonListener implements OnClickListener
 	 * @param callback callback which is invoked when a button of the options dialog has been pressed
 	 * @param view view containing the buttons
 	 */
-	public OptionsDialogButtonListener(OptionsDialogCallback callback, View view, DialogFragment fragment) {
-		m_callback = callback;
+	public OptionsDialogButtonListener(View view, DialogFragment fragment) {
 		m_view = view;
 		m_fragment = fragment;
 	}
@@ -94,13 +88,15 @@ public class OptionsDialogButtonListener implements OnClickListener
 			//
 			String file_path = (String)file_name.getText();
 			
-			if (m_callback != null)
-			{
-				//
-				// invoke the callback
-				//
-				m_callback.processOptionsDialogCommand(file_path, ignore);
-			}
+			//
+			// prepare event args
+			//
+			Object [] event_args = new Object[]{file_path, ignore};
+			
+			//
+			// signal event
+			//
+			EventDispatcher.getInstance().signalEvent(EventDispatcher.EventId.ITEM_CONFLICT_EVENT, event_args);
 		}
 	}
 }

@@ -30,7 +30,7 @@ public class TabPageIndicator extends View implements ViewPager.OnPageChangeList
 	 */
 	private ViewPager m_view_pager;
 	
-/**
+	/**
 	 * stores the callback which is queried to retrieve the titles
 	 */
 	private TabPageIndicatorCallback m_callback;
@@ -184,6 +184,12 @@ public class TabPageIndicator extends View implements ViewPager.OnPageChangeList
     	
     	if (m_current_position > 0)
     	{
+    		if (m_callback == null)
+    		{
+    			Logger.e("Error: no callback registered");
+    			return;
+    		}
+    		
     		//
     		// get text of former view
     		//
@@ -198,6 +204,12 @@ public class TabPageIndicator extends View implements ViewPager.OnPageChangeList
     		// draw text
     		//
     		canvas.drawText(text, 0, height, m_paint_text);
+    	}
+    	
+    	if (m_callback == null)
+    	{
+    		Logger.e("Error: no callback registered");
+    		return;
     	}
     	
     	//
@@ -224,7 +236,6 @@ public class TabPageIndicator extends View implements ViewPager.OnPageChangeList
 		// paint text
 		//
 		canvas.drawText(current_title, offset, height, m_paint_text);
-		
 		
 		//
 		// are there any items left
@@ -290,12 +301,8 @@ public class TabPageIndicator extends View implements ViewPager.OnPageChangeList
         m_path_footer_triangle.lineTo(width/2 - m_footer_triangle_height, height - m_footer_line_height);
         m_path_footer_triangle.close();
         canvas.drawPath(m_path_footer_triangle, m_paint_footer_triangle);
-
-
-		
-
-		
 	}
+
 
 	public void setViewPager(ViewPager view_pager) {
 
@@ -347,11 +354,6 @@ public class TabPageIndicator extends View implements ViewPager.OnPageChangeList
 		// save callback
 		//
 		m_callback = (TabPageIndicatorCallback)adapter;
-		
-		//
-		// repaint
-		//
-	    invalidate();
 	}
 
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
@@ -405,18 +407,7 @@ public class TabPageIndicator extends View implements ViewPager.OnPageChangeList
 			//
 			m_listener.onPageScrolled(position, positionOffset, positionOffsetPixels);
 		}
-		
-		
-		//Logger.e("onPageScrolled old position: " + m_current_position + " new position: " + position);
-		
-		//
-		// save current page position
-		//
-		//m_current_position = position;
 
-		//
-		// trigger repaint
-		//
 		invalidate();
 	}
 
@@ -449,6 +440,7 @@ public class TabPageIndicator extends View implements ViewPager.OnPageChangeList
 	 * sets the current item as new selected index
 	 * @param position to be set
 	 */
+	
 	public void setCurrentItem(int position) {
 		
 		//
@@ -489,9 +481,5 @@ public class TabPageIndicator extends View implements ViewPager.OnPageChangeList
 		// returns the current position
 		//
 		return m_current_position;
-		
-		
 	}
-	
-    
 }

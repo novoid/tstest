@@ -42,5 +42,8 @@ public class DialogIds {
 	 */
 	public static final int DIALOG_OPTIONS = 7;
 
-	
+	/**
+	 * stores the dialog id of the open as dialog
+	 */
+	public static final int DIALOG_OPEN_AS = 8;
 }

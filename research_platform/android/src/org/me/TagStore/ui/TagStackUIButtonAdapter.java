@@ -2,10 +2,8 @@ package org.me.TagStore.ui;
 
 import java.util.Iterator;
 
-
-
+import org.me.TagStore.core.EventDispatcher;
 import org.me.TagStore.core.TagStackManager;
-import org.me.TagStore.interfaces.TagStackUIButtonCallback;
 
 import android.content.Context;
 import android.util.AttributeSet;
@@ -35,11 +33,6 @@ public class TagStackUIButtonAdapter extends RelativeLayout
 	 * stores the long click listener
 	 */
 	private final ButtonLongClickListener m_button_long_listener;
-	
-	/**
-	 * stores the callback
-	 */
-	private TagStackUIButtonCallback m_callback;
 	
 	/**
 	 * constructor of class TagStackUIButtonAdapter 
@@ -72,15 +65,6 @@ public class TagStackUIButtonAdapter extends RelativeLayout
         init();
     }
 
-    /**
-     * sets the callback which is invoked when one of tag buttons is pressed
-     * @param callback
-     */
-    public void setTagStackUIButtonCallback(TagStackUIButtonCallback callback) {
-    	
-    	m_callback = callback;
-    }
-    
     /**
      * inits the adapter
      */
@@ -210,13 +194,15 @@ public class TagStackUIButtonAdapter extends RelativeLayout
 			Button button = (Button)arg0;
 			String tag = (String)button.getText();
 			
-			if (m_callback != null)
-			{
-				//
-				// refresh view
-				//
-				m_callback.tagButtonClicked(tag);
-			}
+			//
+			// init event args
+			//
+			Object[] event_args = new Object[]{tag};
+			
+			//
+			// signal event 
+			//
+			EventDispatcher.getInstance().signalEvent(EventDispatcher.EventId.TAG_STACK_BUTTON_EVENT, event_args);
 		}
 	};
 
@@ -235,20 +221,20 @@ public class TagStackUIButtonAdapter extends RelativeLayout
 			Button button = (Button)arg0;
 			String tag = (String)button.getText();
 			
-			if (m_callback != null)
-			{
-				//
-				// refresh view
-				//
-				return m_callback.tagButtonLongClicked(tag);
-			}
+			//
+			// init event args
+			//
+			Object [] event_args = new Object[]{tag};
 			
 			//
-			// not handled
+			// signal event
 			//
-			return false;
+			EventDispatcher.getInstance().signalEvent(EventDispatcher.EventId.TAG_STACK_LONG_BUTTON_EVENT, event_args);
+			
+			//
+			// done
+			//
+			return true;
 		}
-		
 	};
-	
 }

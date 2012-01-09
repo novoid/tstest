@@ -1,9 +1,9 @@
 package org.me.TagStore.ui;
 
 import org.me.TagStore.R;
+import org.me.TagStore.core.EventDispatcher;
 import org.me.TagStore.core.FileTagUtility;
 import org.me.TagStore.core.Logger;
-import org.me.TagStore.interfaces.RetagDialogCallback;
 
 import android.support.v4.app.DialogFragment;
 import android.view.View;
@@ -23,11 +23,6 @@ public class RetagButtonClickListener  implements OnClickListener
 	private final String m_file;
 	
 	/**
-	 * stores the callback
-	 */
-	private final RetagDialogCallback m_callback;
-
-	/**
 	 * stores the edit field
 	 */
 	private final EditText m_tag_field;
@@ -43,12 +38,11 @@ public class RetagButtonClickListener  implements OnClickListener
 	 * @param callback callback interface
 	 * @param fragment dialog this click listener is bound to
 	 */
-	public RetagButtonClickListener(View view, String current_file, RetagDialogCallback callback, DialogFragment fragment) 
+	public RetagButtonClickListener(View view, String current_file, DialogFragment fragment) 
 	{
 		//
 		// init members
 		//
-		m_callback = callback;
 		m_file = current_file;
 		m_fragment = fragment;
 		
@@ -97,9 +91,14 @@ public class RetagButtonClickListener  implements OnClickListener
 		if (result)
 		{
 			//
-			// is there a call-back registered
+			// prepare event args
 			//
-			m_callback.retaggedFile(m_file, tag_text);
+			Object [] event_args = new Object[]  {m_file, tag_text};
+			
+			//
+			// signal event
+			//
+			EventDispatcher.getInstance().signalEvent(EventDispatcher.EventId.FILE_RETAG_EVENT, event_args);
 		}
 		
 		//

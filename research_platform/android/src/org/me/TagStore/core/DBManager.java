@@ -286,11 +286,6 @@ public class DBManager {
 		{
 			result_list.add(cursor.getString(0));
 		}while(cursor.moveToNext());
-		
-		//
-		// close the cursor
-		//
-		cursor.close();
 	}
 	
 	/**
@@ -326,11 +321,6 @@ public class DBManager {
 		}
 
 		//
-		// close cursor
-		//
-		cursor.close();
-		
-		//
 		// done
 		//
 		return result;
@@ -360,6 +350,11 @@ public class DBManager {
 		// collect result set
 		//
 		collectResultSet(cursor, list);
+		
+		//
+		// close cursor
+		//
+		cursor.close();
 		
 		//
 		// done
@@ -504,6 +499,11 @@ public class DBManager {
 			// collect result
 			//
 			collectResultSet(file_cursor, list);
+			
+			//
+			// close cursor
+			//
+			file_cursor.close();
 
 		} while (cursor.moveToNext());
 
@@ -554,6 +554,11 @@ public class DBManager {
 			//
 			collectResultSet(cursor, list);
 			
+			//
+			// close cursor
+			//
+			cursor.close();
+			
 			if (tag_names.indexOf(tag) == 0)
 			{
 				//
@@ -595,6 +600,11 @@ public class DBManager {
 		collectResultSet(cursor, list);
 
 		//
+		// close cursor
+		//
+		cursor.close();
+		
+		//
 		// return result list
 		//
 		return list;
@@ -623,6 +633,12 @@ public class DBManager {
 		// collect result
 		//
 		collectResultSet(cursor, list);
+		
+		//
+		// close cursor
+		//
+		cursor.close();
+
 
 		//
 		// return result list
@@ -855,7 +871,17 @@ public class DBManager {
 		//
 		// get first entry of result set
 		//
-		return getFirstEntryOfResultSet(cursor);
+		String result = getFirstEntryOfResultSet(cursor);
+		
+		//
+		// close cursor
+		//
+		cursor.close();
+		
+		//
+		// done
+		//
+		return result;
 
 	}
 	
@@ -876,7 +902,18 @@ public class DBManager {
 		//
 		// get first entry of result set
 		//
-		return getFirstEntryOfResultSet(cursor);
+		String result = getFirstEntryOfResultSet(cursor);
+		
+		//
+		// close cursor
+		//
+		cursor.close();
+		
+		//
+		// done
+		//
+		return result;
+
 	}
 	
 	/**
@@ -895,12 +932,17 @@ public class DBManager {
 		//
 		// get first entry of result set
 		//
-		String id = getFirstEntryOfResultSet(cursor);
+		String result = getFirstEntryOfResultSet(cursor);
 		
-		if (id == null)
+		//
+		// close cursor
+		//
+		cursor.close();
+		
+		if (result == null)
 			return -1;
 		else
-			return Long.parseLong(id);
+			return Long.parseLong(result);
 	}
 
 	/**
@@ -922,12 +964,18 @@ public class DBManager {
 		//
 		// get first entry of result set
 		//
-		String id = getFirstEntryOfResultSet(cursor);
+		String result = getFirstEntryOfResultSet(cursor);
 		
-		if (id == null)
+		//
+		// close cursor
+		//
+		cursor.close();
+		
+		
+		if (result == null)
 			return -1;
 		else
-			return Long.parseLong(id);
+			return Long.parseLong(result);
 	}
 
 	/**
@@ -947,9 +995,15 @@ public class DBManager {
 		//
 		// get first entry of result set
 		//
-		String id = getFirstEntryOfResultSet(cursor);
+		String result = getFirstEntryOfResultSet(cursor);
 		
-		if (id == null)
+		//
+		// close cursor
+		//
+		cursor.close();
+		
+		
+		if (result == null)
 			return false;
 		else
 			return true;		
@@ -1206,6 +1260,12 @@ public class DBManager {
 		//
 		collectResultSet(cursor, list);
 		
+		
+		//
+		// close cursor
+		//
+		cursor.close();
+		
 		//
 		// done
 		//
@@ -1392,9 +1452,15 @@ public class DBManager {
 		//
 		// get first entry of result set
 		//
-		String id = getFirstEntryOfResultSet(cursor);
+		String result = getFirstEntryOfResultSet(cursor);
 		
-		if (id == null)
+		//
+		// close cursor
+		//
+		cursor.close();
+		
+		
+		if (result == null)
 			return false;
 		else
 			return true;
@@ -1430,6 +1496,12 @@ public class DBManager {
 		collectResultSet(cursor, list);			
 
 		//
+		// close cursor
+		//
+		cursor.close();
+		
+		
+		//
 		// return result list
 		//
 		return list;
@@ -1459,6 +1531,11 @@ public class DBManager {
 		//
 		collectResultSet(cursor, list);
 
+		//
+		// close cursor
+		//
+		cursor.close();
+		
 		//
 		// return result list
 		//
@@ -1570,6 +1647,12 @@ public class DBManager {
 		//
 		collectResultSet(cursor, list);
 
+		//
+		// close cursor
+		//
+		cursor.close();
+		
+		
 		//
 		// return result list
 		//

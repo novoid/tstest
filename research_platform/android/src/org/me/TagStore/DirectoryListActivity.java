@@ -1,10 +1,10 @@
 package org.me.TagStore;
 
 import android.app.Activity;
+import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.v4.app.ListFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -29,7 +29,7 @@ import org.me.TagStore.core.PendingFileChecker;
 import org.me.TagStore.core.ServiceLaunchRunnable;
 import org.me.TagStore.ui.ToastManager;
 
-public class DirectoryListActivity extends ListFragment {
+public class DirectoryListActivity extends ListActivity {
 
 	/**
 	 * stores mapping between list view and list view row
@@ -157,14 +157,17 @@ public class DirectoryListActivity extends ListFragment {
 		// informal debug message
 		//
 		Logger.d("DirectoryListActivity::onCreate");
+		
+		//
+		// initialize 
+		//
+		initialize();
 	}
 	
 	
 	
-	 public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle saved) {
+	 private void initialize() {
 			
-		 View view = inflater.inflate(R.layout.directory_list, null);
-
 		//
 		// construct new list map
 		//
@@ -174,7 +177,7 @@ public class DirectoryListActivity extends ListFragment {
 		//
 		// get localized directory
 		//
-		String add_directory_string = getActivity().getString(R.string.add_directory);
+		String add_directory_string = DirectoryListActivity.this.getString(R.string.add_directory);
 		
 		
 		//
@@ -205,7 +208,7 @@ public class DirectoryListActivity extends ListFragment {
 		//
 		// construct service launcher
 		//
-		ServiceLaunchRunnable launcher = new ServiceLaunchRunnable(getActivity().getApplicationContext(), m_connection);
+		ServiceLaunchRunnable launcher = new ServiceLaunchRunnable(DirectoryListActivity.this.getApplicationContext(), m_connection);
 		
 		//
 		// create a thread which will start the service
@@ -216,11 +219,6 @@ public class DirectoryListActivity extends ListFragment {
 		// now start the thread
 		//
 		launcher_thread.start();
-		
-		//
-		// done
-		//
-		return view;
 	}
 
 	/**
@@ -556,7 +554,7 @@ public class DirectoryListActivity extends ListFragment {
 		//
 		// time to start new activity
 		//
-		Intent new_intent = new Intent(getActivity(),
+		Intent new_intent = new Intent(DirectoryListActivity.this,
 				FileDialogBrowser.class);
 
 		//
@@ -679,7 +677,7 @@ public class DirectoryListActivity extends ListFragment {
 			//
 			// construct layout inflater from context
 			//
-			m_LayoutInflater = LayoutInflater.from(activity.getActivity());
+			m_LayoutInflater = LayoutInflater.from(activity);
 		}
 
 		@Override

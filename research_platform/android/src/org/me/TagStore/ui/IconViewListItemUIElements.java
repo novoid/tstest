@@ -2,7 +2,6 @@ package org.me.TagStore.ui;
 
 
 import org.me.TagStore.R;
-import org.me.TagStore.interfaces.IconViewClickListenerCallback;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -36,18 +35,22 @@ public class IconViewListItemUIElements {
 	}
 
 	/**
-	 * sets the item text and image
-	 * 
-	 * @param item_name
-	 *            text of the item
-	 * @param item_image
-	 *            image of the item
+	 * sets the item name and image and sets the callbacks
+	 * @param display_name display item name - text which is shown on the screen
+	 * @param item_name text which is returned during event handling
+	 * @param item_image image resource id
+	 * @param is_tag if the item is a tag
 	 */
-	public void setItemNameAndImage(String item_name,
-			Integer item_image) {
+	public void setItemNameAndImage(String display_name, String item_name,
+			Integer item_image,
+			boolean is_tag) {
 
 		if (m_ItemName1 != null) {
-			m_ItemName1.setText(item_name);
+			
+			m_ItemName1.setText(display_name);
+			m_ItemName1.setOnClickListener(new IconViewListItemClickListener(item_name, is_tag));
+			m_ItemName1.setOnLongClickListener(new IconViewListItemLongClickListener(item_name, is_tag));			
+			
 		}
 
 		if (m_ItemButton1 != null) {
@@ -55,19 +58,17 @@ public class IconViewListItemUIElements {
 			Drawable icon = m_context.getResources().getDrawable(item_image.intValue());
 			m_ItemButton1.setImageDrawable(icon);
 			m_ItemButton1.setBackgroundColor(Color.BLACK);
+			
+			m_ItemButton1.setOnClickListener(new IconViewListItemClickListener(item_name, is_tag));
+			m_ItemButton1.setOnLongClickListener(new IconViewListItemLongClickListener(item_name, is_tag));
 		} 
 	}
 
 	/**
-	 * initializes all view elements
-	 * 
+	 * initializes with the provided view
 	 * @param convertView
-	 *            elements which are retrieved from this view
-	 * @param num_elements_per_row
-	 *            num elements per row
 	 */
-	public void initializeWithView(IconViewClickListenerCallback callback,
-			int item_offset, View convertView) {
+	public void initializeWithView(View convertView) {
 
 		//
 		// initialize first element
@@ -77,20 +78,6 @@ public class IconViewListItemUIElements {
 		m_ItemButton1 = (ImageButton) convertView
 				.findViewById(R.id.tag_image_one);
 
-		if (m_ItemButton1 != null) {
-			m_ItemButton1.setOnClickListener(new IconViewListItemClickListener(
-					callback, item_offset));
-			m_ItemButton1
-					.setOnLongClickListener(new IconViewListItemLongClickListener(
-							callback, item_offset));
-		}
-
-		if (m_ItemName1 != null) {
-			m_ItemName1.setOnClickListener(new IconViewListItemClickListener(
-					callback, item_offset));
-			m_ItemName1
-					.setOnLongClickListener(new IconViewListItemLongClickListener(
-							callback, item_offset));
-		}
+		
 	}
 }

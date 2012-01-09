@@ -1,10 +1,12 @@
 package org.me.TagStore;
 
 import java.io.File;
+import java.util.Locale;
 
 import org.me.TagStore.core.ConfigurationChecker;
 import org.me.TagStore.core.ConfigurationSettings;
 import org.me.TagStore.core.DBManager;
+import org.me.TagStore.core.EventDispatcher;
 import org.me.TagStore.core.Logger;
 import org.me.TagStore.core.MainFileSystemObserverNotification;
 import org.me.TagStore.core.MainServiceConnection;
@@ -12,15 +14,23 @@ import org.me.TagStore.core.ServiceLaunchRunnable;
 import org.me.TagStore.core.StorageTimerTask;
 import org.me.TagStore.core.TagStackManager;
 import org.me.TagStore.core.TagStoreFileChecker;
+import org.me.TagStore.core.VocabularyManager;
 import org.me.TagStore.ui.MainPageAdapter;
 import org.me.TagStore.ui.TabPageIndicator;
 import org.me.TagStore.ui.ToastManager;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.res.Configuration;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.StrictMode;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 
 public class MainPagerActivity extends FragmentActivity {
 
@@ -85,17 +95,20 @@ public class MainPagerActivity extends FragmentActivity {
 		//
 		Logger.e("MainPagerActivity::onStop");
 
-		//
-		// unregister external observer
-		//
-		m_connection.unregisterExternalNotification(m_notification);
-		
-		if (m_connection.isServiceConnected())
+		if (m_connection != null && m_notification != null)
 		{
 			//
-			// unbind service connection
+			// unregister external observer
 			//
-			getApplicationContext().unbindService(m_connection);
+			m_connection.unregisterExternalNotification(m_notification);
+		
+			if (m_connection.isServiceConnected())
+			{
+				//
+				// unbind service connection
+				//
+				getApplicationContext().unbindService(m_connection);
+			}
 		}
 		else
 		{
@@ -171,15 +184,9 @@ public class MainPagerActivity extends FragmentActivity {
 		}
 		
 		//
-		// notify fragment of back key pressed
+		// notify fragment of back key pressed via event dispatcher
 		//
-		if(!m_page_adapter.notifyBackKeyPressed())
-		{
-			//
-			// let it handle base class
-			//
-			super.onKeyDown(keyCode, event);
-		}
+		EventDispatcher.getInstance().signalEvent(EventDispatcher.EventId.BACK_KEY_EVENT, null);
 		
 		//
 		// key was handled
@@ -216,6 +223,8 @@ public class MainPagerActivity extends FragmentActivity {
 		//
 		m_timer_task.addCallback(m_file_checker);
 		m_timer_task.addCallback(m_configuration_checker);
+		
+		initialize();
 	}
 	
 	/**
@@ -252,10 +261,15 @@ public class MainPagerActivity extends FragmentActivity {
 	}
 	
 	/**
-	 * initializes the file checker
+	 * initializes the configuration checker
 	 */
-	private void initChecker() {
+	private void initConfiguration() {
 		
+		//
+		// construct configuration checker
+		//
+		m_configuration_checker = new ConfigurationChecker(this);
+
 		//
 		// construct file checker
 		//
@@ -267,30 +281,11 @@ public class MainPagerActivity extends FragmentActivity {
 		m_timer_task = StorageTimerTask.acquireInstance();
 		
 		//
-		// register task
-		//
-		m_timer_task.addCallback(m_file_checker);
-	}
-	
-	/**
-	 * initializes the configuration checker
-	 */
-	private void initConfiguration() {
-		
-		//
-		// construct configuration checker
-		//
-		m_configuration_checker = new ConfigurationChecker(this);
-		
-		//
-		// acquire instance of storage timer task
-		//
-		m_timer_task = StorageTimerTask.acquireInstance();
-		
-		//
-		// register task
+		// register tasks
 		//
 		m_timer_task.addCallback(m_configuration_checker);
+		m_timer_task.addCallback(m_file_checker);
+		
 	}
 	
 	/**
@@ -304,6 +299,63 @@ public class MainPagerActivity extends FragmentActivity {
 		ToastManager.buildToastManager(getApplicationContext());
 	}
 	
+	private void initLocale()  {
+		
+		   String languageToLoad  = "de";
+		    Locale locale = new Locale(languageToLoad); 
+		    Locale.setDefault(locale);
+		    Configuration config = new Configuration();
+		    config.locale = locale;
+		    getBaseContext().getResources().updateConfiguration(config, 
+		    getBaseContext().getResources().getDisplayMetrics());
+	}
+	
+	private void initVocabulary() {
+		
+		//
+		// initialize vocabulary manager
+		//
+		VocabularyManager.buildVocabularyManager(getApplicationContext());
+	}
+	/**
+	 * initializes the application
+	 */
+	private void initApplication() {
+		
+		//
+		// initialize database manager
+		//
+		initDatabase();
+
+		//
+		// launch file watch dog service asynchronously
+		//
+		startFileWatchdogService();
+
+		//
+		// init cfg
+		//
+		initConfiguration();
+		
+		//
+		// run the configuration tasks
+		//
+		initConfiguration();
+
+		//
+		// init vocabulary manager
+		//
+		initVocabulary();
+	}
+	
+	public void onStart() {
+		
+		super.onStart();
+		
+		initToastManager();
+	}
+	
+	
 	public void onCreate(Bundle savedInstanceState) {
 
 		//
@@ -313,40 +365,36 @@ public class MainPagerActivity extends FragmentActivity {
 
 		Logger.e("MainPager::onCreate");
 		
+		//initLocale();
+		
 		//
 		// apply layout
 		//
 		setContentView(R.layout.main_pager);
 
 		//
-		// init cfg
+		// init application
 		//
-		initConfiguration();
+		initApplication();		
 		
-		//
-		// initialize database manager
-		//
-		initDatabase();
-
-		//
-		// let the tagstore checker run
-		//
-		initChecker();
-		
-		//
-		// init toast manager
-		//
-		initToastManager();
-		
-		//
-		// launch file watch dog service asynchronously
-		//
-		startFileWatchdogService();
-
 		//
 		// initialize rest of ui
 		//
 		initialize();
+		
+/*		
+        StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
+        .detectDiskReads()
+        .detectDiskWrites()
+        .detectNetwork()   // or .detectAll() for all detectable problems
+        .penaltyLog()
+        .build());
+        StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
+        .detectAll()
+        .penaltyLog()
+        .penaltyDeath()
+        .build());
+*/        
 	}
 
 	private void initialize() {
@@ -355,6 +403,14 @@ public class MainPagerActivity extends FragmentActivity {
 		// find the view pager
 		//
 		m_view_pager = (ViewPager) findViewById(R.id.view_pager);
+		if (m_view_pager == null)
+		{
+			//
+			// failed to initialize
+			//
+			ToastManager.getInstance().displayToastWithString("Error: failed to initialize application layout");
+			return;
+		}
 		
 		//
 		// get tab page indicator
@@ -415,5 +471,54 @@ public class MainPagerActivity extends FragmentActivity {
 		// now start the thread
 		//
 		m_launcher_thread.start();
+	}
+	
+	public boolean onOptionsItemSelected(MenuItem item) {
+		
+		//
+		// call base class
+		//
+		super.onOptionsItemSelected(item);
+		
+		//
+		// informal debug print
+		//
+		Logger.i("onOptionsItemSelected " + item.getTitle());
+		
+		Intent intent = null;
+		switch(item.getItemId())
+		{
+		    case R.string.configuration:
+		    	intent = new Intent(MainPagerActivity.this, ConfigurationTabActivity.class);
+		    	break;
+		    case R.string.sync_tagstore:
+		    	intent = new Intent(MainPagerActivity.this, SynchronizeTagStoreActivity.class);
+		    	break;
+		    case R.string.about_tagstore:
+		    	intent = new Intent(MainPagerActivity.this, InfoTab.class);
+		    	break;
+		}
+		
+		//
+		// start activity
+		//
+		super.startActivity(intent);
+		return true;
+	}
+	
+	public boolean onCreateOptionsMenu (Menu menu)
+	{
+		//
+		// initialize the options menu
+		//
+		
+		menu.add(Menu.NONE, R.string.configuration, Menu.NONE, R.string.configuration).setIcon(R.drawable.options_selected);
+		menu.add(Menu.NONE, R.string.sync_tagstore, Menu.NONE, R.string.sync_tagstore).setIcon(R.drawable.refresh);
+		menu.add(Menu.NONE, R.string.about_tagstore, Menu.NONE, R.string.about_tagstore).setIcon(R.drawable.info);
+		
+		//
+		// done
+		//
+		return super.onCreateOptionsMenu(menu);
 	}
 }

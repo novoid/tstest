@@ -151,4 +151,62 @@ public class ConfigurationSettings {
 	 * name of configuration file
 	 */
 	public static final String CFG_FILENAME = "store.cfg";
+	
+	/**
+	 * name of the directory preference
+	 */
+	public final static String DIRECTORY_PREFERENCE="directory_preference";
+
+	/**
+	 * name of the display preference
+	 */
+	public static final String DISPLAY_PREFERENCE = "display_preference";
+
+
+	/**
+	 * name of the notification preference
+	 */
+	public static final String NOTIFICATION_PREFERENCE = "notification_preference";
+
+
+	/**
+	 * name of the database preference
+	 */
+	public static final String DATABASE_PREFERENCE = "database_preference";
+
+	/**
+	 * name of preference for number of items per row
+	 */
+	public static final String ICON_VIEW_ITEM_ROW_PREFERENCE = "icon_view_item_row_preference";
+
+	/**
+	 * name of preference for sort mode in icon view mode
+	 */
+	public static final String ICON_VIEW_SORT_MODE_PREFERENCE = "icon_view_sort_mode_preference";
+
+	/**
+	 * setting which checks if controlled vocabulary is enabled
+	 */
+	public static final String CONTROLLED_VOCABULARY_STATE = "controlled_vocabulary_state";
+
+	/**
+	 * default state of the controlled vocabulary
+	 */
+	public static final boolean DEFAULT_CONTROLLED_VOCABULARY_STATE = false;
+
+	/**
+	 * name of the preference of the controlled vocabulary 
+	 */
+	public static final String VOCABULARY_PREFERENCE = "vocabulary_preference";
+
+	/**
+	 * file name of the vocabulary file
+	 */
+	public static final String VOCABULARY_FILENAME = "vocabulary.txt";
+
+	/**
+	 * class name for the add file activity
+	 */
+	public static final String TAG_FILE_ACTIVITY_CLASS_NAME = "org.me.TagStore.AddFileTagActivity";
+
 }

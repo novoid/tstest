@@ -16,7 +16,7 @@
     <string name="synchronize">Synchronize</string>
     <string name="icon_list_view">Icon List View</string>
     <string name="num_rows">Number of Rows:</string>
-    <string name="num_columns">Number of colums:</string>
+    <string name="num_columns">Number of colums</string>
     <string name="reset_factory_settings">Reset factory settings:</string>
     <string name="reset">Reset</string>
     <string name="reset_factory_setting">By hitting reset button, the database will remove stored tags / settings. No other files will be modified</string>
@@ -43,10 +43,10 @@
     <string name="add_directory">Add directory...</string>
     <string name="no_update">No updates found!</string>
     <string name="cloud_view">Cloud View</string>
-    <string name="sort_mode">Tag sort mode:</string>
+    <string name="sort_mode">Sort mode</string>
     <string name="sort_mode_alphabetic">alphabetic</string>
     <string name="sort_mode_popular">popular</string>
-    <string name="configuration">Setup</string>
+    <string name="configuration">Configuration</string>
     <string name="new_file">New File</string>
     <string name="reset_database">Restored to factory settings</string>
     <string name="error_reset_database">Failed to restore factory settings!</string>
@@ -91,4 +91,19 @@
     <string name="file_present_tagstore">The file is already included in the tagstore</string>
     <string name="file_present_tagstore_not_tagged">The file is already included in the tagstore but has not yet been tagged</string>
     <string name="no_app_registered">No application registered to handle file %s</string>
+    <string name="directory_preference_summary">Choose the directories to be watched and organised by tagstore.</string>
+    <string name="display_preference_summary">Choose the display preference how the tagstore should be visualized.</string>
+    <string name="database_preference_summary">This preference allows you to reset the tagstore database. All settings and tags are removed.</string>
+    <string name="database_reset_question">Do you want to reset the tagstore to the default?</string>
+    <string name="sort_mode_preference_summary">This preference lets you choose how the tags in the icon view mode are sorted.</string>
+    <string name="item_row_preference_summary">This preference lets you choose how many columns in the icon view are displayed.</string>
+    <string name="text">Text</string>
+    <string name="audio">Audio</string>
+    <string name="video">Video</string>
+    <string name="image">Image</string>        
+    <string name="open_as">Open with</string>
+    <string name="controlled_vocabulary_preference">Controlled Vocabular</string>
+    <string name="controlled_vocabulary_summary">When this preference is activated, only tags from the controlled vocabulary are used</string>
+    <string name="tag_not_in_controlled_vocabulary">The tag is not contained in the controlled vocabulary</string>
+    <string name="error_vocabulary_file_not_exists">The vocabulary file does not exist</string>    
 </resources>

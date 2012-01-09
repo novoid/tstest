@@ -7,10 +7,6 @@ import org.me.TagStore.R;
 import org.me.TagStore.core.DBManager;
 import org.me.TagStore.core.Logger;
 import org.me.TagStore.core.TimeFormatUtility;
-import org.me.TagStore.interfaces.GeneralDialogCallback;
-import org.me.TagStore.interfaces.OptionsDialogCallback;
-import org.me.TagStore.interfaces.RenameDialogCallback;
-import org.me.TagStore.interfaces.RetagDialogCallback;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -32,26 +28,26 @@ import android.widget.TextView;
 public class FileDialogBuilder {
 
 	public enum MENU_ITEM_ENUM {
-		MENU_ITEM_DETAILS, MENU_ITEM_SEND, MENU_ITEM_DELETE, MENU_ITEM_RENAME, MENU_ITEM_RETAG, MENU_ITEM_OPEN
+		MENU_ITEM_DETAILS, MENU_ITEM_SEND, MENU_ITEM_DELETE, MENU_ITEM_RENAME, MENU_ITEM_RETAG, MENU_ITEM_OPEN, MENU_ITEM_OPEN_AS, MENU_ITEM_OPEN_AS_AUDIO, MENU_ITEM_OPEN_AS_VIDEO, MENU_ITEM_OPEN_AS_TEXT, MENU_ITEM_OPEN_AS_IMAGE
 	};
 
 	final static int [] s_ids = new int[]{R.id.button_ignore_current, R.id.button_ignore_new, R.id.button_rename_current, R.id.button_rename_new};
 
 	
-	public static Dialog buildGeneralTagDialog(FragmentActivity m_activity_group, GeneralDialogCallback callback) {
+	public static Dialog buildGeneralTagDialog(FragmentActivity m_activity_group, DialogFragment fragment) {
 		
 		//
 		// call internal builder
 		//
-		return buildCommonDialog(m_activity_group, true, callback);		
+		return buildCommonDialog(m_activity_group, true, fragment);		
 		
 	}
 	
-	public static Dialog buildGeneralFileDialog(FragmentActivity m_activity_group, GeneralDialogCallback callback) {
+	public static Dialog buildGeneralFileDialog(FragmentActivity m_activity_group, DialogFragment fragment) {
 		//
 		// call internal builder
 		//
-		return buildCommonDialog(m_activity_group, false, callback);
+		return buildCommonDialog(m_activity_group, false, fragment);
 	}
 	
 	/**
@@ -60,7 +56,7 @@ public class FileDialogBuilder {
 	 * @param m_activity_group activity group this dialog belongs to
 	 * @param item name of the file
 	 */
-	private static Dialog buildCommonDialog(FragmentActivity m_activity_group, boolean is_tag, GeneralDialogCallback callback) {
+	private static Dialog buildCommonDialog(FragmentActivity m_activity_group, boolean is_tag, DialogFragment fragment) {
 
 		//
 		// construct new alert builder
@@ -87,6 +83,13 @@ public class FileDialogBuilder {
 		//
 		// add default menu items
 		//
+		if (!is_tag)
+		{
+			String openas_string = m_activity_group.getApplicationContext().getString(R.string.open_as);
+			menu_options.add(openas_string);
+			action_ids.add(MENU_ITEM_ENUM.MENU_ITEM_OPEN_AS);
+		}
+		
 		String details_string = m_activity_group.getApplicationContext().getString(R.string.details);
 		menu_options.add(details_string);
 		action_ids.add(MENU_ITEM_ENUM.MENU_ITEM_DETAILS);
@@ -111,20 +114,14 @@ public class FileDialogBuilder {
 		}
 
 		//
-		// FIXME: implement mime options
-		//
-		Logger.i("Should FileDialogBuilder::buildGeneralDialogFile process mime types options for file ");
-
-		//
 		// convert to string array
 		//
 		String[] menu_option_list = menu_options.toArray(new String[1]);
-
 		
 		//
 		// create menu click listener
 		//
-		FileMenuClickListener listener = new FileMenuClickListener(action_ids, callback);
+		FileMenuClickListener listener = new FileMenuClickListener(action_ids, fragment);
 		
 		//
 		// set menu options and click handler
@@ -145,7 +142,7 @@ public class FileDialogBuilder {
 	 * @param file_name file name
 	 * @return View
 	 */
-	public static void updateDetailDialogFileView(View view, FragmentActivity activity, String file_name) {
+	public static void updateDetailDialogFileView(View view, FragmentActivity activity, String file_name, final DialogFragment fragment) {
 		
 		//
 		// get text field for name
@@ -264,7 +261,6 @@ public class FileDialogBuilder {
 				text.setText(local_time);
 			}
 		}
-		
 	}
 	
 	/**
@@ -273,7 +269,7 @@ public class FileDialogBuilder {
 	 * @param file_name path of the file
 	 * @return Dialog
 	 */
-	public static Dialog buildDetailDialogFile(FragmentActivity activity, String file_name) {
+	public static Dialog buildDetailDialogFile(FragmentActivity activity, String file_name, DialogFragment fragment) {
 
 		//
 		// construct layout
@@ -283,7 +279,7 @@ public class FileDialogBuilder {
 		//
 		// update dialog
 		//
-		updateDetailDialogFileView(layout, activity, file_name);
+		updateDetailDialogFileView(layout, activity, file_name, fragment);
 		
 		
 		//
@@ -298,7 +294,7 @@ public class FileDialogBuilder {
 	 * @param new_file_name file name which identifies a file to be added to the tagstore
 	 * @param callback call-back class which receives call out when the user has made a choice
 	 */
-	private static void updateOptionsDialogFileView(View view, String new_file_name, OptionsDialogCallback callback, DialogFragment fragment) {
+	private static void updateOptionsDialogFileView(View view, String new_file_name, DialogFragment fragment) {
 		
 		
 		//
@@ -368,7 +364,7 @@ public class FileDialogBuilder {
 				//
 				// set click listener
 				//
-				current_button.setOnClickListener(new OptionsDialogButtonListener(callback, view, fragment));
+				current_button.setOnClickListener(new OptionsDialogButtonListener(view, fragment));
 			}
 		}
 	}
@@ -379,7 +375,7 @@ public class FileDialogBuilder {
 	 * @param fragmentActivity activity which is the parent of the dialog
 	 * @return Dialog object
 	 */
-	public static Dialog buildOptionsDialogFile(FragmentActivity fragmentActivity, String new_file_name, OptionsDialogCallback callback, DialogFragment fragment) {
+	public static Dialog buildOptionsDialogFile(FragmentActivity fragmentActivity, String new_file_name, DialogFragment fragment) {
 		
 		//
 		// construct layout
@@ -389,7 +385,7 @@ public class FileDialogBuilder {
 		//
 		// update dialog
 		//
-		updateOptionsDialogFileView(layout, new_file_name, callback, fragment);
+		updateOptionsDialogFileView(layout, new_file_name, fragment);
 		
 		//
 		// complete builder
@@ -408,7 +404,7 @@ public class FileDialogBuilder {
 		
 	}
 
-	private static void updateRetagDialogFile(View view, String current_file, RetagDialogCallback callback, DialogFragment fragment) {
+	private static void updateRetagDialogFile(View view, String current_file, DialogFragment fragment) {
 		
 		//
 		// get text view
@@ -459,7 +455,7 @@ public class FileDialogBuilder {
 			//
 			// add listener
 			//
-			button_tag.setOnClickListener( new RetagButtonClickListener(view, current_file, callback, fragment));
+			button_tag.setOnClickListener( new RetagButtonClickListener(view, current_file, fragment));
 		}
 
 		//
@@ -476,7 +472,7 @@ public class FileDialogBuilder {
 			//
 			// add text changed listener
 			//
-			edit_text.addTextChangedListener(new UITagTextWatcher(view.getContext(), false));		
+			edit_text.addTextChangedListener(new UITagTextWatcher(false));		
 		}
 	}
 	
@@ -485,7 +481,7 @@ public class FileDialogBuilder {
 	 * @param activity activity this dialog belongs to
 	 * @return Dialog object
 	 */
-	public static Dialog buildRetagDialogFile(FragmentActivity activity, String current_file, RetagDialogCallback callback, DialogFragment fragment) {
+	public static Dialog buildRetagDialogFile(FragmentActivity activity, String current_file, DialogFragment fragment) {
 		
 		//
 		// construct layout
@@ -495,7 +491,7 @@ public class FileDialogBuilder {
 		//
 		// update dialog
 		//
-		updateRetagDialogFile(layout, current_file, callback, fragment);
+		updateRetagDialogFile(layout, current_file, fragment);
 		
 		//
 		// complete builder
@@ -508,7 +504,7 @@ public class FileDialogBuilder {
 	 * @param activity activity this dialog belongs to
 	 * @return Dialog object
 	 */
-	public static Dialog buildRenameDialogFile(FragmentActivity activity, String item_name, boolean is_tag, boolean cancellable, RenameDialogCallback callback, DialogFragment fragment) {
+	public static Dialog buildRenameDialogFile(FragmentActivity activity, String item_name, boolean is_tag, boolean cancellable, DialogFragment fragment) {
 
 		//
 		// construct layout
@@ -519,7 +515,7 @@ public class FileDialogBuilder {
 		//
 		// update details
 		//
-		updateRenameDialogFile(layout, item_name, is_tag, callback, fragment);
+		updateRenameDialogFile(layout, item_name, is_tag, fragment);
 
 		
 		//
@@ -540,16 +536,13 @@ public class FileDialogBuilder {
 	
 	/**
 	 * updates the rename dialog
-	 * @param dialog dialog to be updated
+	 * @param view view to be updated
 	 * @param item_name item which is supposed to be renamed
 	 * @param is_tag if the rename_file_name specifies a tag it is set to true
-	 * @param cancellable if true the dialog is cancelable
-	 * @param callback callback which is invoked when rename operation has been completed
 	 */
 	private static void updateRenameDialogFile(View view,
 			String item_name,
 			boolean is_tag,
-			RenameDialogCallback callback,
 			DialogFragment fragment) {
 
 		//
@@ -589,7 +582,7 @@ public class FileDialogBuilder {
 			//
 			// add text changed listener
 			//
-			edit_text.addTextChangedListener(new UITagTextWatcher(view.getContext(), false));		
+			edit_text.addTextChangedListener(new UITagTextWatcher(false));		
 		}
 		
 		//
@@ -601,16 +594,84 @@ public class FileDialogBuilder {
 			//
 			// add listener
 			//
-			button.setOnClickListener(new RenameDialogButtonListener(view, item_name, is_tag, callback, fragment));
+			button.setOnClickListener(new RenameDialogButtonListener(view, item_name, is_tag, fragment));
 		}
 	}
+	
+	public static Dialog buildOpenAsDialog(FragmentActivity m_activity_group, String item_name, DialogFragment fragment) 
+	{
+		//
+		// construct new alert builder
+		//
+		AlertDialog.Builder builder = new AlertDialog.Builder(
+				m_activity_group);
+
+		//
+		// get localized title
+		//
+		String title = m_activity_group.getApplicationContext().getString(R.string.open_as);
+		
+		//
+		// set title
+		//
+		builder.setTitle(title + "...");
+
+		//
+		// construct array list for options
+		//
+		ArrayList<String> menu_options = new ArrayList<String>();
+		ArrayList<MENU_ITEM_ENUM> action_ids = new ArrayList<MENU_ITEM_ENUM>();
+
+		//
+		// add default menu items
+		//
+		String text_string = m_activity_group.getApplicationContext().getString(R.string.text);
+		menu_options.add(text_string);
+		action_ids.add(MENU_ITEM_ENUM.MENU_ITEM_OPEN_AS_TEXT);
+
+		String audio_string = m_activity_group.getApplicationContext().getString(R.string.audio);
+		menu_options.add(audio_string);
+		action_ids.add(MENU_ITEM_ENUM.MENU_ITEM_OPEN_AS_AUDIO);
+		
+		String video_string = m_activity_group.getApplicationContext().getString(R.string.video);
+		menu_options.add(video_string);
+		action_ids.add(MENU_ITEM_ENUM.MENU_ITEM_OPEN_AS_VIDEO);
+
+		String image_string = m_activity_group.getApplicationContext().getString(R.string.image);
+		menu_options.add(image_string);
+		action_ids.add(MENU_ITEM_ENUM.MENU_ITEM_OPEN_AS_IMAGE);
+
+		
+		//
+		// convert to string array
+		//
+		String[] menu_option_list = menu_options.toArray(new String[1]);
+		
+		//
+		// create menu click listener
+		//
+		FileMenuClickListener listener = new FileMenuClickListener(action_ids, fragment);
+		
+		//
+		// set menu options and click handler
+		//
+		builder.setItems(menu_option_list, listener);
+
+		//
+		// create dialog
+		//
+		AlertDialog dialog = builder.create();
+		return dialog;
+	}
+
 	
 	/**
 	 * constructs a tag detail dialog
 	 * @param activity activity this dialog belongs to
+	 * @param fragment 
 	 * @return Dialog object
 	 */
-	public static Dialog buildTagDetailDialog(FragmentActivity activity, String tag_name) {
+	public static Dialog buildTagDetailDialog(FragmentActivity activity, String tag_name, DialogFragment fragment) {
 
 		//
 		// construct layout
@@ -621,7 +682,7 @@ public class FileDialogBuilder {
 		//
 		// update details
 		//
-		updateTagDetailDialog(layout, tag_name);
+		updateTagDetailDialog(layout, tag_name, fragment);
 
 		
 		//
@@ -635,8 +696,9 @@ public class FileDialogBuilder {
 	 * updates the tag detail dialog
 	 * @param view to use for updating the dialog
 	 * @param tag_name name of the tag
+	 * @param fragment 
 	 */
-	private static void updateTagDetailDialog(View view, String tag_name) {
+	private static void updateTagDetailDialog(View view, String tag_name, DialogFragment fragment) {
 		
 		//alert_dialog.requestWindowFeature(Window.)
 		
@@ -743,7 +805,6 @@ public class FileDialogBuilder {
 		// set view
 		//
 		builder.setView(layout);
-		
 
 		//
 		// create dialog

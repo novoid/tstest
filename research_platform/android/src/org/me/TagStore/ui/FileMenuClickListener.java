@@ -2,10 +2,11 @@ package org.me.TagStore.ui;
 
 import java.util.ArrayList;
 
-import org.me.TagStore.interfaces.GeneralDialogCallback;
+import org.me.TagStore.core.EventDispatcher;
 import org.me.TagStore.ui.FileDialogBuilder.MENU_ITEM_ENUM;
 
 import android.content.DialogInterface;
+import android.support.v4.app.DialogFragment;
 
 /**
  * Implements a helper class which invokes a callback when a menu item of dialog is clicked
@@ -18,12 +19,12 @@ public class FileMenuClickListener implements
 	/**
 	 * stores the menu item actions
 	 */
-	private ArrayList<MENU_ITEM_ENUM> m_action_ids;
+	private final ArrayList<MENU_ITEM_ENUM> m_action_ids;
 	
 	/**
-	 * stores the callback object
+	 * dialog fragment
 	 */
-	private GeneralDialogCallback m_callback;
+	private final DialogFragment m_fragment;
 	
 	/**
 	 * constructor of class FileMenuClickListener
@@ -32,24 +33,36 @@ public class FileMenuClickListener implements
 	 * @param callback 
 	 */
 	
-	public FileMenuClickListener(ArrayList<MENU_ITEM_ENUM> action_ids, GeneralDialogCallback callback) {
+	public FileMenuClickListener(ArrayList<MENU_ITEM_ENUM> action_ids, DialogFragment fragment) {
 
 		//
 		// store members
 		//
 		m_action_ids = action_ids;
-		m_callback = callback;
+		m_fragment = fragment;
 	}
 
 	@Override
 	public void onClick(DialogInterface dialog, int which) {
 		
 		//
-		// perform callback
+		// get action id
 		//
-		if (m_callback != null)
-		{
-			m_callback.processMenuFileSelection(m_action_ids.get(which));
-		}				
+		MENU_ITEM_ENUM selection = m_action_ids.get(which);
+		
+		//
+		// prepare event args
+		//
+		Object[] event_args = new Object[] {selection};
+		
+		//
+		// dispatch event
+		//
+		EventDispatcher.getInstance().signalEvent(EventDispatcher.EventId.ITEM_MENU_EVENT, event_args);
+		
+		//
+		// dismiss dialog fragment
+		//
+		m_fragment.dismiss();
 	}
 }

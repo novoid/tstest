@@ -7,14 +7,16 @@ import java.util.HashMap;
 
 import org.me.TagStore.core.ConfigurationSettings;
 import org.me.TagStore.core.DBManager;
+import org.me.TagStore.core.EventDispatcher;
 import org.me.TagStore.core.FileTagUtility;
 import org.me.TagStore.core.Logger;
 import org.me.TagStore.core.TagStackManager;
 import org.me.TagStore.interfaces.BackKeyCallback;
 import org.me.TagStore.interfaces.GeneralDialogCallback;
-import org.me.TagStore.interfaces.IconViewClickListenerCallback;
+import org.me.TagStore.interfaces.ItemViewClickListener;
 import org.me.TagStore.interfaces.RenameDialogCallback;
 import org.me.TagStore.interfaces.RetagDialogCallback;
+import org.me.TagStore.interfaces.TagEventNotification;
 import org.me.TagStore.interfaces.TagStackUIButtonCallback;
 import org.me.TagStore.ui.CommonDialogFragment;
 import org.me.TagStore.ui.DialogIds;
@@ -31,6 +33,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentManager;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,6 +41,7 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.GridLayoutAnimationController;
+import android.view.animation.LayoutAnimationController;
 import android.widget.GridView;
 
 
@@ -45,9 +49,10 @@ import android.widget.GridView;
 public class TagStoreGridViewActivity extends DialogFragment implements GeneralDialogCallback, 
 																  RenameDialogCallback, 
 																  TagStackUIButtonCallback, 
-																  IconViewClickListenerCallback, 
+																  ItemViewClickListener, 
 																  RetagDialogCallback,
-																  BackKeyCallback
+																  BackKeyCallback,
+																  TagEventNotification
 {
 	/**
 	 * list view contents
@@ -83,8 +88,7 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 	 * is current item a tag
 	 */
 	private boolean m_is_tag;
-	
-	
+
 	@Override
 	public void onPause() {
 
@@ -98,9 +102,17 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 		//
 		// cancel any active toast
 		//
-		ToastManager.getInstance().cancelToast();
+		ToastManager toast = ToastManager.getInstance();
+		if (toast != null)
+		{
+			//
+			// cancel toast
+			//
+			toast.cancelToast();
+		}
 	}
 
+	
 	public void onStart() { 
 	    super.onStart(); 
 	    
@@ -111,9 +123,16 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 	    if (grid_view != null)
 	    {
 	    	//
-	    	// start animation
+	    	// get layout animation
 	    	//
-	    	grid_view.getLayoutAnimation().start();
+	    	LayoutAnimationController controller = grid_view.getLayoutAnimation();
+	    	if (controller != null)
+	    	{
+	    		//
+	    		// start animation
+	    		//
+	    		controller.start();
+	    	}
 	    }
 	}	
 	
@@ -125,14 +144,74 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 		//
 		super.onResume();
 
-		Logger.i("TagStoreListViewActivity::onResume");
-
+		Logger.i("TagStoreGridViewActivity::onResume");
+	
 		//
 		// refresh view
 		//
 		refreshView();
 	}
 
+	/**
+	 * unregisters the events from the event dispatcher
+	 * @param events
+	 */
+	private void unregisterEvents(final ArrayList<EventDispatcher.EventId> events) {
+		
+		for(EventDispatcher.EventId event : events)
+		{
+			//
+			// unregister event
+			//
+			EventDispatcher.getInstance().unregisterEvent(event, this);
+		}
+	}
+
+	private void registerEvents(final ArrayList<EventDispatcher.EventId> events) {
+		
+		for(EventDispatcher.EventId event : events)
+		{
+			//
+			// unregister event
+			//
+			EventDispatcher.getInstance().registerEvent(event, this);
+		}		
+	}
+	
+	private ArrayList<EventDispatcher.EventId> getEvents() {
+		
+		ArrayList<EventDispatcher.EventId> events = new ArrayList<EventDispatcher.EventId>();
+		
+		//
+		// add interested events
+		//
+		events.add(EventDispatcher.EventId.TAG_STACK_BUTTON_EVENT);
+		events.add(EventDispatcher.EventId.TAG_STACK_LONG_BUTTON_EVENT);
+		events.add(EventDispatcher.EventId.BACK_KEY_EVENT);
+		events.add(EventDispatcher.EventId.ITEM_CLICK_EVENT);
+		events.add(EventDispatcher.EventId.ITEM_LONG_CLICK_EVENT);
+		events.add(EventDispatcher.EventId.FILE_TAGGED_EVENT);		
+		events.add(EventDispatcher.EventId.FILE_RENAMED_EVENT);
+		events.add(EventDispatcher.EventId.TAG_RENAMED_EVENT);
+		events.add(EventDispatcher.EventId.FILE_RETAG_EVENT);
+		events.add(EventDispatcher.EventId.ITEM_MENU_EVENT);
+		events.add(EventDispatcher.EventId.ITEM_CONFLICT_EVENT);
+		return events;
+	}
+
+	public void onStop() {
+		
+		//
+		// call base method
+		//
+		super.onStop();
+		
+		//
+		// unregister us with event dispatcher
+		//
+		unregisterEvents(getEvents());
+	}
+	
 	public void onCreate(Bundle savedInstanceState) {
 
 		//
@@ -151,7 +230,15 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 		//
 		m_list_map = new ArrayList<HashMap<String, Object>>();
 
-
+		//
+		// create dialog operations object
+		//
+		m_dialog_operations = new DialogItemOperations(getActivity(), getFragmentManager());
+		
+		//
+		// register us with event dispatcher
+		//
+		registerEvents(getEvents());	
 	}
 
 	/**
@@ -224,6 +311,8 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 	 */
 	public void tagButtonClicked(String tag) {
 		
+		Logger.i("tagButtonClicked: " + tag);
+		
 		//
 		// get tag stack manager
 		//
@@ -248,16 +337,27 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 	@Override
 	public boolean tagButtonLongClicked(String tag) {
 		
+		Logger.i("tagButtonLongClicked: " + tag);
+		
 		//
 		// save current tag
 		//
 		m_current_tag = tag;
 		m_is_tag = true;
 		
+		
+		FragmentManager fm = getFragmentManager();
+		if (fm == null)
+			Logger.e("fm is null");
+		
+		if (getActivity() == null)
+			Logger.e("activity is null");
+		
+		
 		//
 		// construct new common dialog fragment which will show the dialog
 		//
-		m_fragment = CommonDialogFragment.newInstance(tag, true, DialogIds.DIALOG_GENERAL_TAG_MENU);
+		m_fragment = CommonDialogFragment.newInstance(getActivity(), tag, true, DialogIds.DIALOG_GENERAL_TAG_MENU);
 		m_fragment.setDialogItemOperation(m_dialog_operations);
 		m_fragment.show(getFragmentManager(), "FIXME");
 		
@@ -359,7 +459,6 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 		ArrayList<String> tag_list = null;
 		
 			
-		
 		//
 		// acquire shared settings
 		//
@@ -400,6 +499,7 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 			//
 			// no tag list
 			//
+			Logger.e("sort_mode:" + sort_mode);
 			return false;
 		}
 
@@ -427,35 +527,10 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 			View view = inflater.inflate(R.layout.tagstore_grid_view, null);
 
 			//
-			// create dialog operations object
-			//
-			m_dialog_operations = new DialogItemOperations(this, getActivity(), getFragmentManager());
-		
-			//
 			// find tag stack button
 			//
 			m_tag_stack_adapter = (TagStackUIButtonAdapter)view.findViewById(R.id.button_adapter);
-			if (m_tag_stack_adapter != null)
-			{
-				//
-				// init with our callback
-				//
-				m_tag_stack_adapter.setTagStackUIButtonCallback(this);
-			}
 			
-			if (!fillListMap()) {
-				//
-				// failed to fill list map
-				//
-				Logger.e("Error: TagStoreListActivity::initialize failed to fill list map");
-				return view;
-			}
-
-			//
-			// now build the list the view
-			//
-			buildListView(view);
-
 			return view;
 	}
 
@@ -510,7 +585,7 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 		//
 		// construct list adapter
 		//
-		IconViewListAdapter list_adapter = new IconViewListAdapter(m_list_map, this, getActivity());
+		IconViewListAdapter list_adapter = new IconViewListAdapter(m_list_map, getActivity().getApplicationContext());
 
 		//
 		// load animation
@@ -549,42 +624,12 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 	}
 
 	/**
-	 * returns true when the selected item is a tag item
-	 * 
-	 * @param position
-	 *            of item
-	 * @return boolean
-	 */
-	private boolean isTagItem(int position) {
-
-		//
-		// get hash map entry
-		//
-		HashMap<String, Object> map_entry = m_list_map.get(position);
-
-		//
-		// check if there is a path associated
-		//
-		return map_entry.containsKey(IconViewItemBuilder.ITEM_PATH) == false;
-	}
-	
-	/**
 	 * launches an item
 	 * 
-	 * @param position
+	 * @param item_path position of item
 	 */
-	private void launchItem(int position) {
+	private void launchItem(String item_path) {
 
-		//
-		// get hash map entry
-		//
-		HashMap<String, Object> map_entry = m_list_map.get(position);
-
-		//
-		// get item path
-		//
-		String item_path = (String) map_entry.get(IconViewItemBuilder.ITEM_PATH);
-		
 		if (m_dialog_operations != null)
 		{
 			//
@@ -759,11 +804,6 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 	public void processMenuFileSelection(FileDialogBuilder.MENU_ITEM_ENUM action_id) {
 
 		//
-		// dismiss fragment
-		//
-		m_fragment.dismiss();
-		
-		//
 		// defer control to common dialog operations object
 		//
 		boolean result = m_dialog_operations.performDialogItemOperation(m_current_tag, m_is_tag, action_id);
@@ -777,33 +817,19 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 		}
 	}
 
-	public boolean onLongListItemClick(int pos) {
+	public void onLongListItemClick(String item_name, boolean is_tag) {
 
-		Logger.d("TagStoreListViewActivity::onLongListItemClick id=" + pos);
-
-		if (pos >= m_list_map.size()) {
-			//
-			// invalid click
-			//
-			Logger.e("onLongListItemClick> out of bounds index: " + pos
-					+ " size: " + m_list_map.size());
-			return true;
-		}
-
-		//
-		// get hash map entry
-		//
-		HashMap<String, Object> map_entry = m_list_map.get(pos);
-
-		//
-		// get item name
-		//
-		m_current_tag = (String) map_entry.get(IconViewItemBuilder.ITEM_NAME);
+		Logger.d("onLongListItemClick: " + item_name + " is_tag: " + is_tag);
+		Logger.d("FragmentManager:" + getFragmentManager() + " Activity: " + getActivity());
+		Logger.d("ThreadID: " + Thread.currentThread().getId());
+		
+		
 		
 		//
-		// is it a tag
+		// store event details
 		//
-		m_is_tag = (map_entry.containsKey(IconViewItemBuilder.ITEM_PATH) == false);
+		m_current_tag = item_name;
+		m_is_tag = is_tag;
 		
 		//
 		// check if this is an tag item
@@ -813,7 +839,7 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 			//
 			// launch general tag menu
 			//
-			m_fragment = CommonDialogFragment.newInstance(m_current_tag, true, DialogIds.DIALOG_GENERAL_TAG_MENU);
+			m_fragment = CommonDialogFragment.newInstance(getActivity(), m_current_tag, true, DialogIds.DIALOG_GENERAL_TAG_MENU);
 			m_fragment.setDialogItemOperation(m_dialog_operations);
 			m_fragment.show(getFragmentManager(), "FIXME");			
 		}
@@ -822,52 +848,35 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 			//
 			// request new dialog to be shown
 			//
-			m_current_tag = (String)map_entry.get(IconViewItemBuilder.ITEM_PATH);
-			m_fragment = CommonDialogFragment.newInstance(m_current_tag, false, DialogIds.DIALOG_GENERAL_FILE_MENU);
+			m_fragment = CommonDialogFragment.newInstance(getActivity(), m_current_tag, false, DialogIds.DIALOG_GENERAL_FILE_MENU);
 			m_fragment.setDialogItemOperation(m_dialog_operations);			
 			m_fragment.show(getFragmentManager(), "FIXME");				
 		}
-		
-		return true;
 	}
 
-	public void onListItemClick(int position) {
+	public void onListItemClick(String item_name, boolean is_tag) {
 
-		Logger.d("TagStoreListViewActivity::onListItemClick> Item " + position + " was clicked");
+		Logger.d("onListItemClick: item" + item_name + " tag: " + is_tag + " was clicked");
 
-		if (position >= m_list_map.size()) {
-			//
-			// invalid click
-			//
-			Logger.e("onListItemClick> out of bounds index: " + position
-					+ " size: " + m_list_map.size());
+		if (getActivity() == null)
+		{
+			Logger.e("Error: no activity attached");
 			return;
 		}
-
-		//
-		// check if the clicked item was a file
-		//
-		if (!isTagItem(position)) {
+		
+		
+		if (!is_tag)
+		{
 			//
 			// launch item
 			//
-			launchItem(position);
+			launchItem(item_name);
 
 			//
 			// done
 			//
 			return;
 		}
-
-		//
-		// get hash map entry
-		//
-		HashMap<String, Object> map_entry = m_list_map.get(position);
-
-		//
-		// get item name
-		//
-		String item_name = (String) map_entry.get(IconViewItemBuilder.ITEM_NAME);
 
 		//
 		// get tag stack manager
@@ -898,6 +907,8 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 	@Override
 	public void backKeyPressed() {
 		
+		Logger.i("backKeyPressed");
+		
 		Activity activity = getActivity();
 		if (activity == null)
 		{
@@ -906,5 +917,17 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 		}
 		
 		refreshView();
+	}
+
+
+	@Override
+	public void notifyFileTagged(String file_name) {
+
+		Logger.i("notifyFileTagged: " + file_name);
+		//
+		// refresh view
+		//
+		refreshView();
+		
 	}
 }

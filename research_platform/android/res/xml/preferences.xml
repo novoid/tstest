@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    <PreferenceCategory android:title="@string/tagstore_directories">
+        <Preference android:title="@string/tagstore_directories" android:summary="@string/directory_preference_summary" android:key="directory_preference"/>
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/listview_settings">
+        <ListPreference android:title="@string/listview_settings"
+            			android:summary="@string/display_preference_summary"
+            			android:key="display_preference"
+            			android:entries="@array/setting_list_view_type"
+            			android:entryValues="@array/setting_list_view_value" 
+            			android:defaultValue="org.me.TagStore.TagStoreGridViewActivity">
+        </ListPreference>
+        
+		<ListPreference android:title="@string/num_columns"
+		    			android:summary="@string/item_row_preference_summary"
+		    			android:key="icon_view_item_row_preference"
+		    			android:entries="@array/icon_view_items_per_row"
+		    			android:entryValues="@array/icon_view_items_per_row"
+		    			android:defaultValue="3">
+		</ListPreference>		            
+
+		<ListPreference android:title="@string/sort_mode"
+		    			android:summary="@string/sort_mode_preference_summary"
+		    			android:key="icon_view_sort_mode_preference"
+		    			android:entries="@array/icon_view_sort_mode_type"
+		    			android:entryValues="@array/icon_view_sort_mode_value" 
+		    			android:defaultValue="alphabetic">
+		</ListPreference>		    
+		    
+		    
+    </PreferenceCategory>
+        
+        
+	<PreferenceCategory android:title="@string/notification_settings">
+		<CheckBoxPreference android:title="@string/notification_settings" 
+		    				android:summary="@string/enable_notification_description"
+		    				android:defaultValue="true"
+		    				android:key="notification_preference">
+		</CheckBoxPreference>	    
+	</PreferenceCategory>
+    
+	<PreferenceCategory android:title="@string/controlled_vocabulary_preference">
+	    <CheckBoxPreference android:title="@string/controlled_vocabulary_preference"
+	        				android:summary="@string/controlled_vocabulary_summary"
+	        				android:defaultValue="true"
+	        				android:key="vocabulary_preference">
+	    </CheckBoxPreference>
+	    
+	    
+	</PreferenceCategory>
+	    
+	    
+        
+        
+	<PreferenceCategory android:title="@string/database_options">
+	    <Preference android:title="@string/database_options" 
+	        		android:summary="@string/database_preference_summary"
+	        		android:key="database_preference" />
+	</PreferenceCategory>
+
+</PreferenceScreen>

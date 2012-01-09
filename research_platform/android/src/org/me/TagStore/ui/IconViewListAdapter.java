@@ -4,9 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.me.TagStore.R;
-import org.me.TagStore.interfaces.IconViewClickListenerCallback;
 
-import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,11 +35,6 @@ public class IconViewListAdapter extends BaseAdapter {
 	private final LayoutInflater m_LayoutInflater;
 
 	/**
-	 * stores the callback
-	 */
-	private final IconViewClickListenerCallback m_callback;
-
-	/**
 	 * constructor of class TagStoreListAdapter
 	 * 
 	 * @param list_map
@@ -49,20 +42,18 @@ public class IconViewListAdapter extends BaseAdapter {
 	 */
 
 	public IconViewListAdapter(ArrayList<HashMap<String, Object>> list_map,
-			IconViewClickListenerCallback callback,
-			Activity activity) {
+							   Context context) {
 
 		//
 		// initialize members
 		//
-		m_context = activity;
+		m_context = context;
 		m_list_map = list_map;
-		m_callback = callback;
 
 		//
 		// construct layout inflater from context
 		//
-		m_LayoutInflater = LayoutInflater.from(activity);
+		m_LayoutInflater = LayoutInflater.from(context);
 	}
 
 	@Override
@@ -113,7 +104,7 @@ public class IconViewListAdapter extends BaseAdapter {
 			//
 			// initialize element
 			//
-			element.initializeWithView(m_callback, position, convertView);
+			element.initializeWithView(convertView);
 
 			//
 			// store element in view
@@ -129,7 +120,7 @@ public class IconViewListAdapter extends BaseAdapter {
 			//
 			// initialize element
 			//
-			element.initializeWithView(m_callback, position, convertView);
+			element.initializeWithView(convertView);
 		}
 
 		//
@@ -140,9 +131,23 @@ public class IconViewListAdapter extends BaseAdapter {
 		//
 		// get item name
 		//
-		String item_name = (String) map_entry
+		String display_name = (String) map_entry
 					.get(IconViewItemBuilder.ITEM_NAME);
-
+		
+		String item_name = display_name;
+		
+		//
+		// is the item a tag
+		//
+		boolean item_tag = !map_entry.containsKey(IconViewItemBuilder.ITEM_PATH);
+		if (!item_tag)
+		{
+			//
+			// get real path
+			//
+			item_name = (String)map_entry.get(IconViewItemBuilder.ITEM_PATH);
+		}
+		
 		//
 		// get item icon
 		//
@@ -152,7 +157,7 @@ public class IconViewListAdapter extends BaseAdapter {
 		//
 		// set element item
 		//
-		element.setItemNameAndImage(item_name, item_image);
+		element.setItemNameAndImage(display_name, item_name, item_image, item_tag);
 		
 		//
 		// done

@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.me.TagStore.core.DBManager;
+import org.me.TagStore.core.EventDispatcher;
 import org.me.TagStore.core.FileTagUtility;
 import org.me.TagStore.core.Logger;
 import org.me.TagStore.core.TagStackManager;
-import org.me.TagStore.interfaces.CloudViewClickListener;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -82,11 +82,6 @@ public class CloudViewSurfaceAdapter extends SurfaceView{
 	 * stores the minimum reference count of a tag
 	 */
 	private int m_min_ref;
-
-	/**
-	 * stores the callback
-	 */
-	private CloudViewClickListener m_callback;
 
 	/**
 	 * stores the font sizes of the tags / file objects
@@ -183,16 +178,6 @@ public class CloudViewSurfaceAdapter extends SurfaceView{
 		changeBG(0, 0, 0);
 	}
 	
-    /**
-     * stores the callback which is invoked when an item is clicked
-     * @param callback to set
-     */
-    public void setCloudViewClickListener(CloudViewClickListener callback) {
-    	
-    	m_callback = callback;
-    }
-    
-    
 	/**
 	 * returns the current selected item
 	 * @return String
@@ -252,12 +237,14 @@ public class CloudViewSurfaceAdapter extends SurfaceView{
 				m_selected_tag = tag;
 				
 				//
-				// display dialog
+				// prepare event params
 				//
-				if (m_callback != null)
-				{
-					m_callback.onLongListItemClick(tag.m_tag, tag.m_is_tag);
-				}
+				Object[] event_args = new Object[] {tag.m_tag, tag.m_is_tag};
+				
+				//
+				// invoke callback
+				//
+				EventDispatcher.getInstance().signalEvent(EventDispatcher.EventId.ITEM_LONG_CLICK_EVENT, event_args);
 				return;
 			}
 			
@@ -299,12 +286,14 @@ public class CloudViewSurfaceAdapter extends SurfaceView{
 			} 
 				
 			//
-			// launch file
+			// prepare event params
 			//
-			if (m_callback != null)
-			{
-				m_callback.onListItemClick(tag.m_tag, tag.m_is_tag);
-			}
+			Object[] event_args = new Object[] {tag.m_tag, tag.m_is_tag};
+			
+			//
+			// invoke callback
+			//
+			EventDispatcher.getInstance().signalEvent(EventDispatcher.EventId.ITEM_CLICK_EVENT, event_args);			
 		}
 	}
 

@@ -12,7 +12,6 @@ import java.util.StringTokenizer;
 import org.me.TagStore.R;
 import org.me.TagStore.ui.ToastManager;
 
-import android.content.Context;
 import android.webkit.MimeTypeMap;
 import android.widget.EditText;
 
@@ -275,7 +274,7 @@ public class FileTagUtility {
 	 * @param write_log true if to the log should be written
 	 * @param tag_text tags of the file
 	 */
-	public static boolean addFile(String file_name, String tag_text, boolean write_log) {
+	public static boolean tagFile(String file_name, String tag_text, boolean write_log) {
 		
 		//
 		// check if file exists
@@ -388,9 +387,9 @@ public class FileTagUtility {
 	/**
 	 * removes a file from the database and deletes the file from disk and displays a toast if the operation has been successful
 	 * @param file_name path of the file to be deleted
-	 * @param ctx application context
+	 * @param display_toast if a toast should be displayed
 	 */
-	public static void removeFile(String file_name, Context ctx) {
+	public static void removeFile(String file_name, boolean display_toast) {
 		
 		//
 		// FIXME: should display confirmation dialog
@@ -427,17 +426,23 @@ public class FileTagUtility {
 			//
 			file_writer.writeTagstoreFiles();	
 			
-			//
-			// display toast
-			//
-			ToastManager.getInstance().displayToastWithFormat(R.string.format_delete, file_name);
+			if (display_toast)
+			{
+				//
+				// display toast
+				//
+				ToastManager.getInstance().displayToastWithFormat(R.string.format_delete, file_name);
+			}
 			
 		} else {
 			
-			//
-			// display toast
-			//
-			ToastManager.getInstance().displayToastWithFormat(R.string.error_format_delete, file_name);
+			if (display_toast)
+			{
+				//
+				// display toast
+				//
+				ToastManager.getInstance().displayToastWithFormat(R.string.error_format_delete, file_name);
+			}
 		}
 
 	}
@@ -499,6 +504,55 @@ public class FileTagUtility {
 		}
 		
 		//
+		// now check if the controlled vocabulary is enabled
+		//
+		boolean controlled_vocabulary = VocabularyManager.getInstance().getControlledVocabularyState();
+		if (!controlled_vocabulary)
+		{
+			//
+			// controlled vocabulary is not enabled, tags are o.k.
+			//
+			return true;
+		}
+		
+		//
+		// check all tags are from the controlled vocabulary
+		//
+		VocabularyManager voc_manager = VocabularyManager.getInstance();
+		for(String current_tag : tag_list)
+		{
+			if (!voc_manager.isTagPartOfControlledVocabulary(current_tag))
+			{
+				//
+				// tag not part of controlled vocabulary
+				//
+				ToastManager.getInstance().displayToastWithString(R.string.tag_not_in_controlled_vocabulary);
+				if (edit_text != null)
+				{
+					//
+					// get position of that tag
+					//
+					int position = tags.indexOf(current_tag);
+					if (position >= 0)
+					{
+						//
+						// mark selected position
+						//
+						edit_text.setSelection(position, position + current_tag.length());
+					}					
+				}
+				
+				//
+				// failed
+				//
+				return false;
+			}
+			
+			
+		}
+		
+		
+		//
 		// tags appear to be o.k.
 		//
 		return true;
@@ -532,7 +586,7 @@ public class FileTagUtility {
 		//
 		// re-add them to the store
 		//
-		return FileTagUtility.addFile(filename, tags, write_log);
+		return FileTagUtility.tagFile(filename, tags, write_log);
 	}
 	
 	

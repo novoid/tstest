@@ -3,8 +3,10 @@ package org.me.TagStore.ui;
 import org.me.TagStore.core.Logger;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
 
 public class CommonDialogFragment extends DialogFragment {
 
@@ -54,13 +56,8 @@ public class CommonDialogFragment extends DialogFragment {
 	 *            requested dialog id
 	 * @return
 	 */
-	public static CommonDialogFragment newInstance(String item_name,
+	public static CommonDialogFragment newInstance(Context context, String item_name,
 			boolean is_tag, int dialog_id) {
-
-		//
-		// construct fragment
-		//
-		CommonDialogFragment fragment = new CommonDialogFragment();
 
 		//
 		// create bundle for storing parameters
@@ -73,12 +70,13 @@ public class CommonDialogFragment extends DialogFragment {
 		args.putString(PARAM_ITEM_NAME, item_name);
 		args.putBoolean(PARAM_IS_TAG, is_tag);
 		args.putInt(PARAM_DIALOG_ID, dialog_id);
-
+		
+		
 		//
-		// set args
+		// construct fragment
 		//
-		fragment.setArguments(args);
-
+		CommonDialogFragment fragment = (CommonDialogFragment) Fragment.instantiate(context, CommonDialogFragment.class.getName(), args);
+			
 		//
 		// done
 		//

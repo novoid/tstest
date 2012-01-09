@@ -5,7 +5,7 @@ package org.me.TagStore.interfaces;
  * @author Johannes Anderwald
  *
  */
-public interface CloudViewClickListener {
+public interface ItemViewClickListener {
 
 	/**
 	 * this function is called when a item was clicked

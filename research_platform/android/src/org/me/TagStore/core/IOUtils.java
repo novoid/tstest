@@ -3,14 +3,112 @@ package org.me.TagStore.core;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 
 import android.content.Context;
 
 public class IOUtils {
+
+	
+	/**
+	 * reads a file into the specified result vector
+	 * @param reader buffered reader
+	 * @param lines lines to read
+	 * @return
+	 */
+	public static boolean readFile(BufferedReader reader, ArrayList<String> lines) {
+		
+		try
+		{
+			do
+			{
+				//
+				// read line
+				//
+				String line = reader.readLine();
+				if (line == null)
+					break;
+
+				//
+				// append line
+				//
+				lines.add(line);
+
+			}while(true);
+			
+			//
+			// successfully read file
+			//
+			return true;
+			
+		}catch(IOException exc)
+		{
+			Logger.e("IOException while reading");
+			return false;
+		}
+	}
+	
+	
+	/**
+	 * reads the content of a file into a result line vector
+	 * @param file_name name of the file
+	 * @param lines file contents
+	 * @return true on success
+	 */
+	public static boolean readFile(String file_name, ArrayList<String> lines) 
+	{
+		BufferedReader reader = null;
+		boolean result = false;
+		
+		try
+		{
+			//
+			// open input stream
+			//
+			FileInputStream raw_stream = new FileInputStream(file_name);
+		
+			//
+			// create reader
+			//
+			reader = new BufferedReader(new InputStreamReader(raw_stream, "UTF8"));
+		
+			//
+			// read file
+			//
+			result = IOUtils.readFile(reader, lines);
+		}
+		catch(IOException exc)
+		{
+			Logger.e("Exception while reading file: " + file_name);
+		}
+		finally
+		{
+			//
+			// close file objects
+			//
+			if (reader != null)
+			{
+				try {
+					reader.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		//
+		// return result
+		//
+		return result;
+	}	
+
+	
+	
 	
 	/**
 	 * copys the contents of the file

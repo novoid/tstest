@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="setting_list_view_type">
+        <item >@string/icon_list_view</item>
+        <item >@string/cloud_view</item>
+    </string-array>
+    <string-array name="setting_list_view_value">
+        <item >org.me.TagStore.TagStoreGridViewActivity</item>
+        <item >org.me.TagStore.TagStoreCloudViewActivity</item>
+    </string-array>
+    <string-array name="icon_view_items_per_row">
+        <item >1</item>
+        <item >2</item>
+        <item >3</item>
+        <item >4</item>
+    </string-array>
+    <string-array name="icon_view_sort_mode_type">
+        <item >@string/sort_mode_alphabetic</item>
+        <item >@string/sort_mode_popular</item>
+    </string-array>
+    <string-array name="icon_view_sort_mode_value">
+        <item >alphabetic</item>
+        <item >popular</item>
+    </string-array>
+
+    
+</resources>

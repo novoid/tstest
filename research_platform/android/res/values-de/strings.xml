@@ -15,8 +15,8 @@
     <string name="unknown">Unbekannt</string>
     <string name="synchronize">Synchronisiere</string>
     <string name="icon_list_view">Symbolansicht</string>
-    <string name="num_rows">Anzahl der Reihen:</string>
-    <string name="num_columns">Anzahl der Spalten:</string>
+    <string name="num_rows">Anzahl der Reihen</string>
+    <string name="num_columns">Anzahl der Spalten</string>
     <string name="reset_factory_settings">Werkseinstellungen</string>
     <string name="reset">Zurücksetzen</string>
     <string name="reset_factory_setting">Durch drücken des Zurücksetzen Knopf werden alle gespeicherten Einstellungen und Tags entfernt und der tagstore auf Werkseinstellung zurückversetzt.</string>
@@ -43,10 +43,10 @@
     <string name="add_directory">Verzeichniss hinzufügen</string>
     <string name="no_update">Keine Änderungen gefunden!</string>
     <string name="cloud_view">Wolkenansicht</string>
-    <string name="sort_mode">Sortiermodus:</string>
+    <string name="sort_mode">Sortiermodus</string>
     <string name="sort_mode_alphabetic">alphabetisch</string>
     <string name="sort_mode_popular">meist verwendet</string>
-    <string name="configuration">Setup</string>
+    <string name="configuration">Konfiguration</string>
     <string name="new_file">Neue Datei</string>
     <string name="reset_database">Werkseinstellungen wiederhergestellt!</string>
     <string name="error_reset_database">Konnte die Werkseinstellungen nicht wiederherstellen!</string>
@@ -91,4 +91,19 @@
     <string name="file_present_tagstore">Die Datei ist bereits im tagstore vorhanden</string>
     <string name="file_present_tagstore_not_tagged">Die Datei ist bereits im tagstore vorhanden, wurde aber noch nicht getaggt</string>
     <string name="no_app_registered">Es ist kein Programm instaliert, die Datei %s öffnen kann</string>
+    <string name="display_preference_summary">Hier können Sie wählen, wie der tagstore dargestellt wird.</string>
+    <string name="directory_preference_summary">Hier können Sie einstellen, welche Verzeichnisse von tagstore überwacht und organisiert werden.</string>
+    <string name="database_preference_summary">Hier können Sie den tagstore auf Werkseinstellung zurücksetzen. Alle Einstellungen und tags werden entfernt.</string>
+    <string name="database_reset_question">Möchten Sie den tagstore auf Werkseinstellung zurücksetzen?</string>
+    <string name="item_row_preference_summary">Hier können Sie einstellen, wieviele Spalten in der Symbolansicht dargestellt werden.</string>
+    <string name="sort_mode_preference_summary">Hier können Sie einstellen, wie die tags in der Symbolansicht sortiert angezeigt werden.</string>
+    <string name="text">Text</string>
+    <string name="audio">Audio</string>
+    <string name="video">Video</string>
+    <string name="image">Bilder</string>
+    <string name="open_as">Öffnen mit</string>
+    <string name="controlled_vocabulary_preference">Kontrolliertes Vokabular</string>
+    <string name="controlled_vocabulary_summary">Wenn diese Option aktiviert ist, werden nur tags aus dem kontrollierten Vokabular verwendet</string>
+    <string name="tag_not_in_controlled_vocabulary">Der tag ist nicht im kontrollierten Vokabular enthalten</string>
+    <string name="error_vocabulary_file_not_exists">Die Vokabel-Datei existiert nicht!</string>
 </resources>

@@ -1,6 +1,7 @@
 package org.me.TagStore.ui;
 
-import org.me.TagStore.interfaces.IconViewClickListenerCallback;
+import org.me.TagStore.core.EventDispatcher;
+import org.me.TagStore.core.Logger;
 
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -13,40 +14,42 @@ import android.view.View.OnClickListener;
  */
 public class IconViewListItemClickListener implements OnClickListener {
 
+	
 	/**
-	 * stores call-back
+	 * name of item
 	 */
-	private final IconViewClickListenerCallback m_callback;
-
+	private final String m_item_name;
+	
 	/**
-	 * stores item index
+	 * if the item is a tag
 	 */
-	private final int m_item_index;
-
+	private final boolean m_is_tag;
+	
 	/**
-	 * constructor of class IconViewListItemClickListener
-	 * @param callback call-back which is invoked when a item is clicked
-	 * @param item_index item index which is passed to the call-back
+	 * constructor of class IconvViewListItemClickListener
+	 * @param listener 
+	 * @param item_name name of the item
+	 * @param is_tag item is tag
 	 */
-	public IconViewListItemClickListener(IconViewClickListenerCallback callback,
-			int item_index) {
+	public IconViewListItemClickListener(String item_name, boolean is_tag) {
 
-		//
-		// store members
-		//
-		m_callback = callback;
-		m_item_index = item_index;
+		m_item_name = item_name;
+		m_is_tag = is_tag;
 	}
 
 	@Override
 	public void onClick(View v) {
 
+		Logger.i("onClick: " + m_item_name + " is_tag: " + m_is_tag);
+		
 		//
-		// initiate call back
+		// init event args
 		//
-		if (m_callback != null)
-		{
-			m_callback.onListItemClick(m_item_index);
-		}
+		Object [] event_args = new Object[]{m_item_name, m_is_tag};
+		
+		//
+		// dispatch event via event dispatcher
+		//
+		EventDispatcher.getInstance().signalEvent(EventDispatcher.EventId.ITEM_CLICK_EVENT, event_args);
 	}
 }
