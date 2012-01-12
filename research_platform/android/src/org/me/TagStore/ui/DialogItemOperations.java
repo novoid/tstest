@@ -71,7 +71,7 @@ public class DialogItemOperations {
 		switch (id) {
 
 		case DialogIds.DIALOG_GENERAL_FILE_MENU:
-			dialog = FileDialogBuilder.buildGeneralFileDialog(m_activity_group, fragment);
+			dialog = FileDialogBuilder.buildGeneralFileDialog(m_activity_group, item_name, fragment);
 			break;
 			
 		case DialogIds.DIALOG_DETAILS:

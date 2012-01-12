@@ -6,8 +6,7 @@
     android:layout_height="wrap_content">
     
   <TableRow>
-    		<TextView android:layout_height="wrap_content" android:layout_span="3" android:text="Blabla" android:textSize="13dp" android:id="@+id/pending_file_list" android:layout_width="wrap_content" android:layout_toRightOf="@+id/pending_file_list_label"></TextView>
-    		
+    		<TextView android:layout_height="wrap_content" android:textColor="#0000ff" android:layout_span="3" android:text="Blabla" android:textSize="18dp" android:id="@+id/pending_file_list" android:layout_weight="3"></TextView>
   </TableRow>
   
     <TableRow>

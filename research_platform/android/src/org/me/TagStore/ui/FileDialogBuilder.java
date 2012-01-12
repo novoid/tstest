@@ -39,15 +39,15 @@ public class FileDialogBuilder {
 		//
 		// call internal builder
 		//
-		return buildCommonDialog(m_activity_group, true, fragment);		
+		return buildCommonDialog(m_activity_group, true, null, fragment);		
 		
 	}
 	
-	public static Dialog buildGeneralFileDialog(FragmentActivity m_activity_group, DialogFragment fragment) {
+	public static Dialog buildGeneralFileDialog(FragmentActivity m_activity_group, String item_name, DialogFragment fragment) {
 		//
 		// call internal builder
 		//
-		return buildCommonDialog(m_activity_group, false, fragment);
+		return buildCommonDialog(m_activity_group, false, item_name, fragment);
 	}
 	
 	/**
@@ -56,7 +56,7 @@ public class FileDialogBuilder {
 	 * @param m_activity_group activity group this dialog belongs to
 	 * @param item name of the file
 	 */
-	private static Dialog buildCommonDialog(FragmentActivity m_activity_group, boolean is_tag, DialogFragment fragment) {
+	private static Dialog buildCommonDialog(FragmentActivity m_activity_group, boolean is_tag, String item_name, DialogFragment fragment) {
 
 		//
 		// construct new alert builder
@@ -108,9 +108,20 @@ public class FileDialogBuilder {
 			menu_options.add(send_string);
 			action_ids.add(MENU_ITEM_ENUM.MENU_ITEM_SEND);
 		
-			String retag_string = m_activity_group.getApplicationContext().getString(R.string.retag);
-			menu_options.add(retag_string);
-			action_ids.add(MENU_ITEM_ENUM.MENU_ITEM_RETAG);
+			//
+			// acquire database manager instance
+			//
+			DBManager db_man = DBManager.getInstance();
+
+			//
+			// does the file already exist in the tagstore?
+			//
+			if (db_man.getFileId(item_name) != -1)
+			{
+				String retag_string = m_activity_group.getApplicationContext().getString(R.string.retag);
+				menu_options.add(retag_string);
+				action_ids.add(MENU_ITEM_ENUM.MENU_ITEM_RETAG);
+			}
 		}
 
 		//
@@ -152,7 +163,21 @@ public class FileDialogBuilder {
 			//
 			// set file name
 			//
-			text.setText(new File(file_name).getName());
+			
+			String name = "";
+			try
+			{
+				//
+				// extract name
+				//
+				name = new File(file_name).getName();
+			}
+			catch(NullPointerException exc)
+			{
+				Logger.e("Failed to get file name from path: " + file_name);
+			}
+			
+			text.setText(name);
 		}
 
 		//

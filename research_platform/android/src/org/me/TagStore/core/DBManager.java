@@ -946,7 +946,7 @@ public class DBManager {
 	}
 
 	/**
-	 * returns the tag id corresponding to this tag
+	 * returns the file id corresponding to this file path
 	 * 
 	 * @param tag
 	 *            to be queried

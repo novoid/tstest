@@ -194,15 +194,15 @@ public class MainPageAdapter extends FragmentStatePagerAdapter implements
 		if (m_fragments.size() > 1)
 		{
 			//
+			// change tab index to first one
+			//
+			m_tab_indicator.setCurrentItem(0);
+			
+			//
 			// the add file tag fragment follows the current view class
 			//
 			m_fragments.remove(1);
 			m_titles.remove(1);
-			
-			//
-			// change tab index to first one
-			//
-			m_tab_indicator.setCurrentItem(0);
 		}
 	}
 
@@ -264,7 +264,6 @@ public class MainPageAdapter extends FragmentStatePagerAdapter implements
 	//
 	// PagerView support functions
 	//
-	@Override
 	public Fragment getItem(int position) {
 		
 		if (position != 0)

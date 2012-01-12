@@ -17,6 +17,7 @@ import org.me.TagStore.ui.CloudViewTouchListener;
 import org.me.TagStore.ui.CommonDialogFragment;
 import org.me.TagStore.ui.DialogIds;
 import org.me.TagStore.ui.DialogItemOperations;
+import org.me.TagStore.ui.MainPageAdapter;
 import org.me.TagStore.ui.TagStackUIButtonAdapter;
 import org.me.TagStore.ui.FileDialogBuilder.MENU_ITEM_ENUM;
 
@@ -99,8 +100,27 @@ public class TagStoreCloudViewActivity extends Fragment implements GeneralDialog
 			//
 			refreshView();
 		}
+
+		//
+		// register us with event dispatcher
+		//
+		registerEvents(getEvents());		
+		
 	}
 
+	public void onPause() {
+		
+		//
+		// call base method
+		//
+		super.onPause();
+		
+		//
+		// unregister us with event dispatcher
+		//
+		unregisterEvents(getEvents());
+	}
+	
 	public void onStop() {
 		
 		//
@@ -321,6 +341,17 @@ public class TagStoreCloudViewActivity extends Fragment implements GeneralDialog
 	@Override
 	public void processMenuFileSelection(MENU_ITEM_ENUM action_id) {
 
+		//
+		// check if the view is current visible
+		//
+		if (MainPageAdapter.getInstance().getCurrentItem() != 0)
+		{
+			//
+			// HACK: ViewPageAdapter does not call onPause when switching to next fragment
+			//
+			return;
+		}
+		
 		//
 		// let common operations object handle it
 		//

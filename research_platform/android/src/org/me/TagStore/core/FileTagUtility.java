@@ -402,6 +402,11 @@ public class FileTagUtility {
 		DBManager db_man = DBManager.getInstance();
 
 		//
+		// remove file if pending
+		//
+		db_man.removePendingFile(file_name);
+		
+		//
 		// remove file
 		//
 		db_man.removeFile(file_name);

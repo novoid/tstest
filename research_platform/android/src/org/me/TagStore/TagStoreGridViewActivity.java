@@ -25,6 +25,7 @@ import org.me.TagStore.ui.FileDialogBuilder;
 import org.me.TagStore.ui.IconViewItemBuilder;
 import org.me.TagStore.ui.IconViewListAdapter;
 import org.me.TagStore.ui.IconViewScrollListener;
+import org.me.TagStore.ui.MainPageAdapter;
 import org.me.TagStore.ui.TagStackUIButtonAdapter;
 import org.me.TagStore.ui.ToastManager;
 
@@ -110,6 +111,12 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 			//
 			toast.cancelToast();
 		}
+		
+		//
+		// unregister us with event dispatcher
+		//
+		unregisterEvents(getEvents());	
+		
 	}
 
 	
@@ -134,6 +141,12 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 	    		controller.start();
 	    	}
 	    }
+	    Logger.i("onStart");
+		//
+		// register us with event dispatcher
+		//
+		registerEvents(getEvents());	
+	    
 	}	
 	
 	@Override
@@ -145,7 +158,12 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 		super.onResume();
 
 		Logger.i("TagStoreGridViewActivity::onResume");
-	
+
+		//
+		// register us with event dispatcher
+		//
+		registerEvents(getEvents());	
+
 		//
 		// refresh view
 		//
@@ -205,6 +223,8 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 		// call base method
 		//
 		super.onStop();
+		
+		Logger.i("onStop");
 		
 		//
 		// unregister us with event dispatcher
@@ -802,6 +822,17 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 	 *            what the user has selected
 	 */
 	public void processMenuFileSelection(FileDialogBuilder.MENU_ITEM_ENUM action_id) {
+
+		//
+		// check if the view is current visible
+		//
+		if (MainPageAdapter.getInstance().getCurrentItem() != 0)
+		{
+			//
+			// HACK: ViewPageAdapter does not call onPause when switching to next fragment
+			//
+			return;
+		}
 
 		//
 		// defer control to common dialog operations object
