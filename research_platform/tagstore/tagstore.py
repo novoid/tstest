@@ -34,7 +34,8 @@ from tscore.tsconstants import TsConstants
 from tsos.filesystem import FileSystemWrapper
 import errno
 from tscore.pidhelper import PidHelper
-    
+
+
 class Tagstore(QtCore.QObject):
 
     def __init__(self, application, parent=None, verbose=False, dryrun=False):
@@ -87,6 +88,7 @@ class Tagstore(QtCore.QObject):
         self.NUM_RECENT_TAGS = TsConstants.DEFAULT_RECENT_TAGS
         self.NUM_POPULAR_TAGS = TsConstants.DEFAULT_POPULAR_TAGS
         self.MAX_TAGS = TsConstants.DEFAULT_MAX_TAGS
+        self.MAX_CLOUD_TAGS = TsConstants.DEFAULT_MAX_CLOUD_TAGS
         self.STORES = []
         ## dict for dialogs identified by their store id
         self.DIALOGS = {}
@@ -210,7 +212,7 @@ class Tagstore(QtCore.QObject):
                 self.__log.debug("init store: %s", store.get_name())
                 
                 ## create a dialogcontroller for each store ...
-                tmp_dialog = TagDialogController(store.get_name(), self.MAX_TAGS, self.TAG_SEPERATOR, self.EXPIRY_PREFIX)
+                tmp_dialog = TagDialogController(store.get_name(), store.get_id(), self.MAX_TAGS, self.TAG_SEPERATOR, self.EXPIRY_PREFIX)
                 
                 tmp_dialog.connect(tmp_dialog, QtCore.SIGNAL("tag_item"), self.tag_item_action)
                 tmp_dialog.connect(tmp_dialog, QtCore.SIGNAL("handle_cancel()"), self.handle_cancel)
@@ -220,7 +222,9 @@ class Tagstore(QtCore.QObject):
                 ## call init to initialize new store instance (after adding the event handler)
                 ## necessary if store was renamed during tagstore was not running (to write config)
                 store.init()
+                self.connect(tmp_dialog, QtCore.SIGNAL("item_selected"), self.__set_tag_information_to_dialog_wrapper)
                 self.__configure_tag_dialog(store, tmp_dialog)
+                
 
     
     def __configure_tag_dialog(self, store, tmp_dialog):
@@ -314,8 +318,10 @@ class Tagstore(QtCore.QObject):
         
         for item in whole_list:
             dialog_controller.add_pending_item(item)
-            
+
         self.__set_tag_information_to_dialog(store)
+
+        
         dialog_controller.show_dialog()
      
     def handle_cancel(self):
@@ -323,7 +329,12 @@ class Tagstore(QtCore.QObject):
         if dialog_controller is None or not isinstance(dialog_controller, TagDialogController):
             return
         dialog_controller.hide_dialog()
-    
+        
+    def __set_tag_information_to_dialog_wrapper(self, store_id):
+        for store in self.STORES:
+            if store.get_id() == store_id:
+                self.__set_tag_information_to_dialog(store)
+
     def __set_tag_information_to_dialog(self, store):
         """
         convenience method for refreshing the tag data at the gui-dialog
@@ -332,35 +343,52 @@ class Tagstore(QtCore.QObject):
         dialog_controller = self.DIALOGS[store.get_id()]
         dialog_controller.set_tag_list(store.get_tags())
         
-        tag_set = set(store.get_popular_tags(self.NUM_POPULAR_TAGS))
-        tag_set = tag_set | set(store.get_recent_tags(self.NUM_RECENT_TAGS))
+        item_list = dialog_controller.get_selected_item_list_public()
 
-        cat_set = set(store.get_popular_categories(self.NUM_POPULAR_TAGS))
-        cat_set = cat_set | set(store.get_recent_categories(self.NUM_RECENT_TAGS))
-
-        cat_list = list(cat_set)
-        if store.is_controlled_vocabulary():
-            allowed_set = set(store.get_controlled_vocabulary())
-            dialog_controller.set_category_list(list(allowed_set))
-
-            ## just show allowed tags - so make the intersection of popular tags ant the allowed tags
-            cat_list = list(cat_set.intersection(allowed_set)) 
-        else:
-            dialog_controller.set_category_list(store.get_categorizing_tags())
+        if len(item_list) > 0 and item_list[0] is not None:
+            #tag_set = set(store.get_tag_recommendation(self.NUM_POPULAR_TAGS*3, str(item_list[0].text())))
+            tag_list = store.get_tag_recommendation(self.NUM_POPULAR_TAGS, str(item_list[0].text()))
             
-        if len(cat_list) > self.NUM_POPULAR_TAGS:
-            cat_list = cat_list[:self.NUM_POPULAR_TAGS]
-        dialog_controller.set_popular_categories(cat_list)
-        
-        ## make a list out of the set, to enable indexing, as not all tags cannot be used
-        tag_list = list(tag_set)
-        if len(tag_list) > self.NUM_POPULAR_TAGS:
-            tag_list = tag_list[:self.NUM_POPULAR_TAGS]
-        dialog_controller.set_popular_tags(tag_list)
+            #cat_set = set(store.get_cat_recommendation(self.NUM_POPULAR_TAGS, str(item_list[0].text())))
+            #cat_list = list(cat_set)
+            tmp_cat_list = store.get_cat_recommendation(self.NUM_POPULAR_TAGS, str(item_list[0].text()))
+            cat_list = []
+            if store.is_controlled_vocabulary():
+                allowed_set = set(store.get_controlled_vocabulary())
+                dialog_controller.set_category_list(list(allowed_set))
+    
+                ## just show allowed tags - so make the intersection of popular tags ant the allowed tags
+                for cat in tmp_cat_list:
+                    if cat in list(allowed_set):
+                        cat_list.append(cat)
+                for cat in list(allowed_set):
+                    if cat not in cat_list:
+                        cat_list.append(cat)
+                #cat_list = list(cat_set.intersection(allowed_set)) 
+            else:
+                dialog_controller.set_category_list(store.get_categorizing_tags())
+                cat_list = tmp_cat_list
+                
+            if len(cat_list) > self.NUM_POPULAR_TAGS:
+                cat_list = cat_list[:self.NUM_POPULAR_TAGS]
+            dialog_controller.set_popular_categories(cat_list)
+            
+            ## make a list out of the set, to enable indexing, as not all tags cannot be used
+            #tag_list = list(tag_set)
 
+            if len(tag_list) > self.NUM_POPULAR_TAGS:
+                tag_list = tag_list[:self.NUM_POPULAR_TAGS]
+            dialog_controller.set_popular_tags(tag_list)
+            
+            if store.get_tagline_config() == 1 or store.get_tagline_config == 2:
+                dict = store.get_tag_cloud()
+                dialog_controller.set_tag_cloud(dict, self.MAX_CLOUD_TAGS)
 
-        #if len(self.DIALOGS) > 1:
-        dialog_controller.set_store_name(store.get_name())
+            dict = store.get_cat_cloud() 
+            dialog_controller.set_cat_cloud(dict, self.MAX_CLOUD_TAGS)
+    
+            #if len(self.DIALOGS) > 1:
+            dialog_controller.set_store_name(store.get_name())
     
     def tag_item_action(self, store_name, item_name_list, tag_list, category_list):
         """

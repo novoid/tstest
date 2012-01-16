@@ -27,6 +27,8 @@ from tscore.specialcharhelper import SpecialCharHelper
 from tscore.tagwrapper import TagWrapper
 from tscore.tsconstants import TsConstants
 from tscore.vocabularywrapper import VocabularyWrapper
+from tscore.recommender import Recommender
+from tscore.tagcloud import TagCloud
 from tsos.filesystem import FileSystemWrapper
 from pidhelper import PidHelper
 import datetime
@@ -97,8 +99,10 @@ class Store(QtCore.QObject):
             self.__path = self.__path.replace(":", ":/")
         self.__name = unicode(self.__path.split("/")[-1])
         self.__parent_path = unicode(self.__path[:len(self.__path)-len(self.__name)-1])
-
-
+        
+        self.__tagcloud = TagCloud()
+        self.__recommender = Recommender(self.get_store_path())
+        
     def __create_wrappers(self):
         if self.__file_system.path_exists(self.__path + "/" + self.__tags_file_name):
             self.__tag_wrapper = TagWrapper(self.__path + "/" + self.__tags_file_name)
@@ -980,5 +984,69 @@ class Store(QtCore.QObject):
         
         if self.__sync_tag_wrapper != None:
             self.__sync_tag_wrapper.sync_settings()
+
+
+    def get_tag_recommendation(self, number, file_name):
+        """
+        Changes from Georg
+        returns the recommendation
+        """
+        dictionary = self.__recommender.get_tag_recommendation(
+                              self.__tag_wrapper,
+                              file_name,
+                              number,
+                              self.__storage_dir_name)
+        
+        list = sorted(dictionary.iteritems(), key=lambda (k,v): (v,k), reverse=True)
+        return_list = []
+        print list
+        #for item in list[:number]:
+        for item in list:
+            return_list.append(item[0])
+        print return_list
+        
+        return return_list
+
+        
+    def get_cat_recommendation(self, number, file_name):
+        """
+        Changes from Georg
+        returns the recommendation
+        """
+        dictionary = self.__recommender.get_cat_recommendation(
+                              self.__tag_wrapper,
+                              file_name,
+                              number,
+                              self.__storage_dir_name)
+        
+        list = sorted(dictionary.iteritems(), key=lambda (k,v): (v,k), reverse=True)
+        return_list = []
+        #for item in list[:number]:
+        for item in list:
+            return_list.append(item[0])
+        
+        return return_list
+        
+    def get_tag_cloud(self):
+        dict = self.__tag_wrapper.get_tag_dict(self.__tag_wrapper.KEY_TAGS)
+        return self.__tagcloud.create_tag_cloud(dict)
+    
+    def get_cat_cloud(self):
+        tmp_dict = self.__tag_wrapper.get_tag_dict(self.__tag_wrapper.KEY_CATEGORIES)
+        dict = {}
+        if self.is_controlled_vocabulary():
+            allowed_list = self.get_controlled_vocabulary()
+            for cat, size in tmp_dict.iteritems():
+                if cat in allowed_list:
+                    dict.setdefault(cat, size)
+            for cat in allowed_list:
+                if cat not in dict:
+                    dict.setdefault(cat, 0)
+            return self.__tagcloud.create_tag_cloud(dict)
+        else:
+            return self.__tagcloud.create_tag_cloud(tmp_dict)
+    
+    def get_tagline_config(self):
+        return self.__tagline_config     
 
 ## end

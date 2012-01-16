@@ -402,4 +402,10 @@ class TagWrapper():
                     #delete file entry if there is no tag left
                     self.remove_file(file["filename"])
 
+    def get_tag_dict(self, attribute=KEY_TAGS):
+        """
+        ADD from Georg
+        TODO: Change function-name
+        """
+        return self.__get_tag_dictionary(attribute)
 ## end

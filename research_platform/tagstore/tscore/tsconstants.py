@@ -120,6 +120,8 @@ class TsConstants(object):
     DEFAULT_SHOW_STORE_MANAGEMENT_HELP ="true"
     DEFAULT_SHOW_SYNC_SETTINGS_HELP ="true"
     
+    DEFAULT_MAX_CLOUD_TAGS = 20
+    
     def __init__(self):
         pass
     

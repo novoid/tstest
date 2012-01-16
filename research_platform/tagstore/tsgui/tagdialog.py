@@ -23,6 +23,11 @@ from tsgui.helpdialog import HelpDialog
 from tscore.configwrapper import ConfigWrapper
 from tscore.tsconstants import TsConstants
 
+#from collections import OrderedDict
+#from operator import itemgetter
+
+
+
 class TagDialog(QtGui.QDialog):
 
     """
@@ -64,6 +69,8 @@ class TagDialog(QtGui.QDialog):
         ## a list to hold all tag labels - that they can be accessed and removed later on
         self.__tag_label_list = []
         self.__category_label_list = []
+        self.__tag_cloud_list =[]
+        self.__cat_cloud_list =[]
 
         self.__tag_help_window = HelpDialog("tagdialog")
 
@@ -72,6 +79,17 @@ class TagDialog(QtGui.QDialog):
         self.__baseLayout = QtGui.QHBoxLayout()
         self.__baseLayout.setContentsMargins(3, 3, 3, 3)
         self.setLayout(self.__baseLayout)
+        
+        self.__tag_cloud_layout = QtGui.QGridLayout()
+        self.__tag_cloud_layout.setContentsMargins(0, 0, 0, 0)
+        self.__cat_cloud_layout = QtGui.QGridLayout()
+        self.__cat_cloud_layout.setContentsMargins(0, 0, 0, 0)
+        self.__base_cloud_layout = QtGui.QVBoxLayout()
+        self.__base_cloud_layout.addLayout(self.__tag_cloud_layout)
+        self.__base_cloud_layout.addLayout(self.__cat_cloud_layout)
+        self.__base_cloud_widget = QtGui.QWidget()
+        self.__base_cloud_widget.setLayout(self.__base_cloud_layout)
+        self.__baseLayout.addWidget(self.__base_cloud_widget)
         
         self.__mainlayout = QtGui.QGridLayout()
         self.__mainwidget = QtGui.QWidget(self)
@@ -420,6 +438,7 @@ class TagDialog(QtGui.QDialog):
         
     def __handle_selection_changed(self):
         self.__set_selected_item_list(self.__item_list_view.selectedItems())
+        self.emit(QtCore.SIGNAL("item_selection"))
 
     def __get_selected_item_list(self):
         if self.__selected_item_list is None:
@@ -586,6 +605,147 @@ class TagDialog(QtGui.QDialog):
 
     def set_tag_list(self, tag_list):
         self.__tag_line_widget.set_tag_completion_list(tag_list)
+    """
+    def set_tag_cloud(self, tag_dict):
+        ## remove all existing labels
+        for label in self.__tag_cloud_list:
+            label.setVisible(False)
+            self.__tag_cloud_layout.removeWidget(label)
+            label.destroy()
+        ## clear the label list
+        self.__tag_cloud_list = []
+        
+        row = 0
+        column = 0
+        for tag in sorted(tag_dict.iterkeys()):    
+            tag_font = QtGui.QFont()
+            font_size = tag_dict[tag] + 9
+            tag_font.setPointSizeF(font_size);
+            tmp_label = QtGui.QLabel("<a href='%s'>%s</a>" % (tag, tag))
+            tmp_label.setFont(tag_font)
+            tmp_label.setTextInteractionFlags(QtCore.Qt.LinksAccessibleByMouse|
+                                              QtCore.Qt.LinksAccessibleByKeyboard|
+                                              QtCore.Qt.TextSelectableByMouse)
+            tmp_label.setWordWrap(True)
+            self.connect(tmp_label, QtCore.SIGNAL("linkActivated(QString)"), self.__handle_tag_label_clicked)
+            self.__tag_cloud_layout.addWidget(tmp_label, row, column)
+            ## fill the new label list
+            self.__tag_cloud_list.append(tmp_label)
+            column += 1
+            if column == 4:
+                row += 1
+                column = 0
+        tmp_label = QtGui.QLabel("")
+        self.__tag_cloud_layout.addWidget(tmp_label, row + 1, 0, 4, 1)
+    """
+        
+    def set_tag_cloud(self, tag_dict, max_num):
+        
+        ## remove all existing labels
+        for label in self.__tag_cloud_list:
+            label.setVisible(False)
+            self.__tag_cloud_layout.removeWidget(label)
+            label.destroy()
+        ## clear the label list
+        self.__tag_cloud_list = []
+        
+        #tmp_list = sorted(tag_dict.items(), key=itemgetter(1))
+        tmp_list = list(sorted(tag_dict.items(), key=lambda x: x[1]))
+        tag_list = []
+        for value in tmp_list:
+            #print value[0]
+            tag_list.append(value[0])
+        #print tag_list
+        #tag_list = list(OrderedDict(sorted(tag_dict.items(), key=lambda x: x[1])))
+        #print tag_list      
+        if len(tag_list) > max_num:
+            tag_list = tag_list[(max_num * -1 ):]
+            
+        row = 0
+        column = 0
+        for tag in sorted(tag_dict.iterkeys()):
+            if tag in tag_list:    
+                tag_font = QtGui.QFont()
+                font_size = tag_dict[tag] + 9
+                tag_font.setPointSizeF(font_size);
+                tmp_label = QtGui.QLabel("<a href='%s'>%s</a>" % (tag, tag))
+                tmp_label.setFont(tag_font)
+                tmp_label.setTextInteractionFlags(QtCore.Qt.LinksAccessibleByMouse|
+                                                  QtCore.Qt.LinksAccessibleByKeyboard|
+                                                  QtCore.Qt.TextSelectableByMouse)
+                tmp_label.setWordWrap(True)
+                self.connect(tmp_label, QtCore.SIGNAL("linkActivated(QString)"), self.__handle_tag_label_clicked)
+                if len(tag) < 9:
+                    self.__tag_cloud_layout.addWidget(tmp_label, row, column)
+                    column += 1
+                else:
+                    self.__tag_cloud_layout.addWidget(tmp_label, row, column, 1, 2)
+                    column += 2
+                ## fill the new label list
+                
+                if column >= 4:
+                    row += 1
+                    column = 0
+                self.__tag_cloud_list.append(tmp_label)
+                    
+        tmp_label = QtGui.QLabel("")
+        self.__tag_cloud_layout.addWidget(tmp_label, row + 1, 0, 4, 1)
+        
+    def set_cat_cloud(self, tag_dict, max_num):
+        ## remove all existing labels
+        for label in self.__cat_cloud_list:
+            label.setVisible(False)
+            self.__cat_cloud_layout.removeWidget(label)
+            label.destroy()
+        ## clear the label list
+        self.__cat_cloud_list = []
+        
+        #tmp_list = sorted(tag_dict.items(), key=itemgetter(1))
+        tmp_list = list(sorted(tag_dict.items(), key=lambda x: x[1]))
+        cat_list = []
+        for value in tmp_list:
+            cat_list.append(value[0])
+        
+        #cat_list = list(OrderedDict(sorted(tag_dict.items(), key=lambda x: x[1])))         
+        if cat_list > max_num:
+            cat_list = cat_list[(max_num * -1 ):]
+        
+        tmp_label = QtGui.QLabel("")
+        self.__cat_cloud_layout.addWidget(tmp_label, 0, 0, 3, 1)
+        
+        row = 1
+        column = 0
+        for tag in sorted(tag_dict.iterkeys()):
+            if tag in cat_list:    
+                if tag != None:
+                    tag_font = QtGui.QFont()
+                    font_size = tag_dict[tag] + 9
+                    tag_font.setPointSizeF(font_size);
+                    tmp_label = QtGui.QLabel("<a href='%s'>%s</a>" % (tag, tag))
+                    tmp_label.setFont(tag_font)
+                    tmp_label.setTextInteractionFlags(QtCore.Qt.LinksAccessibleByMouse|
+                                                      QtCore.Qt.LinksAccessibleByKeyboard|
+                                                      QtCore.Qt.TextSelectableByMouse)
+                    tmp_label.setWordWrap(True)
+                    self.connect(tmp_label, QtCore.SIGNAL("linkActivated(QString)"), self.__handle_category_label_clicked)
+                    if len(tag) < 9:
+                        self.__cat_cloud_layout.addWidget(tmp_label, row, column)
+                        column += 1
+                    else:    
+                        self.__cat_cloud_layout.addWidget(tmp_label, row, column, 1, 2)
+                        column +=2
+                    ## fill the new label list
+                    
+                    if column >= 4:
+                        row += 1
+                        column = 0
+                    self.__cat_cloud_list.append(tmp_label)
+                    
+                        
+        tmp_label = QtGui.QLabel("")
+        self.__cat_cloud_layout.addWidget(tmp_label, row + 1, 0, 4, 1)
+        #if row < 5
+    
         
     def set_popular_tags(self, tag_list):
         
@@ -716,18 +876,24 @@ class TagDialog(QtGui.QDialog):
         
     def get_tag_help_window(self):
         return self.__tag_help_window
+    
+    def get_selected_item_list_public(self):
+        if self.__selected_item_list is None:
+            return None
+        return self.__selected_item_list
 
 class TagDialogController(QtCore.QObject):
     """
     __pyqtSignals__ = ("tag_item",
                        "handle_cancel") 
     """
-    def __init__(self, store_name, max_tags, tag_separator, expiry_prefix):
+    def __init__(self, store_name, store_id, max_tags, tag_separator, expiry_prefix):
         
         QtCore.QObject.__init__(self)
 
         self.__max_tags = max_tags
         self.__store_name = store_name
+        self.__store_id = store_id
         self.__expiry_prefix = expiry_prefix
 
         self.__config_wrapper = ConfigWrapper(TsConstants.CONFIG_PATH)
@@ -745,6 +911,7 @@ class TagDialogController(QtCore.QObject):
         self.connect(self.__tag_dialog, QtCore.SIGNAL("cancel_clicked()"), QtCore.SIGNAL("handle_cancel()"))
         self.connect(self.__tag_dialog, QtCore.SIGNAL("help_clicked()"), self.__help_clicked)
         self.connect(self.__tag_dialog, QtCore.SIGNAL("property_clicked()"), QtCore.SIGNAL("open_store_admin_dialog()"))
+        self.connect(self.__tag_dialog, QtCore.SIGNAL("item_selection"), self.__item_selected)
     
     def __help_clicked(self):
         if self.__tag_dialog.get_tag_help_window().isVisible() == False:
@@ -945,6 +1112,15 @@ class TagDialogController(QtCore.QObject):
         self.__tag_dialog.hide()
         self.__log.debug("hide tag-dialog")
         
+    #def set_tag_cloud(self, tag_dict):
+    #    self.__tag_dialog.set_tag_cloud(tag_dict)
+        
+    def set_tag_cloud(self, tag_dict, max_num):
+        self.__tag_dialog.set_tag_cloud(tag_dict, max_num)
+    
+    def set_cat_cloud(self, tag_dict, max_num):
+        self.__tag_dialog.set_cat_cloud(tag_dict, max_num)    
+        
     def set_popular_tags(self, tag_list):
         self.__tag_dialog.set_popular_tags(tag_list)
         
@@ -957,5 +1133,11 @@ class TagDialogController(QtCore.QObject):
     def set_store_name(self, store_name):
         self.__store_name = store_name
         self.__tag_dialog.set_store_label_text(store_name)
+        
+    def get_selected_item_list_public(self):
+        return self.__tag_dialog.get_selected_item_list_public()
+        
+    def __item_selected(self):
+        self.emit(QtCore.SIGNAL("item_selected"), self.__store_id)
         
 ## END

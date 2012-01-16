@@ -97,6 +97,7 @@ class ReTagController(QtCore.QObject):
         self.STORE_EXPIRED_DIRS = []
         self.STORE_NAVIGATION_DIRS = []
         self.SUPPORTED_LANGUAGES = TsConstants.DEFAULT_SUPPORTED_LANGUAGES
+        self.MAX_CLOUD_TAGS = TsConstants.DEFAULT_MAX_CLOUD_TAGS
         self.__store_dict = {}
         
         for lang in self.SUPPORTED_LANGUAGES: 
@@ -157,7 +158,7 @@ class ReTagController(QtCore.QObject):
         self.__store.init()
         
         if self.__tag_dialog is None:
-            self.__tag_dialog = TagDialogController(self.__store.get_name(), self.__main_config.get_max_tags(), self.__main_config.get_tag_seperator(), self.__main_config.get_expiry_prefix())
+            self.__tag_dialog = TagDialogController(self.__store.get_name(), self.__store.get_id(), self.__main_config.get_max_tags(), self.__main_config.get_tag_seperator(), self.__main_config.get_expiry_prefix())
             self.__tag_dialog.get_view().setModal(True)
             #self.__tag_dialog.set_parent(self.sender().get_view())
             self.__tag_dialog.connect(self.__tag_dialog, QtCore.SIGNAL("tag_item"), self.__tag_item_action)
@@ -256,6 +257,7 @@ class ReTagController(QtCore.QObject):
         
         return True
 
+
     def __set_tag_information_to_dialog(self, store):
         """
         convenience method for setting the tag data at the gui-dialog
@@ -264,34 +266,52 @@ class ReTagController(QtCore.QObject):
         
         num_pop_tags = self.__main_config.get_num_popular_tags()
         
-        tag_set = set(store.get_popular_tags(self.__main_config.get_max_tags()))
-        tag_set = tag_set | set(store.get_recent_tags(num_pop_tags))
+        #tag_set = set(store.get_tag_recommendation(num_pop_tags, self.__item_name))
+        #tag_set = set(store.get_popular_tags(self.__main_config.get_max_tags()))
+        #tag_set = tag_set | set(store.get_recent_tags(num_pop_tags))
+        #cat_set = set(store.get_cat_recommendation(num_pop_tags, self.__item_name))
+        #cat_set = set(store.get_popular_categories(num_pop_tags))
+        #cat_set = cat_set | set(store.get_recent_categories(num_pop_tags))
 
-        cat_set = set(store.get_popular_categories(num_pop_tags))
-        cat_set = cat_set | set(store.get_recent_categories(num_pop_tags))
+        tag_list = store.get_tag_recommendation(num_pop_tags, self.__item_name)
+        tmp_cat_list = store.get_cat_recommendation(num_pop_tags, self.__item_name)
+        cat_list = []
 
-        cat_list = list(cat_set)
+        #cat_list = list(cat_set)
+
         if store.is_controlled_vocabulary():
             allowed_set = set(store.get_controlled_vocabulary())
             self.__tag_dialog.set_category_list(list(allowed_set))
 
             ## just show allowed tags - so make the intersection of popular tags ant the allowed tags
-            cat_list = list(cat_set.intersection(allowed_set)) 
+            for cat in tmp_cat_list:
+                if cat in list(allowed_set):
+                    cat_list.append(cat)
+            for cat in list(allowed_set):
+                if cat not in cat_list:
+                    cat_list.append(cat)
         else:
             self.__tag_dialog.set_category_list(store.get_categorizing_tags())
-            
+            cat_list = tmp_cat_list
+        
         if len(cat_list) > num_pop_tags:
             cat_list = cat_list[:num_pop_tags]
         self.__tag_dialog.set_popular_categories(cat_list)
         
-        ## make a list out of the set, to enable indexing, as not all tags cannot be used
-        tag_list = list(tag_set)
         if len(tag_list) > num_pop_tags:
             tag_list = tag_list[:num_pop_tags]
         self.__tag_dialog.set_popular_tags(tag_list)
         
         if not self.__retag_mode:
             self.__tag_dialog.set_item_list(store.get_pending_changes().get_items_by_event(EFileEvent.ADDED))
+        
+        if store.get_tagline_config() == 1 or store.get_tagline_config == 2:
+            dict = store.get_tag_cloud()
+            self.__tag_dialog.set_tag_cloud(dict, self.MAX_CLOUD_TAGS)
+
+        dict = store.get_cat_cloud()
+        self.__tag_dialog.set_cat_cloud(dict, self.MAX_CLOUD_TAGS)
+        
 
         self.__tag_dialog.set_store_name(store.get_name())
     
