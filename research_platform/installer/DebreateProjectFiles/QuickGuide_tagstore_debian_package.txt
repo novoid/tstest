@@ -1,0 +1,48 @@
+
+Quick-Guide to build tagstore-debian packages with debreate (first-draft)
+#########################################################################
+
+assumption:
+----------- 
+tagstore svn-working-directory 
+*/research_platform/installer/*
+
+
+preconditions:
+--------------
+- download 'debreate' 
+from http://debreate.sourceforge.net/?page=download
+
+- install 'debreate' 
+
+- checkout tagstore debian project file, located on tagstore-svn-platform under 
+*/research_platform/installer/DebreateProjectFiles/tagstore_debian_packager.dbp
+
+- checkout latest tagstore-sources to local working-directory
+
+
+execution steps:
+----------------
+- start 'debreate' (default-installation /programs/development/Debreate )
+--> see documentation for basics (Strg+H) - very helpfully!
+
+- open tagstore debian project file, located under 
+*/research_platform/installer/DebreateProjectFiles/tagstore_debian_packager.dbp
+
+- navigate through project-file via arrows right up
+
+- change version, maintainer and email if needed on 'Control-section'
+
+- ADD 'new sources' on 'File-section'
+
+- REMOVE/ADD 'changed sources' on 'File-section'
+
+- update 'Changelog-section'
+
+- build new package on 'Build-section'
+
+- save new package under
+*/research_platform/installer/tagstore_*_all.deb
+
+
+

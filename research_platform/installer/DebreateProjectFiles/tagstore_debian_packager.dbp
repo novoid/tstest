@@ -1,0 +1,144 @@
+[DEBREATE-0.7.7]
+<<CTRL>>
+Package: tagstore
+Version: 0.1.0
+Section: python
+Maintainer: manfred oberlerchner <manfred.oberlerchner@drei.com>
+Homepage: http://tagstore.ist.tugraz.at/index.shtml
+Priority: standard
+Architecture: all
+Depends: python (>=v2.5)
+Description: a better way to store and retrieve data
+ research software to develop a fun way of storing files and folders on your local disk drive.
+ main purpose of tagstore is the refinement of a better method to manage files and folders on the local hard disk drive. Therefore tagstore is no commercial product. It is made public available under the open source license GPL v3.
+ .
+ With tagstore the user does not use the usual method of filing data in a hierarchy of folders as the only possible method. In a tagstore files and folders are being tagged by the user. Using those tags tagstore automatically generates navigation hierarchies called TagTrees. Within those TagTrees the user is able to navigate using his or her preferred software tools like file browsers, "file save..." or "file open..." dialogs.
+
+<</CTRL>>
+<<FILES>>
+1
+/home/mo/tagstore/research_platform/tagstore/tscore/pendingchanges.py -> pendingchanges.py -> /usr/share/tagstore/tscore
+/home/mo/tagstore/research_platform/tagstore/tscore/pathhelper.py -> pathhelper.py -> /usr/share/tagstore/tscore
+/home/mo/tagstore/research_platform/tagstore/tscore/recommender.py -> recommender.py -> /usr/share/tagstore/tscore
+/home/mo/tagstore/research_platform/tagstore/tscore/exceptions.py -> exceptions.py -> /usr/share/tagstore/tscore
+/home/mo/tagstore/research_platform/tagstore/tscore/pidhelper.py -> pidhelper.py -> /usr/share/tagstore/tscore
+/home/mo/tagstore/research_platform/tagstore/tscore/tagcloud.py -> tagcloud.py -> /usr/share/tagstore/tscore
+/home/mo/tagstore/research_platform/tagstore/tscore/loghelper.py -> loghelper.py -> /usr/share/tagstore/tscore
+/home/mo/tagstore/research_platform/tagstore/tscore/tagwrapper.py -> tagwrapper.py -> /usr/share/tagstore/tscore
+/home/mo/tagstore/research_platform/tagstore/tscore/specialcharhelper.py -> specialcharhelper.py -> /usr/share/tagstore/tscore
+/home/mo/tagstore/research_platform/tagstore/tscore/enums.py -> enums.py -> /usr/share/tagstore/tscore
+/home/mo/tagstore/research_platform/tagstore/tscore/configwrapper.py -> configwrapper.py -> /usr/share/tagstore/tscore
+/home/mo/tagstore/research_platform/tagstore/tscore/vocabularywrapper.py -> vocabularywrapper.py -> /usr/share/tagstore/tscore
+/home/mo/tagstore/research_platform/tagstore/tscore/tsconstants.py -> tsconstants.py -> /usr/share/tagstore/tscore
+/home/mo/tagstore/research_platform/tagstore/tscore/__init__.py -> __init__.py -> /usr/share/tagstore/tscore
+/home/mo/tagstore/research_platform/tagstore/tscore/store.py -> store.py -> /usr/share/tagstore/tscore
+/home/mo/tagstore/research_platform/tagstore/tsgui/tagdialog.py -> tagdialog.py -> /usr/share/tagstore/tsgui
+/home/mo/tagstore/research_platform/tagstore/tsgui/admindialog.py -> admindialog.py -> /usr/share/tagstore/tsgui
+/home/mo/tagstore/research_platform/tagstore/tsgui/tagcompleter.py -> tagcompleter.py -> /usr/share/tagstore/tsgui
+/home/mo/tagstore/research_platform/tagstore/tsgui/helpdialog.py -> helpdialog.py -> /usr/share/tagstore/tsgui
+/home/mo/tagstore/research_platform/tagstore/tsgui/syncdialog.py -> syncdialog.py -> /usr/share/tagstore/tsgui
+/home/mo/tagstore/research_platform/tagstore/tsgui/__init__.py -> __init__.py -> /usr/share/tagstore/tsgui
+/home/mo/tagstore/research_platform/tagstore/tsgui/wizard.py -> wizard.py -> /usr/share/tagstore/tsgui
+/home/mo/tagstore/research_platform/tagstore/tsgui/tagdialogstate.py -> tagdialogstate.py -> /usr/share/tagstore/tsgui
+/home/mo/tagstore/research_platform/tagstore/tsresources/conf/store.tgs.template -> store.tgs.template -> /usr/share/tagstore/tsresources/conf
+/home/mo/tagstore/research_platform/tagstore/tsresources/conf/tagstore.cfg -> tagstore.cfg -> /usr/share/tagstore/tsresources/conf
+/home/mo/tagstore/research_platform/tagstore/tsresources/conf/PID_FILE -> PID_FILE -> /usr/share/tagstore/tsresources/conf
+/home/mo/tagstore/research_platform/tagstore/tsresources/conf/store.cfg.template -> store.cfg.template -> /usr/share/tagstore/tsresources/conf
+/home/mo/tagstore/research_platform/tagstore/tsresources/conf/__init__.py -> __init__.py -> /usr/share/tagstore/tsresources/conf
+/home/mo/tagstore/research_platform/tagstore/tsresources/images/delete.png -> delete.png -> /usr/share/tagstore/tsresources/images
+/home/mo/tagstore/research_platform/tagstore/tsresources/images/help.png -> help.png -> /usr/share/tagstore/tsresources/images
+/home/mo/tagstore/research_platform/tagstore/tsresources/images/icon.png -> icon.png -> /usr/share/tagstore/tsresources/images
+/home/mo/tagstore/research_platform/tagstore/tsresources/images/logo.png -> logo.png -> /usr/share/tagstore/tsresources/images
+/home/mo/tagstore/research_platform/tagstore/tsresources/images/accept.png -> accept.png -> /usr/share/tagstore/tsresources/images
+/home/mo/tagstore/research_platform/tagstore/tsresources/images/__init__.py -> __init__.py -> /usr/share/tagstore/tsresources/images
+/home/mo/tagstore/research_platform/tagstore/tsresources/tagstore.pro -> tagstore.pro -> /usr/share/tagstore/tsresources
+/home/mo/tagstore/research_platform/tagstore/tsresources/tagstore_resources.qrc -> tagstore_resources.qrc -> /usr/share/tagstore/tsresources
+/home/mo/tagstore/research_platform/tagstore/tsresources/update_ts_de.ts.sh* -> update_ts_de.ts.sh -> /usr/share/tagstore/tsresources
+/home/mo/tagstore/research_platform/tagstore/tsresources/resources.py -> resources.py -> /usr/share/tagstore/tsresources
+/home/mo/tagstore/research_platform/tagstore/tsresources/ts_de.qm -> ts_de.qm -> /usr/share/tagstore/tsresources
+/home/mo/tagstore/research_platform/tagstore/tsresources/__init__.py -> __init__.py -> /usr/share/tagstore/tsresources
+/home/mo/tagstore/research_platform/tagstore/tsresources/ts_de.ts -> ts_de.ts -> /usr/share/tagstore/tsresources
+/home/mo/tagstore/research_platform/tagstore/tsos/osx.py -> osx.py -> /usr/share/tagstore/tsos
+/home/mo/tagstore/research_platform/tagstore/tsos/windows.py -> windows.py -> /usr/share/tagstore/tsos
+/home/mo/tagstore/research_platform/tagstore/tsos/filesystem.py -> filesystem.py -> /usr/share/tagstore/tsos
+/home/mo/tagstore/research_platform/tagstore/tsos/__init__.py -> __init__.py -> /usr/share/tagstore/tsos
+/home/mo/tagstore/research_platform/tagstore/tsos/linux.py -> linux.py -> /usr/share/tagstore/tsos
+/home/mo/tagstore/research_platform/tagstore/tstest/tsresources/conf/store.tgs.template -> store.tgs.template -> /usr/share/tagstore/tstest/tsresources/conf
+/home/mo/tagstore/research_platform/tagstore/tstest/tsresources/conf/store.cfg.template -> store.cfg.template -> /usr/share/tagstore/tstest/tsresources/conf
+/home/mo/tagstore/research_platform/tagstore/tstest/testsuite.py -> testsuite.py -> /usr/share/tagstore/tstest
+/home/mo/tagstore/research_platform/tagstore/tstest/.TESTSUITE_TAGFILE -> .TESTSUITE_TAGFILE -> /usr/share/tagstore/tstest
+/home/mo/tagstore/research_platform/tagstore/tstest/__init__.py -> __init__.py -> /usr/share/tagstore/tstest
+/home/mo/tagstore/research_platform/tagstore/tagstore_manager.pyw -> tagstore_manager.pyw -> /usr/share/tagstore
+/home/mo/tagstore/research_platform/tagstore/tagstore_retag.pyw -> tagstore_retag.pyw -> /usr/share/tagstore
+/home/mo/tagstore/research_platform/tagstore/README.txt -> README.txt -> /usr/share/tagstore
+/home/mo/tagstore/research_platform/tagstore/tagstore_retag.py -> tagstore_retag.py -> /usr/share/tagstore
+/home/mo/tagstore/research_platform/tagstore/tagstore_sync.py -> tagstore_sync.py -> /usr/share/tagstore
+/home/mo/tagstore/research_platform/tagstore/tagstore.pyw -> tagstore.pyw -> /usr/share/tagstore
+/home/mo/tagstore/research_platform/tagstore/tagstore.py -> tagstore.py -> /usr/share/tagstore
+/home/mo/tagstore/research_platform/tagstore/compile_sources.sh* -> compile_sources.sh -> /usr/share/tagstore
+/home/mo/tagstore/research_platform/tagstore/administration.pyw -> administration.pyw -> /usr/share/tagstore
+/home/mo/tagstore/research_platform/tagstore/tagstore_manager.py -> tagstore_manager.py -> /usr/share/tagstore
+<</FILES>>
+<<SCRIPTS>>
+<<PREINST>>
+0
+<</PREINST>>
+<<POSTINST>>
+0
+<</POSTINST>>
+<<PRERM>>
+0
+<</PRERM>>
+<<POSTRM>>
+0
+<</POSTRM>>
+<</SCRIPTS>>
+<<CHANGELOG>>
+<<DEST>>DEFAULT<</DEST>>
+tagstore (0.1.0) ; urgency=HIGH
+
+  * initial package
+
+ -- manfred oberlerchner <manfred.oberlerchner@drei.com>  Wed, 18 Jan 2012 21:36:22 +0100
+
+
+<</CHANGELOG>>
+<<COPYRIGHT>>
+#############################
+terms of license for TAGSTORE
+#############################
+
+tagstore is free software; 
+you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; 
+either version 3 of the License, or (at your option) any later version.
+
+tagstore is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with this program; 
+if not, see <http://www.gnu.org/licenses/>. 
+
+
+this file is part of tagstore, an alternative way of storing and retrieving information
+Copyright (C) 2010  Karl Voit, Christoph Friedl, Wolfgang Wintersteller
+/usr/share/common-licenses/GPL
+<</COPYRIGHT>>
+<<MENU>>
+1
+Name=tagstore
+Version=1.0
+Exec=/usr/share/tagstore/tagstore.py
+Comment=start tagstore
+Icon=/usr/share/tagstore/tsresources/images/logo.png
+Type=Application
+Terminal=true
+StartupNotify=true
+Encoding=UTF-8
+Categories=Development;
+<</MENU>>
+<<BUILD>>
+0
+0
+1
+<</BUILD>>
