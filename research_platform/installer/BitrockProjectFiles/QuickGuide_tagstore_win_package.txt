@@ -1,0 +1,88 @@
+
+Quick-Guide to build tagstore-windows packages with BitRock InstallBuilder (first draft)
+########################################################################################
+
+
+NOTES: scenario is identically for OS X - packaging, further infos see below 
+tool supports packaging for both
+
+assumption:
+-----------
+tagstore svn-working-directory
+C:\tagstore\research_platform\*
+
+
+preconditions:
+--------------
+- download 'BitRock InstallBuilder for Qt'
+from http://installbuilder.bitrock.com/download.html
+
+- free license available for this project --> karl voit
+
+- install 'BitRock InstallBuilder for Qt' 
+proposal: DefaultInstallation, because provided projectfiles including relative-path-details
+
+- checkout tagstore windows project files (language)
+C:\tagstore\research_platform\installer\BitrockProjectFiles\
+	tagstore_windows_de.xml
+	tagstore_windows_en.xml
+	
+	IMPORTANT: save project files in Bitrock-default-projectfile-directory
+	default: C:\Program Files\BitRock InstallBuilder for Qt *\projects
+
+- checkout latest tagstore-sources to local working-directory
+
+
+execution steps:
+----------------
+- start 'BitRock InstallBuilder for Qt' (Programs/BitRock InstallBuilder for Qt/*)
+
+- open tagstore windows project file, located under
+C:\Program Files\BitRock InstallBuilder for Qt *\projects\*
+
+based on your selected {installer_language}
+	tagstore_windows_de.xml if {installer_language = de}
+	tagstore_windows_en.xml if {installer_language = en}
+
+- navigate through project-file via sections on the left side
+
+- handle versioning on 'Product Details-section'
+
+- ADD 'new sources' on 'Files-section'
+
+- KEEP 'changed sources' untouched after latest update (newest versions of source will be taken automatically)
+
+
+********** IMPORTANT ***********
+
+take care and edit directly in config-file of tagstore your selected {installer_language} !!
+
+File
+C:\tagstore\research_platform\tagstore\tsresources\conf\tagstore.cfg
+
+parameter 
+current_language=de if {installer_language = de}
+
+parameter 
+current_language=en if {installer_language = en}
+
+********************************
+
+
+- select Build Platform 'Windows' on 'Packaging-section'
+
+- build new package on 'Packaging-section'
+
+- default output directory for package
+C:\Program Files\BitRock InstallBuilder for Qt *\output\*
+
+
+#####################
+NOTES for OS X:
+#####################
+
+only difference is to select Build Platform 'Mac OS X' on 'Packaging-section' before packaging
+tool supports packaging for both and project files are prepared accordingly
+
+known issue:
+- executable properties get lost during windows svn add/update
