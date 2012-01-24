@@ -1,12 +1,12 @@
  flmonflt
 
- Timestamp is 4f034820 (Tue Jan 03 19:25:36 2012)
+ Timestamp is 4f1ef926 (Tue Jan 24 19:32:06 2012)
 
  Preferred load address is 00010000
 
  Start         Length     Name                   Class
- 0001:00000000 0000257eH .text                   CODE
- 0001:00002580 000012c3H .text$s                 CODE
+ 0001:00000000 000027feH .text                   CODE
+ 0001:00002800 00001403H .text$s                 CODE
  0002:00000000 000000b4H .idata$5                DATA
  0002:000000c0 00000128H .rdata                  DATA
  0002:000001e8 00000061H .rdata$debug            DATA
@@ -29,172 +29,180 @@
  0001:000000d0       _DriverEntry@8             000110d0 f   filemon.obj
  0001:000004b0       _DriverUnload@4            000114b0 f   filemon.obj
  0001:00000560       _FlPostCreate@16           00011560 f   filemon.obj
+ 0001:00000780       _FlPreRead@12              00011780 f   filemon.obj
  0001:00000780       _FlPreCreate@12            00011780 f   filemon.obj
  0001:00000780       _FlPreCleanup@12           00011780 f   filemon.obj
- 0001:00000780       _FlPreRead@12              00011780 f   filemon.obj
- 0001:000007e0       _FlPostRead@16             000117e0 f   filemon.obj
- 0001:000008a0       _FlUserspaceConnect@20     000118a0 f   filemon.obj
- 0001:00000920       _DbgRaiseAssertionFailure@0 00011920 f i filemon.obj
- 0001:00000930       _FlUserspaceDisconnect@4   00011930 f   filemon.obj
- 0001:000009b0       _FlUserspaceNotify@24      000119b0 f   filemon.obj
- 0001:00000c80       _DirectoriesToWatchInit@0  00011c80 f   fldirectorylist.obj
- 0001:00000d60       _RtlInitEmptyUnicodeString@12 00011d60 f i fldirectorylist.obj
- 0001:00000d90       _DirectoryToWatchExists@4  00011d90 f   fldirectorylist.obj
- 0001:00000e10       _DirectoriesToWatchAdd@4   00011e10 f   fldirectorylist.obj
- 0001:00000ef0       _DirectoriesToWatchClear@4 00011ef0 f   fldirectorylist.obj
- 0001:00000f70       _DirectoriesToWatchPathValid@4 00011f70 f   fldirectorylist.obj
- 0001:00000fd0       _KMutexInit@4              00011fd0 f   flmutex.obj
- 0001:00000ff0       _KMutexAquire@4            00011ff0 f   flmutex.obj
- 0001:00001030       _KMutexRelease@4           00012030 f   flmutex.obj
- 0001:00001060       _FlTrackerInit@4           00012060 f   fltracker.obj
- 0001:000010c0       _FlTrackerAddEntry@12      000120c0 f   fltracker.obj
- 0001:00001270       _FlTrackerGetLastEntry@12  00012270 f   fltracker.obj
- 0001:00001300       _FlTrackerClean@4          00012300 f   fltracker.obj
- 0001:000013e0       _FlTrackerPrintListDbg@4   000123e0 f   fltracker.obj
- 0001:00001540       _FlTrackerEntryPrint@4     00012540 f   fltracker.obj
- 0001:00001610       _FlTrackerInfoToUserspace@8 00012610 f   fltracker.obj
- 0001:000019c0       _FlTrackerSetRead@8        000129c0 f   fltracker.obj
- 0001:00001a30       _FlTrackerEntryValid@4     00012a30 f   fltracker.obj
- 0001:00001a80       _FlTrackerSetLastEntry@4   00012a80 f   fltracker.obj
- 0001:00001ac0       _FlTrackerGetBestEntry@4   00012ac0 f   fltracker.obj
- 0001:00001c30       _UcFilenameInit@4          00012c30 f   flucfilename.obj
- 0001:00001cb0       _UcFilenameFree@4          00012cb0 f   flucfilename.obj
- 0001:00001d10       _UcFilenameCopy@8          00012d10 f   flucfilename.obj
- 0001:00001d50       _UcFilenameEqual@8         00012d50 f   flucfilename.obj
- 0001:00001da0       _UcFilenameStartsWith@8    00012da0 f   flucfilename.obj
- 0001:00001de0       _FlTimerThreadCreate@0     00012de0 f   fltimerthread.obj
- 0001:00001f10       _FlTimerThreadStop@0       00012f10 f   fltimerthread.obj
- 0001:00001fe0       _TimerThreadExecRoutine@4  00012fe0 f   fltimerthread.obj
- 0001:00002190       @__security_check_cookie@4 00013190 f   BufferOverflowK:secchk.obj
- 0001:000021a5       ___report_gsfailure        000131a5 f   BufferOverflowK:gs_report.obj
- 0001:000021d0       _DbgPrint                  000131d0 f   ntoskrnl:ntoskrnl.exe
- 0001:000021e0       __except_handler4          000131e0 f   ntoskrnl:chandler4.obj
- 0001:0000233a       _memset                    0001333a f   ntoskrnl:ntoskrnl.exe
- 0001:00002346       _memcpy                    00013346 f   ntoskrnl:ntoskrnl.exe
- 0001:00002354       __local_unwind4            00013354 f   ntoskrnl:exsup4.obj
- 0001:0000242a       __seh_longjmp_unwind4@4    0001342a f   ntoskrnl:exsup4.obj
- 0001:00002446       @_EH4_CallFilterFunc@8     00013446 f   ntoskrnl:exsup4.obj
- 0001:0000245d       @_EH4_TransferToHandler@8  0001345d f   ntoskrnl:exsup4.obj
- 0001:00002476       @_EH4_GlobalUnwind@4       00013476 f   ntoskrnl:exsup4.obj
- 0001:00002490       @_EH4_LocalUnwind@16       00013490 f   ntoskrnl:exsup4.obj
- 0001:000024ac       __NLG_Notify1              000134ac f   ntoskrnl:_nlgsupp.obj
- 0001:000024b5       __NLG_Notify               000134b5 f   ntoskrnl:_nlgsupp.obj
- 0001:000024cc       __NLG_Dispatch             000134cc     ntoskrnl:_nlgsupp.obj
- 0001:000024cc       __NLG_Dispatch2            000134cc     ntoskrnl:_nlgsupp.obj
- 0001:000024d4       __NLG_Call                 000134d4 f   ntoskrnl:_nlgsupp.obj
- 0001:000024d6       __NLG_Return2              000134d6     ntoskrnl:_nlgsupp.obj
- 0001:000024dc       _RtlUnwind@16              000134dc f   ntoskrnl:ntoskrnl.exe
- 0001:000024e8       _FltCloseCommunicationPort@4 000134e8 f   fltMgr:FLTMGR.SYS
- 0001:000024f4       _FltUnregisterFilter@4     000134f4 f   fltMgr:FLTMGR.SYS
- 0001:00002500       _FltStartFiltering@4       00013500 f   fltMgr:FLTMGR.SYS
- 0001:0000250c       _FltFreeSecurityDescriptor@4 0001350c f   fltMgr:FLTMGR.SYS
- 0001:00002518       _FltCreateCommunicationPort@32 00013518 f   fltMgr:FLTMGR.SYS
- 0001:00002524       _FltBuildDefaultSecurityDescriptor@8 00013524 f   fltMgr:FLTMGR.SYS
- 0001:00002530       _FltRegisterFilter@12      00013530 f   fltMgr:FLTMGR.SYS
- 0001:0000253c       _FltGetFileNameInformation@12 0001353c f   fltMgr:FLTMGR.SYS
- 0001:00002548       _FltIsDirectory@12         00013548 f   fltMgr:FLTMGR.SYS
- 0001:00002554       _FltReleaseFileNameInformation@4 00013554 f   fltMgr:FLTMGR.SYS
- 0001:00002560       _FltParseFileNameInformation@4 00013560 f   fltMgr:FLTMGR.SYS
- 0001:0000256c       _FltCloseClientPort@8      0001356c f   fltMgr:FLTMGR.SYS
- 0001:00002578       _FltSendMessage@28         00013578 f   fltMgr:FLTMGR.SYS
- 0001:00002580       ??_C@_0BN@HGBEOAFB@?$FLflmonflt?$FN?5Filter?5disabled?4?6?$AA@FNODOBFM@ 00013580     filemon.obj
- 0001:000025a0       ??_C@_0CF@FHAPKEBM@?$FLflmonflt?$FN?5Filter?5already?5disabl@FNODOBFM@ 000135a0     filemon.obj
- 0001:000025d0       ??_C@_0BP@CJOJGOFB@?$FLflmonflt?$FN?5Filter?5now?5active?4?6?$AA@FNODOBFM@ 000135d0     filemon.obj
- 0001:000025f0       ??_C@_0CD@INNPAKPK@?$FLflmonflt?$FN?5Filter?5already?5active@FNODOBFM@ 000135f0     filemon.obj
- 0001:00002620       ??_C@_0CM@LNABGHJJ@?$FLflmonflt?$FN?5Driver?5initialisation@FNODOBFM@ 00013620     filemon.obj
- 0001:00002650       ??_C@_0CI@HNHDMLOC@?$FLflmonflt?$FN?5FltStartFiltering?5ERR@FNODOBFM@ 00013650     filemon.obj
- 0001:00002680       ??_C@_0CE@ELEHEILK@?$FLflmonflt?$FN?5Port?5creation?5finishe@FNODOBFM@ 00013680     filemon.obj
- 0001:000026b0       ??_C@_0CB@NILLAGHO@?$FLflmonflt?$FN?5Port?5creation?5failed?4@FNODOBFM@ 000136b0     filemon.obj
- 0001:000026e0       ??_C@_1BO@IGGINGJM@?$AA?2?$AAF?$AAl?$AAF?$AAi?$AAl?$AAe?$AAM?$AAo?$AAn?$AAi?$AAt?$AAo?$AAr?$AA?$AA@FNODOBFM@ 000136e0     filemon.obj
- 0001:00002700       ??_C@_01EEMJAFIK@?6?$AA@FNODOBFM@ 00013700     filemon.obj
- 0001:00002710       ??_C@_0BD@FAIDAAMB@UNKNOWN?5ERROR?50x?$CFx?$AA@FNODOBFM@ 00013710     filemon.obj
- 0001:00002730       ??_C@_0BL@KCJGOPCJ@STATUS_FLT_NOT_INITIALIZED?$AA@FNODOBFM@ 00013730     filemon.obj
- 0001:00002750       ??_C@_0BJ@CHCEKHNN@STATUS_INVALID_PARAMETER?$AA@FNODOBFM@ 00013750     filemon.obj
- 0001:00002770       ??_C@_0BO@GKEDLFHB@STATUS_INSUFFICIENT_RESOURCES?$AA@FNODOBFM@ 00013770     filemon.obj
- 0001:00002790       ??_C@_0CH@CEIJHFMM@?$FLflmonflt?$FN?5Filter?5registration?5f@FNODOBFM@ 00013790     filemon.obj
- 0001:000027c0       ??_C@_0DF@CPLDFGIG@?$FLflmonflt?$FN?5Timer?5thread?5creation@FNODOBFM@ 000137c0     filemon.obj
- 0001:00002800       ??_C@_0BL@FLMJHKML@?$FLflmonflt?$FN?5Checked?5build?4?6?$AA@FNODOBFM@ 00013800     filemon.obj
- 0001:00002820       ??_C@_0EF@JEADKJNF@?$FLflmonflt?$FN?5Filemonitor?5Filter?5Dr@FNODOBFM@ 00013820     filemon.obj
- 0001:00002870       ??_C@_0L@EANPGPAM@1?40?40?5Beta?$AA@FNODOBFM@ 00013870     filemon.obj
- 0001:00002880       ??_C@_0BN@DFCIGNCC@?$FLflmonflt?$FN?5Driver?5unloaded?4?6?$AA@FNODOBFM@ 00013880     filemon.obj
- 0001:000028a0       ??_C@_0ED@PPOKNEAE@?$FLflmonflt?3POSTOP?3MJ_CREATE?$FN?5FlTr@FNODOBFM@ 000138a0     filemon.obj
- 0001:000028f0       ??_C@_0CF@MPDHJDKL@?$FLflmonflt?$FN?5SL_OPEN_TARGET_DIRECT@FNODOBFM@ 000138f0     filemon.obj
- 0001:00002920       ??_C@_0EA@HCLEHEAM@?$FLflmonflt?3POSTOP?3MJ_CREATE?$FN?5FltI@FNODOBFM@ 00013920     filemon.obj
- 0001:00002960       ??_C@_0DC@KILBJFGM@?$FLflmonflt?3POSTOP?3MJ_CREATE?$FN?5File@FNODOBFM@ 00013960     filemon.obj
- 0001:000029a0       ??_C@_0EL@LMOIIGMN@?$FLflmonflt?3POSTOP?3MJ_READ?$FN?5FltPar@FNODOBFM@ 000139a0     filemon.obj
- 0001:000029f0       ??_C@_0CF@FOPNHIJF@EX?3?5Pageable?5code?5called?5at?5IRQL@FNODOBFM@ 000139f0     filemon.obj
- 0001:00002a20       ??_C@_0CB@BHBMIMGE@?$FLflmonflt?$FN?5Userspace?5connected?4?6@FNODOBFM@ 00013a20     filemon.obj
- 0001:00002a50       ??_C@_0CE@ODLJGGGJ@?$FLflmonflt?$FN?5Userspace?5disconnecte@FNODOBFM@ 00013a50     filemon.obj
- 0001:00002a80       ??_C@_0DG@OHMKKDNH@?$FLflmonflt?$FN?5Userspace?5notify?0?5Inv@FNODOBFM@ 00013a80     filemon.obj
- 0001:00002ac0       ??_C@_0BO@IFDACPIL@?$FLflmonflt?$FN?5Filter?5state?3?5?$CFd?4?6?$AA@FNODOBFM@ 00013ac0     filemon.obj
- 0001:00002ae0       ??_C@_0DF@EMJIGBH@?$FLflmonflt?$FN?5Userspace?5notify?0?5Dir@FNODOBFM@ 00013ae0     filemon.obj
- 0001:00002b20       ??_C@_0DE@KIBJKFBH@?$FLflmonflt?$FN?5Userspace?5notify?0?5Dir@FNODOBFM@ 00013b20     filemon.obj
- 0001:00002b60       ??_C@_0DK@GBLLNDCM@?$FLflmonflt?$FN?5Userspace?5notify?0?5Inv@FNODOBFM@ 00013b60     filemon.obj
- 0001:00002ba0       ??_C@_0DB@DKINAJCH@?$FLflmonflt?$FN?5Userspace?5notify?0?5siz@FNODOBFM@ 00013ba0     filemon.obj
- 0001:00002be0       ??_C@_0EG@IEMFCKJ@?$FLflmonflt?$FN?5Userspace?5notify?0?5Inv@FNODOBFM@ 00013be0     filemon.obj
- 0001:00002c30       ??_C@_0EM@OGAJKDGG@?$FLflmonflt?$FN?5Userspace?5notify?0?5Inv@FNODOBFM@ 00013c30     filemon.obj
- 0001:00002c80       ??_C@_0EC@MNHHJEDB@?$FLflmonflt?$FN?5Userspace?5notify?0?5Inv@FNODOBFM@ 00013c80     filemon.obj
- 0001:00002cd0       ??_C@_1IC@JJLLICNC@?$AA?2?$AAD?$AAe?$AAv?$AAi?$AAc?$AAe?$AA?2?$AAH?$AAa?$AAr?$AAd?$AAd?$AAi?$AAs?$AAk?$AAV?$AAo?$AAl?$AAu?$AAm?$AAe?$AA1?$AA?2?$AAU?$AAs?$AAe?$AAr?$AAs?$AA?2?$AAA?$AAd@FNODOBFM@ 00013cd0     fldirectorylist.obj
- 0001:00002d60       ??_C@_0CF@CEADGJFL@?$FLflmonflt?$FN?5Directory?5list?5count?3@FNODOBFM@ 00013d60     fldirectorylist.obj
- 0001:00002d90       ??_C@_0CI@IGDNACBC@?$FLflmonflt?$FN?5Directory?5list?5initia@FNODOBFM@ 00013d90     fldirectorylist.obj
- 0001:00002dc0       ??_C@_0CB@EJCKPAAP@?$FLflmonflt?$FN?5Directory?5added?3?5?$CFwZ?6@FNODOBFM@ 00013dc0     fldirectorylist.obj
- 0001:00002df0       ??_C@_0CC@DHNAKFNE@?$FLflmonflt?$FN?5Directory?5exists?3?5?$CFwZ@FNODOBFM@ 00013df0     fldirectorylist.obj
- 0001:00002e20       ??_C@_0CB@PGDKIMPP@?$FLflmonflt?$FN?5Directory?5list?5full?4?6@FNODOBFM@ 00013e20     fldirectorylist.obj
- 0001:00002e50       ??_C@_0CE@GLCGLEEP@?$FLflmonflt?$FN?5Directory?5list?5cleare@FNODOBFM@ 00013e50     fldirectorylist.obj
- 0001:00002e80       ??_C@_0CF@JOAEPMNF@?$FLflmonflt?$FN?5Clearing?5directory?5li@FNODOBFM@ 00013e80     fldirectorylist.obj
- 0001:00002eb0       ??_C@_0CB@GNOJHBNJ@?$FLflmonflt?$FN?5Tracker?5initialized?4?6@FNODOBFM@ 00013eb0     fltracker.obj
- 0001:00002ee0       ??_C@_0CB@CFKNMECN@?$FLflmonflt?$FN?5Tracker?5init?5failed?4?6@FNODOBFM@ 00013ee0     fltracker.obj
- 0001:00002f10       ??_C@_0BF@IPKPFFAG@?$FLflmonflt?$FN?5?9?$DO?5?8?$CFwZ?8?6?$AA@FNODOBFM@ 00013f10     fltracker.obj
- 0001:00002f30       ??_C@_0CP@PFCAJEDF@?$FLflmonflt?$FN?5Tracker?5add?0?5str?5init@FNODOBFM@ 00013f30     fltracker.obj
- 0001:00002f60       ??_C@_0DE@KCGHKAHB@?$FLflmonflt?$FN?5Tracker?5add?0?5entry?5al@FNODOBFM@ 00013f60     fltracker.obj
- 0001:00002fa0       ??_C@_0BF@GEOGCCHP@?$FLflmonflt?$FN?5?$CL?$CL?5?8?$CFwZ?8?6?$AA@FNODOBFM@ 00013fa0     fltracker.obj
- 0001:00002fc0       ??_C@_0DH@NMFJAOGF@?$FLflmonflt?$FN?5Tracker?5?$CFd?5entries?5re@FNODOBFM@ 00013fc0     fltracker.obj
- 0001:00003000       ??_C@_0CD@DEAOLMKO@?$FLflmonflt?$FN?5Tracker?5empty?5in?5free@FNODOBFM@ 00014000     fltracker.obj
- 0001:00003030       ??_C@_0DN@JACCMLJE@?$FLflmonflt?$FN?5ERROR?3?5Tracker?5had?5mu@FNODOBFM@ 00014030     fltracker.obj
- 0001:00003070       ??_C@_0DJ@JOIHMPBM@?$FLflmonflt?$FN?5Tracker?5dbgprint?5end?5@FNODOBFM@ 00014070     fltracker.obj
- 0001:000030b0       ??_C@_0CG@HKCIGCNO@?5Path?3?5?$CFwZ?0?5Count?3?5?$CFd?0?5Readstate@FNODOBFM@ 000140b0     fltracker.obj
- 0001:000030e0       ??_C@_03EDEDJBEE@FIL?$AA@FNODOBFM@ 000140e0     fltracker.obj
- 0001:000030f0       ??_C@_03DNALGGBA@DIR?$AA@FNODOBFM@ 000140f0     fltracker.obj
- 0001:00003100       ??_C@_06POKNCOAC@INVAL?5?$AA@FNODOBFM@ 00014100     fltracker.obj
- 0001:00003110       ??_C@_06HPJKIGIE@VALID?5?$AA@FNODOBFM@ 00014110     fltracker.obj
- 0001:00003120       ??_C@_0BA@JHNJODD@?$FLftmonflt?$FN?5?$CFd?3?5?$AA@FNODOBFM@ 00014120     fltracker.obj
- 0001:00003130       ??_C@_0DM@HJDNMPNH@?$FLflmonflt?$FN?5Tracker?5dbgprint?5begi@FNODOBFM@ 00014130     fltracker.obj
- 0001:00003170       ??_C@_0M@GGLMIFNG@?$FLftmonflt?$FN?5?$AA@FNODOBFM@ 00014170     fltracker.obj
- 0001:00003180       ??_C@_0BP@MOMJIDOM@?$FLftmonflt?$FN?5Trackerentry?5NULL?4?6?$AA@FNODOBFM@ 00014180     fltracker.obj
- 0001:000031a0       ??_C@_0EM@MALNKGCC@?$FLflmonflt?3?3FlTrackerInfoToUsersp@FNODOBFM@ 000141a0     fltracker.obj
- 0001:000031f0       ??_C@_0BL@GHFIMKIO@?$FLflmonflt?$FN?5Send?5error?5?$CFd?4?6?$AA@FNODOBFM@ 000141f0     fltracker.obj
- 0001:00003210       ??_C@_0BM@HLAKACOO@?$FLflmonflt?$FN?5Send?5timed?5out?4?6?$AA@FNODOBFM@ 00014210     fltracker.obj
- 0001:00003230       ??_C@_0CC@PNBCBCFF@?$FLflmonflt?$FN?5Send?5OK?3?5len?$DN?$CFd?0?5?8?$CFs?8@FNODOBFM@ 00014230     fltracker.obj
- 0001:00003260       ??_C@_0BO@NGMFKHML@?$FLflmonflt?$FN?5Notify?5Type?3?5?8?$CFc?8?6?$AA@FNODOBFM@ 00014260     fltracker.obj
- 0001:00003280       ??_C@_0BO@KGGHJDFP@?$FLflmonflt?$FN?5Memcopy?$CI?$CFd?$CJ?3?5?8?$CFs?8?6?$AA@FNODOBFM@ 00014280     fltracker.obj
- 0001:000032a0       ??_C@_0CI@MCPANMDK@?$FLflmonflt?$FN?5Converted?5to?5ansi?$CI?$CFd?$CJ@FNODOBFM@ 000142a0     fltracker.obj
- 0001:000032d0       ??_C@_0BN@JLFBKILL@?$FLflmonflt?$FN?5Sending?5message?4?6?$AA@FNODOBFM@ 000142d0     fltracker.obj
- 0001:000032f0       ??_C@_0DN@HCFFDLCG@?$FLflmonflt?3?3FlTrackerInfoToUsersp@FNODOBFM@ 000142f0     fltracker.obj
- 0001:00003330       ??_C@_0FD@HCBMMKOD@?$FLflmonflt?3?3FlTrackerInfoToUsersp@FNODOBFM@ 00014330     fltracker.obj
- 0001:00003390       ??_C@_0BC@OEEAKBKE@?$FLflmonflt?$FN?5R?5?$CFwZ?6?$AA@FNODOBFM@ 00014390     fltracker.obj
- 0001:000033b0       ??_C@_0BL@LFIDFJHP@?$FLflmonflt?$FN?5FD?3?50x?$CFx?0?50x?$CFx?6?$AA@FNODOBFM@ 000143b0     fltracker.obj
- 0001:000033d0       ??_C@_0BM@OONJOEAH@?$FLflmonflt?$FN?5Last?5fcount?3?5?$CFd?6?$AA@FNODOBFM@ 000143d0     fltracker.obj
- 0001:000033f0       ??_C@_0BM@COCHKJI@?$FLflmonflt?$FN?5Last?5dcount?3?5?$CFd?6?$AA@FNODOBFM@ 000143f0     fltracker.obj
- 0001:00003410       ??_C@_0BN@GFEOBFLL@?$FLflmonflt?$FN?5Trackercount?3?5?$CFd?6?$AA@FNODOBFM@ 00014410     fltracker.obj
- 0001:00003430       ??_C@_0CO@MLPFCDE@?$FLflmonflt?$FN?5UcFilenameInit?3?5STATU@FNODOBFM@ 00014430     flucfilename.obj
- 0001:00003460       ??_C@_0DG@MLOMFLFE@?$FLflmonflt?$FN?5UcFilenameFree?3?5STATU@FNODOBFM@ 00014460     flucfilename.obj
- 0001:000034a0       ??_C@_0DI@OGAGEEIL@?$FLflmonflt?$FN?5UcFilenameCopy?3?5?$CI?$CBSrc@FNODOBFM@ 000144a0     flucfilename.obj
- 0001:000034e0       ??_C@_0DJ@OPJDJFDM@?$FLflmonflt?$FN?5UcFilenameEqual?3?5?$CI?$CBSr@FNODOBFM@ 000144e0     flucfilename.obj
- 0001:00003520       ??_C@_0DO@GPEFODGP@?$FLflmonflt?$FN?5UcFilenameStartsWith?3@FNODOBFM@ 00014520     flucfilename.obj
- 0001:00003560       ??_C@_0CM@DCMCJEBB@?$FLflmonflt?$FN?5PsCreateSystemThread?5@FNODOBFM@ 00014560     fltimerthread.obj
- 0001:00003590       ??_C@_0CO@EKGCDDGM@?$FLflmonflt?$FN?5PsCreateSystemThread?5@FNODOBFM@ 00014590     fltimerthread.obj
- 0001:000035c0       ??_C@_0CB@CJENCNFM@?$FLflmonflt?$FN?5Thread?5dereferenced?4?6@FNODOBFM@ 000145c0     fltimerthread.obj
- 0001:000035f0       ??_C@_0DB@DAIFMBAP@?$FLflmonflt?$FN?5Thread?5exited?0?5derefe@FNODOBFM@ 000145f0     fltimerthread.obj
- 0001:00003630       ??_C@_0CI@KDNMCIKF@?$FLflmonflt?$FN?5Waiting?5for?5thread?5to@FNODOBFM@ 00014630     fltimerthread.obj
- 0001:00003660       ??_C@_0CD@LLKBHHHH@?$FLflmonflt?$FN?5Stopping?5timer?5thread@FNODOBFM@ 00014660     fltimerthread.obj
- 0001:00003690       ??_C@_0CP@FBFHCBJK@?$FLflmonflt?$FN?5Terminating?5timer?5thr@FNODOBFM@ 00014690     fltimerthread.obj
- 0001:000036c0       ??_C@_0DL@KMDHKPCF@?$FLflmonflt?$FN?5?9?9?9?9?9?9?9?9?9?9?9?9?9?9?9?9?9?9?9?9?9@FNODOBFM@ 000146c0     fltimerthread.obj
- 0001:00003700       ??_C@_0DL@PMJNCAIG@?$FLflmonflt?$FN?5?$CK?$CK?$CK?$CK?$CK?$CK?$CK?$CK?$CK?$CK?$CK?$CK?$CK?$CK?$CK?$CK?$CK?$CK?$CK?$CK?$CK@FNODOBFM@ 00014700     fltimerthread.obj
- 0001:00003740       ??_C@_0DL@IENAPFMG@?$FLflmonflt?$FN?5?$CK?$CK?$CK?$CK?$CK?$CK?$CK?$CK?$CK?$CK?$CK?$CK?$CK?$CK?$CK?5Timer@FNODOBFM@ 00014740     fltimerthread.obj
- 0001:00003780       ??_C@_0BL@PIHADEAG@?$FLflmonflt?$FN?5Timer?5elapsed?4?6?$AA@FNODOBFM@ 00014780     fltimerthread.obj
- 0001:000037a0       ??_C@_0CJ@JFMDFHEE@?$FLflmonflt?$FN?5Waiting?5for?5timer?5to?5@FNODOBFM@ 000147a0     fltimerthread.obj
- 0001:000037d0       ??_C@_0EC@JAIKLJDK@?$FLflmonflt?$FN?5Terminating?5timer?5thr@FNODOBFM@ 000147d0     fltimerthread.obj
- 0001:00003820       ??_C@_0CD@NKDKOBND@?$FLflmonflt?$FN?5Starting?5timer?5thread@FNODOBFM@ 00014820     fltimerthread.obj
+ 0001:000007e0       _FlPostCleanup@16          000117e0 f   filemon.obj
+ 0001:00000890       _FlPostRead@16             00011890 f   filemon.obj
+ 0001:00000950       _FlUserspaceConnect@20     00011950 f   filemon.obj
+ 0001:000009d0       _DbgRaiseAssertionFailure@0 000119d0 f i filemon.obj
+ 0001:000009e0       _FlUserspaceDisconnect@4   000119e0 f   filemon.obj
+ 0001:00000a60       _FlUserspaceNotify@24      00011a60 f   filemon.obj
+ 0001:00000d30       _DirectoriesToWatchInit@0  00011d30 f   fldirectorylist.obj
+ 0001:00000e10       _RtlInitEmptyUnicodeString@12 00011e10 f i fldirectorylist.obj
+ 0001:00000e40       _DirectoryToWatchExists@4  00011e40 f   fldirectorylist.obj
+ 0001:00000ec0       _DirectoriesToWatchAdd@4   00011ec0 f   fldirectorylist.obj
+ 0001:00000fa0       _DirectoriesToWatchClear@4 00011fa0 f   fldirectorylist.obj
+ 0001:00001020       _DirectoriesToWatchPathValid@4 00012020 f   fldirectorylist.obj
+ 0001:00001080       _KMutexInit@4              00012080 f   flmutex.obj
+ 0001:000010a0       _KMutexAquire@4            000120a0 f   flmutex.obj
+ 0001:000010e0       _KMutexRelease@4           000120e0 f   flmutex.obj
+ 0001:00001110       _FlTrackerInit@4           00012110 f   fltracker.obj
+ 0001:00001170       _FlTrackerAddEntry@12      00012170 f   fltracker.obj
+ 0001:00001320       _FlTrackerRemoveEntry@12   00012320 f   fltracker.obj
+ 0001:000014f0       _FlTrackerGetLastEntry@12  000124f0 f   fltracker.obj
+ 0001:00001580       _FlTrackerClean@4          00012580 f   fltracker.obj
+ 0001:00001660       _FlTrackerPrintListDbg@4   00012660 f   fltracker.obj
+ 0001:000017c0       _FlTrackerEntryPrint@4     000127c0 f   fltracker.obj
+ 0001:00001890       _FlTrackerInfoToUserspace@8 00012890 f   fltracker.obj
+ 0001:00001c40       _FlTrackerSetRead@8        00012c40 f   fltracker.obj
+ 0001:00001cb0       _FlTrackerEntryValid@4     00012cb0 f   fltracker.obj
+ 0001:00001d00       _FlTrackerSetLastEntry@4   00012d00 f   fltracker.obj
+ 0001:00001d40       _FlTrackerGetBestEntry@4   00012d40 f   fltracker.obj
+ 0001:00001eb0       _UcFilenameInit@4          00012eb0 f   flucfilename.obj
+ 0001:00001f30       _UcFilenameFree@4          00012f30 f   flucfilename.obj
+ 0001:00001f90       _UcFilenameCopy@8          00012f90 f   flucfilename.obj
+ 0001:00001fd0       _UcFilenameEqual@8         00012fd0 f   flucfilename.obj
+ 0001:00002020       _UcFilenameStartsWith@8    00013020 f   flucfilename.obj
+ 0001:00002060       _FlTimerThreadCreate@0     00013060 f   fltimerthread.obj
+ 0001:00002190       _FlTimerThreadStop@0       00013190 f   fltimerthread.obj
+ 0001:00002260       _TimerThreadExecRoutine@4  00013260 f   fltimerthread.obj
+ 0001:00002410       @__security_check_cookie@4 00013410 f   BufferOverflowK:secchk.obj
+ 0001:00002425       ___report_gsfailure        00013425 f   BufferOverflowK:gs_report.obj
+ 0001:00002450       _DbgPrint                  00013450 f   ntoskrnl:ntoskrnl.exe
+ 0001:00002460       __except_handler4          00013460 f   ntoskrnl:chandler4.obj
+ 0001:000025ba       _memset                    000135ba f   ntoskrnl:ntoskrnl.exe
+ 0001:000025c6       _memcpy                    000135c6 f   ntoskrnl:ntoskrnl.exe
+ 0001:000025d4       __local_unwind4            000135d4 f   ntoskrnl:exsup4.obj
+ 0001:000026aa       __seh_longjmp_unwind4@4    000136aa f   ntoskrnl:exsup4.obj
+ 0001:000026c6       @_EH4_CallFilterFunc@8     000136c6 f   ntoskrnl:exsup4.obj
+ 0001:000026dd       @_EH4_TransferToHandler@8  000136dd f   ntoskrnl:exsup4.obj
+ 0001:000026f6       @_EH4_GlobalUnwind@4       000136f6 f   ntoskrnl:exsup4.obj
+ 0001:00002710       @_EH4_LocalUnwind@16       00013710 f   ntoskrnl:exsup4.obj
+ 0001:0000272c       __NLG_Notify1              0001372c f   ntoskrnl:_nlgsupp.obj
+ 0001:00002735       __NLG_Notify               00013735 f   ntoskrnl:_nlgsupp.obj
+ 0001:0000274c       __NLG_Dispatch2            0001374c     ntoskrnl:_nlgsupp.obj
+ 0001:0000274c       __NLG_Dispatch             0001374c     ntoskrnl:_nlgsupp.obj
+ 0001:00002754       __NLG_Call                 00013754 f   ntoskrnl:_nlgsupp.obj
+ 0001:00002756       __NLG_Return2              00013756     ntoskrnl:_nlgsupp.obj
+ 0001:0000275c       _RtlUnwind@16              0001375c f   ntoskrnl:ntoskrnl.exe
+ 0001:00002768       _FltCloseCommunicationPort@4 00013768 f   fltMgr:FLTMGR.SYS
+ 0001:00002774       _FltUnregisterFilter@4     00013774 f   fltMgr:FLTMGR.SYS
+ 0001:00002780       _FltStartFiltering@4       00013780 f   fltMgr:FLTMGR.SYS
+ 0001:0000278c       _FltFreeSecurityDescriptor@4 0001378c f   fltMgr:FLTMGR.SYS
+ 0001:00002798       _FltCreateCommunicationPort@32 00013798 f   fltMgr:FLTMGR.SYS
+ 0001:000027a4       _FltBuildDefaultSecurityDescriptor@8 000137a4 f   fltMgr:FLTMGR.SYS
+ 0001:000027b0       _FltRegisterFilter@12      000137b0 f   fltMgr:FLTMGR.SYS
+ 0001:000027bc       _FltGetFileNameInformation@12 000137bc f   fltMgr:FLTMGR.SYS
+ 0001:000027c8       _FltIsDirectory@12         000137c8 f   fltMgr:FLTMGR.SYS
+ 0001:000027d4       _FltReleaseFileNameInformation@4 000137d4 f   fltMgr:FLTMGR.SYS
+ 0001:000027e0       _FltParseFileNameInformation@4 000137e0 f   fltMgr:FLTMGR.SYS
+ 0001:000027ec       _FltCloseClientPort@8      000137ec f   fltMgr:FLTMGR.SYS
+ 0001:000027f8       _FltSendMessage@28         000137f8 f   fltMgr:FLTMGR.SYS
+ 0001:00002800       ??_C@_0BN@HGBEOAFB@?$FLflmonflt?$FN?5Filter?5disabled?4?6?$AA@FNODOBFM@ 00013800     filemon.obj
+ 0001:00002820       ??_C@_0CF@FHAPKEBM@?$FLflmonflt?$FN?5Filter?5already?5disabl@FNODOBFM@ 00013820     filemon.obj
+ 0001:00002850       ??_C@_0BP@CJOJGOFB@?$FLflmonflt?$FN?5Filter?5now?5active?4?6?$AA@FNODOBFM@ 00013850     filemon.obj
+ 0001:00002870       ??_C@_0CD@INNPAKPK@?$FLflmonflt?$FN?5Filter?5already?5active@FNODOBFM@ 00013870     filemon.obj
+ 0001:000028a0       ??_C@_0CM@LNABGHJJ@?$FLflmonflt?$FN?5Driver?5initialisation@FNODOBFM@ 000138a0     filemon.obj
+ 0001:000028d0       ??_C@_0CI@HNHDMLOC@?$FLflmonflt?$FN?5FltStartFiltering?5ERR@FNODOBFM@ 000138d0     filemon.obj
+ 0001:00002900       ??_C@_0CE@ELEHEILK@?$FLflmonflt?$FN?5Port?5creation?5finishe@FNODOBFM@ 00013900     filemon.obj
+ 0001:00002930       ??_C@_0CB@NILLAGHO@?$FLflmonflt?$FN?5Port?5creation?5failed?4@FNODOBFM@ 00013930     filemon.obj
+ 0001:00002960       ??_C@_1BO@IGGINGJM@?$AA?2?$AAF?$AAl?$AAF?$AAi?$AAl?$AAe?$AAM?$AAo?$AAn?$AAi?$AAt?$AAo?$AAr?$AA?$AA@FNODOBFM@ 00013960     filemon.obj
+ 0001:00002980       ??_C@_01EEMJAFIK@?6?$AA@FNODOBFM@ 00013980     filemon.obj
+ 0001:00002990       ??_C@_0BD@FAIDAAMB@UNKNOWN?5ERROR?50x?$CFx?$AA@FNODOBFM@ 00013990     filemon.obj
+ 0001:000029b0       ??_C@_0BL@KCJGOPCJ@STATUS_FLT_NOT_INITIALIZED?$AA@FNODOBFM@ 000139b0     filemon.obj
+ 0001:000029d0       ??_C@_0BJ@CHCEKHNN@STATUS_INVALID_PARAMETER?$AA@FNODOBFM@ 000139d0     filemon.obj
+ 0001:000029f0       ??_C@_0BO@GKEDLFHB@STATUS_INSUFFICIENT_RESOURCES?$AA@FNODOBFM@ 000139f0     filemon.obj
+ 0001:00002a10       ??_C@_0CH@CEIJHFMM@?$FLflmonflt?$FN?5Filter?5registration?5f@FNODOBFM@ 00013a10     filemon.obj
+ 0001:00002a40       ??_C@_0DF@CPLDFGIG@?$FLflmonflt?$FN?5Timer?5thread?5creation@FNODOBFM@ 00013a40     filemon.obj
+ 0001:00002a80       ??_C@_0BL@FLMJHKML@?$FLflmonflt?$FN?5Checked?5build?4?6?$AA@FNODOBFM@ 00013a80     filemon.obj
+ 0001:00002aa0       ??_C@_0EF@JEADKJNF@?$FLflmonflt?$FN?5Filemonitor?5Filter?5Dr@FNODOBFM@ 00013aa0     filemon.obj
+ 0001:00002af0       ??_C@_0L@EANPGPAM@1?40?40?5Beta?$AA@FNODOBFM@ 00013af0     filemon.obj
+ 0001:00002b00       ??_C@_0BN@DFCIGNCC@?$FLflmonflt?$FN?5Driver?5unloaded?4?6?$AA@FNODOBFM@ 00013b00     filemon.obj
+ 0001:00002b20       ??_C@_0ED@PPOKNEAE@?$FLflmonflt?3POSTOP?3MJ_CREATE?$FN?5FlTr@FNODOBFM@ 00013b20     filemon.obj
+ 0001:00002b70       ??_C@_0CF@MPDHJDKL@?$FLflmonflt?$FN?5SL_OPEN_TARGET_DIRECT@FNODOBFM@ 00013b70     filemon.obj
+ 0001:00002ba0       ??_C@_0EA@HCLEHEAM@?$FLflmonflt?3POSTOP?3MJ_CREATE?$FN?5FltI@FNODOBFM@ 00013ba0     filemon.obj
+ 0001:00002be0       ??_C@_0DC@KILBJFGM@?$FLflmonflt?3POSTOP?3MJ_CREATE?$FN?5File@FNODOBFM@ 00013be0     filemon.obj
+ 0001:00002c20       ??_C@_0EO@MHPCIJAM@?$FLflmonflt?3POSTOP?3MJ_CLEANUP?$FN?5Flt@FNODOBFM@ 00013c20     filemon.obj
+ 0001:00002c70       ??_C@_0EL@LMOIIGMN@?$FLflmonflt?3POSTOP?3MJ_READ?$FN?5FltPar@FNODOBFM@ 00013c70     filemon.obj
+ 0001:00002cc0       ??_C@_0CF@FOPNHIJF@EX?3?5Pageable?5code?5called?5at?5IRQL@FNODOBFM@ 00013cc0     filemon.obj
+ 0001:00002cf0       ??_C@_0CB@BHBMIMGE@?$FLflmonflt?$FN?5Userspace?5connected?4?6@FNODOBFM@ 00013cf0     filemon.obj
+ 0001:00002d20       ??_C@_0CE@ODLJGGGJ@?$FLflmonflt?$FN?5Userspace?5disconnecte@FNODOBFM@ 00013d20     filemon.obj
+ 0001:00002d50       ??_C@_0DG@OHMKKDNH@?$FLflmonflt?$FN?5Userspace?5notify?0?5Inv@FNODOBFM@ 00013d50     filemon.obj
+ 0001:00002d90       ??_C@_0BO@IFDACPIL@?$FLflmonflt?$FN?5Filter?5state?3?5?$CFd?4?6?$AA@FNODOBFM@ 00013d90     filemon.obj
+ 0001:00002db0       ??_C@_0DF@EMJIGBH@?$FLflmonflt?$FN?5Userspace?5notify?0?5Dir@FNODOBFM@ 00013db0     filemon.obj
+ 0001:00002df0       ??_C@_0DE@KIBJKFBH@?$FLflmonflt?$FN?5Userspace?5notify?0?5Dir@FNODOBFM@ 00013df0     filemon.obj
+ 0001:00002e30       ??_C@_0DK@GBLLNDCM@?$FLflmonflt?$FN?5Userspace?5notify?0?5Inv@FNODOBFM@ 00013e30     filemon.obj
+ 0001:00002e70       ??_C@_0DB@DKINAJCH@?$FLflmonflt?$FN?5Userspace?5notify?0?5siz@FNODOBFM@ 00013e70     filemon.obj
+ 0001:00002eb0       ??_C@_0EG@IEMFCKJ@?$FLflmonflt?$FN?5Userspace?5notify?0?5Inv@FNODOBFM@ 00013eb0     filemon.obj
+ 0001:00002f00       ??_C@_0EM@OGAJKDGG@?$FLflmonflt?$FN?5Userspace?5notify?0?5Inv@FNODOBFM@ 00013f00     filemon.obj
+ 0001:00002f50       ??_C@_0EC@MNHHJEDB@?$FLflmonflt?$FN?5Userspace?5notify?0?5Inv@FNODOBFM@ 00013f50     filemon.obj
+ 0001:00002fa0       ??_C@_1IC@JJLLICNC@?$AA?2?$AAD?$AAe?$AAv?$AAi?$AAc?$AAe?$AA?2?$AAH?$AAa?$AAr?$AAd?$AAd?$AAi?$AAs?$AAk?$AAV?$AAo?$AAl?$AAu?$AAm?$AAe?$AA1?$AA?2?$AAU?$AAs?$AAe?$AAr?$AAs?$AA?2?$AAA?$AAd@FNODOBFM@ 00013fa0     fldirectorylist.obj
+ 0001:00003030       ??_C@_0CF@CEADGJFL@?$FLflmonflt?$FN?5Directory?5list?5count?3@FNODOBFM@ 00014030     fldirectorylist.obj
+ 0001:00003060       ??_C@_0CI@IGDNACBC@?$FLflmonflt?$FN?5Directory?5list?5initia@FNODOBFM@ 00014060     fldirectorylist.obj
+ 0001:00003090       ??_C@_0CB@EJCKPAAP@?$FLflmonflt?$FN?5Directory?5added?3?5?$CFwZ?6@FNODOBFM@ 00014090     fldirectorylist.obj
+ 0001:000030c0       ??_C@_0CC@DHNAKFNE@?$FLflmonflt?$FN?5Directory?5exists?3?5?$CFwZ@FNODOBFM@ 000140c0     fldirectorylist.obj
+ 0001:000030f0       ??_C@_0CB@PGDKIMPP@?$FLflmonflt?$FN?5Directory?5list?5full?4?6@FNODOBFM@ 000140f0     fldirectorylist.obj
+ 0001:00003120       ??_C@_0CE@GLCGLEEP@?$FLflmonflt?$FN?5Directory?5list?5cleare@FNODOBFM@ 00014120     fldirectorylist.obj
+ 0001:00003150       ??_C@_0CF@JOAEPMNF@?$FLflmonflt?$FN?5Clearing?5directory?5li@FNODOBFM@ 00014150     fldirectorylist.obj
+ 0001:00003180       ??_C@_0CB@GNOJHBNJ@?$FLflmonflt?$FN?5Tracker?5initialized?4?6@FNODOBFM@ 00014180     fltracker.obj
+ 0001:000031b0       ??_C@_0CB@CFKNMECN@?$FLflmonflt?$FN?5Tracker?5init?5failed?4?6@FNODOBFM@ 000141b0     fltracker.obj
+ 0001:000031e0       ??_C@_0BF@IPKPFFAG@?$FLflmonflt?$FN?5?9?$DO?5?8?$CFwZ?8?6?$AA@FNODOBFM@ 000141e0     fltracker.obj
+ 0001:00003200       ??_C@_0CP@PFCAJEDF@?$FLflmonflt?$FN?5Tracker?5add?0?5str?5init@FNODOBFM@ 00014200     fltracker.obj
+ 0001:00003230       ??_C@_0DE@KCGHKAHB@?$FLflmonflt?$FN?5Tracker?5add?0?5entry?5al@FNODOBFM@ 00014230     fltracker.obj
+ 0001:00003270       ??_C@_0BF@GEOGCCHP@?$FLflmonflt?$FN?5?$CL?$CL?5?8?$CFwZ?8?6?$AA@FNODOBFM@ 00014270     fltracker.obj
+ 0001:00003290       ??_C@_0DD@BFELMBIN@?$FLflmonflt?$FN?5Tracker?5remove?5err?0?5n@FNODOBFM@ 00014290     fltracker.obj
+ 0001:000032d0       ??_C@_0BF@NCIOMBGE@?$FLflmonflt?$FN?5?$DM?9?5?8?$CFwZ?8?6?$AA@FNODOBFM@ 000142d0     fltracker.obj
+ 0001:000032f0       ??_C@_0BF@BKOCCLLC@?$FLflmonflt?$FN?5?9?9?5?8?$CFwZ?8?6?$AA@FNODOBFM@ 000142f0     fltracker.obj
+ 0001:00003310       ??_C@_0CP@MOMABKCB@?$FLflmonflt?$FN?5Tracker?5remove?5err?0?5e@FNODOBFM@ 00014310     fltracker.obj
+ 0001:00003340       ??_C@_0DF@IDOFHFIJ@?$FLflmonflt?$FN?5Tracker?5remove?5err?0?5w@FNODOBFM@ 00014340     fltracker.obj
+ 0001:00003380       ??_C@_0DH@NMFJAOGF@?$FLflmonflt?$FN?5Tracker?5?$CFd?5entries?5re@FNODOBFM@ 00014380     fltracker.obj
+ 0001:000033c0       ??_C@_0CD@DEAOLMKO@?$FLflmonflt?$FN?5Tracker?5empty?5in?5free@FNODOBFM@ 000143c0     fltracker.obj
+ 0001:000033f0       ??_C@_0DN@JACCMLJE@?$FLflmonflt?$FN?5ERROR?3?5Tracker?5had?5mu@FNODOBFM@ 000143f0     fltracker.obj
+ 0001:00003430       ??_C@_0DJ@JOIHMPBM@?$FLflmonflt?$FN?5Tracker?5dbgprint?5end?5@FNODOBFM@ 00014430     fltracker.obj
+ 0001:00003470       ??_C@_0CG@HKCIGCNO@?5Path?3?5?$CFwZ?0?5Count?3?5?$CFd?0?5Readstate@FNODOBFM@ 00014470     fltracker.obj
+ 0001:000034a0       ??_C@_03EDEDJBEE@FIL?$AA@FNODOBFM@ 000144a0     fltracker.obj
+ 0001:000034b0       ??_C@_03DNALGGBA@DIR?$AA@FNODOBFM@ 000144b0     fltracker.obj
+ 0001:000034c0       ??_C@_06POKNCOAC@INVAL?5?$AA@FNODOBFM@ 000144c0     fltracker.obj
+ 0001:000034d0       ??_C@_06HPJKIGIE@VALID?5?$AA@FNODOBFM@ 000144d0     fltracker.obj
+ 0001:000034e0       ??_C@_0BA@JHNJODD@?$FLftmonflt?$FN?5?$CFd?3?5?$AA@FNODOBFM@ 000144e0     fltracker.obj
+ 0001:000034f0       ??_C@_0DM@HJDNMPNH@?$FLflmonflt?$FN?5Tracker?5dbgprint?5begi@FNODOBFM@ 000144f0     fltracker.obj
+ 0001:00003530       ??_C@_0M@GGLMIFNG@?$FLftmonflt?$FN?5?$AA@FNODOBFM@ 00014530     fltracker.obj
+ 0001:00003540       ??_C@_0BP@MOMJIDOM@?$FLftmonflt?$FN?5Trackerentry?5NULL?4?6?$AA@FNODOBFM@ 00014540     fltracker.obj
+ 0001:00003560       ??_C@_0EM@MALNKGCC@?$FLflmonflt?3?3FlTrackerInfoToUsersp@FNODOBFM@ 00014560     fltracker.obj
+ 0001:000035b0       ??_C@_0BL@GHFIMKIO@?$FLflmonflt?$FN?5Send?5error?5?$CFd?4?6?$AA@FNODOBFM@ 000145b0     fltracker.obj
+ 0001:000035d0       ??_C@_0BM@HLAKACOO@?$FLflmonflt?$FN?5Send?5timed?5out?4?6?$AA@FNODOBFM@ 000145d0     fltracker.obj
+ 0001:000035f0       ??_C@_0CC@PNBCBCFF@?$FLflmonflt?$FN?5Send?5OK?3?5len?$DN?$CFd?0?5?8?$CFs?8@FNODOBFM@ 000145f0     fltracker.obj
+ 0001:00003620       ??_C@_0BO@NGMFKHML@?$FLflmonflt?$FN?5Notify?5Type?3?5?8?$CFc?8?6?$AA@FNODOBFM@ 00014620     fltracker.obj
+ 0001:00003640       ??_C@_0BO@KGGHJDFP@?$FLflmonflt?$FN?5Memcopy?$CI?$CFd?$CJ?3?5?8?$CFs?8?6?$AA@FNODOBFM@ 00014640     fltracker.obj
+ 0001:00003660       ??_C@_0CI@MCPANMDK@?$FLflmonflt?$FN?5Converted?5to?5ansi?$CI?$CFd?$CJ@FNODOBFM@ 00014660     fltracker.obj
+ 0001:00003690       ??_C@_0BN@JLFBKILL@?$FLflmonflt?$FN?5Sending?5message?4?6?$AA@FNODOBFM@ 00014690     fltracker.obj
+ 0001:000036b0       ??_C@_0DN@HCFFDLCG@?$FLflmonflt?3?3FlTrackerInfoToUsersp@FNODOBFM@ 000146b0     fltracker.obj
+ 0001:000036f0       ??_C@_0FD@HCBMMKOD@?$FLflmonflt?3?3FlTrackerInfoToUsersp@FNODOBFM@ 000146f0     fltracker.obj
+ 0001:00003750       ??_C@_0BC@OEEAKBKE@?$FLflmonflt?$FN?5R?5?$CFwZ?6?$AA@FNODOBFM@ 00014750     fltracker.obj
+ 0001:00003770       ??_C@_0BL@LFIDFJHP@?$FLflmonflt?$FN?5FD?3?50x?$CFx?0?50x?$CFx?6?$AA@FNODOBFM@ 00014770     fltracker.obj
+ 0001:00003790       ??_C@_0BM@OONJOEAH@?$FLflmonflt?$FN?5Last?5fcount?3?5?$CFd?6?$AA@FNODOBFM@ 00014790     fltracker.obj
+ 0001:000037b0       ??_C@_0BM@COCHKJI@?$FLflmonflt?$FN?5Last?5dcount?3?5?$CFd?6?$AA@FNODOBFM@ 000147b0     fltracker.obj
+ 0001:000037d0       ??_C@_0BN@GFEOBFLL@?$FLflmonflt?$FN?5Trackercount?3?5?$CFd?6?$AA@FNODOBFM@ 000147d0     fltracker.obj
+ 0001:000037f0       ??_C@_0CO@MLPFCDE@?$FLflmonflt?$FN?5UcFilenameInit?3?5STATU@FNODOBFM@ 000147f0     flucfilename.obj
+ 0001:00003820       ??_C@_0DG@MLOMFLFE@?$FLflmonflt?$FN?5UcFilenameFree?3?5STATU@FNODOBFM@ 00014820     flucfilename.obj
+ 0001:00003860       ??_C@_0DI@OGAGEEIL@?$FLflmonflt?$FN?5UcFilenameCopy?3?5?$CI?$CBSrc@FNODOBFM@ 00014860     flucfilename.obj
+ 0001:000038a0       ??_C@_0DJ@OPJDJFDM@?$FLflmonflt?$FN?5UcFilenameEqual?3?5?$CI?$CBSr@FNODOBFM@ 000148a0     flucfilename.obj
+ 0001:000038e0       ??_C@_0DO@GPEFODGP@?$FLflmonflt?$FN?5UcFilenameStartsWith?3@FNODOBFM@ 000148e0     flucfilename.obj
+ 0001:00003920       ??_C@_0CM@DCMCJEBB@?$FLflmonflt?$FN?5PsCreateSystemThread?5@FNODOBFM@ 00014920     fltimerthread.obj
+ 0001:00003950       ??_C@_0CO@EKGCDDGM@?$FLflmonflt?$FN?5PsCreateSystemThread?5@FNODOBFM@ 00014950     fltimerthread.obj
+ 0001:00003980       ??_C@_0CB@CJENCNFM@?$FLflmonflt?$FN?5Thread?5dereferenced?4?6@FNODOBFM@ 00014980     fltimerthread.obj
+ 0001:000039b0       ??_C@_0DB@DAIFMBAP@?$FLflmonflt?$FN?5Thread?5exited?0?5derefe@FNODOBFM@ 000149b0     fltimerthread.obj
+ 0001:000039f0       ??_C@_0CI@KDNMCIKF@?$FLflmonflt?$FN?5Waiting?5for?5thread?5to@FNODOBFM@ 000149f0     fltimerthread.obj
+ 0001:00003a20       ??_C@_0CD@LLKBHHHH@?$FLflmonflt?$FN?5Stopping?5timer?5thread@FNODOBFM@ 00014a20     fltimerthread.obj
+ 0001:00003a50       ??_C@_0CP@FBFHCBJK@?$FLflmonflt?$FN?5Terminating?5timer?5thr@FNODOBFM@ 00014a50     fltimerthread.obj
+ 0001:00003a80       ??_C@_0DL@KMDHKPCF@?$FLflmonflt?$FN?5?9?9?9?9?9?9?9?9?9?9?9?9?9?9?9?9?9?9?9?9?9@FNODOBFM@ 00014a80     fltimerthread.obj
+ 0001:00003ac0       ??_C@_0DL@PMJNCAIG@?$FLflmonflt?$FN?5?$CK?$CK?$CK?$CK?$CK?$CK?$CK?$CK?$CK?$CK?$CK?$CK?$CK?$CK?$CK?$CK?$CK?$CK?$CK?$CK?$CK@FNODOBFM@ 00014ac0     fltimerthread.obj
+ 0001:00003b00       ??_C@_0DL@IENAPFMG@?$FLflmonflt?$FN?5?$CK?$CK?$CK?$CK?$CK?$CK?$CK?$CK?$CK?$CK?$CK?$CK?$CK?$CK?$CK?5Timer@FNODOBFM@ 00014b00     fltimerthread.obj
+ 0001:00003b40       ??_C@_0BL@PIHADEAG@?$FLflmonflt?$FN?5Timer?5elapsed?4?6?$AA@FNODOBFM@ 00014b40     fltimerthread.obj
+ 0001:00003b60       ??_C@_0CJ@JFMDFHEE@?$FLflmonflt?$FN?5Waiting?5for?5timer?5to?5@FNODOBFM@ 00014b60     fltimerthread.obj
+ 0001:00003b90       ??_C@_0EC@JAIKLJDK@?$FLflmonflt?$FN?5Terminating?5timer?5thr@FNODOBFM@ 00014b90     fltimerthread.obj
+ 0001:00003be0       ??_C@_0CD@NKDKOBND@?$FLflmonflt?$FN?5Starting?5timer?5thread@FNODOBFM@ 00014be0     fltimerthread.obj
  0002:00000000       __imp__FltCloseClientPort@8 00015000     fltMgr:FLTMGR.SYS
  0002:00000004       __imp__FltParseFileNameInformation@4 00015004     fltMgr:FLTMGR.SYS
  0002:00000008       __imp__FltReleaseFileNameInformation@4 00015008     fltMgr:FLTMGR.SYS
@@ -265,4 +273,4 @@
 
  Static symbols
 
- 0001:000023e4       __unwind_handler4          000133e4 f   ntoskrnl:exsup4.obj
+ 0001:00002664       __unwind_handler4          00013664 f   ntoskrnl:exsup4.obj

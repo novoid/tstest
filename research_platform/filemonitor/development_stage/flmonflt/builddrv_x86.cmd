@@ -1,7 +1,7 @@
 @echo on
 
-set OPSYS=WIN7
-#set OPSYS=WXP
+rem set OPSYS=WIN7
+set OPSYS=WXP
 
 set CHK=fre
 set BUILD_OTIONS=/w /b 

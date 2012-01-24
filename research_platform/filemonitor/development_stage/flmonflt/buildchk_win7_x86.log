@@ -70,14 +70,9 @@ oacr invalidate root:x86chk /autocleanqueue
 1> /wd4627
 1> /typedil-
 1> /FID:\WinDDK\7600.16385.1\inc\api\warning.h
-1> .\filemon.c .\fldebug.c .\fldirectorylist.c .\flmutex.c .\fltracker.c .\flucfilename.c .\fltimerthread.c 
+1> .\filemon.c .\fldebug.c 
 1>filemon.c
 1>fldebug.c
-1>fldirectorylist.c
-1>flmutex.c
-1>fltracker.c
-1>flucfilename.c
-1>fltimerthread.c
 1>Generating Code...
 1> D:\WinDDK\7600.16385.1\Bin\x86\oacr\oacrlink /out:d:\daten\projekte\filemonitor\flmonflt\objchk_win7_x86\i386\flmonflt.sys /machine:ix86 @d:\daten\projekte\filemonitor\flmonflt\objchk_win7_x86\i386\lnk.rsp
 1>Microsoft (R) Incremental Linker Version 9.00.30729.207

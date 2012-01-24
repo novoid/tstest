@@ -170,8 +170,11 @@ void
 			DBGPRINT("FILE_OPEN_FOR_BACKUP_INTENT\n");
 		if (Data->Iopb->Parameters.Create.Options & FILE_RESERVE_OPFILTER )
 			DBGPRINT("FILE_RESERVE_OPFILTER \n");
-		if (Data->Iopb->Parameters.Create.Options & FILE_OPEN_REQUIRING_OPLOCK)
-			DBGPRINT("FILE_OPEN_REQUIRING_OPLOCK\n");
+
+//		if (Data->Iopb->Parameters.Create.Options & FILE_OPEN_REQUIRING_OPLOCK)
+//			DBGPRINT("FILE_OPEN_REQUIRING_OPLOCK\n");
+
+
 		if (Data->Iopb->Parameters.Create.Options & FILE_COMPLETE_IF_OPLOCKED)
 			DBGPRINT("FILE_COMPLETE_IF_OPLOCKED\n");
 

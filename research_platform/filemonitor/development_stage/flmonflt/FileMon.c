@@ -125,7 +125,7 @@ const FLT_OPERATION_REGISTRATION Callbacks[] =
 		IRP_MJ_CLEANUP,
 		0,
 		FlPreCleanup,
-		NULL
+		FlPostCleanup
 	},
 	
 	{ 

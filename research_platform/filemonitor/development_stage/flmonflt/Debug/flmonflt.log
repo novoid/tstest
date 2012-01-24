@@ -1,9 +1,7 @@
-﻿Der Buildvorgang wurde am 03.01.2012 19:25:33 gestartet.
+﻿Der Buildvorgang wurde am 24.01.2012 19:32:04 gestartet.
      1>Projekt "D:\Daten\Projekte\FileMonitor\flmonflt\flmonflt.vcxproj" auf Knoten "2", build Ziel(e).
      1>Build:
          builddrv_chk_x86.cmd
-         Der Befehl "#set" ist entweder falsch geschrieben oder
-         konnte nicht gefunden werden.
          OACR monitor running already
          path contains nonexistant d:\program files (x86)\microsoft visual studio 10.0\common7\tools\bin, removing
          BUILD: Compile and Link for x86
@@ -12,7 +10,7 @@
          
          BUILD: Computing Include file dependencies:
          
-         BUILD: Start time: Tue Jan 03 19:25:33 2012
+         BUILD: Start time: Tue Jan 24 19:32:04 2012
          BUILD: Examining d:\daten\projekte\filemonitor\flmonflt directory for files to compile.
          
              d:\daten\projekte\filemonitor\flmonflt 
@@ -25,20 +23,21 @@
          Configuring OACR for 'root:x86chk' - <OACR on>
          Compiling - filemon.c
          Compiling - fldebug.c
-         Compiling - fldirectorylist.c
-         Compiling - flmutex.c
-         Compiling - fltracker.c
-         Compiling - flucfilename.c
-         Compiling - fltimerthread.c
          Compiling - generating code...
          Linking Executable - objchk_win7_x86\i386\flmonflt.sys
-         BUILD: Finish time: Tue Jan 03 19:25:36 2012
+         BUILD: Finish time: Tue Jan 24 19:32:06 2012
          BUILD: Done
          
          
          
-             9 files compiled - 1 Warning
+             4 files compiled - 1 Warning
          
              1 executable built
          
-     1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\Microsoft.MakeFile.Targets(38,5): warning MSB5021: Die ausführbare Datei der Aufgabe wird aufgrund eines Abbruchs des Buildvorgangs beendet.
+                 1 Datei(en) kopiert.
+                 1 Datei(en) kopiert.
+     1>Die Erstellung des Projekts "D:\Daten\Projekte\FileMonitor\flmonflt\flmonflt.vcxproj" ist abgeschlossen, build Ziel(e).
+
+Das Erstellen war erfolgreich.
+
+Verstrichene Zeit 00:00:02.10

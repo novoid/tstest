@@ -31,9 +31,9 @@ DisplayName      = %ServiceName%
 Description      = %ServiceDescription%
 ServiceBinary    = %12%\%DriverName%.sys        ;%windir%\system32\drivers\
 Dependencies     = "FltMgr"
-ServiceType      = 2                            ;SERVICE_FILE_SYSTEM_DRIVER
-StartType        = 3                            ;SERVICE_DEMAND_START
-ErrorControl     = 1                            ;SERVICE_ERROR_NORMAL
+ServiceType      = 1                            
+StartType        = 1                            
+ErrorControl     = 1                            
 LoadOrderGroup   = "FSFilter Content Screener"
 AddReg           = Filemon.AddRegistry
 

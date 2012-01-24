@@ -1,9 +1,7 @@
-﻿Der Buildvorgang wurde am 03.01.2012 13:05:56 gestartet.
+﻿Der Buildvorgang wurde am 24.01.2012 19:35:07 gestartet.
      1>Projekt "D:\Daten\Projekte\FileMonitor\flmonflt\flmonflt.vcxproj" auf Knoten "2", build Ziel(e).
      1>Build:
          builddrv_x86.cmd
-         Der Befehl "#set" ist entweder falsch geschrieben oder
-         konnte nicht gefunden werden.
          OACR monitor running already
          path contains nonexistant d:\program files (x86)\microsoft visual studio 10.0\common7\tools\bin, removing
          BUILD: Compile and Link for x86
@@ -12,7 +10,7 @@
          
          BUILD: Computing Include file dependencies:
          
-         BUILD: Start time: Tue Jan 03 13:05:57 2012
+         BUILD: Start time: Tue Jan 24 19:35:07 2012
          BUILD: Examining d:\daten\projekte\filemonitor\flmonflt directory for files to compile.
          
              d:\daten\projekte\filemonitor\flmonflt 
@@ -23,21 +21,17 @@
          BUILD: Compiling and Linking d:\daten\projekte\filemonitor\flmonflt directory
          
          Configuring OACR for 'root:x86fre' - <OACR on>
+         _NT_TARGET_VERSION SET TO WINXP
          Compiling - filemon.c
          Compiling - fldebug.c
-         Compiling - fldirectorylist.c
-         Compiling - flmutex.c
-         Compiling - fltracker.c
-         Compiling - flucfilename.c
-         Compiling - fltimerthread.c
          Compiling - generating code...
-         Linking Executable - objfre_win7_x86\i386\flmonflt.sys
-         BUILD: Finish time: Tue Jan 03 13:05:58 2012
+         Linking Executable - objfre_wxp_x86\i386\flmonflt.sys
+         BUILD: Finish time: Tue Jan 24 19:35:08 2012
          BUILD: Done
          
          
          
-             9 files compiled - 1 Warning - 2,924 LPS
+             4 files compiled - 1 Warning
          
              1 executable built
          
@@ -47,4 +41,4 @@
 
 Das Erstellen war erfolgreich.
 
-Verstrichene Zeit 00:00:02.46
+Verstrichene Zeit 00:00:01.43
