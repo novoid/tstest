@@ -2,21 +2,31 @@
 <<CTRL>>
 Package: tagstore
 Version: 0.1.0
-Section: python
-Maintainer: manfred oberlerchner <manfred.oberlerchner@drei.com>
-Homepage: http://tagstore.ist.tugraz.at/index.shtml
+Section: science
+Maintainer: manfred oberlerchner <m.oberlerchner@drei.at>
+Homepage: http://tagstore.org
 Priority: standard
 Architecture: all
-Depends: python (>=v2.5)
+Depends: python (>=2.5)
+Pre-Depends: python-qt4 (>=4.6)
 Description: a better way to store and retrieve data
- research software to develop a fun way of storing files and folders on your local disk drive.
- main purpose of tagstore is the refinement of a better method to manage files and folders on the local hard disk drive. Therefore tagstore is no commercial product. It is made public available under the open source license GPL v3.
+ research software to develop a fun way of storing files and folders on your 
+ local disk drive. main purpose of tagstore is the refinement of a better 
+ method to manage files and folders on the local hard disk drive. Therefore 
+ tagstore is no commercial product. It is made public available under the 
+ open source license GPL v3.
  .
- With tagstore the user does not use the usual method of filing data in a hierarchy of folders as the only possible method. In a tagstore files and folders are being tagged by the user. Using those tags tagstore automatically generates navigation hierarchies called TagTrees. Within those TagTrees the user is able to navigate using his or her preferred software tools like file browsers, "file save..." or "file open..." dialogs.
+ With tagstore the user does not use the usual method of filing data in a 
+ hierarchy of folders as the only possible method. In a tagstore files and 
+ folders are being tagged by the user. Using those tags tagstore 
+ automatically generates navigation hierarchies called TagTrees. Within 
+ those TagTrees the user is able to navigate using his or her preferred 
+ software tools like file browsers, "file save..." or "file open..." dialogs.
 
 <</CTRL>>
 <<FILES>>
 1
+/home/mo/tagstore/research_platform/installer/needs4tagstore/tagstore/tagstore_manager.desktop -> tagstore_manager.desktop -> /usr/share/applications
 /home/mo/tagstore/research_platform/tagstore/tscore/pendingchanges.py -> pendingchanges.py -> /usr/share/tagstore/tscore
 /home/mo/tagstore/research_platform/tagstore/tscore/pathhelper.py -> pathhelper.py -> /usr/share/tagstore/tscore
 /home/mo/tagstore/research_platform/tagstore/tscore/recommender.py -> recommender.py -> /usr/share/tagstore/tscore
@@ -68,15 +78,11 @@ Description: a better way to store and retrieve data
 /home/mo/tagstore/research_platform/tagstore/tstest/testsuite.py -> testsuite.py -> /usr/share/tagstore/tstest
 /home/mo/tagstore/research_platform/tagstore/tstest/.TESTSUITE_TAGFILE -> .TESTSUITE_TAGFILE -> /usr/share/tagstore/tstest
 /home/mo/tagstore/research_platform/tagstore/tstest/__init__.py -> __init__.py -> /usr/share/tagstore/tstest
-/home/mo/tagstore/research_platform/tagstore/tagstore_manager.pyw -> tagstore_manager.pyw -> /usr/share/tagstore
-/home/mo/tagstore/research_platform/tagstore/tagstore_retag.pyw -> tagstore_retag.pyw -> /usr/share/tagstore
 /home/mo/tagstore/research_platform/tagstore/README.txt -> README.txt -> /usr/share/tagstore
 /home/mo/tagstore/research_platform/tagstore/tagstore_retag.py -> tagstore_retag.py -> /usr/share/tagstore
 /home/mo/tagstore/research_platform/tagstore/tagstore_sync.py -> tagstore_sync.py -> /usr/share/tagstore
-/home/mo/tagstore/research_platform/tagstore/tagstore.pyw -> tagstore.pyw -> /usr/share/tagstore
 /home/mo/tagstore/research_platform/tagstore/tagstore.py -> tagstore.py -> /usr/share/tagstore
 /home/mo/tagstore/research_platform/tagstore/compile_sources.sh* -> compile_sources.sh -> /usr/share/tagstore
-/home/mo/tagstore/research_platform/tagstore/administration.pyw -> administration.pyw -> /usr/share/tagstore
 /home/mo/tagstore/research_platform/tagstore/tagstore_manager.py -> tagstore_manager.py -> /usr/share/tagstore
 <</FILES>>
 <<SCRIPTS>>
@@ -95,11 +101,11 @@ Description: a better way to store and retrieve data
 <</SCRIPTS>>
 <<CHANGELOG>>
 <<DEST>>DEFAULT<</DEST>>
-tagstore (0.1.0) ; urgency=HIGH
+tagstore (0.1.0) unstable; urgency=low
 
   * initial package
 
- -- manfred oberlerchner <manfred.oberlerchner@drei.com>  Wed, 18 Jan 2012 21:36:22 +0100
+ -- manfred oberlerchner <m.oberlerchner@drei.at>  Mon, 03 Feb 2012 16:48:59 +0100
 
 
 <</CHANGELOG>>
@@ -108,21 +114,11 @@ tagstore (0.1.0) ; urgency=HIGH
 terms of license for TAGSTORE
 #############################
 
-tagstore is free software; 
-you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; 
-either version 3 of the License, or (at your option) any later version.
-
-tagstore is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
-without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
-See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License along with this program; 
-if not, see <http://www.gnu.org/licenses/>. 
-
-
-this file is part of tagstore, an alternative way of storing and retrieving information
+This program is free software; 
+this file is part of tagstore, 
+an alternative way of storing and retrieving information
 Copyright (C) 2010  Karl Voit, Christoph Friedl, Wolfgang Wintersteller
-/usr/share/common-licenses/GPL
+
 <</COPYRIGHT>>
 <<MENU>>
 1
@@ -135,10 +131,10 @@ Type=Application
 Terminal=true
 StartupNotify=true
 Encoding=UTF-8
-Categories=Development;
+Categories=System;FileManager;
 <</MENU>>
 <<BUILD>>
 0
-0
+1
 1
 <</BUILD>>
