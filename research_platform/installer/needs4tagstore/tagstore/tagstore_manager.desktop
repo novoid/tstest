@@ -1,0 +1,10 @@
+Name=tagstore_manager
+Version=1.0
+Exec=/usr/share/tagstore/tagstore_manager.py
+Comment=start tagstore_manager
+Icon=/usr/share/tagstore/tsresources/images/logo.png
+Type=Application
+Terminal=true
+StartupNotify=true
+Encoding=UTF-8
+Categories=System;FileManager;
