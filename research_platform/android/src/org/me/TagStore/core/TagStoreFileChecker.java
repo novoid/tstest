@@ -51,7 +51,7 @@ public class TagStoreFileChecker implements org.me.TagStore.core.StorageTimerTas
 				//
 				// remove file from database
 				//
-				FileTagUtility.removeFile(file_path, false);
+				db_man.removeFile(file_path);
 			}
 		}
 		

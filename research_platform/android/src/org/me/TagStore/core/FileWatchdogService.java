@@ -89,11 +89,13 @@ public class FileWatchdogService extends Service implements org.me.TagStore.core
 		DBManager db_man = DBManager.getInstance();
 
 		if (type == org.me.TagStore.interfaces.FileSystemObserverNotification.NotificationType.FILE_DELETED) {
+			
 			//
 			// file was deleted
 			// remove file from store
 			//
-			FileTagUtility.removeFile(file_name, false);
+			db_man.removeFile(file_name);
+			db_man.removePendingFile(file_name);
 
 			//
 			// done

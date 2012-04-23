@@ -24,6 +24,7 @@ import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
+import android.view.Window;
 
 /**
  * This class displays various configuration settings and launches the
@@ -76,7 +77,6 @@ public class ConfigurationTabActivity extends PreferenceActivity implements OnPr
 		// pass onto lower classes
 		//
 		super.onCreate(savedInstanceState);
-
 
 		//
 		// load preferences from resource

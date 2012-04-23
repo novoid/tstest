@@ -31,6 +31,7 @@ import android.support.v4.view.ViewPager;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.Window;
 
 public class MainPagerActivity extends FragmentActivity {
 
@@ -301,7 +302,7 @@ public class MainPagerActivity extends FragmentActivity {
 	
 	private void initLocale()  {
 		
-		   String languageToLoad  = "de";
+		   String languageToLoad  = "en";
 		    Locale locale = new Locale(languageToLoad); 
 		    Locale.setDefault(locale);
 		    Configuration config = new Configuration();
@@ -366,7 +367,13 @@ public class MainPagerActivity extends FragmentActivity {
 		Logger.e("MainPager::onCreate");
 		
 		//initLocale();
-		
+
+		//
+		// no window should be displayed
+		//
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
+
+
 		//
 		// apply layout
 		//

@@ -159,6 +159,7 @@ public class CloudViewSurfaceAdapter extends SurfaceView{
 
 		Logger.i("CloudViewSurfaceAdapter constructor");
 		
+		// FIXME hardcoded
 		m_colors[0] = Color.WHITE;
 		m_colors[1] = Color.rgb(255, 102, 0);
 		m_colors[2] = Color.rgb(212, 85, 0);
@@ -409,10 +410,11 @@ public class CloudViewSurfaceAdapter extends SurfaceView{
 		int ref_span = m_max_ref - m_min_ref;
 
 		if (ref_span > 0) {
+			
 			//
-			// divide range into four partitions
+			// divide range into three partitions
 			//
-			ref_span /= 2;
+			ref_span /= 3;
 
 		}
 
