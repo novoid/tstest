@@ -741,9 +741,44 @@ public class AddFileTagActivity extends Fragment implements OptionsDialogCallbac
 		DBManager db_man = DBManager.getInstance();
 
 		//
-		// get popular tags
+		// acquire shared settings
 		//
-		ArrayList<String> tags = db_man.getPopularTags();
+		SharedPreferences settings = getActivity().getSharedPreferences(
+				ConfigurationSettings.TAGSTORE_PREFERENCES_NAME,
+				Context.MODE_PRIVATE);
+
+		//
+		// get current sort mode
+		//
+		String sort_mode = settings.getString(
+				ConfigurationSettings.CURRENT_LIST_VIEW_SORT_MODE,
+				ConfigurationSettings.DEFAULT_LIST_VIEW_SORT_MODE);
+
+		Logger.i("TagStoreListViewActivity::fillListMap sort_mode " + sort_mode);
+
+		ArrayList<String> tags = null;		
+		
+		if (sort_mode
+				.compareTo(ConfigurationSettings.LIST_VIEW_SORT_MODE_ALPHABETIC) == 0) {
+			//
+			// get tags sorted by alphabet
+			//
+			tags = db_man.getAlphabeticTags();
+		} else if (sort_mode
+				.compareTo(ConfigurationSettings.LIST_VIEW_SORT_MODE_POPULAR) == 0) {
+			//
+			// get tags sorted by popularity
+			//
+			tags = db_man.getPopularTags();
+		} else if (sort_mode
+				.compareTo(ConfigurationSettings.LIST_VIEW_SORT_MODE_RECENT) == 0) {
+			//
+			// TODO: get tags sorted by recently used
+			//
+			tags = null;
+			Logger.e("Error: AddFileTagActivity::initTags get recent tags is not implemented yet");
+		}
+		
 		if (tags != null)
 		{
 			//
