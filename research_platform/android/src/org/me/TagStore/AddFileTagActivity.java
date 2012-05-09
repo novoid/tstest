@@ -756,7 +756,29 @@ public class AddFileTagActivity extends Fragment implements OptionsDialogCallbac
 
 		Logger.i("TagStoreListViewActivity::fillListMap sort_mode " + sort_mode);
 
+		
 		ArrayList<String> tags = null;		
+		
+		if (VocabularyManager.getInstance().getControlledVocabularyState())
+		{
+			//
+			// get controlled vocabulary
+			//
+			HashSet<String> vocabulary = VocabularyManager.getInstance().getVocabulary();
+			
+			if (vocabulary != null)
+			{
+				//
+				// add all vocabulary entries
+				//
+				m_popular_tags.addAll(vocabulary);
+			}			
+			
+			//
+			// done for now
+			//
+			return;			
+		}
 		
 		if (sort_mode
 				.compareTo(ConfigurationSettings.LIST_VIEW_SORT_MODE_ALPHABETIC) == 0) {
@@ -785,24 +807,6 @@ public class AddFileTagActivity extends Fragment implements OptionsDialogCallbac
 			// add all tags
 			//
 			m_popular_tags.addAll(tags);
-		}
-		
-		//
-		// check if controlled vocabulary is on
-		//
-		if (VocabularyManager.getInstance().getControlledVocabularyState())
-		{
-			//
-			// also add controlled vocabular entries
-			//
-			HashSet<String> vocabulary = VocabularyManager.getInstance().getVocabulary();
-			if (vocabulary != null)
-			{
-				//
-				// add all vocabulary entries
-				//
-				m_popular_tags.addAll(vocabulary);
-			}
 		}
 	}
 	
@@ -1343,6 +1347,17 @@ public class AddFileTagActivity extends Fragment implements OptionsDialogCallbac
 
 	@Override
 	public void processMenuFileSelection(MENU_ITEM_ENUM selection) {
+		
+		//
+		// check if the view is current visible
+		//
+		if (MainPageAdapter.getInstance().getCurrentItem() != 1)
+		{
+			//
+			// HACK: ViewPageAdapter does not call onPause when switching to next fragment
+			//
+			return;
+		}
 		
 		//
 		// defer control to common dialog operations object

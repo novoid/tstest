@@ -366,6 +366,9 @@ public class MainPagerActivity extends FragmentActivity {
 
 		Logger.e("MainPager::onCreate");
 		
+		//
+		// english locale for development
+		//
 		//initLocale();
 
 		//
