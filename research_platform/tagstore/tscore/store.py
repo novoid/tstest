@@ -999,12 +999,11 @@ class Store(QtCore.QObject):
         
         list = sorted(dictionary.iteritems(), key=lambda (k,v): (v,k), reverse=True)
         return_list = []
-        print list
+        #print list
         #for item in list[:number]:
         for item in list:
             return_list.append(item[0])
-        print return_list
-        
+        #print return_list
         return return_list
 
         
@@ -1024,7 +1023,6 @@ class Store(QtCore.QObject):
         #for item in list[:number]:
         for item in list:
             return_list.append(item[0])
-        
         return return_list
         
     def get_tag_cloud(self):

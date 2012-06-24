@@ -380,7 +380,7 @@ class Tagstore(QtCore.QObject):
                 tag_list = tag_list[:self.NUM_POPULAR_TAGS]
             dialog_controller.set_popular_tags(tag_list)
             
-            if store.get_tagline_config() == 1 or store.get_tagline_config == 2:
+            if store.get_tagline_config() == 1 or store.get_tagline_config() == 2:
                 dict = store.get_tag_cloud()
                 dialog_controller.set_tag_cloud(dict, self.MAX_CLOUD_TAGS)
 
