@@ -1441,6 +1441,9 @@ class StorePreferencesController(QtCore.QObject):
         ## a list with all controllers used at the preference view
         self.__preference_controller_list = {}
         
+        ## the help wizard
+        self.__wizard = Wizard()
+        
         ## the main preferences window 
         self.__dialog = StorePreferencesView(parent=parent)
             
@@ -1670,12 +1673,11 @@ class StorePreferencesController(QtCore.QObject):
     def set_first_start(self, first_start):
         self.__first_start = first_start
         if first_start:
+            self.select_store_admin_tab()
             self.__main_config.set_first_start(False)
             if self.__main_config.get_show_wizard():
-                self.wizard = Wizard()
-                self.wizard.get_view().exec_()
+                self.__wizard.get_view().show()
                 self.__main_config.set_show_wizard("false")
-            self.select_store_admin_tab()
     
     def set_parent(self, parent):
 #        self.__dialog.setParent(parent)

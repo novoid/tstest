@@ -26,61 +26,143 @@ class Wizard(QtGui.QWizard):
         QtGui.QWizard.__init__(self, parent)
 
         self.__wizard = QtGui.QWizard()
-        self.__wizard.addPage(self.__create_intor_page())
-        self.__wizard.addPage(self.__createRegistrationPage())
+        self.__wizard.resize(700, 480)
+        self.__wizard.setButtonText(self.__wizard.NextButton, 
+                                    self.trUtf8("Next"))
+        self.__wizard.setButtonText(self.__wizard.BackButton, 
+                                    self.trUtf8("Back"))
+        self.__wizard.setButtonText(self.__wizard.CancelButton, 
+                                    self.trUtf8("Cancle"))
+        self.__wizard.setButtonText(self.__wizard.FinishButton, 
+                                    self.trUtf8("Finish"))
+        
+        self.__wizard.addPage(self.__create_welcome_page())
+        self.__wizard.addPage(self.__create_intro_page())
+        self.__wizard.addPage(self.__create_first_steps_page())
+        self.__wizard.addPage(self.__create_setting_page())
+        self.__wizard.addPage(self.__create_tagging_page())
         self.__wizard.addPage(self.__create_ending_page())
     
         self.__wizard.setWindowTitle(self.trUtf8("Help Wizard"))
         
-    def __create_intor_page(self):
-        self.__page = QtGui.QWizardPage()
-        self.__page.setTitle(self.trUtf8("Introduction"))
+    def __create_welcome_page(self):
+        page = QtGui.QWizardPage()
+        page.setTitle(self.trUtf8("Welcome to Tagstore!"))
     
-        self.__label = QtGui.QLabel(self.trUtf8("This wizard will show you, "
-                                                "how to handle this program"))
+        label = QtGui.QLabel(self.trUtf8("Danke, dass sie sich für tagstore entschieden haben.<br>"
+                                         "Sie haben tagstore erfolgreich installiert ..."))
         
-        self.__label.setWordWrap(True)
+        label.setWordWrap(True)
     
-        self.__layout = QtGui.QVBoxLayout()
-        self.__layout.addWidget(self.__label)
-        self.__page.setLayout(self.__layout)
+        layout = QtGui.QVBoxLayout()
+        layout.addWidget(label)
+        page.setLayout(layout)
     
-        return self.__page
+        return page
     
     
-    def __createRegistrationPage(self):
-        self.__page = QtGui.QWizardPage()
-        self.__page.setTitle(self.trUtf8("Step"))
-        self.__page.setSubTitle("Sub Title")
+    def __create_intro_page(self):
+        page = QtGui.QWizardPage()
+        page.setTitle(self.trUtf8("What is tagstore?"))
     
-        self.__text_label = QtGui.QLabel(self.trUtf8("Between Start an End!"))
-        self.__text_label.setWordWrap(True)
-        self.__image_lable = QtGui.QLabel()
-        self.__image = QtGui.QPixmap("./tsresources/images/help.png")
-        self.__image_lable.setPixmap(self.__image)
+        text_label = QtGui.QLabel(self.trUtf8("Tagstore ist ein Program, welches dabei helfen soll, Dateien auf dem Computer schneller wieder zu finden.<br>"
+                                         "Dies geschiet durch sogenanntes tagging.<br>"
+                                         "Tagging ist ein Verfahren, bei dem ein Benutzer einem Stück Information (z.B: Digitale Bilder, MP3, Videos,..) sogenannte Tags zuordnet.<br>"
+                                         "Ein Tag ist ein Schlüsselwort oder Term welcher dabei helfen soll ein Stück Information zu beschreiben und es dadurch schneller wieder gefunden werden kann.<br>"
+                                         "Bei tagstore können, je nach Einstellung, kategorisierende und/oder beschreibende Tags g/benutzt werden. "))
+        text_label.setWordWrap(True)
     
-        self.__layout = QtGui.QVBoxLayout()
-        self.__layout.addWidget(self.__text_label)
-        self.__layout.addWidget(self.__image_lable)
-        self.__layout
-        self.__page.setLayout(self.__layout)
+        layout = QtGui.QVBoxLayout()
+        layout.addWidget(text_label)
+        page.setLayout(layout)
     
-        return self.__page
+        return page
+    
+    def __create_first_steps_page(self):
+        page = QtGui.QWizardPage()
+        page.setTitle(self.trUtf8("First steps"))
+        
+        text_label = QtGui.QLabel(self.trUtf8("Bei dem ersten Start des Programmes, muss ein sogenannter Store angelegt werden. <br>"
+                                                "Jeder Benutzer muss zumindest einen Store anlegen. Weitere Stores für verschiedene Zwecke (beruflich, privat, Videos, Downloads, ...) können jederzeit nachträglich erstellt werden.<br>"
+                                                "Um einen Store anzulegen wird zuerst im tagstore Manager der Tab \"Store-Verwaltung\" ausgewählt und danach auf \"Neuer Tagstore\" geklickt. Daraufhin erscheint ein neues Fenster, in welchem ein Ordner ausgewählt wird, der den Store beinhalten soll. <br>"
+                                                "Wenn ein der Store erfolgreich angelegt wurde, sollte die Stuktur in dem Ordenr, welcher für den Store ausgewehlt wurde, so aussehen:"))
+        
+        image_lable = QtGui.QLabel()
+        image_lable.setPixmap(QtGui.QPixmap("./tsresources/images/structure_de.png"))
+        
+        text_label.setWordWrap(True)
+    
+        layout = QtGui.QVBoxLayout()
+        layout.addWidget(text_label)
+        layout.addWidget(image_lable)
+        page.setLayout(layout)
+    
+        return page
     
     
     def __create_ending_page(self):
-        self.__page = QtGui.QWizardPage()
-        self.__page.setTitle(self.trUtf8("End"))
+        page = QtGui.QWizardPage()
+        page.setTitle(self.trUtf8("End"))
     
-        self.__label = QtGui.QLabel(self.trUtf8("Thank you for using this "
-                                                "program. Have a nice day!"))
-        self.__label.setWordWrap(True)
+        return page
     
-        self.__layout = QtGui.QVBoxLayout()
-        self.__layout.addWidget(self.__label)
-        self.__page.setLayout(self.__layout)
+    def __create_setting_page(self):
+        page = QtGui.QWizardPage()
+        page.setTitle(self.trUtf8("Store settings"))
+        
+        tab_image_lable = QtGui.QLabel()
+        dropdown_image_lable = QtGui.QLabel()
+        settings_image_lable = QtGui.QLabel()
+        tab_image_lable.setPixmap(QtGui.QPixmap("./tsresources/images/tabs_de.png"))
+        dropdown_image_lable.setPixmap(QtGui.QPixmap("./tsresources/images/store_dropdown.png"))
+        settings_image_lable.setPixmap(QtGui.QPixmap("./tsresources/images/my_tags_tag_lines_de.png"))
+        
+        text_label1 = QtGui.QLabel(self.trUtf8("Jeder Store der angelegt wurde, kann über den Manager jederzeit konfiguriert werden. Dieser ist in verschiedene Tabs/Reiter unterteilt."))
+        text_label2 = QtGui.QLabel(self.trUtf8("Wenn eine Einstellung für jeden Store gemacht werden kann, wird der gewünschte Store über ein \"Dropdown Menu\" ausgewählt. Dieses befindet sich unter der Beschreibung des Tabs."))
+        text_label3 = QtGui.QLabel(self.trUtf8("Unter dem Tab/Reiter \"Meine Tags\" kann für jeden Store nachgeschaut werden, ob eine oder zwei Tag-Zeilen verwendet werden. In der erste Tag-Zeile werden beschreibende und in der zweiten kategorisierende Tags verwendet."))
+        text_label4 = QtGui.QLabel(self.trUtf8("Wird nur eine Zeile verwendet, kann eingestellt werden, ob in dieser nur vom Benutzter vordefinierte Tags (»Meine Tags«) erlaubt werden oder nicht. Dies soll die Verwendung von ähnlichen Tags verhindern(z.B: Uni, Universität). <br>"
+                                                      "Solche Tags können mit einem klick auf \"Hinzufügen\" der Liste von Tags hinzugefügt werden oder mit \"Löschen\" von ihr gelöscht werden. <br>"
+                                                      "Werden zwei Zeilen verwendet, kann nur noch für die zweite Tag-Zeile eingestellt werden, ob diese nur »meine Tags« verwenden soll."))
+        text_label1.setWordWrap(True)
+        text_label2.setWordWrap(True)
+        text_label3.setWordWrap(True)
+        text_label4.setWordWrap(True)
+        
+        layout = QtGui.QVBoxLayout()
+        layout.addWidget(text_label1)
+        layout.addWidget(tab_image_lable)
+        layout.addWidget(text_label2)
+        layout.addWidget(dropdown_image_lable)
+        layout.addWidget(text_label3)
+        layout.addWidget(settings_image_lable)
+        layout.addWidget(text_label4)
+        page.setLayout(layout)
+        
+        return page
     
-        return self.__page
+    def __create_tagging_page(self):
+        page = QtGui.QWizardPage()
+        page.setTitle(self.trUtf8("Tagging"))
+        
+        tagging_label = QtGui.QLabel()
+        tagging_label.setPixmap(QtGui.QPixmap("./tsresources/image/tagging_de.png"))
+        
+        text_label1 = QtGui.QLabel(self.trUtf8("Wenn ein neues »Item« (Datei, Ordner) in den Ordner \"Ablage\" hinzugefügt wird, erscheint der sogenannte \"Tag-Dialog\"."))
+        text_label2 = QtGui.QLabel(self.trUtf8("Hier befindet sich eine sogenannte \"Tag-Cloud\"(1), eine Liste der noch nicht getaggten Objekte(2) und je nach Einstellung eine oder zwei Tag-Zeilen mit Vorschlägen für Tags(3). Die erste Tag-Zeile(4) ist für beschreibenden und die zweite(5) für kategorisierende Tags.<br>"
+                                               "Mit einem klick auf \"Tag\"(6) wird das ausgewählte Objekt getaggt und ein klick auf \"Manager...\"(7) öffnet den tagstore Manager.<br>"
+                                               "Wenn man ein Objekt nicht sofort taggen will, kann man auf \"Später bearbeiten\" klicken.<br>"
+                                               "Items, die noch nicht getaggt sind, erscheinen so lange in der Liste vom \"Tag-Dialog\", bis entsprechende Items wieder gelöscht werden oder mit Tags versehen wurden."))
+                                   
+        text_label1.setWordWrap(True)
+        text_label2.setWordWrap(True)
+        
+        layout = QtGui.QVBoxLayout()
+        layout.addWidget(text_label1)
+        layout.addWidget(tagging_label)
+        layout.addWidget(text_label2)
+        page.setLayout(layout)
+        
+        return page
     
     def get_view(self):
         return self.__wizard
