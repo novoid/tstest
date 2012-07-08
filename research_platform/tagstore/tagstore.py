@@ -346,11 +346,7 @@ class Tagstore(QtCore.QObject):
         item_list = dialog_controller.get_selected_item_list_public()
 
         if len(item_list) > 0 and item_list[0] is not None:
-            #tag_set = set(store.get_tag_recommendation(self.NUM_POPULAR_TAGS*3, str(item_list[0].text())))
-            tag_list = store.get_tag_recommendation(self.NUM_POPULAR_TAGS, str(item_list[0].text()))
-            
-            #cat_set = set(store.get_cat_recommendation(self.NUM_POPULAR_TAGS, str(item_list[0].text())))
-            #cat_list = list(cat_set)
+
             tmp_cat_list = store.get_cat_recommendation(self.NUM_POPULAR_TAGS, str(item_list[0].text()))
             cat_list = []
             if store.is_controlled_vocabulary():
@@ -371,21 +367,20 @@ class Tagstore(QtCore.QObject):
                 
             if len(cat_list) > self.NUM_POPULAR_TAGS:
                 cat_list = cat_list[:self.NUM_POPULAR_TAGS]
-            dialog_controller.set_popular_categories(cat_list)
+            #dialog_controller.set_popular_categories(cat_list)
             
             ## make a list out of the set, to enable indexing, as not all tags cannot be used
             #tag_list = list(tag_set)
-
-            if len(tag_list) > self.NUM_POPULAR_TAGS:
-                tag_list = tag_list[:self.NUM_POPULAR_TAGS]
-            dialog_controller.set_popular_tags(tag_list)
-            
             if store.get_tagline_config() == 1 or store.get_tagline_config() == 2:
+                tag_list = store.get_tag_recommendation(self.NUM_POPULAR_TAGS, str(item_list[0].text()))
+                if len(tag_list) > self.NUM_POPULAR_TAGS:
+                    tag_list = tag_list[:self.NUM_POPULAR_TAGS]
+                #dialog_controller.set_popular_tags(tag_list)
                 dict = store.get_tag_cloud()
-                dialog_controller.set_tag_cloud(dict, self.MAX_CLOUD_TAGS)
+                dialog_controller.set_tag_cloud(dict, tag_list, self.MAX_CLOUD_TAGS)
 
             dict = store.get_cat_cloud() 
-            dialog_controller.set_cat_cloud(dict, self.MAX_CLOUD_TAGS)
+            dialog_controller.set_cat_cloud(dict, cat_list, self.MAX_CLOUD_TAGS)
     
             #if len(self.DIALOGS) > 1:
             dialog_controller.set_store_name(store.get_name())

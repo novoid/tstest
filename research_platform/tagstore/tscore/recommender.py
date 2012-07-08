@@ -319,7 +319,11 @@ class Recommender(QtCore.QObject):
         if bool < 1:
             #ext_len = len(file_extension) * -1
             #file_name_without_extension = file_name[:ext_len]
-            self.add_tag_to_dict(dictionary, file_name_without_extension, 1)
+            sub_file_name_list = re.split("[ ,_-]",file_name_without_extension)
+            #print sub_file_name_list
+            for name in sub_file_name_list:
+                if len(name) > 3:
+                    self.add_tag_to_dict(dictionary, name, 1)
             self.add_tag_to_dict(dictionary, file_extension[1:].upper(), 0.9)
         return dictionary
         

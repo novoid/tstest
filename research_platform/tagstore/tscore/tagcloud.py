@@ -45,11 +45,12 @@ class TagCloud():
 
     def get_font_size(self, dictionary, max_value, number_of_tags):
         for tag_name, num in dictionary.iteritems():
-            counter = 2 * self.__NUM_OF_SIZES
+            counter = 3 * self.__NUM_OF_SIZES
             while (num) < max_value and counter != 0:
                 num += self.__NUM_OF_SIZES
-                counter -= 2
+                counter -= 3
             dictionary[tag_name] = counter
+        #print dictionary
         return dictionary
 
 ## end   

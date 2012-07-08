@@ -119,6 +119,10 @@ class TagDialog(QtGui.QDialog):
         
         self.__tag_line = self.__tag_line_widget.get_tag_line()
         
+        
+        self.__max_columns = 35
+        self.__division = 9
+        self.__start_size = 8
         self.__pop_tag_layout = QtGui.QHBoxLayout()
         self.__pop_tag_layout.setContentsMargins(0, 0, 0, 0)
         self.__pop_tag_widget = QtGui.QWidget()
@@ -639,7 +643,7 @@ class TagDialog(QtGui.QDialog):
         self.__tag_cloud_layout.addWidget(tmp_label, row + 1, 0, 4, 1)
     """
         
-    def set_tag_cloud(self, tag_dict, max_num):
+    def set_tag_cloud(self, tag_dict, reco_tag, max_num):
         
         ## remove all existing labels
         for label in self.__tag_cloud_list:
@@ -650,6 +654,12 @@ class TagDialog(QtGui.QDialog):
         self.__tag_cloud_list = []
         
         #tmp_list = sorted(tag_dict.items(), key=itemgetter(1))
+        for reco in reco_tag:
+            if str(reco) not in tag_dict:
+                tag_dict.setdefault(reco, 18) #highest font-size
+            else:
+                tag_dict[reco] = 18
+                
         tmp_list = list(sorted(tag_dict.items(), key=lambda x: x[1]))
         tag_list = []
         for value in tmp_list:
@@ -660,38 +670,58 @@ class TagDialog(QtGui.QDialog):
         #print tag_list      
         if len(tag_list) > max_num:
             tag_list = tag_list[(max_num * -1 ):]
-            
-        row = 0
+        
+        
+        t_font = QtGui.QFont()
+        t_font.setPointSizeF(9);
+        #t_label = QtGui.QLabel("----------------------------------------")
+        t_label = QtGui.QLabel("                                        ")
+        t_label.setFont(t_font)
+        self.__tag_cloud_layout.addWidget(t_label, 0, 0, 3, 40)
+        
+        
+        row = 1
         column = 0
         for tag in sorted(tag_dict.iterkeys()):
             if tag in tag_list:    
                 tag_font = QtGui.QFont()
-                font_size = tag_dict[tag] + 9
+                font_size = tag_dict[tag] + self.__start_size
                 tag_font.setPointSizeF(font_size);
-                tmp_label = QtGui.QLabel("<a href='%s'>%s</a>" % (tag, tag))
+                if str(tag) in reco_tag:
+                    tmp_label = QtGui.QLabel("<style type=\"text/css\">a:link {color:#FF9900;}</style><a href='%s'>%s</a>" % (tag, tag))
+                else:
+                    tmp_label = QtGui.QLabel("<a href='%s'>%s</a>" % (tag, tag))
                 tmp_label.setFont(tag_font)
                 tmp_label.setTextInteractionFlags(QtCore.Qt.LinksAccessibleByMouse|
                                                   QtCore.Qt.LinksAccessibleByKeyboard|
                                                   QtCore.Qt.TextSelectableByMouse)
-                tmp_label.setWordWrap(True)
+                tmp_label.setWordWrap(False)
                 self.connect(tmp_label, QtCore.SIGNAL("linkActivated(QString)"), self.__handle_tag_label_clicked)
-                if len(tag) < 9:
-                    self.__tag_cloud_layout.addWidget(tmp_label, row, column)
-                    column += 1
-                else:
-                    self.__tag_cloud_layout.addWidget(tmp_label, row, column, 1, 2)
-                    column += 2
-                ## fill the new label list
                 
-                if column >= 4:
+                div = 10
+                if (tag_dict[tag]/self.__division) < 1:
+                    length = 1
+                else:
+                    length = tag_dict[tag]/self.__division
+                
+                length = len(tag) * length#(tag_dict[tag]/16 + 1)
+                if column + length > self.__max_columns:
+                    row += 1
+                    column = 0
+                self.__tag_cloud_layout.addWidget(tmp_label, row, column, 1, length)
+                column += length
+                
+                if column >= self.__max_columns:
                     row += 1
                     column = 0
                 self.__tag_cloud_list.append(tmp_label)
-                    
+                
+        
         tmp_label = QtGui.QLabel("")
         self.__tag_cloud_layout.addWidget(tmp_label, row + 1, 0, 4, 1)
         
-    def set_cat_cloud(self, tag_dict, max_num):
+    #def set_cat_cloud(self, tag_dict, max_num):
+    def set_cat_cloud(self, tag_dict, reco_tag, max_num):
         ## remove all existing labels
         for label in self.__cat_cloud_list:
             label.setVisible(False)
@@ -699,19 +729,42 @@ class TagDialog(QtGui.QDialog):
             label.destroy()
         ## clear the label list
         self.__cat_cloud_list = []
-        
+        '''
+        notin = True
+        tag_dict
+        for tag in tag_dict:
+            notin = True
+            for reco in reco_tag:
+                if tag == reco:
+                    notin = False
+            if notin == True:
+                tag_dict.
+        '''
+        for reco in reco_tag:
+            if str(reco) not in tag_dict:
+                tag_dict.setdefault(reco, 18) #highest font-size
+            else:
+                tag_dict[reco] = 18 #highest font-size
+                #dictionary.setdefault(tag, rating)
         #tmp_list = sorted(tag_dict.items(), key=itemgetter(1))
-        tmp_list = list(sorted(tag_dict.items(), key=lambda x: x[1]))
+        tmp_list = list(sorted(tag_dict.items(), key=lambda x: x[1]))            
+        
         cat_list = []
         for value in tmp_list:
             cat_list.append(value[0])
-        
         #cat_list = list(OrderedDict(sorted(tag_dict.items(), key=lambda x: x[1])))         
         if cat_list > max_num:
             cat_list = cat_list[(max_num * -1 ):]
         
-        tmp_label = QtGui.QLabel("")
-        self.__cat_cloud_layout.addWidget(tmp_label, 0, 0, 3, 1)
+        #tmp_label = QtGui.QLabel("                                        ")
+        #self.__cat_cloud_layout.addWidget(tmp_label, 0, 0, 3, 40)
+        t_font = QtGui.QFont()
+        t_font.setPointSizeF(9);
+        t_label = QtGui.QLabel("                                        ")
+        t_label.setFont(t_font)
+        self.__cat_cloud_layout.addWidget(t_label, 0, 0, 3, 40)
+        
+        
         
         row = 1
         column = 0
@@ -719,28 +772,41 @@ class TagDialog(QtGui.QDialog):
             if tag in cat_list:    
                 if tag != None:
                     tag_font = QtGui.QFont()
-                    font_size = tag_dict[tag] + 9
+                    tag_font.Cursive;
+                    font_size = tag_dict[tag] + self.__start_size
                     tag_font.setPointSizeF(font_size);
-                    tmp_label = QtGui.QLabel("<a href='%s'>%s</a>" % (tag, tag))
+                    if str(tag) in reco_tag:
+                        tmp_label = QtGui.QLabel("<style type=\"text/css\">a:link {color:#FF9900;}</style><a href='%s'>%s</a>" % (tag, tag))
+                    else:
+                        tmp_label = QtGui.QLabel("<a href='%s'>%s</a>" % (tag, tag))
                     tmp_label.setFont(tag_font)
                     tmp_label.setTextInteractionFlags(QtCore.Qt.LinksAccessibleByMouse|
                                                       QtCore.Qt.LinksAccessibleByKeyboard|
                                                       QtCore.Qt.TextSelectableByMouse)
-                    tmp_label.setWordWrap(True)
+                    tmp_label.setWordWrap(False)
                     self.connect(tmp_label, QtCore.SIGNAL("linkActivated(QString)"), self.__handle_category_label_clicked)
-                    if len(tag) < 9:
-                        self.__cat_cloud_layout.addWidget(tmp_label, row, column)
-                        column += 1
-                    else:    
-                        self.__cat_cloud_layout.addWidget(tmp_label, row, column, 1, 2)
-                        column +=2
-                    ## fill the new label list
                     
-                    if column >= 4:
+                    
+                    
+                    #length = len(tag) * (tag_dict[tag]/5 + 1)
+                    if (tag_dict[tag]/self.__division) < 1:
+                        length = 1
+                    else:
+                        length = tag_dict[tag]/self.__division
+                    
+                    length = len(tag) * length#(tag_dict[tag]/16 + 1)
+                    if column + length > self.__max_columns:
+                        row += 1
+                        column = 0
+                    self.__cat_cloud_layout.addWidget(tmp_label, row, column, 1, length)
+                    column += length
+                     
+                    if column >= self.__max_columns:
                         row += 1
                         column = 0
                     self.__cat_cloud_list.append(tmp_label)
                     
+ 
                         
         tmp_label = QtGui.QLabel("")
         self.__cat_cloud_layout.addWidget(tmp_label, row + 1, 0, 4, 1)
@@ -758,7 +824,7 @@ class TagDialog(QtGui.QDialog):
         self.__tag_label_list = []
         
         for tag in tag_list:
-            tmp_label = QtGui.QLabel("<a href='%s'>%s</a>" % (tag, tag))
+            tmp_label = QtGui.QLabel("<a href='%s'>%s</a></body>" % (tag, tag))
             tmp_label.setTextInteractionFlags(QtCore.Qt.LinksAccessibleByMouse|
                                               QtCore.Qt.LinksAccessibleByKeyboard|
                                               QtCore.Qt.TextSelectableByMouse)
@@ -1115,11 +1181,11 @@ class TagDialogController(QtCore.QObject):
     #def set_tag_cloud(self, tag_dict):
     #    self.__tag_dialog.set_tag_cloud(tag_dict)
         
-    def set_tag_cloud(self, tag_dict, max_num):
-        self.__tag_dialog.set_tag_cloud(tag_dict, max_num)
+    def set_tag_cloud(self, tag_dict, reco_tag, max_num):
+        self.__tag_dialog.set_tag_cloud(tag_dict, reco_tag, max_num)
     
-    def set_cat_cloud(self, tag_dict, max_num):
-        self.__tag_dialog.set_cat_cloud(tag_dict, max_num)    
+    def set_cat_cloud(self, tag_dict, reco_tag, max_num):
+        self.__tag_dialog.set_cat_cloud(tag_dict, reco_tag, max_num)    
         
     def set_popular_tags(self, tag_list):
         self.__tag_dialog.set_popular_tags(tag_list)
