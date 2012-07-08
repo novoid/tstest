@@ -4,5 +4,7 @@ SOURCES	     += ../tscore/tsconstants.py
 SOURCES	     += ../tagstore.py
 SOURCES	     += ../tsgui/admindialog.py
 SOURCES	     += ../tsgui/tagdialog.py
+SOURCES	     += ../tsgui/helpdialog.py
+SOURCES	     += ../tsgui/wizard.py
 TRANSLATIONS += ts_de.ts
 

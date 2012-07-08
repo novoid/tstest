@@ -49,8 +49,8 @@ class Wizard(QtGui.QWizard):
         page = QtGui.QWizardPage()
         page.setTitle(self.trUtf8("Welcome to Tagstore!"))
     
-        label = QtGui.QLabel(self.trUtf8("Danke, dass sie sich für tagstore entschieden haben.<br>"
-                                         "Sie haben tagstore erfolgreich installiert ..."))
+        label = QtGui.QLabel(self.trUtf8("Danke, dass sie sich fuer tagstore entschieden haben.<br>"
+                                         "Das Programm wurde erfolgreich installiert und dieser Assistent wird bei dem Einrichten des ersten \"Store\" helfen."))
         
         label.setWordWrap(True)
     
@@ -67,9 +67,9 @@ class Wizard(QtGui.QWizard):
     
         text_label = QtGui.QLabel(self.trUtf8("Tagstore ist ein Program, welches dabei helfen soll, Dateien auf dem Computer schneller wieder zu finden.<br>"
                                          "Dies geschiet durch sogenanntes tagging.<br>"
-                                         "Tagging ist ein Verfahren, bei dem ein Benutzer einem Stück Information (z.B: Digitale Bilder, MP3, Videos,..) sogenannte Tags zuordnet.<br>"
-                                         "Ein Tag ist ein Schlüsselwort oder Term welcher dabei helfen soll ein Stück Information zu beschreiben und es dadurch schneller wieder gefunden werden kann.<br>"
-                                         "Bei tagstore können, je nach Einstellung, kategorisierende und/oder beschreibende Tags g/benutzt werden. "))
+                                         "Tagging ist ein Verfahren, bei dem ein Benutzer einem Stueck Information (z.B: Digitale Bilder, MP3, Videos,..) sogenannte Tags zuordnet.<br>"
+                                         "Ein Tag ist ein Schluesselwort oder Term welcher dabei helfen soll ein Stueck Information zu beschreiben und es dadurch schneller wieder gefunden werden kann.<br>"
+                                         "Bei tagstore koennen, je nach Einstellung, kategorisierende und/oder beschreibende Tags g/benutzt werden. "))
         text_label.setWordWrap(True)
     
         layout = QtGui.QVBoxLayout()
@@ -82,13 +82,13 @@ class Wizard(QtGui.QWizard):
         page = QtGui.QWizardPage()
         page.setTitle(self.trUtf8("First steps"))
         
-        text_label = QtGui.QLabel(self.trUtf8("Bei dem ersten Start des Programmes, muss ein sogenannter Store angelegt werden. <br>"
-                                                "Jeder Benutzer muss zumindest einen Store anlegen. Weitere Stores für verschiedene Zwecke (beruflich, privat, Videos, Downloads, ...) können jederzeit nachträglich erstellt werden.<br>"
-                                                "Um einen Store anzulegen wird zuerst im tagstore Manager der Tab \"Store-Verwaltung\" ausgewählt und danach auf \"Neuer Tagstore\" geklickt. Daraufhin erscheint ein neues Fenster, in welchem ein Ordner ausgewählt wird, der den Store beinhalten soll. <br>"
-                                                "Wenn ein der Store erfolgreich angelegt wurde, sollte die Stuktur in dem Ordenr, welcher für den Store ausgewehlt wurde, so aussehen:"))
+        text_label = QtGui.QLabel(self.trUtf8("Bei dem ersten Start des Programmes, muss ein sogenannter \"Store\" angelegt werden. <br>"
+                                                "Jeder Benutzer muss zumindest einen Store anlegen. Weitere Stores fuer verschiedene Zwecke (beruflich, privat, Videos, Downloads, ...) koennen jederzeit nachtraeglich erstellt werden.<br>"
+                                                "Um einen Store anzulegen wird zuerst im tagstore Manager der Tab \"Store-Verwaltung\" ausgewaehlt und danach auf \"Neuer Tagstore\" geklickt. Daraufhin erscheint ein neues Fenster, in welchem ein Ordner ausgewaehlt wird, der den Store beinhalten soll. <br>"
+                                                "Wenn ein der Store erfolgreich angelegt wurde, sollte die Stuktur in dem Ordenr, welcher fuer den Store ausgewehlt wurde, so aussehen:"))
         
         image_lable = QtGui.QLabel()
-        image_lable.setPixmap(QtGui.QPixmap("./tsresources/images/structure_de.png"))
+        image_lable.setPixmap(QtGui.QPixmap("./tsresources/images/structure_en.png"))
         
         text_label.setWordWrap(True)
     
@@ -102,7 +102,16 @@ class Wizard(QtGui.QWizard):
     
     def __create_ending_page(self):
         page = QtGui.QWizardPage()
-        page.setTitle(self.trUtf8("End"))
+        page.setTitle(self.trUtf8("Have fun!"))
+        
+        text_label1 = QtGui.QLabel(self.trUtf8("Das tagstore-Team wuenscht viel Spass beim taggen!<br>"
+                                               "Bei Unklarheiten zu einem Reiter einfach auf den Hilfeknopf oben rechts in der Ecke eines jeden Reiters klicken."))
+        
+        text_label1.setWordWrap(True)
+        
+        layout = QtGui.QVBoxLayout()
+        layout.addWidget(text_label1)
+        page.setLayout(layout)
     
         return page
     
@@ -113,16 +122,16 @@ class Wizard(QtGui.QWizard):
         tab_image_lable = QtGui.QLabel()
         dropdown_image_lable = QtGui.QLabel()
         settings_image_lable = QtGui.QLabel()
-        tab_image_lable.setPixmap(QtGui.QPixmap("./tsresources/images/tabs_de.png"))
-        dropdown_image_lable.setPixmap(QtGui.QPixmap("./tsresources/images/store_dropdown.png"))
-        settings_image_lable.setPixmap(QtGui.QPixmap("./tsresources/images/my_tags_tag_lines_de.png"))
+        tab_image_lable.setPixmap(QtGui.QPixmap(self.trUtf8("./tsresources/images/tabs_en.png")))
+        dropdown_image_lable.setPixmap(QtGui.QPixmap(self.trUtf8("./tsresources/images/store_dropdown.png")))
+        settings_image_lable.setPixmap(QtGui.QPixmap(self.trUtf8("./tsresources/images/my_tags_tag_lines_en.png")))
         
-        text_label1 = QtGui.QLabel(self.trUtf8("Jeder Store der angelegt wurde, kann über den Manager jederzeit konfiguriert werden. Dieser ist in verschiedene Tabs/Reiter unterteilt."))
-        text_label2 = QtGui.QLabel(self.trUtf8("Wenn eine Einstellung für jeden Store gemacht werden kann, wird der gewünschte Store über ein \"Dropdown Menu\" ausgewählt. Dieses befindet sich unter der Beschreibung des Tabs."))
-        text_label3 = QtGui.QLabel(self.trUtf8("Unter dem Tab/Reiter \"Meine Tags\" kann für jeden Store nachgeschaut werden, ob eine oder zwei Tag-Zeilen verwendet werden. In der erste Tag-Zeile werden beschreibende und in der zweiten kategorisierende Tags verwendet."))
-        text_label4 = QtGui.QLabel(self.trUtf8("Wird nur eine Zeile verwendet, kann eingestellt werden, ob in dieser nur vom Benutzter vordefinierte Tags (»Meine Tags«) erlaubt werden oder nicht. Dies soll die Verwendung von ähnlichen Tags verhindern(z.B: Uni, Universität). <br>"
-                                                      "Solche Tags können mit einem klick auf \"Hinzufügen\" der Liste von Tags hinzugefügt werden oder mit \"Löschen\" von ihr gelöscht werden. <br>"
-                                                      "Werden zwei Zeilen verwendet, kann nur noch für die zweite Tag-Zeile eingestellt werden, ob diese nur »meine Tags« verwenden soll."))
+        text_label1 = QtGui.QLabel(self.trUtf8("Jeder Store der angelegt wurde, kann ueber den Manager jederzeit konfiguriert werden. Dieser ist in verschiedene Tabs/Reiter unterteilt."))
+        text_label2 = QtGui.QLabel(self.trUtf8("Wenn eine Einstellung fuer jeden Store gemacht werden kann, wird der gewuenschte Store ueber ein \"Dropdown Menu\" ausgewaehlt. Dieses befindet sich unter der Beschreibung des Tabs."))
+        text_label3 = QtGui.QLabel(self.trUtf8("Unter dem Tab/Reiter \"Meine Tags\" kann fuer jeden Store nachgeschaut werden, ob eine oder zwei Tag-Zeilen verwendet werden. In der erste Tag-Zeile werden beschreibende und in der zweiten kategorisierende Tags verwendet."))
+        text_label4 = QtGui.QLabel(self.trUtf8("Wird nur eine Zeile verwendet, kann eingestellt werden, ob in dieser nur vom Benutzter vordefinierte Tags (\"Meine Tags\") erlaubt werden oder nicht. Dies soll die Verwendung von aehnlichen Tags verhindern(z.B: Uni, Universitaet). <br>"
+                                                      "Solche Tags koennen mit einem klick auf \"Hinzufuegen\" der Liste von Tags hinzugefuegt werden oder mit \"Loeschen\" von ihr geloescht werden. <br>"
+                                                      "Werden zwei Zeilen verwendet, kann nur noch fuer die zweite Tag-Zeile eingestellt werden, ob diese nur \"meine Tags\" verwenden soll."))
         text_label1.setWordWrap(True)
         text_label2.setWordWrap(True)
         text_label3.setWordWrap(True)
@@ -145,13 +154,13 @@ class Wizard(QtGui.QWizard):
         page.setTitle(self.trUtf8("Tagging"))
         
         tagging_label = QtGui.QLabel()
-        tagging_label.setPixmap(QtGui.QPixmap("./tsresources/image/tagging_de.png"))
+        tagging_label.setPixmap(QtGui.QPixmap(self.trUtf8("./tsresources/image/tagging_en.png")))
         
-        text_label1 = QtGui.QLabel(self.trUtf8("Wenn ein neues »Item« (Datei, Ordner) in den Ordner \"Ablage\" hinzugefügt wird, erscheint der sogenannte \"Tag-Dialog\"."))
-        text_label2 = QtGui.QLabel(self.trUtf8("Hier befindet sich eine sogenannte \"Tag-Cloud\"(1), eine Liste der noch nicht getaggten Objekte(2) und je nach Einstellung eine oder zwei Tag-Zeilen mit Vorschlägen für Tags(3). Die erste Tag-Zeile(4) ist für beschreibenden und die zweite(5) für kategorisierende Tags.<br>"
-                                               "Mit einem klick auf \"Tag\"(6) wird das ausgewählte Objekt getaggt und ein klick auf \"Manager...\"(7) öffnet den tagstore Manager.<br>"
-                                               "Wenn man ein Objekt nicht sofort taggen will, kann man auf \"Später bearbeiten\" klicken.<br>"
-                                               "Items, die noch nicht getaggt sind, erscheinen so lange in der Liste vom \"Tag-Dialog\", bis entsprechende Items wieder gelöscht werden oder mit Tags versehen wurden."))
+        text_label1 = QtGui.QLabel(self.trUtf8("Wenn ein neues \"Item\" (Datei, Ordner) in den Ordner \"Ablage\" hinzugefuegt wird, erscheint der sogenannte \"Tag-Dialog\"."))
+        text_label2 = QtGui.QLabel(self.trUtf8("Hier befindet sich eine sogenannte \"Tag-Cloud\"(1), eine Liste der noch nicht getaggten Objekte(2) und je nach Einstellung eine oder zwei Tag-Zeilen(3). Die erste Tag-Zeile(4) ist fuer beschreibenden und die zweite(5) fuer kategorisierende Tags.<br>"
+                                               "Mit einem klick auf \"Tag\"(6) wird das ausgewaehlte Objekt getaggt und ein klick auf \"Manager...\"(7) oeffnet den tagstore Manager.<br>"
+                                               "Wenn man ein Objekt nicht sofort taggen will, kann man auf \"Spaeter bearbeiten\" klicken.<br>"
+                                               "Items, die noch nicht getaggt sind, erscheinen so lange in der Liste vom \"Tag-Dialog\", bis entsprechende Items wieder geloescht werden oder mit Tags versehen wurden."))
                                    
         text_label1.setWordWrap(True)
         text_label2.setWordWrap(True)

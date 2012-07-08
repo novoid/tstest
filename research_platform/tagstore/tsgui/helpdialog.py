@@ -50,36 +50,47 @@ class HelpDialog(QtGui.QDialog):
         self.__visible_checkbox.setChecked(True)
         
         if self.__tab == "tagdialog":
-            self.__description_label.setText(self.trUtf8("Hallo."))
-            self.setWindowTitle(self.trUtf8("Welcome to tagstore"))
+            self.__description_label.setText(self.trUtf8("In diesem Fenster werden die Items, die sich in der Ablage befinden getaggt. <br>"
+                                                         "Auf der rechten Seite Oben befindet sich eine Liste der noch nicht getagten Items. Um ein solches zu taggen wird zuerst eines ausgewaehlt, danach werden die Tags in die darunterliegende/n \"Tag-Zeile/n\" (je nach Einstellung) geschrieben und jeweils mit einem \",\" getrennt.<br>"
+                                                         "Mit einem abschliessenden Klick auf \"Tag\" wird das ausgewaehlte Item getaggt.<br>"
+                                                         "Auf der linken Seite befindet sich eine sogenannte \"TagCloud\" (fuer jede \"Tag-Zeile\" eine) in der sich Vorschlaege fuer Tags befinden, wobei die Groesse des Tags angibt, wie oft dieser verwendet wurde (je groesser desto haeufiger).<br>"
+                                                         "Die in Orange dargestellten Tags wurden mit Hilfe eines Algorithmus, speziell fuer das ausgewaehlte Item und ihren Taggingverhalten ausgesucht."))
+            self.setWindowTitle(self.trUtf8("Welcome to tagstore!"))
             if not self.__config_wrapper.get_show_tag_help():
                 self.__visible_checkbox.setChecked(False)
         elif self.__tab == "My Tags":
-            self.__description_label.setText(self.trUtf8("Hallo0."))
+            self.__description_label.setText(self.trUtf8("Unter dem Reiter \"Meine Tags\" kann fuer jeden Store nachgeschaut werden, ob eine oder zwei Tag-Zeilen verwendet werden. In der erste Tag-Zeile werden beschreibende und in der zweiten kategorisierende Tags verwendet.<br>"
+                                                         "Wird nur eine Zeile verwendet, kann eingestellt werden, ob in dieser nur vom Benutzter vordefinierte Tags (\"Meine Tags\") erlaubt werden oder nicht. Dies soll die Verwendung von aehnlichen Tags verhindern(z.B: Uni, Universitaet). <br>"
+                                                         "Solche Tags koennen mit einem klick auf \"Hinzufuegen\" der Liste von Tags hinzugefuegt werden oder mit \"Loeschen\" von ihr geloescht werden. <br>"
+                                                         "Werden zwei Zeilen verwendet, kann nur noch fuer die zweite Tag-Zeile eingestellt werden, ob diese nur \"meine Tags\" verwenden soll."))
             if not self.__config_wrapper.get_show_my_tags_help():
                 self.__visible_checkbox.setChecked(False)
         elif self.__tab == "Datestamps":
-            self.__description_label.setText(self.trUtf8("Hallo1."))
+            self.__description_label.setText(self.trUtf8("Unter diesem Reiter kann eingestellt werden, ob beim taggen, das Datum automatisch in die \"Tagline\" eingetragen wird."))
             if not self.__config_wrapper.get_show_datestamps_help():
                 self.__visible_checkbox.setChecked(False)
         elif self.__tab == "Expiry Date":
-            self.__description_label.setText(self.trUtf8("Hallo2."))
+            self.__description_label.setText(self.trUtf8("Unter diesem Reiter kann eingestellt werden, wann ein bestimmtes Objekt, mit Hilfe eines Praefixes, ablaeuft und in den Ordner \"abgelaufene_Daten\" verschoben wird.<br>"
+                                                         "Diesr Praefix kann in der Zeile am unteren Ende des Tabs definiert werden."))
             if not self.__config_wrapper.get_show_expiry_date_help():
                 self.__visible_checkbox.setChecked(False)
         elif self.__tab == "Re-Tagging":
-            self.__description_label.setText(self.trUtf8("Hallo3."))
+            self.__description_label.setText(self.trUtf8("Unter diesem Reiter koennen bereits getaggte Objekte neu getaggt werden. Dazu wird ein Objekt ausgewaehlt und anschliessend auf \"Re-Tag\" geklickt."))
             if not self.__config_wrapper.get_show_retagging_help():
                 self.__visible_checkbox.setChecked(False)
         elif self.__tab == "Rename Tags":
-            self.__description_label.setText(self.trUtf8("Hallo4."))
+            self.__description_label.setText(self.trUtf8("Unter diesem Reiter koennen Tags, die zum taggen verwendet wurden, umbenannt werden, womit sich auch die Ordnerstruktur aendert.<br>"
+                                                         "Dazu wird ein Tag ausgewaehlt und anschliessend auf \"Umbenennen\" geklickt."))
             if not self.__config_wrapper.get_show_rename_tags_help():
                 self.__visible_checkbox.setChecked(False)
         elif self.__tab == "Store Management":
-            self.__description_label.setText(self.trUtf8("Hallo5."))
+            self.__description_label.setText(self.trUtf8("Unter diesem Reiter kann ein neuer \"Store\" angelegt oder ein bereits vorhandener geloescht oder umbenannet werden. Dies geschiet durch einen Klick auf \"Neuer tagstore\", \"Loeschen ...\" oder \"Umbenennen ...\".<br>"
+                                                         "Zum loeschen oder umbenennen muss der gewuenschte \"Store\" ausgewaehlt werden.<br>"
+                                                         "Wenn erwuenscht, kann auch die Ordnerstruktur des ausgewaehlten \"Stores\", mit einem klick auf \"Struktur neu erstellen ...\" neu erstellt werden"))
             if not self.__config_wrapper.get_show_store_management_help():
                 self.__visible_checkbox.setChecked(False)
         elif self.__tab == "Sync Settings":
-            self.__description_label.setText(self.trUtf8("Hallo6."))
+            self.__description_label.setText(self.trUtf8("Unter diesem Reiter kann ein Tag zum synchronisieren mit Android definiert werden. Alle Items, welche mit diesem Tag getaggt werden, werden automatisch synchronisiert."))
             if not self.__config_wrapper.get_show_sync_settings_help():
                 self.__visible_checkbox.setChecked(False)
                 
