@@ -154,12 +154,12 @@ class Wizard(QtGui.QWizard):
         page.setTitle(self.trUtf8("Tagging"))
         
         tagging_label = QtGui.QLabel()
-        tagging_label.setPixmap(QtGui.QPixmap(self.trUtf8("./tsresources/image/tagging_en.png")))
+        tagging_label.setPixmap(QtGui.QPixmap(self.trUtf8("./tsresources/images/tagging_en.png")))
         
         text_label1 = QtGui.QLabel(self.trUtf8("Wenn ein neues \"Item\" (Datei, Ordner) in den Ordner \"Ablage\" hinzugefuegt wird, erscheint der sogenannte \"Tag-Dialog\"."))
-        text_label2 = QtGui.QLabel(self.trUtf8("Hier befindet sich eine sogenannte \"Tag-Cloud\"(1), eine Liste der noch nicht getaggten Objekte(2) und je nach Einstellung eine oder zwei Tag-Zeilen(3). Die erste Tag-Zeile(4) ist fuer beschreibenden und die zweite(5) fuer kategorisierende Tags.<br>"
-                                               "Mit einem klick auf \"Tag\"(6) wird das ausgewaehlte Objekt getaggt und ein klick auf \"Manager...\"(7) oeffnet den tagstore Manager.<br>"
-                                               "Wenn man ein Objekt nicht sofort taggen will, kann man auf \"Spaeter bearbeiten\" klicken.<br>"
+        text_label2 = QtGui.QLabel(self.trUtf8("Hier befindet sich die sogenannten \"Tag-Clouds\"(1), eine Liste der noch nicht getaggten Objekte(2) und je nach Einstellung eine oder zwei Tag-Zeilen. Die erste Tag-Zeile(3) ist fuer beschreibenden und die zweite(4) fuer kategorisierende Tags.<br>"
+                                               "Mit einem klick auf \"Tag\"(5) wird das ausgewaehlte Objekt getaggt und ein klick auf \"Manager...\"(6) oeffnet den tagstore Manager.<br>"
+                                               "Wenn man ein Objekt nicht sofort taggen will, kann man auf \"Spaeter bearbeiten\"(7) klicken.<br>"
                                                "Items, die noch nicht getaggt sind, erscheinen so lange in der Liste vom \"Tag-Dialog\", bis entsprechende Items wieder geloescht werden oder mit Tags versehen wurden."))
                                    
         text_label1.setWordWrap(True)
@@ -167,8 +167,8 @@ class Wizard(QtGui.QWizard):
         
         layout = QtGui.QVBoxLayout()
         layout.addWidget(text_label1)
-        layout.addWidget(tagging_label)
         layout.addWidget(text_label2)
+        layout.addWidget(tagging_label)
         page.setLayout(layout)
         
         return page

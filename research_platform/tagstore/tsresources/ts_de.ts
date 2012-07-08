@@ -146,6 +146,59 @@ Die in Orange dargestellten Tags wurden mit Hilfe eines Algorithmus, speziell f�
     </message>
 </context>
 <context>
+    <name>Recommender</name>
+    <message>
+        <location filename="../tscore/recommender.py" line="492"/>
+        <source>documents</source>
+        <translation>Dokumente</translation>
+    </message>
+    <message>
+        <location filename="../tscore/recommender.py" line="478"/>
+        <source>PDF</source>
+        <translation>PDF</translation>
+    </message>
+    <message>
+        <location filename="../tscore/recommender.py" line="494"/>
+        <source>video</source>
+        <translation>Video</translation>
+    </message>
+    <message>
+        <location filename="../tscore/recommender.py" line="483"/>
+        <source>movie</source>
+        <translation>Film</translation>
+    </message>
+    <message>
+        <location filename="../tscore/recommender.py" line="486"/>
+        <source>DOC</source>
+        <translation>DOC</translation>
+    </message>
+    <message>
+        <location filename="../tscore/recommender.py" line="488"/>
+        <source>family</source>
+        <translation>Familie</translation>
+    </message>
+    <message>
+        <location filename="../tscore/recommender.py" line="489"/>
+        <source>work</source>
+        <translation>Arbeit</translation>
+    </message>
+    <message>
+        <location filename="../tscore/recommender.py" line="490"/>
+        <source>holiday</source>
+        <translation>Ferien</translation>
+    </message>
+    <message>
+        <location filename="../tscore/recommender.py" line="491"/>
+        <source>image</source>
+        <translation>Bild</translation>
+    </message>
+    <message>
+        <location filename="../tscore/recommender.py" line="493"/>
+        <source>music</source>
+        <translation>Musik</translation>
+    </message>
+</context>
+<context>
     <name>Store</name>
     <message>
         <location filename="../tscore/store.py" line="82"/>
@@ -403,67 +456,67 @@ Die in Orange dargestellten Tags wurden mit Hilfe eines Algorithmus, speziell f�
 <context>
     <name>TagDialog</name>
     <message>
-        <location filename="../tsgui/tagdialog.py" line="274"/>
+        <location filename="../tsgui/tagdialog.py" line="278"/>
         <source>Tag limit reached. No more tags can be provided for this item.</source>
         <translation>Die maximale Anzahl von Tags wurde bereits erreicht.</translation>
     </message>
     <message>
-        <location filename="../tsgui/tagdialog.py" line="283"/>
+        <location filename="../tsgui/tagdialog.py" line="287"/>
         <source>Please select at least one category</source>
         <translation>Bitte wählen Sie mindestens eine Kategorie aus</translation>
     </message>
     <message>
-        <location filename="../tsgui/tagdialog.py" line="293"/>
+        <location filename="../tsgui/tagdialog.py" line="297"/>
         <source>Please use only predefined categories</source>
         <translation>Bitte verwenden Sie nur vorgeschlagene Kategorien</translation>
     </message>
     <message>
-        <location filename="../tsgui/tagdialog.py" line="301"/>
+        <location filename="../tsgui/tagdialog.py" line="305"/>
         <source>At least one tag contains a special character, which is not allowed to be used</source>
         <translation>Zumindest ein Tag beinhaltet ein Sonderzeichen das nicht unterstützt wird</translation>
     </message>
     <message>
-        <location filename="../tsgui/tagdialog.py" line="304"/>
+        <location filename="../tsgui/tagdialog.py" line="308"/>
         <source>At least one tag contains a special character</source>
         <translation>Zumindest ein Tag beinhaltet ein Sonderzeichen das nicht unterstützt wird</translation>
     </message>
     <message>
-        <location filename="../tsgui/tagdialog.py" line="322"/>
+        <location filename="../tsgui/tagdialog.py" line="326"/>
         <source>At least one describing tag contains a special character, which is not allowed to be used</source>
         <translation>In den beschreibenden Tags verwenden Sie zumindest ein nicht erlaubtes Sonderzeichen</translation>
     </message>
     <message>
-        <location filename="../tsgui/tagdialog.py" line="324"/>
+        <location filename="../tsgui/tagdialog.py" line="328"/>
         <source>At least one describing tag is equal to a reserved keyword</source>
         <translation>Zumindest ein beschreibender Tag entspricht einem reservierten Schlüsselwort</translation>
     </message>
     <message>
-        <location filename="../tsgui/tagdialog.py" line="326"/>
+        <location filename="../tsgui/tagdialog.py" line="330"/>
         <source>At least one categorizing tag contains a special character, which is not allowed to be used</source>
         <translation>In den Kategorie-Tags verwenden Sie zumindest ein nicht erlaubtes Sonderzeichen</translation>
     </message>
     <message>
-        <location filename="../tsgui/tagdialog.py" line="328"/>
+        <location filename="../tsgui/tagdialog.py" line="332"/>
         <source>At least one categorizing tag is equal to a reserved keyword</source>
         <translation>Zumindest ein Kategorien-Tag entspricht einem reservierten Schlüsselwort</translation>
     </message>
     <message>
-        <location filename="../tsgui/tagdialog.py" line="406"/>
+        <location filename="../tsgui/tagdialog.py" line="410"/>
         <source>Please type at least one tag in the tag-line</source>
         <translation>Bitte fügen Sie zumindest einen beschreibenden Tag hinzu</translation>
     </message>
     <message>
-        <location filename="../tsgui/tagdialog.py" line="875"/>
+        <location filename="../tsgui/tagdialog.py" line="941"/>
         <source>Cancel</source>
         <translation type="unfinished">Abbrechen</translation>
     </message>
     <message>
-        <location filename="../tsgui/tagdialog.py" line="799"/>
+        <location filename="../tsgui/tagdialog.py" line="865"/>
         <source>write your tags here</source>
         <translation type="unfinished">Tragen Sie Ihre Tags hier ein</translation>
     </message>
     <message>
-        <location filename="../tsgui/tagdialog.py" line="800"/>
+        <location filename="../tsgui/tagdialog.py" line="866"/>
         <source>write your categories here</source>
         <translation type="unfinished"></translation>
     </message>
@@ -471,12 +524,12 @@ Die in Orange dargestellten Tags wurden mit Hilfe eines Algorithmus, speziell f�
 <context>
     <name>TagDialogController</name>
     <message>
-        <location filename="../tsgui/tagdialog.py" line="939"/>
+        <location filename="../tsgui/tagdialog.py" line="1005"/>
         <source>Please enter at least one tag for the selected item</source>
         <translation>Bitte geben Sie zumindest einen Tag für die ausgewählte Datei an</translation>
     </message>
     <message>
-        <location filename="../tsgui/tagdialog.py" line="942"/>
+        <location filename="../tsgui/tagdialog.py" line="1008"/>
         <source>Please select an Item, to which the tags should be added</source>
         <translation>Bitte selektieren Sie die Datei, zu der Sie Tags eintragen wollen</translation>
     </message>
@@ -509,27 +562,27 @@ Die in Orange dargestellten Tags wurden mit Hilfe eines Algorithmus, speziell f�
         <translation>abgelaufene_Daten</translation>
     </message>
     <message>
-        <location filename="../tagstore.py" line="413"/>
+        <location filename="../tagstore.py" line="408"/>
         <source>The filename - %s - is in conflict with an already existing tag. Please rename!</source>
         <translation>Der Dateiname %s verursacht einen Konflikt mit einem bestehenden Tag. Bitte Umbenennen!</translation>
     </message>
     <message>
-        <location filename="../tagstore.py" line="415"/>
+        <location filename="../tagstore.py" line="410"/>
         <source>The tag - %s - is in conflict with an already existing file</source>
         <translation>Der Tag %s verursacht einen Konflikt mit einer bestehenden Datei. Bitte Umbenennen!</translation>
     </message>
     <message>
-        <location filename="../tagstore.py" line="417"/>
+        <location filename="../tagstore.py" line="412"/>
         <source>A tag or item is in conflict with an already existing tag/item</source>
         <translation>Ein Tag oder eine Datei verursacht einen Konflikt mit bestehenden Einträgen</translation>
     </message>
     <message>
-        <location filename="../tagstore.py" line="420"/>
+        <location filename="../tagstore.py" line="415"/>
         <source>The Number of free inodes is below the threshold of %s%</source>
         <translation>Die Anzahl der freien Inodes ist unterhalb der Schwelle von %s%</translation>
     </message>
     <message>
-        <location filename="../tagstore.py" line="423"/>
+        <location filename="../tagstore.py" line="418"/>
         <source>An error occurred while tagging</source>
         <translation>Leider passierte ein Fehler beim Taggen</translation>
     </message>
@@ -732,7 +785,7 @@ Die in Orange dargestellten Tags wurden mit Hilfe eines Algorithmus, speziell f�
     <message>
         <location filename="../tsgui/wizard.py" line="157"/>
         <source>./tsresources/image/tagging_en.png</source>
-        <translation type="unfinished">./tsresources/image/tagging_de.png</translation>
+        <translation type="obsolete">./tsresources/image/tagging_de.png</translation>
     </message>
     <message>
         <location filename="../tsgui/wizard.py" line="52"/>
@@ -747,23 +800,33 @@ Die in Orange dargestellten Tags wurden mit Hilfe eines Algorithmus, speziell f�
     <message>
         <location filename="../tsgui/wizard.py" line="160"/>
         <source>Hier befindet sich eine sogenannte &quot;Tag-Cloud&quot;(1), eine Liste der noch nicht getaggten Objekte(2) und je nach Einstellung eine oder zwei Tag-Zeilen(3). Die erste Tag-Zeile(4) ist fuer beschreibenden und die zweite(5) fuer kategorisierende Tags.&lt;br&gt;Mit einem klick auf &quot;Tag&quot;(6) wird das ausgewaehlte Objekt getaggt und ein klick auf &quot;Manager...&quot;(7) oeffnet den tagstore Manager.&lt;br&gt;Wenn man ein Objekt nicht sofort taggen will, kann man auf &quot;Spaeter bearbeiten&quot; klicken.&lt;br&gt;Items, die noch nicht getaggt sind, erscheinen so lange in der Liste vom &quot;Tag-Dialog&quot;, bis entsprechende Items wieder geloescht werden oder mit Tags versehen wurden.</source>
-        <translation type="unfinished">Hier befindet sich eine sogenannte &quot;Tag-Cloud&quot;(1), eine Liste der noch nicht getaggten Objekte(2) und je nach Einstellung eine oder zwei Tag-Zeilen(3). Die erste Tag-Zeile(4) ist für beschreibenden und die zweite(5) für kategorisierende Tags.&lt;br&gt;Mit einem klick auf &quot;Tag&quot;(6) wird das ausgewählte Objekt getaggt und ein klick auf &quot;Manager...&quot;(7) öffnet den tagstore Manager.&lt;br&gt;Wenn man ein Objekt nicht sofort taggen will, kann man auf &quot;Später bearbeiten&quot; klicken.&lt;br&gt;Items, die noch nicht getaggt sind, erscheinen so lange in der Liste vom &quot;Tag-Dialog&quot;, bis entsprechende Items wieder gelöscht werden oder mit Tags versehen wurden.</translation>
+        <translation type="obsolete">Hier befindet sich eine sogenannte &quot;Tag-Cloud&quot;(1), eine Liste der noch nicht getaggten Objekte(2) und je nach Einstellung eine oder zwei Tag-Zeilen(3). Die erste Tag-Zeile(4) ist für beschreibenden und die zweite(5) für kategorisierende Tags.&lt;br&gt;Mit einem klick auf &quot;Tag&quot;(6) wird das ausgewählte Objekt getaggt und ein klick auf &quot;Manager...&quot;(7) öffnet den tagstore Manager.&lt;br&gt;Wenn man ein Objekt nicht sofort taggen will, kann man auf &quot;Später bearbeiten&quot; klicken.&lt;br&gt;Items, die noch nicht getaggt sind, erscheinen so lange in der Liste vom &quot;Tag-Dialog&quot;, bis entsprechende Items wieder gelöscht werden oder mit Tags versehen wurden.</translation>
+    </message>
+    <message>
+        <location filename="../tsgui/wizard.py" line="160"/>
+        <source>Hier befindet sich die sogenannten &quot;Tag-Clouds&quot;(1), eine Liste der noch nicht getaggten Objekte(2) und je nach Einstellung eine oder zwei Tag-Zeilen. Die erste Tag-Zeile(3) ist fuer beschreibenden und die zweite(4) fuer kategorisierende Tags.&lt;br&gt;Mit einem klick auf &quot;Tag&quot;(5) wird das ausgewaehlte Objekt getaggt und ein klick auf &quot;Manager...&quot;(6) oeffnet den tagstore Manager.&lt;br&gt;Wenn man ein Objekt nicht sofort taggen will, kann man auf &quot;Spaeter bearbeiten&quot;(7) klicken.&lt;br&gt;Items, die noch nicht getaggt sind, erscheinen so lange in der Liste vom &quot;Tag-Dialog&quot;, bis entsprechende Items wieder geloescht werden oder mit Tags versehen wurden.</source>
+        <translation type="unfinished">Hier befindet sich die sogenannten &quot;Tag-Clouds&quot;(1), eine Liste der noch nicht getaggten Objekte(2) und je nach Einstellung eine oder zwei Tag-Zeilen. Die erste Tag-Zeile(3) ist für beschreibenden und die zweite(4) für kategorisierende Tags.&lt;br&gt;Mit einem klick auf &quot;Tag&quot;(5) wird das ausgewählte Objekt getaggt und ein klick auf &quot;Manager...&quot;(6) öffnet den tagstore Manager.&lt;br&gt;Wenn man ein Objekt nicht sofort taggen will, kann man auf &quot;Später bearbeiten&quot;(7) klicken.&lt;br&gt;Items, die noch nicht getaggt sind, erscheinen so lange in der Liste vom &quot;Tag-Dialog&quot;, bis entsprechende Items wieder gelöscht werden oder mit Tags versehen wurden.</translation>
+    </message>
+    <message>
+        <location filename="../tsgui/wizard.py" line="157"/>
+        <source>./tsresources/images/tagging_en.png</source>
+        <translation type="unfinished">./tsresources/images/tagging_de.png</translation>
     </message>
 </context>
 <context>
     <name>tagstore</name>
     <message>
-        <location filename="../tsgui/tagdialog.py" line="468"/>
+        <location filename="../tsgui/tagdialog.py" line="472"/>
         <source>write your tags here</source>
         <translation>Tragen Sie Ihre Tags hier ein</translation>
     </message>
     <message>
-        <location filename="../tsgui/tagdialog.py" line="430"/>
+        <location filename="../tsgui/tagdialog.py" line="434"/>
         <source>Help</source>
         <translation>Hilfe</translation>
     </message>
     <message>
-        <location filename="../tsgui/tagdialog.py" line="431"/>
+        <location filename="../tsgui/tagdialog.py" line="435"/>
         <source>Set application properties</source>
         <translation>Setzen der Programm-Eigenschaften</translation>
     </message>
@@ -773,27 +836,27 @@ Die in Orange dargestellten Tags wurden mit Hilfe eines Algorithmus, speziell f�
         <translation type="obsolete">Bevorzugte Einträge ...</translation>
     </message>
     <message>
-        <location filename="../tsgui/tagdialog.py" line="433"/>
+        <location filename="../tsgui/tagdialog.py" line="437"/>
         <source>Click this button if you want to tag the currently displayed items later on.</source>
         <translation>Drücken Sie diesen Button um die angezeigte Datei später zu taggen.</translation>
     </message>
     <message>
-        <location filename="../tsgui/tagdialog.py" line="435"/>
+        <location filename="../tsgui/tagdialog.py" line="439"/>
         <source>Postpone</source>
         <translation>Später bearbeiten</translation>
     </message>
     <message>
-        <location filename="../tsgui/tagdialog.py" line="436"/>
+        <location filename="../tsgui/tagdialog.py" line="440"/>
         <source>Tag the selected item</source>
         <translation>Markierte Datei taggen</translation>
     </message>
     <message>
-        <location filename="../tsgui/tagdialog.py" line="437"/>
+        <location filename="../tsgui/tagdialog.py" line="441"/>
         <source>Tag!</source>
         <translation>Tag!</translation>
     </message>
     <message>
-        <location filename="../tsgui/tagdialog.py" line="432"/>
+        <location filename="../tsgui/tagdialog.py" line="436"/>
         <source>Manager ...</source>
         <translation>Manager ...</translation>
     </message>
