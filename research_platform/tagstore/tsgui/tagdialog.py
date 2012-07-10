@@ -688,7 +688,7 @@ class TagDialog(QtGui.QDialog):
                 font_size = tag_dict[tag] + self.__start_size
                 tag_font.setPointSizeF(font_size);
                 if str(tag) in reco_tag:
-                    tmp_label = QtGui.QLabel("<style type=\"text/css\">a:link {color:#FF9900;}</style><a href='%s'>%s</a>" % (tag, tag))
+                    tmp_label = QtGui.QLabel("<style type=\"text/css\">a:link {color:#FF6600;}</style><a href='%s'>%s</a>" % (tag, tag))
                 else:
                     tmp_label = QtGui.QLabel("<a href='%s'>%s</a>" % (tag, tag))
                 tmp_label.setFont(tag_font)
@@ -778,7 +778,7 @@ class TagDialog(QtGui.QDialog):
                     if str(tag) in reco_tag:
                         tmp_label = QtGui.QLabel("<style type=\"text/css\">a:link {color:#FF9900;}</style><a href='%s'>%s</a>" % (tag, tag))
                     else:
-                        tmp_label = QtGui.QLabel("<a href='%s'>%s</a>" % (tag, tag))
+                        tmp_label = QtGui.QLabel("<style type=\"text/css\">a:link {color:#339966;}</style><a href='%s'>%s</a>" % (tag, tag))
                     tmp_label.setFont(tag_font)
                     tmp_label.setTextInteractionFlags(QtCore.Qt.LinksAccessibleByMouse|
                                                       QtCore.Qt.LinksAccessibleByKeyboard|

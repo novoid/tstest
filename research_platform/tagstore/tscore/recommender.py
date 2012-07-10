@@ -75,31 +75,36 @@ class Recommender(QtCore.QObject):
             self.recommend_new_tags(dictionary, extension)
         return dictionary
 
-    def get_cat_recommendation(self, tag_wrapper, file_name, number, storage_dir_name):
+    def get_cat_recommendation(self, tag_wrapper, file_name, number, storage_dir_name, allowed_tags):
         
         '''
         function_explanation
         '''
+        
         extension = self.get_file_extension(file_name)
         dictionary = tag_wrapper.get_tag_dict(tag_wrapper.KEY_CATEGORIES).copy()
         
         number_of_tags = 0
-        for tag_name, rating in dictionary.iteritems():
-            number_of_tags += rating
-           
-        for tag_name, rating in dictionary.iteritems():
-            dictionary[tag_name] = ((rating * 2.0) / number_of_tags)
         
-        #meta_dict = self.get_metadata(file_name, extension, storage_dir_name)
-        #if meta_dict != None:
-        #    for meta_data, rating in meta_dict.iteritems():
-        #        if meta_data != None:
-        #            self.add_tag_to_dict(dictionary, meta_data, rating)
+        ## the frequency of tags
+        for tag_name, rating in dictionary.iteritems():
+            number_of_tags += rating   
+        for tag_name, rating in dictionary.iteritems():
+            dictionary[tag_name] = ((rating * 1.5) / number_of_tags)
+        
+        print dictionary
+        print "---"
+        ## compare file_name with tag_name
+        if len(allowed_tags) > 0:
+            for tag in allowed_tags:
+                self.add_tag_to_dict(dictionary, tag, 0)
+        print dictionary
         dictionary = self.string_matching(file_name, dictionary, extension)
+        print dictionary
         
+        ## the frequency of tags by same extension
         file = self.store_path + "/" + storage_dir_name + "/" + file_name
         if os.path.isdir(file):
-        #if file.isdir():
             same_tags_dict = self.rate_tags_from_folder(tag_wrapper, extension, storage_dir_name, tag_wrapper.KEY_CATEGORIES)
             for same_tags, rating in same_tags_dict.iteritems():
                 dictionary[same_tags] += rating
@@ -107,6 +112,8 @@ class Recommender(QtCore.QObject):
             same_tags_dict = self.rate_tags_from_same_data_typ(tag_wrapper, extension, tag_wrapper.KEY_CATEGORIES)
             for same_tags, rating in same_tags_dict.iteritems():
                 dictionary[same_tags] += rating
+        
+        ## the frequency of tags by similar filenames
         same_file_name_dict = self.rate_tags_from_similar_file_name(tag_wrapper, file_name, tag_wrapper.KEY_CATEGORIES)
         for same_name, rating in same_file_name_dict.iteritems():
             dictionary[same_name] += rating
@@ -115,18 +122,8 @@ class Recommender(QtCore.QObject):
             self.recommend_new_tags(dictionary, extension)
 
         return dictionary
+               
         
-
-        
-        self.rate_tags_from_same_data_typ(tag_wrapper, extension, tag_wrapper.KEY_CATEGORIES)
-        '''
-        if len(dictionary) <= number:
-            self.recommend_new_tags(dictionary, extension)
-        '''
-        return dictionary
-        
-        #self.get_metadata(file_name, extension)
-
         
     def get_file_extension(self, new_file):
         '''
@@ -243,64 +240,6 @@ class Recommender(QtCore.QObject):
                 tag_dict[tag_name] = ((rating * 2.5) / number_of_tags)#TODO:check calculation 
         return tag_dict   
   
-  
-    def get_metadata(self, file_name, extension, storage_dir_name):
-        '''
-        function_explanation
-        '''
-        #print file_name
-        file = self.store_path + "/" + storage_dir_name + "/" + file_name
-        #print file
-        if ".pdf" in extension:
-            return self.get_pdf_metadata(file)
-        
-        if ".mp3" in extension:
-            return self.get_mp3_metadata(file)
-        
-        #print "anderes Format"
-        return
-        
-        
-    '''   
-    def get_pdf_metadata(self, pdf):
-
-        #wait while file is being copied
-        i = 0
-        while i < 100:
-            i += 1
-        while os.access(pdf, os.R_OK) == False:
-            i = 1
-        
-             
-        input1 = PdfFileReader(file(pdf, "rb"))
-        author = input1.getDocumentInfo().author
-        title = input1.getDocumentInfo().title
-        subject = input1.getDocumentInfo().subject
-        creator = input1.getDocumentInfo().creator
-        producer = input1.getDocumentInfo().producer
-        dict = {author: 1, title: 0.9, subject: 0.8, creator: 0.3, producer: 0.2}
-        return dict
-
-    def get_mp3_metadata(self, mp3):
-      
-        #wait while file is being copied
-        i = 0
-        while i < 100:
-            i += 1
-        while os.access(mp3, os.R_OK) == False:
-            i = 1 
-            
-
-        audio = MP3(mp3)
-        audio.pprint()
-        audio.items()
-        songtitle = audio["TIT2"]
-        artist = audio["TPE1"]
-        album = audio["TALB"]
-
-        dict = {artist[0]: 1, songtitle[0]: 0.8, album[0]: 0.9}
-        return dict
-    '''
     
     def string_matching(self, file_name, dictionary, file_extension):
         '''

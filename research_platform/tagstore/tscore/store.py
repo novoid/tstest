@@ -1012,11 +1012,17 @@ class Store(QtCore.QObject):
         Changes from Georg
         returns the recommendation
         """
+        allowed_dict = {}
+        if self.is_controlled_vocabulary():
+                allowed_dict = self.get_controlled_vocabulary()
+        
         dictionary = self.__recommender.get_cat_recommendation(
                               self.__tag_wrapper,
                               file_name,
                               number,
-                              self.__storage_dir_name)
+                              self.__storage_dir_name,
+                              allowed_dict)
+        
         
         list = sorted(dictionary.iteritems(), key=lambda (k,v): (v,k), reverse=True)
         return_list = []
