@@ -49,13 +49,16 @@ class Recommender(QtCore.QObject):
            
         for tag_name, rating in dictionary.iteritems():
             dictionary[tag_name] = ((rating * 2.0) / number_of_tags)
-        
+        #print "Nach freq"
+        #print dictionary
         #meta_dict = self.get_metadata(file_name, extension, storage_dir_name)
         #if meta_dict != None:
         #    for meta_data, rating in meta_dict.iteritems():
         #        if meta_data != None:
         #            self.add_tag_to_dict(dictionary, meta_data, rating)
         dictionary = self.string_matching(file_name, dictionary, extension)
+        #print "Nach string"
+        #print dictionary
         
         file = self.store_path + "/" + storage_dir_name + "/" + file_name
         if os.path.isdir(file):
@@ -67,12 +70,18 @@ class Recommender(QtCore.QObject):
             same_tags_dict = self.rate_tags_from_same_data_typ(tag_wrapper, extension, tag_wrapper.KEY_TAGS)
             for same_tags, rating in same_tags_dict.iteritems():
                 dictionary[same_tags] += rating
-        same_file_name_dict = self.rate_tags_from_similar_file_name(tag_wrapper, file_name, tag_wrapper.KEY_TAGS)
+                
+        ext_len = len(extension) * -1
+        file_name_without_extension = file_name[:ext_len]
+                
+        same_file_name_dict = self.rate_tags_from_similar_file_name(tag_wrapper, file_name_without_extension, tag_wrapper.KEY_TAGS)
         for same_name, rating in same_file_name_dict.iteritems():
             dictionary[same_name] += rating
+        
             
         if len(dictionary) <= number:
             self.recommend_new_tags(dictionary, extension)
+
         return dictionary
 
     def get_cat_recommendation(self, tag_wrapper, file_name, number, storage_dir_name, allowed_tags):
@@ -90,17 +99,13 @@ class Recommender(QtCore.QObject):
         for tag_name, rating in dictionary.iteritems():
             number_of_tags += rating   
         for tag_name, rating in dictionary.iteritems():
-            dictionary[tag_name] = ((rating * 1.5) / number_of_tags)
+            dictionary[tag_name] = ((rating * 2.0) / number_of_tags)
         
-        print dictionary
-        print "---"
         ## compare file_name with tag_name
         if len(allowed_tags) > 0:
             for tag in allowed_tags:
                 self.add_tag_to_dict(dictionary, tag, 0)
-        print dictionary
         dictionary = self.string_matching(file_name, dictionary, extension)
-        print dictionary
         
         ## the frequency of tags by same extension
         file = self.store_path + "/" + storage_dir_name + "/" + file_name
@@ -114,7 +119,9 @@ class Recommender(QtCore.QObject):
                 dictionary[same_tags] += rating
         
         ## the frequency of tags by similar filenames
-        same_file_name_dict = self.rate_tags_from_similar_file_name(tag_wrapper, file_name, tag_wrapper.KEY_CATEGORIES)
+        ext_len = len(extension) * -1
+        file_name_without_extension = file_name[:ext_len]
+        same_file_name_dict = self.rate_tags_from_similar_file_name(tag_wrapper, file_name_without_extension, tag_wrapper.KEY_CATEGORIES)
         for same_name, rating in same_file_name_dict.iteritems():
             dictionary[same_name] += rating
             
@@ -201,7 +208,7 @@ class Recommender(QtCore.QObject):
                 number_of_tags += rating
             if number_of_tags:
                 for tag_name, rating in tag_dict.iteritems():
-                    tag_dict[tag_name] = ((rating * 2.5) / number_of_tags)#TODO:check calculation 
+                    tag_dict[tag_name] = ((rating * 3.0) / number_of_tags)#TODO:check calculation 
 
         return tag_dict        
   
@@ -237,7 +244,7 @@ class Recommender(QtCore.QObject):
             number_of_tags += rating
         if number_of_tags:
             for tag_name, rating in tag_dict.iteritems():
-                tag_dict[tag_name] = ((rating * 2.5) / number_of_tags)#TODO:check calculation 
+                tag_dict[tag_name] = ((rating * 3.0) / number_of_tags)#TODO:check calculation 
         return tag_dict   
   
     
@@ -252,18 +259,17 @@ class Recommender(QtCore.QObject):
         for tag_name, rating in dictionary.iteritems():
             tmp_rating = self.string_matching2(file_name_without_extension.upper(), tag_name.upper(), file_extension)
             #tmp_rating = self.string_matching2(file_name.upper(), tag_name.upper(), file_extension)
-            dictionary[tag_name] = rating + tmp_rating
+            dictionary[tag_name] = rating + (tmp_rating * 2)
             if tmp_rating == 1:
                 bool = 1
+        
         if bool < 1:
-            #ext_len = len(file_extension) * -1
-            #file_name_without_extension = file_name[:ext_len]
             sub_file_name_list = re.split("[ ,_-]",file_name_without_extension)
-            #print sub_file_name_list
             for name in sub_file_name_list:
                 if len(name) > 3:
                     self.add_tag_to_dict(dictionary, name, 1)
             self.add_tag_to_dict(dictionary, file_extension[1:].upper(), 0.9)
+        
         return dictionary
         
     def string_matching2(self, file_name, tag_name, file_extension):
@@ -366,6 +372,10 @@ class Recommender(QtCore.QObject):
         file_list = tag_wrapper.get_files()
         
         for old_file_name in file_list:
+            
+            extension = self.get_file_extension(old_file_name)
+            ext_len = len(extension) * -1
+            old_file_name_wext = old_file_name[:ext_len]
             similar = 0
             #sub_file_name_list = file_name.split()    
             #sub_old_file = old_file_name.split()
@@ -374,15 +384,14 @@ class Recommender(QtCore.QObject):
             sub_file_name_list = re.split("[ _-]",file_name)
             sub_file_name_list = filter(lambda x: x != '', sub_file_name_list)
             
-            sub_old_file = re.split("[ _-]", tag_name)
+            sub_old_file = re.split("[ _-]", old_file_name_wext)
             sub_old_file = filter(lambda x: x != '', sub_old_file)
             
-                  
               
-            if len(file_name) > 4 and len(old_file_name) > 4:
+            if len(file_name) > 4 and len(old_file_name_wext) > 4:
                 for sub_name in sub_file_name_list:
-                    for sub_old in sub_old_file:
-                        if len(sub_name) > 4 and len(sub_old_file) > 4:
+                    for sub_old in sub_old_file:                        
+                        if len(sub_name) > 4 and len(sub_old) > 4:
                             if sub_name in sub_old:
                                 similar += 1
                             if sub_old in sub_name:
@@ -401,9 +410,9 @@ class Recommender(QtCore.QObject):
         #necessary???
         for tag_name, rating in tag_dict.iteritems():
             number_of_tags += rating
-        if number_of_tags:
+        if number_of_tags > 0:
             for tag_name, rating in tag_dict.iteritems():
-                tag_dict[tag_name] = ((rating * 2.5) / number_of_tags)#TODO:check calculation 
+                tag_dict[tag_name] = ((rating * 3.0) / number_of_tags)#TODO:check calculation 
         return tag_dict        
 
         
