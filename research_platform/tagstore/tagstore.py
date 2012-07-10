@@ -347,31 +347,34 @@ class Tagstore(QtCore.QObject):
 
         if len(item_list) > 0 and item_list[0] is not None:
 
-            tmp_cat_list = store.get_cat_recommendation(self.NUM_POPULAR_TAGS, str(item_list[0].text()))
-            cat_list = []
-            if store.is_controlled_vocabulary():
-                allowed_set = set(store.get_controlled_vocabulary())
-                dialog_controller.set_category_list(list(allowed_set))
-    
-                ## just show allowed tags - so make the intersection of popular tags ant the allowed tags
-                for cat in tmp_cat_list:
-                    if cat in list(allowed_set):
-                        cat_list.append(cat)
-                for cat in list(allowed_set):
-                    if cat not in cat_list:
-                        cat_list.append(cat)
-                #cat_list = list(cat_set.intersection(allowed_set)) 
-            else:
-                dialog_controller.set_category_list(store.get_categorizing_tags())
-                cat_list = tmp_cat_list
+            if store.get_tagline_config() == 1 or store.get_tagline_config() == 2 or store.get_tagline_config() == 3:
+                tmp_cat_list = store.get_cat_recommendation(self.NUM_POPULAR_TAGS, str(item_list[0].text()))
+                cat_list = []
+                if store.is_controlled_vocabulary():
+                    allowed_set = set(store.get_controlled_vocabulary())
+                    dialog_controller.set_category_list(list(allowed_set))
+        
+                    ## just show allowed tags - so make the intersection of popular tags ant the allowed tags
+                    for cat in tmp_cat_list:
+                        if cat in list(allowed_set):
+                            cat_list.append(cat)
+                    for cat in list(allowed_set):
+                        if cat not in cat_list:
+                            cat_list.append(cat)
+                    #cat_list = list(cat_set.intersection(allowed_set)) 
+                else:
+                    dialog_controller.set_category_list(store.get_categorizing_tags())
+                    cat_list = tmp_cat_list
+                    
+                if len(cat_list) > self.NUM_POPULAR_TAGS:
+                    cat_list = cat_list[:self.NUM_POPULAR_TAGS]
+                #dialog_controller.set_popular_categories(cat_list)
+                dict = store.get_cat_cloud() 
+                dialog_controller.set_cat_cloud(dict, cat_list, self.MAX_CLOUD_TAGS)
                 
-            if len(cat_list) > self.NUM_POPULAR_TAGS:
-                cat_list = cat_list[:self.NUM_POPULAR_TAGS]
-            #dialog_controller.set_popular_categories(cat_list)
-            
             ## make a list out of the set, to enable indexing, as not all tags cannot be used
             #tag_list = list(tag_set)
-            if store.get_tagline_config() == 1 or store.get_tagline_config() == 2:
+            if store.get_tagline_config() == 1 or store.get_tagline_config() == 2 or store.get_tagline_config() == 0:
                 tag_list = store.get_tag_recommendation(self.NUM_POPULAR_TAGS, str(item_list[0].text()))
                 if len(tag_list) > self.NUM_POPULAR_TAGS:
                     tag_list = tag_list[:self.NUM_POPULAR_TAGS]
@@ -379,8 +382,7 @@ class Tagstore(QtCore.QObject):
                 dict = store.get_tag_cloud()
                 dialog_controller.set_tag_cloud(dict, tag_list, self.MAX_CLOUD_TAGS)
 
-            dict = store.get_cat_cloud() 
-            dialog_controller.set_cat_cloud(dict, cat_list, self.MAX_CLOUD_TAGS)
+            
     
             #if len(self.DIALOGS) > 1:
             dialog_controller.set_store_name(store.get_name())

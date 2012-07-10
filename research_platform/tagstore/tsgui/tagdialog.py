@@ -700,7 +700,6 @@ class TagDialog(QtGui.QDialog):
                 tmp_label.setWordWrap(False)
                 self.connect(tmp_label, QtCore.SIGNAL("linkActivated(QString)"), self.__handle_tag_label_clicked)
                 
-                div = 10
                 if (tag_dict[tag]/self.__division) < 1:
                     length = 1
                 else:
