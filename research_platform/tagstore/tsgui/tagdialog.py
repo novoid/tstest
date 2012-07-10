@@ -480,6 +480,8 @@ class TagDialog(QtGui.QDialog):
         current_text = str(self.__category_line.text()).strip()
         if current_text == "":
             self.__category_line.setText(clicked_text)
+        elif current_text == QtGui.QApplication.translate("tagstore", "write your categories here", None, QtGui.QApplication.UnicodeUTF8):
+            self.__category_line.setText(clicked_text)
         elif current_text[len(current_text)-1] == self.__tag_separator:
             self.__category_line.setText("%s %s" % (current_text, clicked_text))
         else:
@@ -856,14 +858,14 @@ class TagDialog(QtGui.QDialog):
     def clear_tag_line(self):
         self.__tag_line_widget.clear_line()
         if not self.__show_datestamp:
-            self.__tag_line_widget.set_text("write your tags here")
+            self.__tag_line_widget.set_place_holder_text("write your tags here")
 
     def clear_tag_lines(self):
         self.__tag_line_widget.clear_line()
         self.__cat_line_widget.clear_line()
         if not self.__show_datestamp:
-            self.__tag_line_widget.set_text(self.trUtf8("write your tags here"))
-            self.__tag_line_widget.set_text(self.trUtf8("write your categories here"))
+            self.__tag_line_widget.set_place_holder_text(self.trUtf8("write your tags here"))
+            self.__cat_line_widget.set_place_holder_text(self.trUtf8("write your categories here"))
         
     def clear_item_view(self):
         self.__item_list_view.clear()

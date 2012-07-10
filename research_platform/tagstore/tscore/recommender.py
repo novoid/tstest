@@ -443,5 +443,5 @@ class Recommender(QtCore.QObject):
     
     def add_tag_to_dict(self, dictionary, tag, rating):
         if str(tag) not in dictionary:
-            dictionary.setdefault(tag, rating)
+            dictionary.setdefault(str(tag), rating)
 ## end

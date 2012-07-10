@@ -324,6 +324,10 @@ class TagCompleterWidget(QObject):
             return True
         else:
             return False
+    
+    def set_place_holder_text(self, text):
+        self.__tag_line.setPlaceholderText(text)
+    
 
     #def set_size(self, qrect):
     #    self.setGeometry(qrect)
