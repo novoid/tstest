@@ -289,15 +289,17 @@ class Recommender(QtCore.QObject):
         '''
         function_explanation
         '''
-        if tag_name in file_extension:
+        if tag_name.upper() in file_extension.upper():
             return 1
 
-        if file_name in tag_name:
+        if file_name.upper() in tag_name.upper():
             return 1
         
-        if tag_name in file_name:
+        if tag_name.upper() in file_name.upper():
             return 1
+        
         rating = self.damerau_levenshtein_distance(file_name, tag_name)
+        
         if len(file_name) != 0 and len(tag_name) != 0:
             #rating = 1 - ((rating * 1.0) / max(len(file_name), len(tag_name)))
             rating = 1 - rating * 1.0
