@@ -39,7 +39,7 @@ class TagDialog(QtGui.QDialog):
         
         QtGui.QDialog.__init__(self, parent)
         
-        #self.setWindowFlags(QtCore.Qt.WindowTitleHint | QtCore.Qt.WindowCloseButtonHint)
+        self.setWindowFlags(QtCore.Qt.WindowTitleHint)
         
         self.APP_NAME = "tagstore"
         
@@ -690,11 +690,11 @@ class TagDialog(QtGui.QDialog):
                 tag_font = QtGui.QFont()
                 font_size = tag_dict[tag] + self.__start_size
                 tag_font.setPointSizeF(font_size);
-                #if tag in reco_tag: # str(tag)???
-                #    tmp_label = QtGui.QLabel("<style type=\"text/css\">a:link {color:#FF6600;}</style><a href='%s'>%s</a>" % (tag, tag))
-                #else:
-                #    tmp_label = QtGui.QLabel("<a href='%s'>%s</a>" % (tag, tag))
-                tmp_label = QtGui.QLabel("<a href='%s'>%s</a>" % (tag, tag))
+                if tag in reco_tag: # str(tag)???
+                    tmp_label = QtGui.QLabel("<style type=\"text/css\">a:link {color:#1752a7;}</style><a href='%s'>%s</a>" % (tag, tag))
+                else:
+                    tmp_label = QtGui.QLabel("<style type=\"text/css\">a:link {color:#1752e7;}</style><a href='%s'>%s</a>" % (tag, tag))
+                #tmp_label = QtGui.QLabel("<a href='%s'>%s</a>" % (tag, tag))
                 
                 tmp_label.setFont(tag_font)
                 tmp_label.setTextInteractionFlags(QtCore.Qt.LinksAccessibleByMouse|
@@ -779,11 +779,11 @@ class TagDialog(QtGui.QDialog):
                     tag_font.Cursive;
                     font_size = tag_dict[tag] + self.__start_size
                     tag_font.setPointSizeF(font_size);
-                    #if tag in reco_tag: # str(tag)???
-                    #    tmp_label = QtGui.QLabel("<style type=\"text/css\">a:link {color:#FF9900;}</style><a href='%s'>%s</a>" % (tag, tag))
-                    #else:
-                    #    tmp_label = QtGui.QLabel("<style type=\"text/css\">a:link {color:#339966;}</style><a href='%s'>%s</a>" % (tag, tag))
-                    tmp_label = QtGui.QLabel("<style type=\"text/css\">a:link {color:#339966;}</style><a href='%s'>%s</a>" % (tag, tag))
+                    if tag in reco_tag: # str(tag)???
+                        tmp_label = QtGui.QLabel("<style type=\"text/css\">a:link {color:#226421;}</style><a href='%s'>%s</a>" % (tag, tag))
+                    else:
+                        tmp_label = QtGui.QLabel("<style type=\"text/css\">a:link {color:#228421;}</style><a href='%s'>%s</a>" % (tag, tag))
+                    #tmp_label = QtGui.QLabel("<style type=\"text/css\">a:link {color:#339966;}</style><a href='%s'>%s</a>" % (tag, tag))
                     
                     tmp_label.setFont(tag_font)
                     tmp_label.setTextInteractionFlags(QtCore.Qt.LinksAccessibleByMouse|
