@@ -88,7 +88,7 @@ class Wizard(QtGui.QWizard):
                                                 "Wenn ein der Store erfolgreich angelegt wurde, sollte die Stuktur in dem Ordenr, welcher fuer den Store ausgewehlt wurde, so aussehen:"))
         
         image_lable = QtGui.QLabel()
-        image_lable.setPixmap(QtGui.QPixmap("./tsresources/images/structure_en.png"))
+        image_lable.setPixmap(QtGui.QPixmap(self.trUtf8("./tsresources/images/structure_en.png")))
         
         text_label.setWordWrap(True)
     

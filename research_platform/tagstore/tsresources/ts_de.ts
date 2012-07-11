@@ -26,7 +26,7 @@
     <message>
         <location filename="../tsgui/admindialog.py" line="1060"/>
         <source>Hide activated datestamp in tag-line</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Automatischer Datumseintrag in der Tag-Zeile nicht anzeigen</translation>
     </message>
 </context>
 <context>
@@ -137,7 +137,7 @@ Die in Orange dargestellten Tags wurden mit Hilfe eines Algorithmus, speziell fÃ
     <message>
         <location filename="../tsgui/admindialog.py" line="726"/>
         <source>Re-tag already tagged items</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Re-Tag bereits getaggte Items</translation>
     </message>
     <message>
         <location filename="../tsgui/admindialog.py" line="734"/>
@@ -148,52 +148,52 @@ Die in Orange dargestellten Tags wurden mit Hilfe eines Algorithmus, speziell fÃ
 <context>
     <name>Recommender</name>
     <message>
-        <location filename="../tscore/recommender.py" line="492"/>
+        <location filename="../tscore/recommender.py" line="440"/>
         <source>documents</source>
         <translation>Dokumente</translation>
     </message>
     <message>
-        <location filename="../tscore/recommender.py" line="478"/>
+        <location filename="../tscore/recommender.py" line="426"/>
         <source>PDF</source>
         <translation>PDF</translation>
     </message>
     <message>
-        <location filename="../tscore/recommender.py" line="494"/>
+        <location filename="../tscore/recommender.py" line="442"/>
         <source>video</source>
         <translation>Video</translation>
     </message>
     <message>
-        <location filename="../tscore/recommender.py" line="483"/>
+        <location filename="../tscore/recommender.py" line="431"/>
         <source>movie</source>
         <translation>Film</translation>
     </message>
     <message>
-        <location filename="../tscore/recommender.py" line="486"/>
+        <location filename="../tscore/recommender.py" line="434"/>
         <source>DOC</source>
         <translation>DOC</translation>
     </message>
     <message>
-        <location filename="../tscore/recommender.py" line="488"/>
+        <location filename="../tscore/recommender.py" line="436"/>
         <source>family</source>
         <translation>Familie</translation>
     </message>
     <message>
-        <location filename="../tscore/recommender.py" line="489"/>
+        <location filename="../tscore/recommender.py" line="437"/>
         <source>work</source>
         <translation>Arbeit</translation>
     </message>
     <message>
-        <location filename="../tscore/recommender.py" line="490"/>
+        <location filename="../tscore/recommender.py" line="438"/>
         <source>holiday</source>
         <translation>Ferien</translation>
     </message>
     <message>
-        <location filename="../tscore/recommender.py" line="491"/>
+        <location filename="../tscore/recommender.py" line="439"/>
         <source>image</source>
         <translation>Bild</translation>
     </message>
     <message>
-        <location filename="../tscore/recommender.py" line="493"/>
+        <location filename="../tscore/recommender.py" line="441"/>
         <source>music</source>
         <translation>Musik</translation>
     </message>
@@ -450,7 +450,7 @@ Die in Orange dargestellten Tags wurden mit Hilfe eines Algorithmus, speziell fÃ
     <message>
         <location filename="../tsgui/admindialog.py" line="923"/>
         <source>The new tag &apos;%s&apos; is a not allowed keyword.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Der neue Tag &apos;%s&apos; steht nicht im WÃ¶rterbuch und ist deshalb nicht erlaubt.</translation>
     </message>
 </context>
 <context>
@@ -506,30 +506,30 @@ Die in Orange dargestellten Tags wurden mit Hilfe eines Algorithmus, speziell fÃ
         <translation>Bitte fÃ¼gen Sie zumindest einen beschreibenden Tag hinzu</translation>
     </message>
     <message>
-        <location filename="../tsgui/tagdialog.py" line="941"/>
+        <location filename="../tsgui/tagdialog.py" line="942"/>
         <source>Cancel</source>
         <translation type="unfinished">Abbrechen</translation>
     </message>
     <message>
-        <location filename="../tsgui/tagdialog.py" line="865"/>
+        <location filename="../tsgui/tagdialog.py" line="866"/>
         <source>write your tags here</source>
         <translation type="unfinished">Tragen Sie Ihre Tags hier ein</translation>
     </message>
     <message>
-        <location filename="../tsgui/tagdialog.py" line="866"/>
+        <location filename="../tsgui/tagdialog.py" line="867"/>
         <source>write your categories here</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tragen Sie Ihre Kategorie hier ein</translation>
     </message>
 </context>
 <context>
     <name>TagDialogController</name>
     <message>
-        <location filename="../tsgui/tagdialog.py" line="1005"/>
+        <location filename="../tsgui/tagdialog.py" line="1006"/>
         <source>Please enter at least one tag for the selected item</source>
         <translation>Bitte geben Sie zumindest einen Tag fÃ¼r die ausgewÃ¤hlte Datei an</translation>
     </message>
     <message>
-        <location filename="../tsgui/tagdialog.py" line="1008"/>
+        <location filename="../tsgui/tagdialog.py" line="1009"/>
         <source>Please select an Item, to which the tags should be added</source>
         <translation>Bitte selektieren Sie die Datei, zu der Sie Tags eintragen wollen</translation>
     </message>
@@ -562,27 +562,27 @@ Die in Orange dargestellten Tags wurden mit Hilfe eines Algorithmus, speziell fÃ
         <translation>abgelaufene_Daten</translation>
     </message>
     <message>
-        <location filename="../tagstore.py" line="408"/>
+        <location filename="../tagstore.py" line="410"/>
         <source>The filename - %s - is in conflict with an already existing tag. Please rename!</source>
         <translation>Der Dateiname %s verursacht einen Konflikt mit einem bestehenden Tag. Bitte Umbenennen!</translation>
     </message>
     <message>
-        <location filename="../tagstore.py" line="410"/>
+        <location filename="../tagstore.py" line="412"/>
         <source>The tag - %s - is in conflict with an already existing file</source>
         <translation>Der Tag %s verursacht einen Konflikt mit einer bestehenden Datei. Bitte Umbenennen!</translation>
     </message>
     <message>
-        <location filename="../tagstore.py" line="412"/>
+        <location filename="../tagstore.py" line="414"/>
         <source>A tag or item is in conflict with an already existing tag/item</source>
         <translation>Ein Tag oder eine Datei verursacht einen Konflikt mit bestehenden EintrÃ¤gen</translation>
     </message>
     <message>
-        <location filename="../tagstore.py" line="415"/>
+        <location filename="../tagstore.py" line="417"/>
         <source>The Number of free inodes is below the threshold of %s%</source>
         <translation>Die Anzahl der freien Inodes ist unterhalb der Schwelle von %s%</translation>
     </message>
     <message>
-        <location filename="../tagstore.py" line="418"/>
+        <location filename="../tagstore.py" line="420"/>
         <source>An error occurred while tagging</source>
         <translation>Leider passierte ein Fehler beim Taggen</translation>
     </message>
@@ -622,12 +622,12 @@ Die in Orange dargestellten Tags wurden mit Hilfe eines Algorithmus, speziell fÃ
     <message>
         <location filename="../tsgui/admindialog.py" line="539"/>
         <source>Add</source>
-        <translation>HinzufÃ¼gen</translation>
+        <translation type="obsolete">HinzufÃ¼gen</translation>
     </message>
     <message>
         <location filename="../tsgui/admindialog.py" line="540"/>
         <source>Delete</source>
-        <translation>LÃ¶schen</translation>
+        <translation type="obsolete">LÃ¶schen</translation>
     </message>
     <message>
         <location filename="../tsgui/admindialog.py" line="598"/>
@@ -648,6 +648,16 @@ Die in Orange dargestellten Tags wurden mit Hilfe eines Algorithmus, speziell fÃ
         <location filename="../tsgui/admindialog.py" line="522"/>
         <source>two tag-lines; only Â«My TagsÂ» allowed in second one</source>
         <translation>zwei Tag-Zeilen; nur Â»Meine TagsÂ« in zweiter erlaubt</translation>
+    </message>
+    <message>
+        <location filename="../tsgui/admindialog.py" line="539"/>
+        <source>Add tag</source>
+        <translation type="unfinished">Tag hinzufÃ¼gen</translation>
+    </message>
+    <message>
+        <location filename="../tsgui/admindialog.py" line="540"/>
+        <source>Remove tag</source>
+        <translation type="unfinished">Tag entfernen</translation>
     </message>
 </context>
 <context>
@@ -812,6 +822,11 @@ Die in Orange dargestellten Tags wurden mit Hilfe eines Algorithmus, speziell fÃ
         <source>./tsresources/images/tagging_en.png</source>
         <translation type="unfinished">./tsresources/images/tagging_de.png</translation>
     </message>
+    <message>
+        <location filename="../tsgui/wizard.py" line="91"/>
+        <source>./tsresources/images/structure_en.png</source>
+        <translation type="unfinished">./tsresources/images/structure_de.png</translation>
+    </message>
 </context>
 <context>
     <name>tagstore</name>
@@ -889,6 +904,11 @@ Die in Orange dargestellten Tags wurden mit Hilfe eines Algorithmus, speziell fÃ
         <location filename="../tsgui/syncdialog.py" line="175"/>
         <source>Target Tagstore:</source>
         <translation type="obsolete">Ziel Tagstore:</translation>
+    </message>
+    <message>
+        <location filename="../tsgui/tagdialog.py" line="483"/>
+        <source>write your categories here</source>
+        <translation type="unfinished">Tragen Sie Ihre Kategorie hier ein</translation>
     </message>
 </context>
 </TS>

@@ -39,7 +39,7 @@ class TagDialog(QtGui.QDialog):
         
         QtGui.QDialog.__init__(self, parent)
         
-        #self.setWindowFlags(QtCore.Qt.WindowTitleHint | QtCore.Qt.WindowCloseButtonHint)
+        self.setWindowFlags(QtCore.Qt.WindowTitleHint)
         
         self.APP_NAME = "tagstore"
         

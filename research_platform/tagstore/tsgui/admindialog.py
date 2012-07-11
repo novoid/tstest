@@ -35,6 +35,8 @@ class StorePreferencesView(QtGui.QDialog):
         QtGui.QDialog.__init__(self, parent)
         
         self.resize(700, 480)
+        
+        self.setWindowFlags(QtCore.Qt.WindowTitleHint)
         #self.setModal(True)
             
         self.__layout = QtGui.QVBoxLayout(self)
@@ -536,8 +538,8 @@ class VocabularyAdminView(MultipleStorePreferenceView):
         
         self.__vocabulary_list_view = QtGui.QListWidget()
         
-        self.__btn_add_vocabulary = QtGui.QPushButton(self.trUtf8("Add"))
-        self.__btn_del_vocabulary = QtGui.QPushButton(self.trUtf8("Delete"))
+        self.__btn_add_vocabulary = QtGui.QPushButton(self.trUtf8("Add tag"))
+        self.__btn_del_vocabulary = QtGui.QPushButton(self.trUtf8("Remove tag"))
         
         self.__btn_panel_layout = QtGui.QHBoxLayout()
         self.__btn_panel_layout.addWidget(self.__btn_add_vocabulary)
@@ -1675,9 +1677,6 @@ class StorePreferencesController(QtCore.QObject):
         if first_start:
             self.select_store_admin_tab()
             self.__main_config.set_first_start(False)
-            if self.__main_config.get_show_wizard():
-                self.__wizard.get_view().show()
-                self.__main_config.set_show_wizard("false")
     
     def set_parent(self, parent):
 #        self.__dialog.setParent(parent)
@@ -1715,6 +1714,9 @@ class StorePreferencesController(QtCore.QObject):
         
         self.set_first_start(self.__main_config.get_first_start())
         self.__dialog.show()
+        if self.__main_config.get_show_wizard():
+                self.__wizard.get_view().show()
+                self.__main_config.set_show_wizard("false")
         
     def hide_dialog(self):
         self.__dialog.hide()
@@ -1723,6 +1725,8 @@ class StorePreferencesController(QtCore.QObject):
         return self.__dialog
     
     def __handle_auto_help(self, selected_index):
+        
+        self.__close_help_windows()
         
         if self.__dialog.isVisible():
             if selected_index == 0:
@@ -1741,12 +1745,13 @@ class StorePreferencesController(QtCore.QObject):
                 self.__controller_sync_store.handle_auto_help()
                 
     def __close_help_windows(self):
-        self.__controller_datestamp.handle_close_event()
-        self.__controller_expiry_admin.handle_close_event()
-        self.__controller_retag.handle_close_event()
-        self.__controller_store_admin.handle_close_event()
-        self.__controller_sync_store.handle_close_event()
-        self.__controller_tag_admin.handle_close_event()
-        self.__controller_vocabulary.handle_close_event()
-      
+        if self.__dialog.isVisible():
+            self.__controller_datestamp.handle_close_event()
+            self.__controller_expiry_admin.handle_close_event()
+            self.__controller_retag.handle_close_event()
+            self.__controller_store_admin.handle_close_event()
+            self.__controller_sync_store.handle_close_event()
+            self.__controller_tag_admin.handle_close_event()
+            self.__controller_vocabulary.handle_close_event()
+          
 ## end
