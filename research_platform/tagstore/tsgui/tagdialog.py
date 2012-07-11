@@ -656,8 +656,8 @@ class TagDialog(QtGui.QDialog):
         self.__tag_cloud_list = []
         
         #tmp_list = sorted(tag_dict.items(), key=itemgetter(1))
-        for reco in reco_tag:
-            if str(reco) not in tag_dict:
+        for reco in reco_tag: # str(reco)???
+            if reco not in tag_dict:
                 tag_dict.setdefault(reco, 18) #highest font-size
             else:
                 tag_dict[reco] = 18
@@ -689,7 +689,7 @@ class TagDialog(QtGui.QDialog):
                 tag_font = QtGui.QFont()
                 font_size = tag_dict[tag] + self.__start_size
                 tag_font.setPointSizeF(font_size);
-                if str(tag) in reco_tag:
+                if tag in reco_tag: # str(tag)???
                     tmp_label = QtGui.QLabel("<style type=\"text/css\">a:link {color:#FF6600;}</style><a href='%s'>%s</a>" % (tag, tag))
                 else:
                     tmp_label = QtGui.QLabel("<a href='%s'>%s</a>" % (tag, tag))
@@ -742,7 +742,7 @@ class TagDialog(QtGui.QDialog):
                 tag_dict.
         '''
         for reco in reco_tag:
-            if str(reco) not in tag_dict:
+            if reco not in tag_dict: # str(reco)???
                 tag_dict.setdefault(reco, 18) #highest font-size
             else:
                 tag_dict[reco] = 18 #highest font-size
@@ -776,7 +776,7 @@ class TagDialog(QtGui.QDialog):
                     tag_font.Cursive;
                     font_size = tag_dict[tag] + self.__start_size
                     tag_font.setPointSizeF(font_size);
-                    if str(tag) in reco_tag:
+                    if tag in reco_tag: # str(tag)???
                         tmp_label = QtGui.QLabel("<style type=\"text/css\">a:link {color:#FF9900;}</style><a href='%s'>%s</a>" % (tag, tag))
                     else:
                         tmp_label = QtGui.QLabel("<style type=\"text/css\">a:link {color:#339966;}</style><a href='%s'>%s</a>" % (tag, tag))
