@@ -48,7 +48,7 @@ class Recommender(QtCore.QObject):
             number_of_tags += rating
            
         for tag_name, rating in dictionary.iteritems():
-            dictionary[tag_name] = ((rating * 2.0) / number_of_tags)
+            dictionary[tag_name] = ((rating * 1.5) / number_of_tags)
         #print "Nach freq"
         #print dictionary
         #meta_dict = self.get_metadata(file_name, extension, storage_dir_name)
@@ -81,7 +81,6 @@ class Recommender(QtCore.QObject):
             
         if len(dictionary) <= number:
             self.recommend_new_tags(dictionary, extension)
-
         return dictionary
 
     def get_cat_recommendation(self, tag_wrapper, file_name, number, storage_dir_name, allowed_tags):
@@ -99,13 +98,15 @@ class Recommender(QtCore.QObject):
         for tag_name, rating in dictionary.iteritems():
             number_of_tags += rating   
         for tag_name, rating in dictionary.iteritems():
-            dictionary[tag_name] = ((rating * 2.0) / number_of_tags)
+            dictionary[tag_name] = ((rating * 1.5) / number_of_tags)
         
+       
         ## compare file_name with tag_name
         if len(allowed_tags) > 0:
             for tag in allowed_tags:
                 self.add_tag_to_dict(dictionary, tag, 0)
         dictionary = self.string_matching(file_name, dictionary, extension)
+             
         
         ## the frequency of tags by same extension
         file = self.store_path + "/" + storage_dir_name + "/" + file_name
@@ -118,6 +119,8 @@ class Recommender(QtCore.QObject):
             for same_tags, rating in same_tags_dict.iteritems():
                 dictionary[same_tags] += rating
         
+             
+        
         ## the frequency of tags by similar filenames
         ext_len = len(extension) * -1
         file_name_without_extension = file_name[:ext_len]
@@ -127,7 +130,17 @@ class Recommender(QtCore.QObject):
             
         if len(dictionary) <= number:
             self.recommend_new_tags(dictionary, extension)
+        
+        '''
+        print "dict"
+        for tag_name, rating in dictionary.iteritems():
+            print tag_name
+            print rating
+            print "---"
+        print "dict ende"   
+        '''
 
+        
         return dictionary
                
         
@@ -259,7 +272,7 @@ class Recommender(QtCore.QObject):
         for tag_name, rating in dictionary.iteritems():
             tmp_rating = self.string_matching2(file_name_without_extension.upper(), tag_name.upper(), file_extension)
             #tmp_rating = self.string_matching2(file_name.upper(), tag_name.upper(), file_extension)
-            dictionary[tag_name] = rating + (tmp_rating * 2)
+            dictionary[tag_name] = rating + (tmp_rating * 1.7)
             if tmp_rating == 1:
                 bool = 1
         
@@ -285,8 +298,9 @@ class Recommender(QtCore.QObject):
         if tag_name in file_name:
             return 1
         rating = self.damerau_levenshtein_distance(file_name, tag_name)
-        if len(file_name) != 0 or len(tag_name) != 0:
-            rating = 1 - ((rating * 1.0) / max(len(file_name), len(tag_name)))
+        if len(file_name) != 0 and len(tag_name) != 0:
+            #rating = 1 - ((rating * 1.0) / max(len(file_name), len(tag_name)))
+            rating = 1 - rating * 1.0
         else:
             rating = 0
         return rating
@@ -303,16 +317,18 @@ class Recommender(QtCore.QObject):
         #sub_list = tag_name.split()        
               
         if len(file_name) <= 4 or len(tag_name) <= 4:
-            return max(len(file_name), len(tag_name))
+            return 1
+            #return max(len(file_name), len(tag_name))
         
-        return_value = max(len(file_name), len(tag_name))
+        #return_value = max(len(file_name), len(tag_name))
+        return_value = 1
         
         for sub_name in sub_file_name_list:
             for sub_tag in sub_list:
                 
                 length1 = len(sub_name)
                 length2 = len(sub_tag)
-                if length1 > 3 or length2 > 3:
+                if length1 > 4 and length2 > 4:
                 
                     if length1 < length2:
                         string1 = sub_name.upper()
@@ -349,9 +365,9 @@ class Recommender(QtCore.QObject):
                                         d[i - 1, j - 1] + cost)
                             if i > 1 and j > 1 and (string1[i - 1] == string2[j - 2]) and string1[i - 2] == string2[j - 1]:
                                 d[i, j] = min(d[i, j], d[i - 1, j - 1] + cost)
-                    return_value = min(d[length1 - 1, length2 - 1], return_value)
+                    return_value = min(d[length1 - 1, length2 - 1]/(max(length1, length2)* 1.0), return_value)
                 else:
-                    return_value = min(max(len(file_name), len(tag_name)), return_value)
+                    return_value = min(1, return_value)
         #print  return_value
         
         return return_value
@@ -412,7 +428,7 @@ class Recommender(QtCore.QObject):
             number_of_tags += rating
         if number_of_tags > 0:
             for tag_name, rating in tag_dict.iteritems():
-                tag_dict[tag_name] = ((rating * 3.0) / number_of_tags)#TODO:check calculation 
+                tag_dict[tag_name] = ((rating * 4.0) / number_of_tags)#TODO:check calculation 
         return tag_dict        
 
         
