@@ -89,7 +89,6 @@ class Recommender(QtCore.QObject):
         '''
         function_explanation
         '''
-        print "----------------------------------------------------------------------------------------"
         extension = self.get_file_extension(file_name)
         dictionary = tag_wrapper.get_tag_dict(tag_wrapper.KEY_CATEGORIES).copy()
         
@@ -100,16 +99,12 @@ class Recommender(QtCore.QObject):
             number_of_tags += rating   
         for tag_name, rating in dictionary.iteritems():
             dictionary[tag_name] = ((rating * 1.5) / number_of_tags)
-        print "nach freq"
-        print dictionary
-       
+
         ## compare file_name with tag_name
         if len(allowed_tags) > 0:
             for tag in allowed_tags:
                 self.add_tag_to_dict(dictionary, tag, 0)
-        dictionary = self.string_matching(file_name, dictionary, extension)
-        print "nach string"
-        print dictionary     
+        dictionary = self.string_matching(file_name, dictionary, extension) 
         
         ## the frequency of tags by same extension
         file = self.store_path + "/" + storage_dir_name + "/" + file_name
@@ -121,8 +116,6 @@ class Recommender(QtCore.QObject):
             same_tags_dict = self.rate_tags_from_same_data_typ(tag_wrapper, extension, tag_wrapper.KEY_CATEGORIES)
             for same_tags, rating in same_tags_dict.iteritems():
                 dictionary[same_tags] += rating
-        print "nach datatyp"
-        print same_tags_dict
              
         
         ## the frequency of tags by similar filenames
@@ -131,8 +124,6 @@ class Recommender(QtCore.QObject):
         same_file_name_dict = self.rate_tags_from_similar_file_name(tag_wrapper, file_name_without_extension, tag_wrapper.KEY_CATEGORIES)
         for same_name, rating in same_file_name_dict.iteritems():
             dictionary[same_name] += rating
-        print "nach similar"
-        print same_file_name_dict
             
         if len(dictionary) <= number:
             self.recommend_new_tags(dictionary, extension)
@@ -145,7 +136,6 @@ class Recommender(QtCore.QObject):
             print "---"
         print "dict ende"   
         '''
-        print dictionary
           
         return dictionary
                
