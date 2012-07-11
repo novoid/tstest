@@ -39,7 +39,7 @@ class TagDialog(QtGui.QDialog):
         
         QtGui.QDialog.__init__(self, parent)
         
-        self.setWindowFlags(QtCore.Qt.WindowTitleHint)
+        #self.setWindowFlags(QtCore.Qt.WindowTitleHint | QtCore.Qt.WindowCloseButtonHint)
         
         self.APP_NAME = "tagstore"
         
@@ -93,6 +93,7 @@ class TagDialog(QtGui.QDialog):
         
         self.__mainlayout = QtGui.QGridLayout()
         self.__mainwidget = QtGui.QWidget(self)
+        self.__mainwidget.setMinimumWidth(400)
         self.__mainwidget.setLayout(self.__mainlayout)
         self.__baseLayout.addWidget(self.__mainwidget)
         
@@ -658,9 +659,9 @@ class TagDialog(QtGui.QDialog):
         #tmp_list = sorted(tag_dict.items(), key=itemgetter(1))
         for reco in reco_tag: # str(reco)???
             if reco not in tag_dict:
-                tag_dict.setdefault(reco, 18) #highest font-size
+                tag_dict.setdefault(reco, 17) #highest font-size
             else:
-                tag_dict[reco] = 18
+                tag_dict[reco] = 17
                 
         tmp_list = list(sorted(tag_dict.items(), key=lambda x: x[1]))
         tag_list = []
@@ -689,10 +690,12 @@ class TagDialog(QtGui.QDialog):
                 tag_font = QtGui.QFont()
                 font_size = tag_dict[tag] + self.__start_size
                 tag_font.setPointSizeF(font_size);
-                if tag in reco_tag: # str(tag)???
-                    tmp_label = QtGui.QLabel("<style type=\"text/css\">a:link {color:#FF6600;}</style><a href='%s'>%s</a>" % (tag, tag))
-                else:
-                    tmp_label = QtGui.QLabel("<a href='%s'>%s</a>" % (tag, tag))
+                #if tag in reco_tag: # str(tag)???
+                #    tmp_label = QtGui.QLabel("<style type=\"text/css\">a:link {color:#FF6600;}</style><a href='%s'>%s</a>" % (tag, tag))
+                #else:
+                #    tmp_label = QtGui.QLabel("<a href='%s'>%s</a>" % (tag, tag))
+                tmp_label = QtGui.QLabel("<a href='%s'>%s</a>" % (tag, tag))
+                
                 tmp_label.setFont(tag_font)
                 tmp_label.setTextInteractionFlags(QtCore.Qt.LinksAccessibleByMouse|
                                                   QtCore.Qt.LinksAccessibleByKeyboard|
@@ -743,9 +746,9 @@ class TagDialog(QtGui.QDialog):
         '''
         for reco in reco_tag:
             if reco not in tag_dict: # str(reco)???
-                tag_dict.setdefault(reco, 18) #highest font-size
+                tag_dict.setdefault(reco, 17) #highest font-size
             else:
-                tag_dict[reco] = 18 #highest font-size
+                tag_dict[reco] = 17 #highest font-size
                 #dictionary.setdefault(tag, rating)
         #tmp_list = sorted(tag_dict.items(), key=itemgetter(1))
         tmp_list = list(sorted(tag_dict.items(), key=lambda x: x[1]))            
@@ -776,10 +779,12 @@ class TagDialog(QtGui.QDialog):
                     tag_font.Cursive;
                     font_size = tag_dict[tag] + self.__start_size
                     tag_font.setPointSizeF(font_size);
-                    if tag in reco_tag: # str(tag)???
-                        tmp_label = QtGui.QLabel("<style type=\"text/css\">a:link {color:#FF9900;}</style><a href='%s'>%s</a>" % (tag, tag))
-                    else:
-                        tmp_label = QtGui.QLabel("<style type=\"text/css\">a:link {color:#339966;}</style><a href='%s'>%s</a>" % (tag, tag))
+                    #if tag in reco_tag: # str(tag)???
+                    #    tmp_label = QtGui.QLabel("<style type=\"text/css\">a:link {color:#FF9900;}</style><a href='%s'>%s</a>" % (tag, tag))
+                    #else:
+                    #    tmp_label = QtGui.QLabel("<style type=\"text/css\">a:link {color:#339966;}</style><a href='%s'>%s</a>" % (tag, tag))
+                    tmp_label = QtGui.QLabel("<style type=\"text/css\">a:link {color:#339966;}</style><a href='%s'>%s</a>" % (tag, tag))
+                    
                     tmp_label.setFont(tag_font)
                     tmp_label.setTextInteractionFlags(QtCore.Qt.LinksAccessibleByMouse|
                                                       QtCore.Qt.LinksAccessibleByKeyboard|

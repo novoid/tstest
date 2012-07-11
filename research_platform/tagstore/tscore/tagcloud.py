@@ -22,7 +22,7 @@ class TagCloud():
 
 
     def __init__(self):
-        self.__NUM_OF_SIZES = 6.0
+        self.__NUM_OF_SIZES = 4.0
         
     
     def create_tag_cloud(self, dict):
