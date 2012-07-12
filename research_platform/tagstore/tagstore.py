@@ -358,28 +358,28 @@ class Tagstore(QtCore.QObject):
                     for cat in tmp_cat_list:
                         if cat in list(allowed_set):
                             cat_list.append(cat)
-                    for cat in list(allowed_set):
-                        if cat not in cat_list:
-                            cat_list.append(cat)
+                    #for cat in list(allowed_set):
+                    #    if cat not in cat_list:
+                    #        cat_list.append(cat)
                     #cat_list = list(cat_set.intersection(allowed_set)) 
                 else:
                     dialog_controller.set_category_list(store.get_categorizing_tags())
                     cat_list = tmp_cat_list
-                    
-                if len(cat_list) > self.NUM_POPULAR_TAGS:
-                    cat_list = cat_list[:self.NUM_POPULAR_TAGS]
+                print cat_list
+                #if len(cat_list) > self.NUM_POPULAR_TAGS:
+                #    cat_list = cat_list[:self.NUM_POPULAR_TAGS]
                 #dialog_controller.set_popular_categories(cat_list)
-                dict = store.get_cat_cloud() 
+                dict = store.get_cat_cloud(str(item_list[0].text())) 
                 dialog_controller.set_cat_cloud(dict, cat_list, self.MAX_CLOUD_TAGS)
                 
             ## make a list out of the set, to enable indexing, as not all tags cannot be used
             #tag_list = list(tag_set)
             if store.get_tagline_config() == 1 or store.get_tagline_config() == 2 or store.get_tagline_config() == 0:
                 tag_list = store.get_tag_recommendation(self.NUM_POPULAR_TAGS, str(item_list[0].text()))
-                if len(tag_list) > self.NUM_POPULAR_TAGS:
-                    tag_list = tag_list[:self.NUM_POPULAR_TAGS]
+                #if len(tag_list) > self.NUM_POPULAR_TAGS:
+                #    tag_list = tag_list[:self.NUM_POPULAR_TAGS]
                 #dialog_controller.set_popular_tags(tag_list)
-                dict = store.get_tag_cloud()
+                dict = store.get_tag_cloud(str(item_list[0].text()))
                 dialog_controller.set_tag_cloud(dict, tag_list, self.MAX_CLOUD_TAGS)
 
             

@@ -79,8 +79,8 @@ class Recommender(QtCore.QObject):
             dictionary[same_name] += rating
         
             
-        if len(dictionary) <= number:
-            self.recommend_new_tags(dictionary, extension)
+        #if len(dictionary) <= number:
+        #    self.recommend_new_tags(dictionary, extension)
         
         return dictionary
 
@@ -125,8 +125,6 @@ class Recommender(QtCore.QObject):
         for same_name, rating in same_file_name_dict.iteritems():
             dictionary[same_name] += rating
             
-        if len(dictionary) <= number:
-            self.recommend_new_tags(dictionary, extension)
         
         '''
         print "dict"
@@ -277,7 +275,7 @@ class Recommender(QtCore.QObject):
             for name in sub_file_name_list:
                 if len(name) > 3:
                     self.add_tag_to_dict(dictionary, name, 1)
-            self.add_tag_to_dict(dictionary, file_extension[1:].upper(), 0.9)
+            self.add_tag_to_dict(dictionary, file_extension[1:].upper(), 0.9001)
         
         return dictionary
         

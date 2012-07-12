@@ -997,14 +997,35 @@ class Store(QtCore.QObject):
                               number,
                               self.__storage_dir_name)
         
-        list = sorted(dictionary.iteritems(), key=lambda (k,v): (v,k), reverse=True)
+        
+        list_with_high_prio = []
+        
+        threshold = 0.9
+        if len(dictionary) <= number:
+            threshold = 0.5
+        
+        for tag_name, rating in dictionary.iteritems():
+            if rating > threshold:
+                list_with_high_prio.append(tag_name)
+    
+        
+        
+        list1 = sorted(dictionary.iteritems(), key=lambda (k,v): (v,k), reverse=True)
         return_list = []
+        #for item in list[:number]:
+        for item in list1[:15]:
+            if item[0] in list_with_high_prio:
+                return_list.append(item[0])  
+        return return_list
+
+        #list = sorted(dictionary.iteritems(), key=lambda (k,v): (v,k), reverse=True)
+        #return_list = []
         #print list
         #for item in list[:number]:
-        for item in list:
-            return_list.append(item[0])
+        #for item in list:
+        #    return_list.append(item[0])
         #print return_list
-        return return_list
+        #return return_list
 
         
     def get_cat_recommendation(self, number, file_name):
@@ -1023,20 +1044,58 @@ class Store(QtCore.QObject):
                               self.__storage_dir_name,
                               allowed_dict)
         
+
+        list_with_high_prio = []
         
-        list = sorted(dictionary.iteritems(), key=lambda (k,v): (v,k), reverse=True)
+        threshold = 0.9
+        if len(dictionary) <= number:
+            threshold = 0.5
+        
+        for tag_name, rating in dictionary.iteritems():
+            if rating > threshold:
+                list_with_high_prio.append(tag_name)
+    
+        
+        
+        list1 = sorted(dictionary.iteritems(), key=lambda (k,v): (v,k), reverse=True)
         return_list = []
         #for item in list[:number]:
-        for item in list:
-            return_list.append(item[0])
-        return return_list
+        for item in list1[:15]:
+            if item[0] in list_with_high_prio:
+                return_list.append(item[0])  
         
-    def get_tag_cloud(self):
+        return return_list
+        '''
+        if len(dictionary) > number/2:
+            for item in list:
+                if dictionary[item] < 0.6:
+                    return_list.append(item[0])
+            print "if"
+            print return_list
+            
+        else:
+            for item in list:
+                return_list.append(item[0])
+            print return_list
+        return return_list
+        '''
+        
+        
+    def get_tag_cloud(self, name):
         dict = self.__tag_wrapper.get_tag_dict(self.__tag_wrapper.KEY_TAGS)
+        if len(dict) < 10:
+            extension = self.__recommender.get_file_extension(name)
+            self.__recommender.recommend_new_tags(dict, extension)
         return self.__tagcloud.create_tag_cloud(dict)
     
-    def get_cat_cloud(self):
+    def get_cat_cloud(self, name):
         tmp_dict = self.__tag_wrapper.get_tag_dict(self.__tag_wrapper.KEY_CATEGORIES)
+        
+        if len(tmp_dict) < 10:
+            extension = self.__recommender.get_file_extension(name)
+            self.__recommender.recommend_new_tags(tmp_dict, extension)
+        
+        
         dict = {}
         if self.is_controlled_vocabulary():
             allowed_list = self.get_controlled_vocabulary()
@@ -1051,6 +1110,6 @@ class Store(QtCore.QObject):
             return self.__tagcloud.create_tag_cloud(tmp_dict)
     
     def get_tagline_config(self):
-        return self.__tagline_config     
+        return self.__tagline_config    
 
 ## end

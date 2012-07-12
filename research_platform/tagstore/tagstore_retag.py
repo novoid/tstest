@@ -282,24 +282,24 @@ class ReTagController(QtCore.QObject):
                 for cat in tmp_cat_list:
                     if cat in list(allowed_set):
                         cat_list.append(cat)
-                for cat in list(allowed_set):
-                    if cat not in cat_list:
-                        cat_list.append(cat)
+                #for cat in list(allowed_set):
+                #    if cat not in cat_list:
+                #        cat_list.append(cat)
             else:
                 self.__tag_dialog.set_category_list(store.get_categorizing_tags())
                 cat_list = tmp_cat_list
             
-            if len(cat_list) > num_pop_tags:
-                cat_list = cat_list[:num_pop_tags]    
+            #if len(cat_list) > num_pop_tags:
+            #    cat_list = cat_list[:num_pop_tags]    
                 
-            dict = store.get_cat_cloud()
+            dict = store.get_cat_cloud(self.__item_name)
             self.__tag_dialog.set_cat_cloud(dict, cat_list, self.MAX_CLOUD_TAGS)
     
         if store.get_tagline_config() == 1 or store.get_tagline_config() == 2 or store.get_tagline_config() == 0:
             tag_list = store.get_tag_recommendation(num_pop_tags, self.__item_name)
-            if len(tag_list) > num_pop_tags:
-                tag_list = tag_list[:num_pop_tags]
-            dict = store.get_tag_cloud()
+            #if len(tag_list) > num_pop_tags:
+            #    tag_list = tag_list[:num_pop_tags]
+            dict = store.get_tag_cloud(self.__item_name)
             self.__tag_dialog.set_tag_cloud(dict, tag_list, self.MAX_CLOUD_TAGS)
         
         if not self.__retag_mode:
