@@ -43,6 +43,7 @@ class HelpDialog(QtGui.QDialog):
         self.setLayout(self.__base_layout)
         
         self.__description_label = QtGui.QLabel()
+        self.__description_label.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
         self.__cancel_button = QtGui.QPushButton(self.trUtf8("Close"))
         self.__visible_checkbox = QtGui.QCheckBox(self.trUtf8("Show Help on "
                                                               "Startup"))      

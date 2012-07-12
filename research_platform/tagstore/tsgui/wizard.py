@@ -26,7 +26,7 @@ class Wizard(QtGui.QWizard):
         QtGui.QWizard.__init__(self, parent)
 
         self.__wizard = QtGui.QWizard()
-        self.__wizard.resize(700, 480)
+        self.__wizard.resize(800, 520)
         self.__wizard.setButtonText(self.__wizard.NextButton, 
                                     self.trUtf8("Next"))
         self.__wizard.setButtonText(self.__wizard.BackButton, 
@@ -49,13 +49,14 @@ class Wizard(QtGui.QWizard):
         page = QtGui.QWizardPage()
         page.setTitle(self.trUtf8("Welcome to Tagstore!"))
     
-        label = QtGui.QLabel(self.trUtf8("Danke, dass sie sich fuer tagstore entschieden haben.<br>"
+        text_label = QtGui.QLabel(self.trUtf8("Danke, dass sie sich fuer tagstore entschieden haben.<br>"
                                          "Das Programm wurde erfolgreich installiert und dieser Assistent wird bei dem Einrichten des ersten \"Store\" helfen."))
         
-        label.setWordWrap(True)
+        text_label.setWordWrap(True)
+        text_label.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
     
         layout = QtGui.QVBoxLayout()
-        layout.addWidget(label)
+        layout.addWidget(text_label)
         page.setLayout(layout)
     
         return page
@@ -71,6 +72,7 @@ class Wizard(QtGui.QWizard):
                                          "Ein Tag ist ein Schluesselwort oder Term welcher dabei helfen soll ein Stueck Information zu beschreiben und es dadurch schneller wieder gefunden werden kann.<br>"
                                          "Bei tagstore koennen, je nach Einstellung, kategorisierende und/oder beschreibende Tags g/benutzt werden. "))
         text_label.setWordWrap(True)
+        text_label.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
     
         layout = QtGui.QVBoxLayout()
         layout.addWidget(text_label)
@@ -91,6 +93,7 @@ class Wizard(QtGui.QWizard):
         image_lable.setPixmap(QtGui.QPixmap(self.trUtf8("./tsresources/images/structure_en.png")))
         
         text_label.setWordWrap(True)
+        text_label.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
     
         layout = QtGui.QVBoxLayout()
         layout.addWidget(text_label)
@@ -104,13 +107,14 @@ class Wizard(QtGui.QWizard):
         page = QtGui.QWizardPage()
         page.setTitle(self.trUtf8("Have fun!"))
         
-        text_label1 = QtGui.QLabel(self.trUtf8("Das tagstore-Team wuenscht viel Spass beim taggen!<br>"
+        text_label = QtGui.QLabel(self.trUtf8("Das tagstore-Team wuenscht viel Spass beim taggen!<br>"
                                                "Bei Unklarheiten zu einem Reiter einfach auf den Hilfeknopf oben rechts in der Ecke eines jeden Reiters klicken."))
         
-        text_label1.setWordWrap(True)
+        text_label.setWordWrap(True)
+        text_label.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
         
         layout = QtGui.QVBoxLayout()
-        layout.addWidget(text_label1)
+        layout.addWidget(text_label)
         page.setLayout(layout)
     
         return page
@@ -136,6 +140,10 @@ class Wizard(QtGui.QWizard):
         text_label2.setWordWrap(True)
         text_label3.setWordWrap(True)
         text_label4.setWordWrap(True)
+        text_label1.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
+        text_label2.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
+        text_label3.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
+        text_label4.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
         
         layout = QtGui.QVBoxLayout()
         layout.addWidget(text_label1)
@@ -164,6 +172,8 @@ class Wizard(QtGui.QWizard):
                                    
         text_label1.setWordWrap(True)
         text_label2.setWordWrap(True)
+        text_label1.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
+        text_label2.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
         
         layout = QtGui.QVBoxLayout()
         layout.addWidget(text_label1)

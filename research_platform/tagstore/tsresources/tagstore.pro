@@ -7,5 +7,6 @@ SOURCES	     += ../tsgui/tagdialog.py
 SOURCES	     += ../tsgui/helpdialog.py
 SOURCES	     += ../tsgui/wizard.py
 SOURCES	     += ../tagstore.py
+SOURCES      += ../tagstore_manager.py
 TRANSLATIONS += ts_de.ts
 

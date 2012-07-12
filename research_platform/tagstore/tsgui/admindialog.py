@@ -922,7 +922,7 @@ class TagAdminView(MultipleStorePreferenceView):
             return True
         special_string = SpecialCharHelper.is_special_string([string_to_check])
         if special_string != "":
-            self.show_tooltip(self.trUtf8("The new tag '%s' is a not allowed keyword." % special_string))
+            self.show_tooltip(self.trUtf8("The new tag ") + special_string + self.trUtf8(" is a not allowed keyword."))
             return True
         return False
 
@@ -1206,9 +1206,14 @@ class ExpiryAdminView(BasePreferenceView):
                      
     def __update_prefix(self, prefix):
         self.__prefix = prefix
-        descr_text = self.trUtf8("Directories or files tagged with '%s2010-12' " \
-            "will be moved to the tagstore directory %s on January 1st 2011; associated tags will be added to the file name. "\
-            "The correct writing of '%s2010-12' is really important thereby." % (self.__prefix, self.trUtf8("expired_items"), self.__prefix))
+        descr_text = self.trUtf8("Directories or files tagged with '") + self.__prefix + self.trUtf8("2010-12' " \
+            "will be moved to the tagstore directory expired_items on January 1st 2011; associated tags will be added to the file name. "\
+            "The correct writing of '") + self.__prefix + self.trUtf8("2010-12' is really important thereby.")
+        
+        #descr_text = self.trUtf8("Directories or files tagged with '%s2010-12' " \
+        #    "will be moved to the tagstore directory %s on January 1st 2011; associated tags will be added to the file name. "\
+        #    "The correct writing of '%s2010-12' is really important thereby." % (self.__prefix, self.trUtf8("expired_items"), self.__prefix))
+        
         self.__detailed_description_label.setText(descr_text)
     
     def get_prefix(self):
