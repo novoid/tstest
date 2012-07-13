@@ -339,7 +339,6 @@ class Tagstore(QtCore.QObject):
         """
         convenience method for refreshing the tag data at the gui-dialog
         """
-        print self.MAX_TAGS
         self.__log.debug("refresh tag information on dialog")
         dialog_controller = self.DIALOGS[store.get_id()]
         dialog_controller.set_tag_list(store.get_tags())
