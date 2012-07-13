@@ -39,14 +39,16 @@ class HelpDialog(QtGui.QDialog):
            
         self.setWindowModality(QtCore.Qt.WindowModal)
         self.__base_layout = QtGui.QVBoxLayout()
+        self.__descr_layout = QtGui.QHBoxLayout()
         self.__bb_layout = QtGui.QHBoxLayout()
         self.setLayout(self.__base_layout)
         
         self.__description_label = QtGui.QLabel()
         self.__description_label.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
         self.__cancel_button = QtGui.QPushButton(self.trUtf8("Close"))
-        self.__visible_checkbox = QtGui.QCheckBox(self.trUtf8("Show Help on "
-                                                              "Startup"))      
+        self.__visible_checkbox = QtGui.QCheckBox(self.trUtf8("Show this automatically"))
+        
+        self.__descr_layout.addWidget(self.__description_label)      
         
         self.__visible_checkbox.setChecked(True)
         
@@ -56,7 +58,10 @@ class HelpDialog(QtGui.QDialog):
                                                          "Mit einem abschliessenden Klick auf \"Tag\" wird das ausgewaehlte Item getaggt.<br>"
                                                          "Auf der linken Seite befindet sich eine sogenannte \"TagCloud\" (fuer jede \"Tag-Zeile\" eine) in der sich Vorschlaege fuer Tags befinden, wobei die Groesse des Tags angibt, wie oft dieser verwendet wurde (je groesser desto haeufiger).<br>"
                                                          "Die in Orange dargestellten Tags wurden mit Hilfe eines Algorithmus, speziell fuer das ausgewaehlte Item und ihren Taggingverhalten ausgesucht."))
-            self.setWindowTitle(self.trUtf8("Welcome to tagstore!"))
+            self.__tagging_label = QtGui.QLabel()
+            self.__tagging_label.setPixmap(QtGui.QPixmap(self.trUtf8("./tsresources/images/tagging_en.png")))
+            self.__descr_layout.addWidget(self.__tagging_label)   
+            self.setWindowTitle(self.trUtf8("Help tag-dialog"))
             if not self.__config_wrapper.get_show_tag_help():
                 self.__visible_checkbox.setChecked(False)
         elif self.__tab == "My Tags":
@@ -97,9 +102,9 @@ class HelpDialog(QtGui.QDialog):
                 
         self.__description_label.setWordWrap(True)
         
-        self.__base_layout.addWidget(self.__description_label)
         self.__bb_layout.addWidget(self.__visible_checkbox)
         self.__bb_layout.addWidget(self.__cancel_button)
+        self.__base_layout.addLayout(self.__descr_layout)
         self.__base_layout.addLayout(self.__bb_layout)
         
         self.__visible_checkbox.stateChanged.connect(self.__handle_checkbox)

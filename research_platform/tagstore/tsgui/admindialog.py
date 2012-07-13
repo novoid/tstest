@@ -448,8 +448,9 @@ class StoreAdminController(BasePreferenceController):
 
     def __delete_store(self):
         selection = QtGui.QMessageBox.information(self.get_view(), self.trUtf8("Delete Store"), 
-                        self.trUtf8("Do you really want to delete the selected store? Be aware, " \
-                        "that the following directory and all of its contents will be deleted: \n %s" % self.__store_list[str(self.get_view().get_selected_store().text())]),
+                        self.trUtf8("Do you really want to delete the selected store? Only the navigation structures will be deleted."
+                                    "The folder \"storage\" and \"expired_items\" remains. A backup copy in advance is still advised. \n") 
+                                    + self.__store_list[str(self.get_view().get_selected_store().text())],
                         QtGui.QMessageBox.Yes, QtGui.QMessageBox.Cancel)
         if selection == QtGui.QMessageBox.Yes:
             self.emit(QtCore.SIGNAL("delete"), self.get_view().get_selected_store().text())

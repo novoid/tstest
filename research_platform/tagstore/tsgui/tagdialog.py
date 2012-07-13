@@ -987,9 +987,9 @@ class TagDialogController(QtCore.QObject):
     
     def __help_clicked(self):
         if self.__tag_dialog.get_tag_help_window().isVisible() == False:
-            self.__tag_dialog.get_tag_help_window().move(
-                self.__tag_dialog.pos().x() + self.__tag_dialog.width() - 100, 
-                self.__tag_dialog.pos().y() - 25)
+            self.__tag_dialog.get_tag_help_window().move( 
+                self.__tag_dialog.pos().x(),  
+                self.__tag_dialog.pos().y() + 150)
             self.__tag_dialog.get_tag_help_window().show()
 
     def __handle_no_items(self):
@@ -1168,8 +1168,8 @@ class TagDialogController(QtCore.QObject):
         if (self.__config_wrapper.get_show_tag_help() and 
             not self.__tag_dialog.get_tag_help_window().isVisible()):
             self.__tag_dialog.get_tag_help_window().move(
-                self.__tag_dialog.pos().x() + self.__tag_dialog.width() - 100, 
-                self.__tag_dialog.pos().y() - 25)
+                self.__tag_dialog.pos().x(), 
+                self.__tag_dialog.pos().y() + 150)
             self.__tag_dialog.get_tag_help_window().show()
         
     def hide_dialog(self):

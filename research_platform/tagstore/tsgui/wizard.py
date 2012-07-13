@@ -26,7 +26,7 @@ class Wizard(QtGui.QWizard):
         QtGui.QWizard.__init__(self, parent)
 
         self.__wizard = QtGui.QWizard()
-        self.__wizard.resize(800, 520)
+        self.__wizard.resize(800, 570)
         self.__wizard.setButtonText(self.__wizard.NextButton, 
                                     self.trUtf8("Next"))
         self.__wizard.setButtonText(self.__wizard.BackButton, 
@@ -37,6 +37,7 @@ class Wizard(QtGui.QWizard):
                                     self.trUtf8("Finish"))
         
         self.__wizard.addPage(self.__create_welcome_page())
+        self.__wizard.addPage(self.__create_fundamentals_page())
         self.__wizard.addPage(self.__create_intro_page())
         self.__wizard.addPage(self.__create_first_steps_page())
         self.__wizard.addPage(self.__create_setting_page())
@@ -47,7 +48,7 @@ class Wizard(QtGui.QWizard):
         
     def __create_welcome_page(self):
         page = QtGui.QWizardPage()
-        page.setTitle(self.trUtf8("Welcome to Tagstore!"))
+        page.setTitle(self.trUtf8("Welcome to tagstore!"))
     
         text_label = QtGui.QLabel(self.trUtf8("Danke, dass sie sich fuer tagstore entschieden haben.<br>"
                                          "Das Programm wurde erfolgreich installiert und dieser Assistent wird bei dem Einrichten des ersten \"Store\" helfen."))
@@ -182,6 +183,27 @@ class Wizard(QtGui.QWizard):
         page.setLayout(layout)
         
         return page
+    
+    def __create_fundamentals_page(self):
+        page = QtGui.QWizardPage()
+        page.setTitle(self.trUtf8("Fundamentals"))
+        
+        text_label = QtGui.QLabel(self.trUtf8("Wir verwenden im Weiteren folgende Begriffe:<br><br>"
+                                  "Ein <b>*Item*</b> ist der Ueberbegriff von Datei<br>"
+                                  "und Ordner. Sie koennen auch Ordner in tagstore ablegen.<br><br>"
+                                  "Ein <b>*store*</b> ist ein Ordner, der auf Ihrer<br>"
+                                  "lokalen Festplatte angelegt wird, um eine Menge von Items zu verwalten.<br><br>"
+                                  "Ein <b>*tag*</b> ist ein Schlagwort."))
+        
+        text_label.setWordWrap(True)
+        text_label.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
+        
+        layout = QtGui.QVBoxLayout()
+        layout.addWidget(text_label)
+        page.setLayout(layout)
+        
+        return page
+                
     
     def get_view(self):
         return self.__wizard
