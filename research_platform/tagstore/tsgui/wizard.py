@@ -26,6 +26,7 @@ class Wizard(QtGui.QWizard):
         QtGui.QWizard.__init__(self, parent)
 
         self.__wizard = QtGui.QWizard()
+        self.__wizard.setWindowFlags(QtCore.Qt.WindowTitleHint)
         self.__wizard.resize(800, 570)
         self.__wizard.setButtonText(self.__wizard.NextButton, 
                                     self.trUtf8("Next"))
