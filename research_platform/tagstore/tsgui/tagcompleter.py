@@ -153,9 +153,11 @@ class TagCompleterWidget(QObject):
             strip_tag = tag.strip()
             if strip_tag != "":
                 tag_set.add(strip_tag)
-        
+        max_tags = self.__max_tags
+        if self.__datestamp_hidden:
+            max_tags = max_tags - 1;
         ## do not proceed if the max tag count is reached
-        if len(tag_set) > self.__max_tags:
+        if len(tag_set) > max_tags:
             self.emit(QtCore.SIGNAL("tag_limit_reached"), True)
             self.__check_tag_limit = True
             return

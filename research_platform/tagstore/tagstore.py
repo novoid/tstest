@@ -339,6 +339,7 @@ class Tagstore(QtCore.QObject):
         """
         convenience method for refreshing the tag data at the gui-dialog
         """
+        print self.MAX_TAGS
         self.__log.debug("refresh tag information on dialog")
         dialog_controller = self.DIALOGS[store.get_id()]
         dialog_controller.set_tag_list(store.get_tags())
@@ -365,7 +366,7 @@ class Tagstore(QtCore.QObject):
                 else:
                     dialog_controller.set_category_list(store.get_categorizing_tags())
                     cat_list = tmp_cat_list
-                print cat_list
+                #print cat_list
                 #if len(cat_list) > self.NUM_POPULAR_TAGS:
                 #    cat_list = cat_list[:self.NUM_POPULAR_TAGS]
                 #dialog_controller.set_popular_categories(cat_list)

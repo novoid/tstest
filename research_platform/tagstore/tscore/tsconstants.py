@@ -95,8 +95,8 @@ class TsConstants(object):
     ## this file is created during a synchronization process
     DEFAULT_SYNCHRONIZATION_LOCKFILE_NAME = "tagstore.synchronization.lock"
     
-    DEFAULT_RECENT_TAGS = 15
-    DEFAULT_POPULAR_TAGS = 15
+    DEFAULT_RECENT_TAGS = 5
+    DEFAULT_POPULAR_TAGS = 5
     DEFAULT_MAX_TAGS = 3
     DEFAULT_TAG_SEPARATOR = ","
     DEFAULT_FACET_SEPARATOR = "="
