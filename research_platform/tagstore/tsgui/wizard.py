@@ -27,7 +27,7 @@ class Wizard(QtGui.QWizard):
 
         self.__wizard = QtGui.QWizard()
         self.__wizard.setWindowFlags(QtCore.Qt.WindowTitleHint)
-        self.__wizard.resize(800, 570)
+        self.__wizard.resize(800, 590)
         self.__wizard.setButtonText(self.__wizard.NextButton, 
                                     self.trUtf8("Next"))
         self.__wizard.setButtonText(self.__wizard.BackButton, 
@@ -91,15 +91,20 @@ class Wizard(QtGui.QWizard):
                                                 "Um einen Store anzulegen wird zuerst im tagstore Manager der Tab \"Store-Verwaltung\" ausgewaehlt und danach auf \"Neuer Tagstore\" geklickt. Daraufhin erscheint ein neues Fenster, in welchem ein Ordner ausgewaehlt wird, der den Store beinhalten soll. <br>"
                                                 "Wenn ein der Store erfolgreich angelegt wurde, sollte die Stuktur in dem Ordenr, welcher fuer den Store ausgewehlt wurde, so aussehen:"))
         
-        image_lable = QtGui.QLabel()
-        image_lable.setPixmap(QtGui.QPixmap(self.trUtf8("./tsresources/images/structure_en.png")))
+        text_label2 = QtGui.QLabel(self.trUtf8("INSERT ENGLISH TEXT"))
+        
+        image_label = QtGui.QLabel()
+        image_label.setPixmap(QtGui.QPixmap(self.trUtf8("./tsresources/images/structure_en.png")))
         
         text_label.setWordWrap(True)
+        text_label2.setWordWrap(True)
         text_label.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
+        text_label2.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
     
         layout = QtGui.QVBoxLayout()
         layout.addWidget(text_label)
-        layout.addWidget(image_lable)
+        layout.addWidget(image_label)
+        layout.addWidget(text_label2)
         page.setLayout(layout)
     
         return page
