@@ -171,7 +171,7 @@
 <context>
     <name>HelpDialog</name>
     <message>
-        <location filename="../tsgui/helpdialog.py" line="48"/>
+        <location filename="../tsgui/helpdialog.py" line="51"/>
         <source>Close</source>
         <translation>Schließen</translation>
     </message>
@@ -186,14 +186,14 @@
         <translation type="obsolete">Willkommen bei tagstore.</translation>
     </message>
     <message>
-        <location filename="../tsgui/helpdialog.py" line="75"/>
+        <location filename="../tsgui/helpdialog.py" line="79"/>
         <source>Unter diesem Reiter kann eingestellt werden, ob beim taggen, das Datum automatisch in die &quot;Tagline&quot; eingetragen wird.</source>
         <translation type="unfinished">Bei „Datumsstempel“ können Sie einstellen, ob tagstore das aktuelle Datum in Form von Monat oder Tag automatisch als erstes Tag in die Tagzeile einfügen soll. Dieser Datumsstempel kann natürlich wie jedes andere Tag auch bearbeitet oder herausgelöscht werden.
 
 Die Option ganz unten fügt zwar den Datumsstempel einem Item hinzu, er erscheint aber nicht in der Tag-Zeile.</translation>
     </message>
     <message>
-        <location filename="../tsgui/helpdialog.py" line="79"/>
+        <location filename="../tsgui/helpdialog.py" line="83"/>
         <source>Unter diesem Reiter kann eingestellt werden, wann ein bestimmtes Objekt, mit Hilfe eines Praefixes, ablaeuft und in den Ordner &quot;abgelaufene_Daten&quot; verschoben wird.&lt;br&gt;Diesr Praefix kann in der Zeile am unteren Ende des Tabs definiert werden.</source>
         <translation type="unfinished">Bei „Ablaufdatum“ können Sie einstellen ob Items ein Ablaufdatum bekommen können und mit welchem Präfix Sie diese Items kennzeichnen.
 
@@ -202,14 +202,14 @@ Wenn Sie „Ablaufdatum“ aktiviert haben und zum Beispiel das Präfix „exp�
 Damit können Sie Dinge, die Sie garantiert nicht länger als eine gewisse Zeit benötigen, von alleine aus Ihrem Store verschieben lassen. Das ist zum Beispiel praktisch für den Plan der Pariser U-Bahn Metro, den Sie nach Ihrem Urlaub vermutlich nicht mehr benötigen.</translation>
     </message>
     <message>
-        <location filename="../tsgui/helpdialog.py" line="84"/>
+        <location filename="../tsgui/helpdialog.py" line="88"/>
         <source>Unter diesem Reiter koennen bereits getaggte Objekte neu getaggt werden. Dazu wird ein Objekt ausgewaehlt und anschliessend auf &quot;Re-Tag&quot; geklickt.</source>
         <translation type="unfinished">Bei „Re-Tagging“ können Sie die Tags bereits abgelegter und getaggter Items ändern.
 
 Dazu wählen Sie bitte das gewünschte Item aus der Liste aus und klicken Sie dann auf „Re-Tag“. Danach öffnet sich der tag-Dialog und Sie können wie gewohnt taggen.</translation>
     </message>
     <message>
-        <location filename="../tsgui/helpdialog.py" line="88"/>
+        <location filename="../tsgui/helpdialog.py" line="92"/>
         <source>Unter diesem Reiter koennen Tags, die zum taggen verwendet wurden, umbenannt werden, womit sich auch die Ordnerstruktur aendert.&lt;br&gt;Dazu wird ein Tag ausgewaehlt und anschliessend auf &quot;Umbenennen&quot; geklickt.</source>
         <translation type="unfinished">Bei „Tags umbenennen“ können Sie bereits vergebene Tags bei allen zugehörigen Items ändern.
 
@@ -220,7 +220,7 @@ Wollen Sie ein Tag ändern, so wählen Sie es aus einer Liste aus und klicken da
 Hinweis: Damit ändert sich auch Ihre Ordnerstruktur. Dieser Vorgang kann je nach Größe des Stores eine Weile dauern.</translation>
     </message>
     <message>
-        <location filename="../tsgui/helpdialog.py" line="93"/>
+        <location filename="../tsgui/helpdialog.py" line="97"/>
         <source>Unter diesem Reiter kann ein neuer &quot;Store&quot; angelegt oder ein bereits vorhandener geloescht oder umbenannet werden. Dies geschiet durch einen Klick auf &quot;Neuer tagstore&quot;, &quot;Loeschen ...&quot; oder &quot;Umbenennen ...&quot;.&lt;br&gt;Zum loeschen oder umbenennen muss der gewuenschte &quot;Store&quot; ausgewaehlt werden.&lt;br&gt;Wenn erwuenscht, kann auch die Ordnerstruktur des ausgewaehlten &quot;Stores&quot;, mit einem klick auf &quot;Struktur neu erstellen ...&quot; neu erstellt werden</source>
         <translation type="unfinished">Unter dem Reiter „Store-Verwaltung“ kann ein neuer Store angelegt oder ein bereits vorhandener gelöscht beziehungsweise umbenannt
 werden.
@@ -234,15 +234,21 @@ Hinweis: beim Löschen eines Stores werden „nur“ die Navigationsstukturen ge
 Wenn notwendig, kann die Navigationsstruktur eines ausgewählten Stores mit einem Klick auf „Struktur neu erstellen ...“ neu erstellt werden. Das kann je nach Befüllungsgrad des Stores auch lange dauern.</translation>
     </message>
     <message>
-        <location filename="../tsgui/helpdialog.py" line="68"/>
+        <location filename="../tsgui/helpdialog.py" line="72"/>
         <source>Unter dem Reiter &quot;Meine Tags&quot; kann fuer jeden Store nachgeschaut werden, ob eine oder zwei Tag-Zeilen verwendet werden. In der erste Tag-Zeile werden beschreibende und in der zweiten kategorisierende Tags verwendet.&lt;br&gt;Wird nur eine Zeile verwendet, kann eingestellt werden, ob in dieser nur vom Benutzter vordefinierte Tags (&quot;Meine Tags&quot;) erlaubt werden oder nicht. Dies soll die Verwendung von aehnlichen Tags verhindern(z.B: Uni, Universitaet). &lt;br&gt;Solche Tags koennen mit einem klick auf &quot;Hinzufuegen&quot; der Liste von Tags hinzugefuegt werden oder mit &quot;Loeschen&quot; von ihr geloescht werden. &lt;br&gt;Werden zwei Zeilen verwendet, kann nur noch fuer die zweite Tag-Zeile eingestellt werden, ob diese nur &quot;meine Tags&quot; verwenden soll.</source>
-        <translation type="unfinished">Im Tab „Meine Tags“ können Sie überprüfen, ob ein Store vordefinierte, kategorisierende „Meine Tags“ verwendet oder nicht. Die von Ihnen definierten „Meine Tags“ können Sie diese in diesem Reiter bearbeiten. Wenn „Meine Tags“ in einem Store aktiv sind, können nur hier vordefinierte Tags verwendet werden.
+        <translation type="unfinished">Im Tab „Meine Tags“ können Sie überprüfen, ob ein Store vordefinierte, kategorisierende „Meine Tags“ verwendet oder nicht.
+Die Beschränkung der Tags auf vordefinierte „Meine Tags“ soll verhindern, dass ähnliche Tags mehrmals verwendet werden (z.B. Uni, Universitaet, Universität).
 
-Es gibt auch die Möglichkeit, Stores mit zwei getrennten Tag-Zeilen zu erstellen, sowie die Tags frei zu vergeben oder auf bestimmte selbstdefinierte Tags („Meine Tags“) zu beschränken.
+Wenn „Meine Tags“ in einem Store aktiv sind, können hier nur vordefinierte Tags verwendet werden. Mit dem Button „Tag hinzufügen“ können Sie der Liste neue Tags hinzufügen. Mit dem Button „Tag löschen“ können Sie nicht mehr benötigte Tags aus der Liste löschen.
 
-Die Beschränkung der Tags auf vordefinierte „Meine Tags“ soll verhindern, dass ähnliche Tags mehrmals verwendet werden (z.B. „Uni“, „Universitaet“, „Universität“).
+Es gibt folgende Möglichkeiten für einen Store:
 
-Hinweis: Die Erstellung eines Stores mit der Möglichkeit, „Meine Tags“ oder zwei getrennte Tag-Zeilen zu benutzen, erfordert gesonderte Schritte. Bitte kontaktieren Sie das tagstore-Team, um entsprechende Hilfestellung zu bekommen.</translation>
+eine Tag-Zeile; keine Einschränkungen für Tags
+eine Tag-Zeile; nur »Meine Tags« erlaubt
+zwei Tag-Zeilen; keine Einschränkungen
+zwei Tag-Zeilen; nur »Meine Tags« in zweiter erlaubt
+
+(Die Erstellung eines Stores mit der Möglichkeit, „Meine Tags“ oder zwei getrennte Tag-Zeilen zu benutzen, erfordert gesonderte Schritte. Bitte kontaktieren Sie das tagstore-Team, um entsprechende Hilfestellung zu bekommen.)</translation>
     </message>
     <message>
         <location filename="../tsgui/helpdialog.py" line="58"/>
@@ -250,18 +256,18 @@ Hinweis: Die Erstellung eines Stores mit der Möglichkeit, „Meine Tags“ oder
         <translation type="obsolete">Willkommen bei tagstore!</translation>
     </message>
     <message>
-        <location filename="../tsgui/helpdialog.py" line="99"/>
+        <location filename="../tsgui/helpdialog.py" line="103"/>
         <source>Unter diesem Reiter kann ein Tag zum synchronisieren mit Android definiert werden. Alle Items, welche mit diesem Tag getaggt werden, werden automatisch synchronisiert.</source>
         <translation type="unfinished">Bei „Synchronisierung“ können Sie ein Tag definieren, mit welchem Sie Items kennzeichnen, die mit Android oder einem anderen Store synchronisiert werden. Alle so getaggten Items werden dann automatisch synchronisiert.
 
 Hinweis: diese Funktion ist noch in Entwicklung!</translation>
     </message>
     <message>
-        <location filename="../tsgui/helpdialog.py" line="56"/>
+        <location filename="../tsgui/helpdialog.py" line="60"/>
         <source>In diesem Fenster werden die Items, die sich in der Ablage befinden getaggt. &lt;br&gt;Auf der rechten Seite Oben befindet sich eine Liste der noch nicht getagten Items. Um ein solches zu taggen wird zuerst eines ausgewaehlt, danach werden die Tags in die darunterliegende/n &quot;Tag-Zeile/n&quot; (je nach Einstellung) geschrieben und jeweils mit einem &quot;,&quot; getrennt.&lt;br&gt;Mit einem abschliessenden Klick auf &quot;Tag&quot; wird das ausgewaehlte Item getaggt.&lt;br&gt;Auf der linken Seite befindet sich eine sogenannte &quot;TagCloud&quot; (fuer jede &quot;Tag-Zeile&quot; eine) in der sich Vorschlaege fuer Tags befinden, wobei die Groesse des Tags angibt, wie oft dieser verwendet wurde (je groesser desto haeufiger).&lt;br&gt;Die in Orange dargestellten Tags wurden mit Hilfe eines Algorithmus, speziell fuer das ausgewaehlte Item und ihren Taggingverhalten ausgesucht.</source>
         <translation type="unfinished">Wenn ein neues Item (Datei oder Ordner) in den Ordner „Ablage“ hinzugefügt wird, erscheint der sogenannte „Tag-Dialog“.
 
-Auf der rechten Seite oben befindet eine Liste mit den noch nicht getaggten Items (2). Wählen Sie dort ein oder mehrere Elemente aus und taggen Sie diese dann. Bei einer Mehrfachauswahl werden alle Items mit den selben Tags versehen.
+Auf der rechten Seite oben befindet eine Liste mit den noch nicht getaggten Items (2). Wählen Sie dort ein oder mehrere Elemente aus und taggen Sie diese dann. Bei einer Mehrfachauswahl werden alle Items mit denselben Tags versehen.
 
 Unterhalb der Liste finden Sie (je nach Einstellung) eine oder zwei Tag-Zeilen (3, 4). Hier tippen Sie hier Ihre Tags ein. Trennen Sie Tags durch einen Beistrich. Dadurch sind auch Tags bestehend aus mehreren Wörtern möglich. Natürlich hilft hier eine automatische Tag-Vervollständigung bei der bequemen Eingabe.
 
@@ -272,19 +278,24 @@ Durch einen Klick auf „Tag!“ (5) wird das ausgewählte Item entsprechend get
 Ein Klick auf „Manager“ (6) öffnet den tagstore Manager.</translation>
     </message>
     <message>
-        <location filename="../tsgui/helpdialog.py" line="49"/>
+        <location filename="../tsgui/helpdialog.py" line="53"/>
         <source>Show this automatically</source>
         <translation type="unfinished">Automatisch anzeigen</translation>
     </message>
     <message>
-        <location filename="../tsgui/helpdialog.py" line="64"/>
+        <location filename="../tsgui/helpdialog.py" line="68"/>
         <source>Help tag-dialog</source>
         <translation type="unfinished">Hilfe zu Tag-Dialog</translation>
     </message>
     <message>
-        <location filename="../tsgui/helpdialog.py" line="62"/>
+        <location filename="../tsgui/helpdialog.py" line="66"/>
         <source>./tsresources/images/tagging_en.png</source>
         <translation type="unfinished">./tsresources/images/tagging_de.png</translation>
+    </message>
+    <message>
+        <location filename="../tsgui/helpdialog.py" line="52"/>
+        <source>Show Wizard</source>
+        <translation type="unfinished">Assistenten starten</translation>
     </message>
 </context>
 <context>
@@ -859,7 +870,7 @@ Ein Klick auf „Manager“ (6) öffnet den tagstore Manager.</translation>
     <message>
         <location filename="../tsgui/wizard.py" line="35"/>
         <source>Cancle</source>
-        <translation>Schließen</translation>
+        <translation type="obsolete">Schließen</translation>
     </message>
     <message>
         <location filename="../tsgui/wizard.py" line="37"/>
@@ -872,27 +883,27 @@ Ein Klick auf „Manager“ (6) öffnet den tagstore Manager.</translation>
         <translation type="obsolete">Willkommen bei tagstore!</translation>
     </message>
     <message>
-        <location filename="../tsgui/wizard.py" line="69"/>
+        <location filename="../tsgui/wizard.py" line="80"/>
         <source>What is tagstore?</source>
         <translation>Was ist tagstore?</translation>
     </message>
     <message>
-        <location filename="../tsgui/wizard.py" line="87"/>
+        <location filename="../tsgui/wizard.py" line="110"/>
         <source>First steps</source>
         <translation>Erste Schritte</translation>
     </message>
     <message>
-        <location filename="../tsgui/wizard.py" line="115"/>
+        <location filename="../tsgui/wizard.py" line="149"/>
         <source>Have fun!</source>
         <translation type="unfinished">Viel Spass!</translation>
     </message>
     <message>
-        <location filename="../tsgui/wizard.py" line="131"/>
+        <location filename="../tsgui/wizard.py" line="176"/>
         <source>Store settings</source>
         <translation>Store Einstellungen</translation>
     </message>
     <message>
-        <location filename="../tsgui/wizard.py" line="169"/>
+        <location filename="../tsgui/wizard.py" line="225"/>
         <source>Tagging</source>
         <translation>Tagging</translation>
     </message>
@@ -902,7 +913,7 @@ Ein Klick auf „Manager“ (6) öffnet den tagstore Manager.</translation>
         <translation type="obsolete">Danke, dass sie sich für tagstore entschieden haben.&lt;br&gt;Das Programm wurde erfolgreich installiert und dieser ... wird bei dem Einrichten des ersten &quot;Store&quot; helfen.</translation>
     </message>
     <message>
-        <location filename="../tsgui/wizard.py" line="71"/>
+        <location filename="../tsgui/wizard.py" line="86"/>
         <source>Tagstore ist ein Program, welches dabei helfen soll, Dateien auf dem Computer schneller wieder zu finden.&lt;br&gt;Dies geschiet durch sogenanntes tagging.&lt;br&gt;Tagging ist ein Verfahren, bei dem ein Benutzer einem Stueck Information (z.B: Digitale Bilder, MP3, Videos,..) sogenannte Tags zuordnet.&lt;br&gt;Ein Tag ist ein Schluesselwort oder Term welcher dabei helfen soll ein Stueck Information zu beschreiben und es dadurch schneller wieder gefunden werden kann.&lt;br&gt;Bei tagstore koennen, je nach Einstellung, kategorisierende und/oder beschreibende Tags g/benutzt werden. </source>
         <translation type="unfinished">Tagstore ist ein Program, welches Ihnen dabei hilft, Items auf dem Computer intelligenter abzulegen und vor allem besser wieder zu finden. Dies geschieht mit Hilfe von Tagging bei jeder Ablage eines Items.
 
@@ -913,7 +924,7 @@ Tags helfen Ihnen bei der Suche nach einem Item: Sie fügen damit Dinge wie Inha
 Sie können in einem Store kategorisierende Tags (zum Beispiel „Arbeit“, „Projekt“, „Antrag“, „dringend“, „in Arbeit“) und beschreibende Tags (zum Beispiel „von Hubert“, „mein Auto“, ...) verwenden.</translation>
     </message>
     <message>
-        <location filename="../tsgui/wizard.py" line="89"/>
+        <location filename="../tsgui/wizard.py" line="116"/>
         <source>Bei dem ersten Start des Programmes, muss ein sogenannter &quot;Store&quot; angelegt werden. &lt;br&gt;Jeder Benutzer muss zumindest einen Store anlegen. Weitere Stores fuer verschiedene Zwecke (beruflich, privat, Videos, Downloads, ...) koennen jederzeit nachtraeglich erstellt werden.&lt;br&gt;Um einen Store anzulegen wird zuerst im tagstore Manager der Tab &quot;Store-Verwaltung&quot; ausgewaehlt und danach auf &quot;Neuer Tagstore&quot; geklickt. Daraufhin erscheint ein neues Fenster, in welchem ein Ordner ausgewaehlt wird, der den Store beinhalten soll. &lt;br&gt;Wenn ein der Store erfolgreich angelegt wurde, sollte die Stuktur in dem Ordenr, welcher fuer den Store ausgewehlt wurde, so aussehen:</source>
         <translation type="unfinished">Bevor Sie tagstore verwenden können, müssen Sie mindestens einen „Store“ anlegen. Weitere Stores für verschiedenste Zwecke (Beruf, Privat, Videos, Downloads, und so weiter) können jederzeit (auch nachträglich) angelegt werden.
 
@@ -928,17 +939,17 @@ Bitte legen Sie nun einen Store an:
 4. Zur Kontrolle ob der Store auch erfolgreich angelegt wurde, öffnen Sie den Store-Ordner in Ihrem Datei-Browser (zum Beispiel Windows Explorer) und vergleichen Sie Ihre Struktur mit der nachfolgenden:</translation>
     </message>
     <message>
-        <location filename="../tsgui/wizard.py" line="140"/>
+        <location filename="../tsgui/wizard.py" line="189"/>
         <source>Jeder Store der angelegt wurde, kann ueber den Manager jederzeit konfiguriert werden. Dieser ist in verschiedene Tabs/Reiter unterteilt.</source>
         <translation type="unfinished">Jeder Store kann über den Manager auch nachträglich konfiguriert werden. Der Manager ist in verschiedene Tabs/Reiter unterteilt:</translation>
     </message>
     <message>
-        <location filename="../tsgui/wizard.py" line="141"/>
+        <location filename="../tsgui/wizard.py" line="190"/>
         <source>Wenn eine Einstellung fuer jeden Store gemacht werden kann, wird der gewuenschte Store ueber ein &quot;Dropdown Menu&quot; ausgewaehlt. Dieses befindet sich unter der Beschreibung des Tabs.</source>
         <translation type="unfinished">Sind Änderungen Store-bezogen anpassbar, so wählen Sie bitte in jedem Tab zu Beginn immer den betreffenden Store aus dem Auswahlmenü aus. Dieses Menü befindet sich direkt unter der Beschreibung des jeweiligen Tabs:</translation>
     </message>
     <message>
-        <location filename="../tsgui/wizard.py" line="142"/>
+        <location filename="../tsgui/wizard.py" line="191"/>
         <source>Unter dem Tab/Reiter &quot;Meine Tags&quot; kann fuer jeden Store nachgeschaut werden, ob eine oder zwei Tag-Zeilen verwendet werden. In der erste Tag-Zeile werden beschreibende und in der zweiten kategorisierende Tags verwendet.</source>
         <translation type="unfinished">Im Tab „Meine Tags“ können Sie überprüfen, ob ein Store vordefinierte, kategorisierende „Meine Tags“ verwendet oder nicht. Die von Ihnen definierten „Meine Tags“ können Sie diese in diesem Reiter bearbeiten. Wenn „Meine Tags“ in einem Store aktiv sind, können nur hier vordefinierte Tags verwendet werden.
 
@@ -959,7 +970,7 @@ Die Beschränkung der Tags auf vordefinierte „Meine Tags“ soll verhindern, d
         <translation type="obsolete">./tsresources/images/tabs_de.png</translation>
     </message>
     <message>
-        <location filename="../tsgui/wizard.py" line="137"/>
+        <location filename="../tsgui/wizard.py" line="186"/>
         <source>./tsresources/images/store_dropdown.png</source>
         <translation type="unfinished">./tsresources/images/store_dropdown.png</translation>
     </message>
@@ -979,22 +990,22 @@ Die Beschränkung der Tags auf vordefinierte „Meine Tags“ soll verhindern, d
         <translation type="unfinished">Assistent</translation>
     </message>
     <message>
-        <location filename="../tsgui/wizard.py" line="143"/>
+        <location filename="../tsgui/wizard.py" line="192"/>
         <source>Wird nur eine Zeile verwendet, kann eingestellt werden, ob in dieser nur vom Benutzter vordefinierte Tags (&quot;Meine Tags&quot;) erlaubt werden oder nicht. Dies soll die Verwendung von aehnlichen Tags verhindern(z.B: Uni, Universitaet). &lt;br&gt;Solche Tags koennen mit einem klick auf &quot;Hinzufuegen&quot; der Liste von Tags hinzugefuegt werden oder mit &quot;Loeschen&quot; von ihr geloescht werden. &lt;br&gt;Werden zwei Zeilen verwendet, kann nur noch fuer die zweite Tag-Zeile eingestellt werden, ob diese nur &quot;meine Tags&quot; verwenden soll.</source>
         <translation type="unfinished">Sollten Sie eine Variante mit vordefinierten „Meine Tags“ verwenden, so können Sie mit dem Button „Tag hinzufügen“ der Liste neue Tags hinzufügen. Mit dem Button „Tag löschen“ können Sie nicht mehr benötigte Tags aus der Liste löschen.</translation>
     </message>
     <message>
-        <location filename="../tsgui/wizard.py" line="174"/>
+        <location filename="../tsgui/wizard.py" line="234"/>
         <source>Wenn ein neues &quot;Item&quot; (Datei, Ordner) in den Ordner &quot;Ablage&quot; hinzugefuegt wird, erscheint der sogenannte &quot;Tag-Dialog&quot;.</source>
         <translation type="unfinished">Wenn ein neues Item (Datei oder Ordner) in den Ordner „Ablage“ hinzugefügt wird, erscheint der sogenannte „Tag-Dialog“.</translation>
     </message>
     <message>
-        <location filename="../tsgui/wizard.py" line="136"/>
+        <location filename="../tsgui/wizard.py" line="185"/>
         <source>./tsresources/images/tabs_en.png</source>
         <translation type="unfinished">./tsresources/images/tabs_de.png</translation>
     </message>
     <message>
-        <location filename="../tsgui/wizard.py" line="138"/>
+        <location filename="../tsgui/wizard.py" line="187"/>
         <source>./tsresources/images/my_tags_tag_lines_en.png</source>
         <translation type="unfinished">./tsresources/images/my_tags_tag_lines_de.png</translation>
     </message>
@@ -1004,14 +1015,14 @@ Die Beschränkung der Tags auf vordefinierte „Meine Tags“ soll verhindern, d
         <translation type="obsolete">./tsresources/image/tagging_de.png</translation>
     </message>
     <message>
-        <location filename="../tsgui/wizard.py" line="54"/>
+        <location filename="../tsgui/wizard.py" line="58"/>
         <source>Danke, dass sie sich fuer tagstore entschieden haben.&lt;br&gt;Das Programm wurde erfolgreich installiert und dieser Assistent wird bei dem Einrichten des ersten &quot;Store&quot; helfen.</source>
         <translation type="unfinished">Danke, dass Sie sich für tagstore entschieden haben!
 
 Das Programm wurde erfolgreich installiert und dieser Assistent wird Sie beim Einrichten Ihres ersten „Stores“ begleiten.</translation>
     </message>
     <message>
-        <location filename="../tsgui/wizard.py" line="117"/>
+        <location filename="../tsgui/wizard.py" line="155"/>
         <source>Das tagstore-Team wuenscht viel Spass beim taggen!&lt;br&gt;Bei Unklarheiten zu einem Reiter einfach auf den Hilfeknopf oben rechts in der Ecke eines jeden Reiters klicken.</source>
         <translation type="unfinished">Sie erreichen im Tag-Dialog als auch in jedem Reiter des Managers über einen Hilfeknopf entsprechende Hilfestellungen.
 
@@ -1023,9 +1034,9 @@ Das tagstore-Team wünscht Ihnen viel Spass mit tagstore!</translation>
         <translation type="obsolete">Hier befindet sich eine sogenannte &quot;Tag-Cloud&quot;(1), eine Liste der noch nicht getaggten Objekte(2) und je nach Einstellung eine oder zwei Tag-Zeilen(3). Die erste Tag-Zeile(4) ist für beschreibenden und die zweite(5) für kategorisierende Tags.&lt;br&gt;Mit einem klick auf &quot;Tag&quot;(6) wird das ausgewählte Objekt getaggt und ein klick auf &quot;Manager...&quot;(7) öffnet den tagstore Manager.&lt;br&gt;Wenn man ein Objekt nicht sofort taggen will, kann man auf &quot;Später bearbeiten&quot; klicken.&lt;br&gt;Items, die noch nicht getaggt sind, erscheinen so lange in der Liste vom &quot;Tag-Dialog&quot;, bis entsprechende Items wieder gelöscht werden oder mit Tags versehen wurden.</translation>
     </message>
     <message>
-        <location filename="../tsgui/wizard.py" line="175"/>
+        <location filename="../tsgui/wizard.py" line="235"/>
         <source>Hier befindet sich die sogenannten &quot;Tag-Clouds&quot;(1), eine Liste der noch nicht getaggten Objekte(2) und je nach Einstellung eine oder zwei Tag-Zeilen. Die erste Tag-Zeile(3) ist fuer beschreibenden und die zweite(4) fuer kategorisierende Tags.&lt;br&gt;Mit einem klick auf &quot;Tag&quot;(5) wird das ausgewaehlte Objekt getaggt und ein klick auf &quot;Manager...&quot;(6) oeffnet den tagstore Manager.&lt;br&gt;Wenn man ein Objekt nicht sofort taggen will, kann man auf &quot;Spaeter bearbeiten&quot;(7) klicken.&lt;br&gt;Items, die noch nicht getaggt sind, erscheinen so lange in der Liste vom &quot;Tag-Dialog&quot;, bis entsprechende Items wieder geloescht werden oder mit Tags versehen wurden.</source>
-        <translation type="unfinished">Auf der rechten Seite oben befindet eine Liste mit den noch nicht getaggten Items (2). Wählen Sie dort ein oder mehrere Elemente aus und taggen Sie diese dann. Bei einer Mehrfachauswahl werden alle Items mit den selben Tags versehen.
+        <translation type="unfinished">Auf der rechten Seite oben befindet eine Liste mit den noch nicht getaggten Items (2). Wählen Sie dort ein oder mehrere Elemente aus und taggen Sie diese dann. Bei einer Mehrfachauswahl werden alle Items mit denselben Tags versehen.
 
 Unterhalb der Liste finden Sie (je nach Einstellung) eine oder zwei Tag-Zeilen (3, 4). Hier tippen Sie hier Ihre Tags ein. Trennen Sie Tags durch einen Beistrich. Dadurch sind auch Tags bestehend aus mehreren Wörtern möglich. Natürlich hilft hier eine automatische Tag-Vervollständigung bei der bequemen Eingabe.
 
@@ -1036,12 +1047,12 @@ Durch einen Klick auf „Tag!“ (5) wird das ausgewählte Item entsprechend get
 Ein Klick auf „Manager“ (6) öffnet den tagstore Manager.</translation>
     </message>
     <message>
-        <location filename="../tsgui/wizard.py" line="172"/>
+        <location filename="../tsgui/wizard.py" line="232"/>
         <source>./tsresources/images/tagging_en.png</source>
         <translation type="unfinished">./tsresources/images/tagging_de.png</translation>
     </message>
     <message>
-        <location filename="../tsgui/wizard.py" line="97"/>
+        <location filename="../tsgui/wizard.py" line="124"/>
         <source>./tsresources/images/structure_en.png</source>
         <translation type="unfinished">./tsresources/images/structure_de.png</translation>
     </message>
@@ -1051,7 +1062,7 @@ Ein Klick auf „Manager“ (6) öffnet den tagstore Manager.</translation>
         <translation type="unfinished">Willkommen bei tagstore!</translation>
     </message>
     <message>
-        <location filename="../tsgui/wizard.py" line="195"/>
+        <location filename="../tsgui/wizard.py" line="262"/>
         <source>Fundamentals</source>
         <translation type="unfinished">Grundbegriffe</translation>
     </message>
@@ -1070,18 +1081,18 @@ verwalten.
 Ein &lt;b&gt;*tag*&lt;/b&gt; ist ein Schlagwort.</translation>
     </message>
     <message>
-        <location filename="../tsgui/wizard.py" line="197"/>
+        <location filename="../tsgui/wizard.py" line="268"/>
         <source>Wir verwenden im Weiteren folgende Begriffe:&lt;br&gt;&lt;br&gt;Ein &lt;b&gt;*Item*&lt;/b&gt; ist der Ueberbegriff von Datei&lt;br&gt;und Ordner. Sie koennen auch Ordner in tagstore ablegen.&lt;br&gt;&lt;br&gt;Ein &lt;b&gt;*store*&lt;/b&gt; ist ein Ordner, der auf Ihrer&lt;br&gt;lokalen Festplatte angelegt wird, um eine Menge von Items zu verwalten.&lt;br&gt;&lt;br&gt;Ein &lt;b&gt;*tag*&lt;/b&gt; ist ein Schlagwort.</source>
         <translation type="unfinished">Wir verwenden im Weiteren folgende Begriffe:
 
 Ein „Item“ ist der Überbegriff von Datei und Ordner. Sie können auch Ordner in tagstore ablegen.
 
-Ein „store“ ist ein Ordner, der auf Ihrer lokalen Festplatte angelegt wird, um eine Menge von Items zu verwalten.
+Ein „Store“ ist ein Ordner, der auf Ihrer lokalen Festplatte angelegt wird, um eine Menge von Items zu verwalten.
 
-Ein „tag“ ist ein Schlagwort.</translation>
+Ein „Tag“ ist ein Schlagwort.</translation>
     </message>
     <message>
-        <location filename="../tsgui/wizard.py" line="94"/>
+        <location filename="../tsgui/wizard.py" line="121"/>
         <source>INSERT ENGLISH TEXT</source>
         <translation type="unfinished">In „Ablage“ werden Sie neue Items speichern. Es empfiehlt sich, diesen Ordner rasch zugänglich zu verlinken (zum Beispiel am Desktop).
 
@@ -1093,6 +1104,11 @@ Zur Erklärung:
 1 Tag-Zeile ohne Meine Tags -&gt; Ablage, Navigation
 1 Tag-Zeile mit Meine Tags -&gt; Ablage, Kategorien (war implementierungsbedingt)
 2 Tag-Zeilen -&gt; Ablage, Kategorien, Beschreibungen</translation>
+    </message>
+    <message>
+        <location filename="../tsgui/wizard.py" line="35"/>
+        <source>Cancel</source>
+        <translation type="unfinished">Schließen</translation>
     </message>
 </context>
 <context>

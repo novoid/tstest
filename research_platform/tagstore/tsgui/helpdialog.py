@@ -17,6 +17,7 @@
 from PyQt4 import QtGui, QtCore
 from tscore.configwrapper import ConfigWrapper
 from tscore.tsconstants import TsConstants
+from tsgui.wizard import Wizard
 
 class HelpDialog(QtGui.QDialog):
 
@@ -33,6 +34,8 @@ class HelpDialog(QtGui.QDialog):
         
         self.__config_wrapper = ConfigWrapper(TsConstants.CONFIG_PATH)
         
+        self.__wizard = Wizard()
+        
         self.setWindowTitle("tagstore Manager Help")
         
         self.setWindowIcon(QtGui.QIcon('./tsresources/images/help.png'))
@@ -46,6 +49,7 @@ class HelpDialog(QtGui.QDialog):
         self.__description_label = QtGui.QLabel()
         self.__description_label.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
         self.__cancel_button = QtGui.QPushButton(self.trUtf8("Close"))
+        self.__wizard_button = QtGui.QPushButton(self.trUtf8("Show Wizard"))
         self.__visible_checkbox = QtGui.QCheckBox(self.trUtf8("Show this automatically"))
         
         self.__descr_layout.addWidget(self.__description_label)      
@@ -103,17 +107,21 @@ class HelpDialog(QtGui.QDialog):
         self.__description_label.setWordWrap(True)
         
         self.__bb_layout.addWidget(self.__visible_checkbox)
+        self.__bb_layout.addWidget(self.__wizard_button)
         self.__bb_layout.addWidget(self.__cancel_button)
         self.__base_layout.addLayout(self.__descr_layout)
         self.__base_layout.addLayout(self.__bb_layout)
         
         self.__visible_checkbox.stateChanged.connect(self.__handle_checkbox)
  
-        self.connect(self.__cancel_button, QtCore.SIGNAL('clicked()'), 
-                     self.__handle_close)
+        self.connect(self.__cancel_button, QtCore.SIGNAL('clicked()'), self.__handle_close)
+        self.connect(self.__wizard_button, QtCore.SIGNAL('clicked()'), self.__handle_show_wizard)
         
     def __handle_close(self):
         self.close()
+        
+    def __handle_show_wizard(self):
+        self.__wizard.get_view().show()
         
     def __handle_checkbox(self, state):
         if state:

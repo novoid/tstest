@@ -33,7 +33,7 @@ class Wizard(QtGui.QWizard):
         self.__wizard.setButtonText(self.__wizard.BackButton, 
                                     self.trUtf8("Back"))
         self.__wizard.setButtonText(self.__wizard.CancelButton, 
-                                    self.trUtf8("Cancle"))
+                                    self.trUtf8("Cancel"))
         self.__wizard.setButtonText(self.__wizard.FinishButton, 
                                     self.trUtf8("Finish"))
         
@@ -50,6 +50,10 @@ class Wizard(QtGui.QWizard):
     def __create_welcome_page(self):
         page = QtGui.QWizardPage()
         page.setTitle(self.trUtf8("Welcome to tagstore!"))
+        
+        widget = QtGui.QWidget()
+        scrollarea = QtGui.QScrollArea()
+        scrollarea.setWidgetResizable(True)
     
         text_label = QtGui.QLabel(self.trUtf8("Danke, dass sie sich fuer tagstore entschieden haben.<br>"
                                          "Das Programm wurde erfolgreich installiert und dieser Assistent wird bei dem Einrichten des ersten \"Store\" helfen."))
@@ -59,7 +63,14 @@ class Wizard(QtGui.QWizard):
     
         layout = QtGui.QVBoxLayout()
         layout.addWidget(text_label)
-        page.setLayout(layout)
+        
+        widget.setLayout(layout)
+        scrollarea.setWidget(widget)
+        
+        scrolllayout = QtGui.QVBoxLayout()
+        scrolllayout.addWidget(scrollarea)
+        
+        page.setLayout(scrolllayout)
     
         return page
     
@@ -67,24 +78,40 @@ class Wizard(QtGui.QWizard):
     def __create_intro_page(self):
         page = QtGui.QWizardPage()
         page.setTitle(self.trUtf8("What is tagstore?"))
+        
+        widget = QtGui.QWidget()
+        scrollarea = QtGui.QScrollArea()
+        scrollarea.setWidgetResizable(True)
     
         text_label = QtGui.QLabel(self.trUtf8("Tagstore ist ein Program, welches dabei helfen soll, Dateien auf dem Computer schneller wieder zu finden.<br>"
                                          "Dies geschiet durch sogenanntes tagging.<br>"
                                          "Tagging ist ein Verfahren, bei dem ein Benutzer einem Stueck Information (z.B: Digitale Bilder, MP3, Videos,..) sogenannte Tags zuordnet.<br>"
                                          "Ein Tag ist ein Schluesselwort oder Term welcher dabei helfen soll ein Stueck Information zu beschreiben und es dadurch schneller wieder gefunden werden kann.<br>"
                                          "Bei tagstore koennen, je nach Einstellung, kategorisierende und/oder beschreibende Tags g/benutzt werden. "))
+        
         text_label.setWordWrap(True)
         text_label.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
     
         layout = QtGui.QVBoxLayout()
         layout.addWidget(text_label)
-        page.setLayout(layout)
+        
+        widget.setLayout(layout)
+        scrollarea.setWidget(widget)
+        
+        scrolllayout = QtGui.QVBoxLayout()
+        scrolllayout.addWidget(scrollarea)
+        
+        page.setLayout(scrolllayout)
     
         return page
     
     def __create_first_steps_page(self):
         page = QtGui.QWizardPage()
         page.setTitle(self.trUtf8("First steps"))
+        
+        widget = QtGui.QWidget()
+        scrollarea = QtGui.QScrollArea()
+        scrollarea.setWidgetResizable(True)
         
         text_label = QtGui.QLabel(self.trUtf8("Bei dem ersten Start des Programmes, muss ein sogenannter \"Store\" angelegt werden. <br>"
                                                 "Jeder Benutzer muss zumindest einen Store anlegen. Weitere Stores fuer verschiedene Zwecke (beruflich, privat, Videos, Downloads, ...) koennen jederzeit nachtraeglich erstellt werden.<br>"
@@ -105,7 +132,14 @@ class Wizard(QtGui.QWizard):
         layout.addWidget(text_label)
         layout.addWidget(image_label)
         layout.addWidget(text_label2)
-        page.setLayout(layout)
+        
+        widget.setLayout(layout)
+        scrollarea.setWidget(widget)
+        
+        scrolllayout = QtGui.QVBoxLayout()
+        scrolllayout.addWidget(scrollarea)
+        
+        page.setLayout(scrolllayout)
     
         return page
     
@@ -113,6 +147,10 @@ class Wizard(QtGui.QWizard):
     def __create_ending_page(self):
         page = QtGui.QWizardPage()
         page.setTitle(self.trUtf8("Have fun!"))
+        
+        widget = QtGui.QWidget()
+        scrollarea = QtGui.QScrollArea()
+        scrollarea.setWidgetResizable(True)
         
         text_label = QtGui.QLabel(self.trUtf8("Das tagstore-Team wuenscht viel Spass beim taggen!<br>"
                                                "Bei Unklarheiten zu einem Reiter einfach auf den Hilfeknopf oben rechts in der Ecke eines jeden Reiters klicken."))
@@ -122,13 +160,24 @@ class Wizard(QtGui.QWizard):
         
         layout = QtGui.QVBoxLayout()
         layout.addWidget(text_label)
-        page.setLayout(layout)
+        
+        widget.setLayout(layout)
+        scrollarea.setWidget(widget)
+        
+        scrolllayout = QtGui.QVBoxLayout()
+        scrolllayout.addWidget(scrollarea)
+        
+        page.setLayout(scrolllayout)
     
         return page
     
     def __create_setting_page(self):
         page = QtGui.QWizardPage()
         page.setTitle(self.trUtf8("Store settings"))
+        
+        widget = QtGui.QWidget()
+        scrollarea = QtGui.QScrollArea()
+        scrollarea.setWidgetResizable(True)
         
         tab_image_lable = QtGui.QLabel()
         dropdown_image_lable = QtGui.QLabel()
@@ -160,13 +209,24 @@ class Wizard(QtGui.QWizard):
         layout.addWidget(text_label3)
         layout.addWidget(settings_image_lable)
         layout.addWidget(text_label4)
-        page.setLayout(layout)
+    
+        widget.setLayout(layout)
+        scrollarea.setWidget(widget)
+        
+        scrolllayout = QtGui.QVBoxLayout()
+        scrolllayout.addWidget(scrollarea)
+        
+        page.setLayout(scrolllayout)
         
         return page
     
     def __create_tagging_page(self):
         page = QtGui.QWizardPage()
         page.setTitle(self.trUtf8("Tagging"))
+        
+        widget = QtGui.QWidget()
+        scrollarea = QtGui.QScrollArea()
+        scrollarea.setWidgetResizable(True)
         
         tagging_label = QtGui.QLabel()
         tagging_label.setPixmap(QtGui.QPixmap(self.trUtf8("./tsresources/images/tagging_en.png")))
@@ -186,13 +246,24 @@ class Wizard(QtGui.QWizard):
         layout.addWidget(text_label1)
         layout.addWidget(text_label2)
         layout.addWidget(tagging_label)
-        page.setLayout(layout)
+        
+        widget.setLayout(layout)
+        scrollarea.setWidget(widget)
+        
+        scrolllayout = QtGui.QVBoxLayout()
+        scrolllayout.addWidget(scrollarea)
+        
+        page.setLayout(scrolllayout)
         
         return page
     
     def __create_fundamentals_page(self):
         page = QtGui.QWizardPage()
         page.setTitle(self.trUtf8("Fundamentals"))
+        
+        widget = QtGui.QWidget()
+        scrollarea = QtGui.QScrollArea()
+        scrollarea.setWidgetResizable(True)
         
         text_label = QtGui.QLabel(self.trUtf8("Wir verwenden im Weiteren folgende Begriffe:<br><br>"
                                   "Ein <b>*Item*</b> ist der Ueberbegriff von Datei<br>"
@@ -206,7 +277,14 @@ class Wizard(QtGui.QWizard):
         
         layout = QtGui.QVBoxLayout()
         layout.addWidget(text_label)
-        page.setLayout(layout)
+        
+        widget.setLayout(layout)
+        scrollarea.setWidget(widget)
+        
+        scrolllayout = QtGui.QVBoxLayout()
+        scrolllayout.addWidget(scrollarea)
+        
+        page.setLayout(scrolllayout)
         
         return page
                 
