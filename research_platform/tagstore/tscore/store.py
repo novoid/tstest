@@ -151,7 +151,7 @@ class Store(QtCore.QObject):
         self.__file_system.create_dir(self.__path + "/" + self.__storage_dir_name)
         self.__file_system.create_dir(self.__path + "/" + self.__expiry_dir_name)
         self.__file_system.create_dir(self.__path + "/" + self.__config_file_name.split("/")[0])
-
+        self.__file_system.create_dir(self.__path + "/" + self.__navigation_dir_name)
         ## create config/vocabulary files if they don't exist
         if not self.__file_system.path_exists(self.__path + "/" + self.__config_file_name):
             ConfigWrapper.create_store_config_file(self.__path + "/" + self.__config_file_name)
@@ -790,6 +790,10 @@ class Store(QtCore.QObject):
         #try:
         self.__create_inprogress_file()
         
+        print "-----"
+        print self.__describing_nav_path
+        print self.__categorising_nav_path
+        print self.__navigation_path
         # is it not an android store
         if not self.__is_android_store():
             for path in self.__paths_to_maintain:

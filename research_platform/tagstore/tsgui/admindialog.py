@@ -333,6 +333,16 @@ class StoreAdminView(BasePreferenceView):
         self.__btn_new_store = QtGui.QPushButton(self.trUtf8("New Tagstore"))
         self.__btn_build_new = QtGui.QPushButton(self.trUtf8("Rebuild ..."))
         self.__btn_rename = QtGui.QPushButton(self.trUtf8("Rename ..."))
+        
+        ##-----------------------------------
+        ## TODO: set rebuild-button visible
+        self.__btn_build_new.setVisible(False)
+        ## TODO: set rebuild-button visible
+        self.__btn_rename.setVisible(False)
+        ##-----------------------------------
+        
+        ## TODO remove
+        self.__btn_build_new.setEnabled(False)
         ## TODO remove
         self.__btn_rename.setEnabled(False)
         self.__btn_delete = QtGui.QPushButton(self.trUtf8("Delete ..."))

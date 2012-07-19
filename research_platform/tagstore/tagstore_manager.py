@@ -166,7 +166,7 @@ class Administration(QtCore.QObject):
 
         self.__main_config.rename_store(store.get_id(), new_store_name)
         ## connect to the rebuild signal because after the moving there is a rebuild routine started
-        self.connect(store, QtCore.SIGNAL("store_rebuild_end"), self.__handle_store_rebuilt)
+        self.connect(store, QtCore.SIGNAL("store_rebuild_end"), self.__handle_store_rebuild)
 
         store.move(new_store_name)
         
@@ -182,9 +182,9 @@ class Administration(QtCore.QObject):
         ## show a progress bar at the admin dialog
         self.__admin_dialog.start_progressbar(self.trUtf8("Rebuilding store ..."))
         store = self.__store_dict[str(store_name)]
-        self.connect(store, QtCore.SIGNAL("store_rebuild_end"), self.__handle_store_rebuilt)
+        self.connect(store, QtCore.SIGNAL("store_rebuild_end"), self.__handle_store_rebuild)
         store.rebuild()
-        self.disconnect(store, QtCore.SIGNAL("store_rebuild_end"))
+        self.disconnect(store, QtCore.SIGNAL("store_rebuild_end"), self.__get_locale_language)
     
     def __hide_progress_dialog(self, store_name):
         self.__admin_dialog.stop_progressbar()
