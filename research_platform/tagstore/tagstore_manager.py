@@ -147,9 +147,12 @@ class Administration(QtCore.QObject):
         self.connect(store, QtCore.SIGNAL("store_delete_end"), self.__handle_store_deleted)
         ## remove the directories 
         store.remove()
-        self.disconnect(store, QtCore.SIGNAL("store_delete_end"))
+        self.disconnect(store, QtCore.SIGNAL("store_delete_end"), self.__dummy)
         ## remove the config entry 
         self.__main_config.remove_store(store.get_id())
+    
+    def __dummy(self):
+        return "dummy"
     
     def __handle_store_deleted(self, id):
         #second remove the item in the admin_dialog 

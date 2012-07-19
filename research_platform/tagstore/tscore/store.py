@@ -790,10 +790,10 @@ class Store(QtCore.QObject):
         #try:
         self.__create_inprogress_file()
         
-        print "-----"
-        print self.__describing_nav_path
-        print self.__categorising_nav_path
-        print self.__navigation_path
+        #print "-----"
+        #print self.__describing_nav_path
+        #print self.__categorising_nav_path
+        #print self.__navigation_path
         # is it not an android store
         if not self.__is_android_store():
             for path in self.__paths_to_maintain:
