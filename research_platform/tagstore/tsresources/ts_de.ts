@@ -222,16 +222,13 @@ Hinweis: Damit ändert sich auch Ihre Ordnerstruktur. Dieser Vorgang kann je nac
     <message>
         <location filename="../tsgui/helpdialog.py" line="97"/>
         <source>Unter diesem Reiter kann ein neuer &quot;Store&quot; angelegt oder ein bereits vorhandener geloescht oder umbenannet werden. Dies geschiet durch einen Klick auf &quot;Neuer tagstore&quot;, &quot;Loeschen ...&quot; oder &quot;Umbenennen ...&quot;.&lt;br&gt;Zum loeschen oder umbenennen muss der gewuenschte &quot;Store&quot; ausgewaehlt werden.&lt;br&gt;Wenn erwuenscht, kann auch die Ordnerstruktur des ausgewaehlten &quot;Stores&quot;, mit einem klick auf &quot;Struktur neu erstellen ...&quot; neu erstellt werden</source>
-        <translation type="unfinished">Unter dem Reiter „Store-Verwaltung“ kann ein neuer Store angelegt oder ein bereits vorhandener gelöscht beziehungsweise umbenannt
-werden.
+        <translation type="unfinished">Unter dem Reiter „Store-Verwaltung“ kann ein neuer Store angelegt oder ein bereits vorhandener gelöscht werden.
 
-Das Anlegen geschieht durch einen Klick auf „Neuer tagstore“. Wählen Sie dann einen Ordner aus, der den neuen Store beinhalten soll und klicken Sie auf „Ordner auswählen“.
+Das Anlegen geschieht durch einen Klick auf „Neuer tagstore“. Wählen Sie dann einen Ordner aus, der den neuen Store beinhalten soll und klicken Sie auf „Ordner auswählen“. Klicken sie danach unbedingt auf „Speichern“!(Der Manager wird sich nun schließen. Für weitere Einstellungen starten sie den Manager bitte neu)
 
-Einen vorhandenen Store löscht man durch Auswahl des Stores in der Liste und Klick auf „Löschen ...“. Entsprechend funktioniert auch das Umbenennen eines Stores.
+Einen vorhandenen Store löscht man durch Auswahl des Stores in der Liste und Klick auf „Löschen ...“.
 
-Hinweis: beim Löschen eines Stores werden „nur“ die Navigationsstukturen gelöscht. Die Ordner „Ablage“ und „abgelaufene_Daten“ bleiben erhalten. Eine Sicherheitskopie vorab empfiehlt sich trotzdem.
-
-Wenn notwendig, kann die Navigationsstruktur eines ausgewählten Stores mit einem Klick auf „Struktur neu erstellen ...“ neu erstellt werden. Das kann je nach Befüllungsgrad des Stores auch lange dauern.</translation>
+Hinweis: beim Löschen eines Stores werden „nur“ die Navigationsstukturen gelöscht. Die Ordner „Ablage“ und „abgelaufene_Daten“ bleiben erhalten. Eine Sicherheitskopie vorab empfiehlt sich trotzdem.</translation>
     </message>
     <message>
         <location filename="../tsgui/helpdialog.py" line="72"/>
@@ -951,13 +948,12 @@ Bitte legen Sie nun einen Store an:
     <message>
         <location filename="../tsgui/wizard.py" line="191"/>
         <source>Unter dem Tab/Reiter &quot;Meine Tags&quot; kann fuer jeden Store nachgeschaut werden, ob eine oder zwei Tag-Zeilen verwendet werden. In der erste Tag-Zeile werden beschreibende und in der zweiten kategorisierende Tags verwendet.</source>
-        <translation type="unfinished">Im Tab „Meine Tags“ können Sie überprüfen, ob ein Store vordefinierte, kategorisierende „Meine Tags“ verwendet oder nicht. Die von Ihnen definierten „Meine Tags“ können Sie diese in diesem Reiter bearbeiten. Wenn „Meine Tags“ in einem Store aktiv sind, können nur hier vordefinierte Tags verwendet werden.
+        <translation type="unfinished">Im Tab „Meine Tags“ können Sie überprüfen, ob ein Store vordefinierte, kategorisierende „Meine Tags“ verwendet oder nicht.
+Die Beschränkung der Tags auf vordefinierte „Meine Tags“ soll verhindern, dass ähnliche Tags mehrmals verwendet werden (z.B. Uni, Universitaet, Universität).
 
-Es gibt auch die Möglichkeit, Stores mit zwei getrennten Tag-Zeilen zu erstellen, sowie die Tags frei zu vergeben oder auf bestimmte selbst definierte Tags („Meine Tags“) zu beschränken.
+Wenn „Meine Tags“ in einem Store aktiv sind, können hier nur vordefinierte Tags verwendet werden. Mit dem Button „Tag hinzufügen“ können Sie der Liste neue Tags hinzufügen. Mit dem Button „Tag löschen“ können Sie nicht mehr benötigte Tags aus der Liste löschen.
 
-Die Beschränkung der Tags auf vordefinierte „Meine Tags“ soll verhindern, dass ähnliche Tags mehrmals verwendet werden (z.B. Uni, Universitaet, Universität). 
-
-(Die Erstellung eines Stores mit der Möglichkeit, „Meine Tags“ oder zwei getrennte Tag-Zeilen zu benutzen, erfordert gesonderte Schritte. Bitte kontaktieren Sie das tagstore-Team, um entsprechende Hilfestellung zu bekommen.)</translation>
+Es gibt folgende Möglichkeiten für einen Store:</translation>
     </message>
     <message>
         <location filename="../tsgui/wizard.py" line="159"/>
@@ -992,7 +988,7 @@ Die Beschränkung der Tags auf vordefinierte „Meine Tags“ soll verhindern, d
     <message>
         <location filename="../tsgui/wizard.py" line="192"/>
         <source>Wird nur eine Zeile verwendet, kann eingestellt werden, ob in dieser nur vom Benutzter vordefinierte Tags (&quot;Meine Tags&quot;) erlaubt werden oder nicht. Dies soll die Verwendung von aehnlichen Tags verhindern(z.B: Uni, Universitaet). &lt;br&gt;Solche Tags koennen mit einem klick auf &quot;Hinzufuegen&quot; der Liste von Tags hinzugefuegt werden oder mit &quot;Loeschen&quot; von ihr geloescht werden. &lt;br&gt;Werden zwei Zeilen verwendet, kann nur noch fuer die zweite Tag-Zeile eingestellt werden, ob diese nur &quot;meine Tags&quot; verwenden soll.</source>
-        <translation type="unfinished">Sollten Sie eine Variante mit vordefinierten „Meine Tags“ verwenden, so können Sie mit dem Button „Tag hinzufügen“ der Liste neue Tags hinzufügen. Mit dem Button „Tag löschen“ können Sie nicht mehr benötigte Tags aus der Liste löschen.</translation>
+        <translation type="unfinished">(Die Erstellung eines Stores mit der Möglichkeit, „Meine Tags“ oder zwei getrennte Tag-Zeilen zu benutzen, erfordert gesonderte Schritte. Bitte kontaktieren Sie das tagstore-Team, um entsprechende Hilfestellung zu bekommen.)</translation>
     </message>
     <message>
         <location filename="../tsgui/wizard.py" line="234"/>
