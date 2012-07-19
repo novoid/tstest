@@ -931,7 +931,7 @@ Bitte legen Sie nun einen Store an:
 
 2. Klicken Sie auf den Button „Neuer tagstore“.
 
-3. Wählen Sie nun einen Ordner aus, der den neuen Store beinhalten soll und klicken Sie auf „Ordner auswählen“
+3. Das Anlegen geschieht durch einen Klick auf „Neuer tagstore“. Wählen Sie dann einen Ordner aus, der den neuen Store beinhalten soll und klicken Sie auf „Ordner auswählen“. Klicken sie danach unbedingt auf „Speichern“!(Der Manager wird sich nun schließen. Für weitere Einstellungen starten sie den Manager bitte neu)
 
 4. Zur Kontrolle ob der Store auch erfolgreich angelegt wurde, öffnen Sie den Store-Ordner in Ihrem Datei-Browser (zum Beispiel Windows Explorer) und vergleichen Sie Ihre Struktur mit der nachfolgenden:</translation>
     </message>
