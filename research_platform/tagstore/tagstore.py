@@ -345,47 +345,48 @@ class Tagstore(QtCore.QObject):
         
         item_list = dialog_controller.get_selected_item_list_public()
 
-        if len(item_list) > 0 and item_list[0] is not None:
-
-            if store.get_tagline_config() == 1 or store.get_tagline_config() == 2 or store.get_tagline_config() == 3:
-                tmp_cat_list = store.get_cat_recommendation(self.NUM_POPULAR_TAGS, str(item_list[0].text()))
-                cat_list = []
-                if store.is_controlled_vocabulary():
-                    allowed_set = set(store.get_controlled_vocabulary())
-                    dialog_controller.set_category_list(list(allowed_set))
-        
-                    ## just show allowed tags - so make the intersection of popular tags ant the allowed tags
-                    for cat in tmp_cat_list:
-                        if cat in list(allowed_set):
-                            cat_list.append(cat)
-                    #for cat in list(allowed_set):
-                    #    if cat not in cat_list:
-                    #        cat_list.append(cat)
-                    #cat_list = list(cat_set.intersection(allowed_set)) 
-                else:
-                    dialog_controller.set_category_list(store.get_categorizing_tags())
-                    cat_list = tmp_cat_list
-                #print cat_list
-                #if len(cat_list) > self.NUM_POPULAR_TAGS:
-                #    cat_list = cat_list[:self.NUM_POPULAR_TAGS]
-                #dialog_controller.set_popular_categories(cat_list)
-                dict = store.get_cat_cloud(str(item_list[0].text())) 
-                dialog_controller.set_cat_cloud(dict, cat_list, self.MAX_CLOUD_TAGS)
-                
-            ## make a list out of the set, to enable indexing, as not all tags cannot be used
-            #tag_list = list(tag_set)
-            if store.get_tagline_config() == 1 or store.get_tagline_config() == 2 or store.get_tagline_config() == 0:
-                tag_list = store.get_tag_recommendation(self.NUM_POPULAR_TAGS, str(item_list[0].text()))
-                #if len(tag_list) > self.NUM_POPULAR_TAGS:
-                #    tag_list = tag_list[:self.NUM_POPULAR_TAGS]
-                #dialog_controller.set_popular_tags(tag_list)
-                dict = store.get_tag_cloud(str(item_list[0].text()))
-                dialog_controller.set_tag_cloud(dict, tag_list, self.MAX_CLOUD_TAGS)
-
-            
+        if item_list is not None:
+            if len(item_list) > 0 and item_list[0] is not None:
     
-            #if len(self.DIALOGS) > 1:
-            dialog_controller.set_store_name(store.get_name())
+                if store.get_tagline_config() == 1 or store.get_tagline_config() == 2 or store.get_tagline_config() == 3:
+                    tmp_cat_list = store.get_cat_recommendation(self.NUM_POPULAR_TAGS, str(item_list[0].text()))
+                    cat_list = []
+                    if store.is_controlled_vocabulary():
+                        allowed_set = set(store.get_controlled_vocabulary())
+                        dialog_controller.set_category_list(list(allowed_set))
+            
+                        ## just show allowed tags - so make the intersection of popular tags ant the allowed tags
+                        for cat in tmp_cat_list:
+                            if cat in list(allowed_set):
+                                cat_list.append(cat)
+                        #for cat in list(allowed_set):
+                        #    if cat not in cat_list:
+                        #        cat_list.append(cat)
+                        #cat_list = list(cat_set.intersection(allowed_set)) 
+                    else:
+                        dialog_controller.set_category_list(store.get_categorizing_tags())
+                        cat_list = tmp_cat_list
+                    #print cat_list
+                    #if len(cat_list) > self.NUM_POPULAR_TAGS:
+                    #    cat_list = cat_list[:self.NUM_POPULAR_TAGS]
+                    #dialog_controller.set_popular_categories(cat_list)
+                    dict = store.get_cat_cloud(str(item_list[0].text())) 
+                    dialog_controller.set_cat_cloud(dict, cat_list, self.MAX_CLOUD_TAGS)
+                    
+                ## make a list out of the set, to enable indexing, as not all tags cannot be used
+                #tag_list = list(tag_set)
+                if store.get_tagline_config() == 1 or store.get_tagline_config() == 2 or store.get_tagline_config() == 0:
+                    tag_list = store.get_tag_recommendation(self.NUM_POPULAR_TAGS, str(item_list[0].text()))
+                    #if len(tag_list) > self.NUM_POPULAR_TAGS:
+                    #    tag_list = tag_list[:self.NUM_POPULAR_TAGS]
+                    #dialog_controller.set_popular_tags(tag_list)
+                    dict = store.get_tag_cloud(str(item_list[0].text()))
+                    dialog_controller.set_tag_cloud(dict, tag_list, self.MAX_CLOUD_TAGS)
+    
+                
+        
+                #if len(self.DIALOGS) > 1:
+                dialog_controller.set_store_name(store.get_name())
     
     def tag_item_action(self, store_name, item_name_list, tag_list, category_list):
         """
@@ -398,32 +399,34 @@ class Tagstore(QtCore.QObject):
             if store_name == loop_store.get_name():
                 store = loop_store
                 break
-        dialog_controller = self.DIALOGS[store.get_id()]
-        try:
-            ## 1. write the data to the store-file
-            store.add_item_list_with_tags(item_name_list, tag_list, category_list)
-            self.__log.debug("added items %s to store-file", item_name_list)
-        except NameInConflictException, e:
-            c_type = e.get_conflict_type()
-            c_name = e.get_conflicted_name()
-            if c_type == EConflictType.FILE:
-                dialog_controller.show_message(self.trUtf8("The filename - %s - is in conflict with an already existing tag. Please rename!" % c_name))
-            elif c_type == EConflictType.TAG:
-                dialog_controller.show_message(self.trUtf8("The tag - %s - is in conflict with an already existing file" % c_name))
+            
+        if store is not None:
+            dialog_controller = self.DIALOGS[store.get_id()]
+            try:
+                ## 1. write the data to the store-file
+                store.add_item_list_with_tags(item_name_list, tag_list, category_list)
+                self.__log.debug("added items %s to store-file", item_name_list)
+            except NameInConflictException, e:
+                c_type = e.get_conflict_type()
+                c_name = e.get_conflicted_name()
+                if c_type == EConflictType.FILE:
+                    dialog_controller.show_message(self.trUtf8("The filename - %s - is in conflict with an already existing tag. Please rename!" % c_name))
+                elif c_type == EConflictType.TAG:
+                    dialog_controller.show_message(self.trUtf8("The tag - %s - is in conflict with an already existing file" % c_name))
+                else:
+                    self.trUtf8("A tag or item is in conflict with an already existing tag/item")
+                #raise
+            except InodeShortageException, e:
+                dialog_controller.show_message(self.trUtf8("The Number of free inodes is below the threshold of %s%" % e.get_threshold()))
+                #raise
+            except Exception, e:
+                dialog_controller.show_message(self.trUtf8("An error occurred while tagging"))
+                raise
             else:
-                self.trUtf8("A tag or item is in conflict with an already existing tag/item")
-            #raise
-        except InodeShortageException, e:
-            dialog_controller.show_message(self.trUtf8("The Number of free inodes is below the threshold of %s%" % e.get_threshold()))
-            #raise
-        except Exception, e:
-            dialog_controller.show_message(self.trUtf8("An error occurred while tagging"))
-            raise
-        else:
-            ## 2. remove the item in the gui
-            dialog_controller.remove_item_list(item_name_list)
-            ## 3. refresh the tag information of the gui
-            self.__set_tag_information_to_dialog(store)
+                ## 2. remove the item in the gui
+                dialog_controller.remove_item_list(item_name_list)
+                ## 3. refresh the tag information of the gui
+                self.__set_tag_information_to_dialog(store)
         
 
     def change_language(self, locale):
