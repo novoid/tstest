@@ -334,6 +334,10 @@ class StoreAdminView(BasePreferenceView):
         self.__btn_build_new = QtGui.QPushButton(self.trUtf8("Rebuild ..."))
         self.__btn_rename = QtGui.QPushButton(self.trUtf8("Rename ..."))
         
+        self.__label_hint_new_tagstore = QtGui.QLabel(self.trUtf8("INSERT ENGLISH TEXT"))
+        self.__label_hint_new_tagstore.setWordWrap(True)
+        self.__label_hint_new_tagstore.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
+        
         ##-----------------------------------
         ## TODO: set rebuild-button visible
         self.__btn_build_new.setVisible(False)
@@ -348,6 +352,7 @@ class StoreAdminView(BasePreferenceView):
         self.__btn_delete = QtGui.QPushButton(self.trUtf8("Delete ..."))
 
         self.__central_layout.addWidget(self.__btn_new_store, 0, 0, 1, 1)
+        self.__central_layout.addWidget(self.__label_hint_new_tagstore, 0 , 1, 1, 2)
         self.__central_layout.addWidget(self.__store_list_view, 1, 0, 1, 3)
         self.__central_layout.addWidget(self.__btn_build_new, 2, 0, 1, 1)
         self.__central_layout.addWidget(self.__btn_rename, 2, 1, 1, 1)

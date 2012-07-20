@@ -4,7 +4,7 @@
 <context>
     <name>Administration</name>
     <message>
-        <location filename="../tagstore_manager.py" line="345"/>
+        <location filename="../tagstore_manager.py" line="348"/>
         <source>storage</source>
         <translation type="unfinished">Ablage</translation>
     </message>
@@ -19,12 +19,12 @@
         <translation type="unfinished">Kategorien</translation>
     </message>
     <message>
-        <location filename="../tagstore_manager.py" line="348"/>
+        <location filename="../tagstore_manager.py" line="351"/>
         <source>expired_items</source>
         <translation type="unfinished">abgelaufene_Daten</translation>
     </message>
     <message>
-        <location filename="../tagstore_manager.py" line="346"/>
+        <location filename="../tagstore_manager.py" line="349"/>
         <source>navigation</source>
         <translation type="unfinished">Navigation</translation>
     </message>
@@ -34,57 +34,57 @@
         <translation type="unfinished">Lösche Store ...</translation>
     </message>
     <message>
-        <location filename="../tagstore_manager.py" line="164"/>
+        <location filename="../tagstore_manager.py" line="167"/>
         <source>Moving store ...</source>
         <translation type="unfinished">Verschiebe Store ...</translation>
     </message>
     <message>
-        <location filename="../tagstore_manager.py" line="183"/>
+        <location filename="../tagstore_manager.py" line="186"/>
         <source>Rebuilding store ...</source>
         <translation type="unfinished">Erstelle den Store neu ...</translation>
     </message>
     <message>
-        <location filename="../tagstore_manager.py" line="197"/>
+        <location filename="../tagstore_manager.py" line="200"/>
         <source>en</source>
         <translation type="unfinished">de</translation>
     </message>
     <message>
-        <location filename="../tagstore_manager.py" line="244"/>
+        <location filename="../tagstore_manager.py" line="247"/>
         <source>An error occurred while re-tagging</source>
         <translation type="unfinished">Während des Re-Taggen trat ein Fehler auf</translation>
     </message>
     <message>
-        <location filename="../tagstore_manager.py" line="248"/>
+        <location filename="../tagstore_manager.py" line="251"/>
         <source>Re-tagging successful!</source>
         <translation type="unfinished">Re-Taggen war erfolgreich!</translation>
     </message>
     <message>
-        <location filename="../tagstore_manager.py" line="306"/>
+        <location filename="../tagstore_manager.py" line="309"/>
         <source>The filename - %s - is in conflict with an already existing tag. Please rename!</source>
         <translation type="unfinished">Der Dateiname %s verursacht einen Konflikt mit einem bestehenden Tag. Bitte Umbenennen!</translation>
     </message>
     <message>
-        <location filename="../tagstore_manager.py" line="308"/>
+        <location filename="../tagstore_manager.py" line="311"/>
         <source>The tag - %s - is in conflict with an already existing file</source>
         <translation type="unfinished">Der Tag %s verursacht einen Konflikt mit einer bestehenden Datei. Bitte Umbenennen!</translation>
     </message>
     <message>
-        <location filename="../tagstore_manager.py" line="310"/>
+        <location filename="../tagstore_manager.py" line="313"/>
         <source>A tag or item is in conflict with an already existing tag/item</source>
         <translation type="unfinished">Ein Tag oder eine Datei verursacht einen Konflikt mit bestehenden Einträgen</translation>
     </message>
     <message>
-        <location filename="../tagstore_manager.py" line="313"/>
+        <location filename="../tagstore_manager.py" line="316"/>
         <source>The Number of free inodes is below the threshold of %s%</source>
         <translation type="unfinished">Die Anzahl der freien Inodes ist unterhalb der Schwelle von %s%</translation>
     </message>
     <message>
-        <location filename="../tagstore_manager.py" line="316"/>
+        <location filename="../tagstore_manager.py" line="319"/>
         <source>An error occurred while tagging</source>
         <translation type="unfinished">Leider passierte ein Fehler beim Taggen</translation>
     </message>
     <message>
-        <location filename="../tagstore_manager.py" line="347"/>
+        <location filename="../tagstore_manager.py" line="350"/>
         <source>categorization</source>
         <translation type="unfinished">Kategorien</translation>
     </message>
@@ -92,27 +92,27 @@
 <context>
     <name>DatestampAdminView</name>
     <message>
-        <location filename="../tsgui/admindialog.py" line="1053"/>
+        <location filename="../tsgui/admindialog.py" line="1068"/>
         <source>You can enable datestamps to be provided automatically at the tagging dialog</source>
         <translation>Falls Sie Datums-Einträge aktivieren, werden diese im Tagging-Dialog automatisch hinzugefügt</translation>
     </message>
     <message>
-        <location filename="../tsgui/admindialog.py" line="1059"/>
+        <location filename="../tsgui/admindialog.py" line="1074"/>
         <source>no automatic datestamp</source>
         <translation>kein automatischer Datumseintrag</translation>
     </message>
     <message>
-        <location filename="../tsgui/admindialog.py" line="1060"/>
+        <location filename="../tsgui/admindialog.py" line="1075"/>
         <source>automatic datestamp: 2010-12</source>
         <translation>Automatischer Datumseintrag: 2010-12</translation>
     </message>
     <message>
-        <location filename="../tsgui/admindialog.py" line="1061"/>
+        <location filename="../tsgui/admindialog.py" line="1076"/>
         <source>automatic datestamp: 2010-12-31</source>
         <translation>Automatischer Datumseintrag: 2010-12-31</translation>
     </message>
     <message>
-        <location filename="../tsgui/admindialog.py" line="1063"/>
+        <location filename="../tsgui/admindialog.py" line="1078"/>
         <source>Hide activated datestamp in tag-line</source>
         <translation type="unfinished">Automatischer Datumseintrag in der Tag-Zeile nicht anzeigen</translation>
     </message>
@@ -120,7 +120,7 @@
 <context>
     <name>ExpiryAdminController</name>
     <message>
-        <location filename="../tsgui/admindialog.py" line="1266"/>
+        <location filename="../tsgui/admindialog.py" line="1281"/>
         <source>Please provide a prefix, when this setting is enabled</source>
         <translation>Bitte geben Sie einen Präfix ein, falls diese Funktion aktiviert ist</translation>
     </message>
@@ -128,17 +128,17 @@
 <context>
     <name>ExpiryAdminView</name>
     <message>
-        <location filename="../tsgui/admindialog.py" line="1164"/>
+        <location filename="../tsgui/admindialog.py" line="1179"/>
         <source>Define a prefix for giving files an expiry date.</source>
         <translation>Geben Sie bitte einen Präfix für das Setzen eines Ablauf-Datums ein.</translation>
     </message>
     <message>
-        <location filename="../tsgui/admindialog.py" line="1172"/>
+        <location filename="../tsgui/admindialog.py" line="1187"/>
         <source>no automatic expiry</source>
         <translation>kein automatischer Ablauf von Daten</translation>
     </message>
     <message>
-        <location filename="../tsgui/admindialog.py" line="1173"/>
+        <location filename="../tsgui/admindialog.py" line="1188"/>
         <source>activated, with prefix</source>
         <translation>Aktiviert, mit Präfix</translation>
     </message>
@@ -153,17 +153,17 @@
         <translation type="obsolete">abgelaufene_Daten</translation>
     </message>
     <message>
-        <location filename="../tsgui/admindialog.py" line="1210"/>
+        <location filename="../tsgui/admindialog.py" line="1225"/>
         <source>Directories or files tagged with &apos;</source>
         <translation type="unfinished">Dateien oder Ordner, die mit &apos;</translation>
     </message>
     <message>
-        <location filename="../tsgui/admindialog.py" line="1210"/>
+        <location filename="../tsgui/admindialog.py" line="1225"/>
         <source>2010-12&apos; will be moved to the tagstore directory expired_items on January 1st 2011; associated tags will be added to the file name. The correct writing of &apos;</source>
         <translation type="unfinished">2010-12&apos; getaggt sind, werden am 1. Jänner 2011 nach abgelaufene_Daten verschoben und alle Tags dem Dateinamen hinzugefügt. Beachten Sie die exakte Schreibweise von &apos;</translation>
     </message>
     <message>
-        <location filename="../tsgui/admindialog.py" line="1212"/>
+        <location filename="../tsgui/admindialog.py" line="1227"/>
         <source>2010-12&apos; is really important thereby.</source>
         <translation type="unfinished">2010-12&apos;.</translation>
     </message>
@@ -298,12 +298,12 @@ Ein Klick auf „Manager“ (6) öffnet den tagstore Manager.</translation>
 <context>
     <name>ReTaggingView</name>
     <message>
-        <location filename="../tsgui/admindialog.py" line="729"/>
+        <location filename="../tsgui/admindialog.py" line="744"/>
         <source>Re-tag already tagged items</source>
         <translation type="unfinished">Re-Tag bereits getaggte Items</translation>
     </message>
     <message>
-        <location filename="../tsgui/admindialog.py" line="737"/>
+        <location filename="../tsgui/admindialog.py" line="752"/>
         <source>Re-Tag</source>
         <translation type="unfinished"></translation>
     </message>
@@ -412,27 +412,27 @@ Ein Klick auf „Manager“ (6) öffnet den tagstore Manager.</translation>
 <context>
     <name>StoreAdminController</name>
     <message>
-        <location filename="../tsgui/admindialog.py" line="420"/>
+        <location filename="../tsgui/admindialog.py" line="435"/>
         <source>Select a directory for the new tagstore</source>
         <translation>Wählen Sie ein Verzeichnis für den neuen tagstore</translation>
     </message>
     <message>
-        <location filename="../tsgui/admindialog.py" line="435"/>
+        <location filename="../tsgui/admindialog.py" line="450"/>
         <source>A store with this name already exists. Please choose another store</source>
         <translation>Der angegebene Name wurde bereits verwendet. Bitte wählen Sie einen anderen!</translation>
     </message>
     <message>
-        <location filename="../tsgui/admindialog.py" line="443"/>
+        <location filename="../tsgui/admindialog.py" line="458"/>
         <source>Rebuild Store</source>
         <translation>Store-Struktur neu generieren</translation>
     </message>
     <message>
-        <location filename="../tsgui/admindialog.py" line="443"/>
+        <location filename="../tsgui/admindialog.py" line="458"/>
         <source>Do you really want to rebuild the selected store? Please be aware, that this may take some minutes</source>
         <translation>Wollen Sie die Operation wirklich ausführen? Dies kann einige Minuten dauern.</translation>
     </message>
     <message>
-        <location filename="../tsgui/admindialog.py" line="450"/>
+        <location filename="../tsgui/admindialog.py" line="465"/>
         <source>Delete Store</source>
         <translation>Store löschen</translation>
     </message>
@@ -443,12 +443,12 @@ Ein Klick auf „Manager“ (6) öffnet den tagstore Manager.</translation>
         <translation type="obsolete">Wollen Sie den tagstore wirklich löschen? Das folgende Verzeichnis und alle darin enthaltenen Daten werden gelöscht: %s</translation>
     </message>
     <message>
-        <location filename="../tsgui/admindialog.py" line="464"/>
+        <location filename="../tsgui/admindialog.py" line="479"/>
         <source>Rename a tagstore</source>
         <translation>tagstore umbenennen</translation>
     </message>
     <message>
-        <location filename="../tsgui/admindialog.py" line="464"/>
+        <location filename="../tsgui/admindialog.py" line="479"/>
         <source>new name:</source>
         <translation>Neuer Name:</translation>
     </message>
@@ -460,10 +460,10 @@ Ein Klick auf „Manager“ (6) öffnet den tagstore Manager.</translation>
 </translation>
     </message>
     <message>
-        <location filename="../tsgui/admindialog.py" line="450"/>
+        <location filename="../tsgui/admindialog.py" line="465"/>
         <source>Do you really want to delete the selected store? Only the navigation structures will be deleted.The folder &quot;storage&quot; and &quot;expired_items&quot; remains. A backup copy in advance is still advised. 
 </source>
-        <translation type="unfinished">Wollen Sie den tagstore wirklich löschen? Beim Löschen eines Stores werden *nur* die Navigationsstukturen gelöscht. Die Ordner &quot;Ablage&quot; und &quot;abgelaufene_Daten&quot; bleiben erhalten. Eine Sicherheitskopie vorab empfiehlt sich trotzdem.
+        <translation type="unfinished">Wollen Sie den tagstore wirklich löschen? Beim Löschen eines Stores werden „nur“ die Navigationsstukturen gelöscht. Die Ordner „Ablage“ und „abgelaufene_Daten“ bleiben erhalten. Eine Sicherheitskopie vorab empfiehlt sich trotzdem.
 </translation>
     </message>
 </context>
@@ -490,50 +490,55 @@ Ein Klick auf „Manager“ (6) öffnet den tagstore Manager.</translation>
         <translation>Umbenennen ...</translation>
     </message>
     <message>
-        <location filename="../tsgui/admindialog.py" line="338"/>
+        <location filename="../tsgui/admindialog.py" line="352"/>
         <source>Delete ...</source>
         <translation>Löschen ...</translation>
+    </message>
+    <message>
+        <location filename="../tsgui/admindialog.py" line="337"/>
+        <source>INSERT ENGLISH TEXT</source>
+        <translation type="unfinished">Nachdem Sie einen neuen Store angelegt haben, klicken Sie bitte unbedingt auf „Speichern“! (Der Manager wird sich nun schließen. Für weitere Einstellungen starten sie den Manager bitte neu)</translation>
     </message>
 </context>
 <context>
     <name>StorePreferencesController</name>
     <message>
-        <location filename="../tsgui/admindialog.py" line="1441"/>
+        <location filename="../tsgui/admindialog.py" line="1456"/>
         <source>Store Management</source>
         <translation>Store-Verwaltung</translation>
     </message>
     <message>
-        <location filename="../tsgui/admindialog.py" line="1442"/>
+        <location filename="../tsgui/admindialog.py" line="1457"/>
         <source>Datestamps</source>
         <translation>Datumsstempel</translation>
     </message>
     <message>
-        <location filename="../tsgui/admindialog.py" line="1443"/>
+        <location filename="../tsgui/admindialog.py" line="1458"/>
         <source>Expiry Date</source>
         <translation>Ablaufdatum</translation>
     </message>
     <message>
-        <location filename="../tsgui/admindialog.py" line="1444"/>
+        <location filename="../tsgui/admindialog.py" line="1459"/>
         <source>My Tags</source>
         <translation>Meine Tags</translation>
     </message>
     <message>
-        <location filename="../tsgui/admindialog.py" line="1445"/>
+        <location filename="../tsgui/admindialog.py" line="1460"/>
         <source>Rename Tags</source>
         <translation>Tags umbenennen</translation>
     </message>
     <message>
-        <location filename="../tsgui/admindialog.py" line="1446"/>
+        <location filename="../tsgui/admindialog.py" line="1461"/>
         <source>Re-Tagging</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tsgui/admindialog.py" line="1448"/>
+        <location filename="../tsgui/admindialog.py" line="1463"/>
         <source>Sync Settings</source>
         <translation type="unfinished">Synchronisierung</translation>
     </message>
     <message>
-        <location filename="../tsgui/admindialog.py" line="1447"/>
+        <location filename="../tsgui/admindialog.py" line="1462"/>
         <source>Synchronize</source>
         <translation>Synchronisiere</translation>
     </message>
@@ -554,7 +559,7 @@ Ein Klick auf „Manager“ (6) öffnet den tagstore Manager.</translation>
 <context>
     <name>SyncTagstoreController</name>
     <message>
-        <location filename="../tsgui/admindialog.py" line="1396"/>
+        <location filename="../tsgui/admindialog.py" line="1411"/>
         <source>Please define a tag which is used for syncing.</source>
         <translation>Bitte definieren Sie einen Tag, der für die Synchronization verwendet werden kann.</translation>
     </message>
@@ -562,22 +567,22 @@ Ein Klick auf „Manager“ (6) öffnet den tagstore Manager.</translation>
 <context>
     <name>SyncTagstoreView</name>
     <message>
-        <location filename="../tsgui/admindialog.py" line="1292"/>
+        <location filename="../tsgui/admindialog.py" line="1307"/>
         <source>Please define a tag, which makes all files associated with it, to be sync-able.</source>
         <translation>Bitte definieren Sie einen Tag, mit dem alle Dateien, die damit getaggt wurden, synchronisiert werden können.</translation>
     </message>
     <message>
-        <location filename="../tsgui/admindialog.py" line="1300"/>
+        <location filename="../tsgui/admindialog.py" line="1315"/>
         <source>no sync tag</source>
         <translation>Kein Synchronization Tag</translation>
     </message>
     <message>
-        <location filename="../tsgui/admindialog.py" line="1301"/>
+        <location filename="../tsgui/admindialog.py" line="1316"/>
         <source>Use the following sync tag</source>
         <translation>Verwende diesen Synchronization Tag</translation>
     </message>
     <message>
-        <location filename="../tsgui/admindialog.py" line="1340"/>
+        <location filename="../tsgui/admindialog.py" line="1355"/>
         <source>Files tagged with %s will be automatically synced</source>
         <translation>Dateien die mit &apos;%s&apos; getagged wurden, werden automatisch gesynct</translation>
     </message>
@@ -590,37 +595,37 @@ Ein Klick auf „Manager“ (6) öffnet den tagstore Manager.</translation>
 <context>
     <name>TagAdminView</name>
     <message>
-        <location filename="../tsgui/admindialog.py" line="824"/>
+        <location filename="../tsgui/admindialog.py" line="839"/>
         <source>Define your own vocabulary to be used as categorizing tags</source>
         <translation>Definieren Sie sich Ihr persönliches Wörterbuch für die Verwendung als Kategorie-Tags</translation>
     </message>
     <message>
-        <location filename="../tsgui/admindialog.py" line="836"/>
+        <location filename="../tsgui/admindialog.py" line="851"/>
         <source>Rename</source>
         <translation>Umbenennen</translation>
     </message>
     <message>
-        <location filename="../tsgui/admindialog.py" line="840"/>
+        <location filename="../tsgui/admindialog.py" line="855"/>
         <source>Describing Tags</source>
         <translation>Beschreibende Tags</translation>
     </message>
     <message>
-        <location filename="../tsgui/admindialog.py" line="848"/>
+        <location filename="../tsgui/admindialog.py" line="863"/>
         <source>Categorizing Tags</source>
         <translation>Kategorie-Tags</translation>
     </message>
     <message>
-        <location filename="../tsgui/admindialog.py" line="899"/>
+        <location filename="../tsgui/admindialog.py" line="914"/>
         <source>Rename a tag</source>
         <translation>Tag umbenennen</translation>
     </message>
     <message>
-        <location filename="../tsgui/admindialog.py" line="899"/>
+        <location filename="../tsgui/admindialog.py" line="914"/>
         <source>Please consider that renaming a tag can be a time consuming process for your system</source>
         <translation>Beachten Sie bitte, dass das Umbenennen eines Tags eine zeitaufwendige Operation darstellen kann</translation>
     </message>
     <message>
-        <location filename="../tsgui/admindialog.py" line="922"/>
+        <location filename="../tsgui/admindialog.py" line="937"/>
         <source>The new tag contains a special character which is not allowed.</source>
         <translation>Der neue Tag enthält nicht erlaubte Sonderzeichen.</translation>
     </message>
@@ -635,12 +640,12 @@ Ein Klick auf „Manager“ (6) öffnet den tagstore Manager.</translation>
         <translation type="obsolete">Der neue Tag &apos;%s&apos; is ein Schlüsselwort und deshalb nicht erlaubt.</translation>
     </message>
     <message>
-        <location filename="../tsgui/admindialog.py" line="926"/>
+        <location filename="../tsgui/admindialog.py" line="941"/>
         <source>The new tag </source>
         <translation type="unfinished">Der neue Tag </translation>
     </message>
     <message>
-        <location filename="../tsgui/admindialog.py" line="926"/>
+        <location filename="../tsgui/admindialog.py" line="941"/>
         <source> is a not allowed keyword.</source>
         <translation type="unfinished"> ist ein nicht erlaubtes Schlüsselwort.</translation>
     </message>
@@ -792,22 +797,22 @@ Ein Klick auf „Manager“ (6) öffnet den tagstore Manager.</translation>
 <context>
     <name>VocabularyAdminView</name>
     <message>
-        <location filename="../tsgui/admindialog.py" line="508"/>
+        <location filename="../tsgui/admindialog.py" line="523"/>
         <source>Avoid similar tags (uni, university, ...) by resticting yourself to your set of tags</source>
         <translation>Verhindern von ähnlichen Tags (Uni, Universität, ...) durch Einschränken auf eigene Tags</translation>
     </message>
     <message>
-        <location filename="../tsgui/admindialog.py" line="516"/>
+        <location filename="../tsgui/admindialog.py" line="531"/>
         <source>one tag-line; no restrictions for tags</source>
         <translation>eine Tag-Zeile; keine Einschränkungen für Tags</translation>
     </message>
     <message>
-        <location filename="../tsgui/admindialog.py" line="522"/>
+        <location filename="../tsgui/admindialog.py" line="537"/>
         <source>two tag-lines; no restrictions</source>
         <translation>zwei Tag-Zeilen; keine Einschränkungen</translation>
     </message>
     <message>
-        <location filename="../tsgui/admindialog.py" line="529"/>
+        <location filename="../tsgui/admindialog.py" line="544"/>
         <source>if second tag-line is shown: at least one category is mandatory</source>
         <translation>sofern zweite Tag-Zeile sichtbar: zumindest eine Kategorie ist erforderlich</translation>
     </message>
@@ -822,32 +827,32 @@ Ein Klick auf „Manager“ (6) öffnet den tagstore Manager.</translation>
         <translation type="obsolete">Löschen</translation>
     </message>
     <message>
-        <location filename="../tsgui/admindialog.py" line="601"/>
+        <location filename="../tsgui/admindialog.py" line="616"/>
         <source>Add new vocabulary</source>
         <translation>Wörterbuch-Eintrag hinzufügen</translation>
     </message>
     <message>
-        <location filename="../tsgui/admindialog.py" line="601"/>
+        <location filename="../tsgui/admindialog.py" line="616"/>
         <source>vocabulary:</source>
         <translation>Wörterbuch-Einträge:</translation>
     </message>
     <message utf8="true">
-        <location filename="../tsgui/admindialog.py" line="519"/>
+        <location filename="../tsgui/admindialog.py" line="534"/>
         <source>one tag-line; only «My Tags» allowed</source>
         <translation>eine Tag-Zeile; nur »Meine Tags« erlaubt</translation>
     </message>
     <message utf8="true">
-        <location filename="../tsgui/admindialog.py" line="525"/>
+        <location filename="../tsgui/admindialog.py" line="540"/>
         <source>two tag-lines; only «My Tags» allowed in second one</source>
         <translation>zwei Tag-Zeilen; nur »Meine Tags« in zweiter erlaubt</translation>
     </message>
     <message>
-        <location filename="../tsgui/admindialog.py" line="542"/>
+        <location filename="../tsgui/admindialog.py" line="557"/>
         <source>Add tag</source>
         <translation type="unfinished">Tag hinzufügen</translation>
     </message>
     <message>
-        <location filename="../tsgui/admindialog.py" line="543"/>
+        <location filename="../tsgui/admindialog.py" line="558"/>
         <source>Remove tag</source>
         <translation type="unfinished">Tag entfernen</translation>
     </message>
