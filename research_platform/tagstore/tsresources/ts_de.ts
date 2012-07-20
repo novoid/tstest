@@ -268,7 +268,7 @@ Auf der rechten Seite oben befindet eine Liste mit den noch nicht getaggten Item
 
 Unterhalb der Liste finden Sie (je nach Einstellung) eine oder zwei Tag-Zeilen (3, 4). Hier tippen Sie hier Ihre Tags ein. Trennen Sie Tags durch einen Beistrich. Dadurch sind auch Tags bestehend aus mehreren Wörtern möglich. Natürlich hilft hier eine automatische Tag-Vervollständigung bei der bequemen Eingabe.
 
-Eine sehr praktische Funktion bietet die sogenannte Tag-Cloud (1), die einige Tagvorschläge enthält. Die Vorschläge sind durch Ihre Schriftgröße gereiht: je größer der Begriff, desto mehr ist das System der Meinung, dass das Tag für das Item passt. Durch Klick auf einen Begriff in der Tag-Cloud fügen Sie diesen automatisch am Ende Ihrer Tag-Zeile hinzu. Verwenden Sie einen Store mit zwei Tag-Zeilen, werden auch zwei getrennte Tag-Clouds angeboten.
+Eine sehr praktische Funktion bietet die sogenannte Tag-Cloud (1), die einige Tagvorschläge enthält. Die Vorschläge sind durch Ihre Schriftgröße gereiht: je größer der Begriff, desto besser sollte dieser Tag zu Ihrem Item passen. Durch Klick auf einen Begriff in der Tag-Cloud fügen Sie diesen automatisch am Ende Ihrer Tag-Zeile hinzu. Verwenden Sie einen Store mit zwei Tag-Zeilen, werden auch zwei getrennte Tag-Clouds angeboten.
 
 Durch einen Klick auf „Tag!“ (5) wird das ausgewählte Item entsprechend getaggt und verschwindet aus der Liste (2) oberhalb. Mit „Später bearbeiten“ (7) können Sie den Tag-Dialog jederzeit beenden. Die noch nicht getaggten Items verbleiben in der Liste (2) bis Sie entweder getaggt oder aus der Ablage gelöscht wurden.
 
@@ -887,7 +887,7 @@ Ein Klick auf „Manager“ (6) öffnet den tagstore Manager.</translation>
     <message>
         <location filename="../tsgui/wizard.py" line="110"/>
         <source>First steps</source>
-        <translation>Erste Schritte</translation>
+        <translation type="unfinished">Erste Schritte.</translation>
     </message>
     <message>
         <location filename="../tsgui/wizard.py" line="149"/>
@@ -1036,7 +1036,7 @@ Das tagstore-Team wünscht Ihnen viel Spass mit tagstore!</translation>
 
 Unterhalb der Liste finden Sie (je nach Einstellung) eine oder zwei Tag-Zeilen (3, 4). Hier tippen Sie hier Ihre Tags ein. Trennen Sie Tags durch einen Beistrich. Dadurch sind auch Tags bestehend aus mehreren Wörtern möglich. Natürlich hilft hier eine automatische Tag-Vervollständigung bei der bequemen Eingabe.
 
-Eine sehr praktische Funktion bietet die sogenannte Tag-Cloud (1), die einige Tagvorschläge enthält. Die Vorschläge sind durch Ihre Schriftgröße gereiht: je größer der Begriff, desto mehr ist das System der Meinung, dass das Tag für das Item passt. Durch Klick auf einen Begriff in der Tag-Cloud fügen Sie diesen automatisch am Ende Ihrer Tag-Zeile hinzu. Verwenden Sie einen Store mit zwei Tag-Zeilen, werden auch zwei getrennte Tag-Clouds angeboten.
+Eine sehr praktische Funktion bietet die sogenannte Tag-Cloud (1), die einige Tagvorschläge enthält. Die Vorschläge sind durch Ihre Schriftgröße gereiht: je größer der Begriff, desto besser sollte dieser Tag zu Ihrem Item passen. Durch Klick auf einen Begriff in der Tag-Cloud fügen Sie diesen automatisch am Ende Ihrer Tag-Zeile hinzu. Verwenden Sie einen Store mit zwei Tag-Zeilen, werden auch zwei getrennte Tag-Clouds angeboten.
 
 Durch einen Klick auf „Tag!“ (5) wird das ausgewählte Item entsprechend getaggt und verschwindet aus der Liste (2) oberhalb. Mit „Später bearbeiten“ (7) können Sie den Tag-Dialog jederzeit beenden. Die noch nicht getaggten Items verbleiben in der Liste (2) bis Sie entweder getaggt oder aus der Ablage gelöscht wurden.
 
@@ -1092,7 +1092,7 @@ Ein „Tag“ ist ein Schlagwort.</translation>
         <source>INSERT ENGLISH TEXT</source>
         <translation type="unfinished">In „Ablage“ werden Sie neue Items speichern. Es empfiehlt sich, diesen Ordner rasch zugänglich zu verlinken (zum Beispiel am Desktop).
 
-In „Beschreibungen“ finden Sie dann die Navigationsstruktur, in der Sie dann nach ihren Items suchen werden. Dort drinnen befinden sich Ordner, die Ihre Tags repräsentieren. Sie können Items über jede mögliche Kombination von Tags wiederfinden. Je mehr Tag-Ordner Sie besuchen, desto mehr schränken Sie Ihre „Suche“ ein.
+Ihre persönliche Navigationsstruktur finden Sie unter einem (oder mehreren) der folgenden Ordner, &quot;Beschreibungen&quot;, &quot;Kategorien&quot;, &quot;Navigation&quot;. Die genaue Aufschlüsselung welche Store-Konfiguration zu welchen Navigationshierarchien führt, finden Sie am Ende des Textes. In dieser Navigationshierarchie können Sie nach Ihren Items suchen. Dort drinnen befinden sich Ordner, die Ihre Tags repräsentieren. Sie können Items über jede mögliche Kombination von Tags wiederfinden. Je weiter Sie in die Unterordner hinein navigieren, desto mehr schränken Sie Ihre &quot;Suche&quot; ein.
 
 Sollten Sie „Meine Tags&quot; verwenden, so finden Sie die dazugehörige Navigationsstruktur im Ordner „Kategorien“. 
 
