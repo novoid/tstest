@@ -17,6 +17,7 @@
 import os
 import re
 from PyQt4 import QtCore
+from specialcharhelper import SpecialCharHelper
 #from time import *
 
 #from pyPdf import PdfFileReader
@@ -33,6 +34,7 @@ class Recommender(QtCore.QObject):
         '''
         QtCore.QObject.__init__(self)
         self.store_path = store_path
+        self.__special_char = SpecialCharHelper(" ")
         
         
     #def get_tag_recommendation(self, tag_wrapper, new_file, number):
@@ -40,13 +42,14 @@ class Recommender(QtCore.QObject):
         '''
         function_explanation
         '''
+        
         extension = self.get_file_extension(file_name)
         dictionary = tag_wrapper.get_tag_dict().copy()
         
         number_of_tags = 0
         for tag_name, rating in dictionary.iteritems():
             number_of_tags += rating
-           
+         
         for tag_name, rating in dictionary.iteritems():
             dictionary[tag_name] = ((rating * 1.5) / number_of_tags)
         #print "Nach freq"
@@ -56,10 +59,10 @@ class Recommender(QtCore.QObject):
         #    for meta_data, rating in meta_dict.iteritems():
         #        if meta_data != None:
         #            self.add_tag_to_dict(dictionary, meta_data, rating)
+          
         dictionary = self.string_matching(file_name, dictionary, extension)
         #print "Nach string"
         #print dictionary
-        
         file = self.store_path + "/" + storage_dir_name + "/" + file_name
         if os.path.isdir(file):
         #if file.isdir():
@@ -260,16 +263,17 @@ class Recommender(QtCore.QObject):
         function_explanation
         '''
         bool = 0
-
-        ext_len = len(file_extension) * -1
-        file_name_without_extension = file_name[:ext_len]
+        if len(file_extension) > 0:
+            ext_len = len(file_extension) * -1
+            file_name_without_extension = file_name[:ext_len]
+        else:
+            file_name_without_extension = file_name
         for tag_name, rating in dictionary.iteritems():
             tmp_rating = self.string_matching2(file_name_without_extension.upper(), tag_name.upper(), file_extension)
             #tmp_rating = self.string_matching2(file_name.upper(), tag_name.upper(), file_extension)
             dictionary[tag_name] = rating + (tmp_rating * 2.0)
             if tmp_rating == 1:
                 bool = 1
-        
         if bool < 1:
             sub_file_name_list = re.split("[ ,_-]",file_name_without_extension)
             for name in sub_file_name_list:
@@ -283,12 +287,15 @@ class Recommender(QtCore.QObject):
         '''
         function_explanation
         '''
+
+        file_name = unicode(file_name)
+
         if tag_name.upper() in file_extension.upper():
             return 1
 
         if file_name.upper() in tag_name.upper():
             return 1
-        
+
         if tag_name.upper() in file_name.upper():
             return 1
         
