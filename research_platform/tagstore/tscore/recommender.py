@@ -84,7 +84,7 @@ class Recommender(QtCore.QObject):
             
         #if len(dictionary) <= number:
         #    self.recommend_new_tags(dictionary, extension)
-        
+        print dictionary
         return dictionary
 
     def get_cat_recommendation(self, tag_wrapper, file_name, number, storage_dir_name, allowed_tags):

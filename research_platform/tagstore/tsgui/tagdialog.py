@@ -272,6 +272,7 @@ class TagDialog(QtGui.QDialog):
     
     def __set_tag_info(self, info_text):
         self.__tag_error_label.setText(info_text)
+        
     def __remove_tag_info(self):
         self.__tag_error_label.setText("")
         
@@ -467,7 +468,7 @@ class TagDialog(QtGui.QDialog):
             self.__log.debug("set_selected_item_list: %s" % self.__selected_item_list)
         
     def __handle_tag_label_clicked(self, clicked_text):
-        current_text = str(self.__tag_line.text()).strip()
+        current_text = unicode(self.__tag_line.text()).strip()
         if current_text == "":
             self.__tag_line.setText(clicked_text)
         elif current_text == QtGui.QApplication.translate("tagstore", "write your tags here", None, QtGui.QApplication.UnicodeUTF8):
@@ -478,7 +479,7 @@ class TagDialog(QtGui.QDialog):
             self.__tag_line.setText("%s%s %s" % (current_text, self.__tag_separator, clicked_text))
 
     def __handle_category_label_clicked(self, clicked_text):
-        current_text = str(self.__category_line.text()).strip()
+        current_text = unicode(self.__category_line.text()).strip()
         if current_text == "":
             self.__category_line.setText(clicked_text)
         elif current_text == QtGui.QApplication.translate("tagstore", "write your categories here", None, QtGui.QApplication.UnicodeUTF8):
