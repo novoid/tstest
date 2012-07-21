@@ -436,26 +436,30 @@ class Recommender(QtCore.QObject):
         '''
         
         if file_extension in ".pdf":
-            self.add_tag_to_dict(dictionary, self.trUtf8("documents"), 0.06)
-            self.add_tag_to_dict(dictionary, self.trUtf8("PDF"), 0.04)
+            self.add_tag_to_dict_qstring(dictionary, self.trUtf8("documents"), 0.06)
+            self.add_tag_to_dict_qstring(dictionary, self.trUtf8("PDF"), 0.04)
         elif file_extension in (".gif.png.jpg.jpeg"): 
-            self.add_tag_to_dict(dictionary, "image", 0.06)
+            self.add_tag_to_dict_qstring(dictionary, "image", 0.06)
         elif file_extension in (".mkv.avi.flv.mov.mp4.wmv"): 
-            self.add_tag_to_dict(dictionary, self.trUtf8("video"), 0.06)
-            self.add_tag_to_dict(dictionary, self.trUtf8("movie"), 0.05)
+            self.add_tag_to_dict_qstring(dictionary, self.trUtf8("video"), 0.06)
+            self.add_tag_to_dict_qstring(dictionary, self.trUtf8("movie"), 0.05)
         elif file_extension in ".doc.docx":
-            self.add_tag_to_dict(dictionary, self.trUtf8("documents"), 0.06)
-            self.add_tag_to_dict(dictionary, self.trUtf8("DOC"), 0.04)
+            self.add_tag_to_dict_qstring(dictionary, self.trUtf8("documents"), 0.06)
+            self.add_tag_to_dict_qstring(dictionary, self.trUtf8("DOC"), 0.04)
             
-        self.add_tag_to_dict(dictionary, self.trUtf8("family"), 0.05)
-        self.add_tag_to_dict(dictionary, self.trUtf8("work"), 0.05)
-        self.add_tag_to_dict(dictionary, self.trUtf8("holiday"), 0.04)
-        self.add_tag_to_dict(dictionary, self.trUtf8("image"), 0.03)
-        self.add_tag_to_dict(dictionary, self.trUtf8("documents"), 0.03)
-        self.add_tag_to_dict(dictionary, self.trUtf8("music"), 0.035)
-        self.add_tag_to_dict(dictionary, self.trUtf8("video"), 0.035)
+        self.add_tag_to_dict_qstring(dictionary, self.trUtf8("family"), 0.05)
+        self.add_tag_to_dict_qstring(dictionary, self.trUtf8("work"), 0.05)
+        self.add_tag_to_dict_qstring(dictionary, self.trUtf8("holiday"), 0.04)
+        self.add_tag_to_dict_qstring(dictionary, self.trUtf8("image"), 0.03)
+        self.add_tag_to_dict_qstring(dictionary, self.trUtf8("documents"), 0.03)
+        self.add_tag_to_dict_qstring(dictionary, self.trUtf8("music"), 0.035)
+        self.add_tag_to_dict_qstring(dictionary, self.trUtf8("video"), 0.035)
     
     def add_tag_to_dict(self, dictionary, tag, rating):
+        if tag not in dictionary:
+            dictionary.setdefault(tag, rating)
+            
+    def add_tag_to_dict_qstring(self, dictionary, tag, rating):
         if str(tag) not in dictionary:
             dictionary.setdefault(str(tag), rating)
 ## end
