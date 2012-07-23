@@ -13,8 +13,8 @@
             <text>Info:
 Im Zuge der Installation werden folgende Komponenten mit-installiert:
 
-- python 2.7
-- PyQt-Py2.7-gpl-4.8.1-1
+- python-2.7.3
+- PyQt-Py2.7-x86-gpl-4.9.4-1
 - pywin32-214.win32-py2.7
 
 Diese Komponenten sind für eine reibungslose Funktionalität von tagstore notwendig.
@@ -35,7 +35,7 @@ Die Installation von tagstore wird anschließend fortgesetzt.</text>
         <runProgram>
             <abortOnError>0</abortOnError>
             <customErrorMessage>Installation of PyQt canceled, tagstore installation will continue</customErrorMessage>
-            <program>${installdir}\PyQt-Py2.7-gpl-4.8.1-1.exe</program>
+            <program>${installdir}\PyQt-Py2.7-x86-gpl-4.9.4-1.exe</program>
             <programArguments></programArguments>
             <ruleEvaluationLogic>or</ruleEvaluationLogic>
         </runProgram>
@@ -76,10 +76,10 @@ Die Installation von tagstore wird anschließend fortgesetzt.</text>
             <path>${installdir}\install_python.bat</path>
         </deleteFile>
         <deleteFile>
-            <path>${installdir}\python-2.7.msi</path>
+            <path>${installdir}\python-2.7.3.msi</path>
         </deleteFile>
         <deleteFile>
-            <path>${installdir}\PyQt-Py2.7-gpl-4.8.1-1.exe</path>
+            <path>${installdir}\PyQt-Py2.7-x86-gpl-4.9.4-1.exe</path>
         </deleteFile>
         <deleteFile>
             <path>${installdir}\pywin32-214.win32-py2.7.exe</path>
@@ -186,10 +186,10 @@ nach erfolgreicher Installation wird ein Neustart empfohlen (Umgebungsvariablen)
                             <origin>C:\tagstore\research_platform\installer\needs4tagstore\pywin32-214.win32-py2.7.exe</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>C:\tagstore\research_platform\installer\needs4tagstore\PyQt-Py2.7-gpl-4.8.1-1.exe</origin>
+                            <origin>C:\tagstore\research_platform\installer\needs4tagstore\PyQt-Py2.7-x86-gpl-4.9.4-1.exe</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>C:\tagstore\research_platform\installer\needs4tagstore\python-2.7.msi</origin>
+                            <origin>C:\tagstore\research_platform\installer\needs4tagstore\python-2.7.3.msi</origin>
                         </distributionFile>
                         <distributionFile>
                             <origin>C:\tagstore\research_platform\installer\needs4tagstore\tagstore\restart_tagstore.bat</origin>
