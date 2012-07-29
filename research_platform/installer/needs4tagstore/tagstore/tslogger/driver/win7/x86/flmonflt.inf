@@ -1,0 +1,76 @@
+
+[Version]
+Signature   = "$Chicago$"
+Class       = "ActivityMonitor"                         ;This is determined by the work this filter driver does
+ClassGuid   = {b86dff51-a31e-4bac-b3cf-e8cfe75c9fc2}    ;This value is determined by the Class
+Provider    = %Prov%
+DriverVer   = 07/22/2011,1.0.0.0
+
+
+
+[DestinationDirs]
+DefaultDestDir          = 12
+Filemon.DriverFiles     = 12            ;%windir%\system32\drivers
+Filemon.UserFiles       = 10,FltMgr     ;%windir%\FltMgr
+
+[DefaultInstall]
+OptionDesc          = %ServiceDescription%
+CopyFiles           = Filemon.DriverFiles ;, Filemon.UserFiles
+
+[DefaultInstall.Services]
+AddService          = %ServiceName%,,Filemon.Service
+
+[DefaultUninstall]
+DelFiles            = Filemon.DriverFiles ;, Filemon.UserFiles
+
+[DefaultUninstall.Services]
+DelService = Filemon,0x200      
+
+[Filemon.Service]
+DisplayName      = %ServiceName%
+Description      = %ServiceDescription%
+ServiceBinary    = %12%\%DriverName%.sys        ;%windir%\system32\drivers\
+Dependencies     = "FltMgr"
+ServiceType      = 1                            
+StartType        = 1                            
+ErrorControl     = 1                            
+LoadOrderGroup   = "FSFilter Content Screener"
+AddReg           = Filemon.AddRegistry
+
+;
+; Registry Modifications
+;
+
+[Filemon.AddRegistry]
+HKR,"Instances","DefaultInstance",0x00000000,%DefaultInstance%
+HKR,"Instances\"%Instance1.Name%,"Altitude",0x00000000,%Instance1.Altitude%
+HKR,"Instances\"%Instance1.Name%,"Flags",0x00010001,%Instance1.Flags%
+
+[Filemon.DriverFiles]
+%DriverName%.sys
+
+[Filemon.UserFiles]
+%UserAppName%.exe
+
+[SourceDisksFiles]
+flmonflt.sys = 1,,
+;flmonlog.exe = 1,,
+
+[SourceDisksNames]
+1 = %DiskId1%,,,
+
+
+[Strings]
+Prov                    = "Florian Praxmair"
+ServiceDescription      = "FileMonitor mini-filter driver"
+ServiceName             = "flmonflt"
+DriverName              = "flmonflt"
+UserAppName             = "flmonlog"
+DiskId1                 = "FileMonitor Installation Disk"
+
+;Instances specific information.
+DefaultInstance         = "FileMon Instance"
+Instance1.Name          = "FileMon Instance"
+Instance1.Altitude      = "265000"
+Instance1.Flags         = 0x0          ; Allow all attachments
+
