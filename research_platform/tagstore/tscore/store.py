@@ -822,7 +822,8 @@ class Store(QtCore.QObject):
         self.__log.info("tagged item " + file_name + \
                             ", # descr tags: " + str(len(describing_tags)) + \
                             ", # categ tags: " + str(len(categorising_tags)) + \
-                            ", TagTree creation time: " + str(time.clock()-start))  ## performance measure
+                            ", (" + str(time.clock()-start) + ")")  ## performance measure
+        ## CAUTION: time.clock() measures something weird, but not actual time
         
     def __build_store_navigation(self, link_name, tag_list, current_path):
         """
