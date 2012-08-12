@@ -14,7 +14,7 @@
 ## You should have received a copy of the GNU General Public License along with this program;
 ## if not, see <http://www.gnu.org/licenses/>.
 
-#import time #for performance tests only
+import time #for performance tests only
 from PyQt4 import QtCore
 from tscore.configwrapper import ConfigWrapper
 from tscore.enums import EFileType, EFileEvent, EOS, EConflictType, \
@@ -52,6 +52,7 @@ class Store(QtCore.QObject):
         """
         QtCore.QObject.__init__(self)
 
+        #self.__log = logging.getLogger("TagStoreLogger")#None##FIXXME
         self.__log = None
 
         self.__file_system = FileSystemWrapper(self.__log)
@@ -785,8 +786,7 @@ class Store(QtCore.QObject):
         if categorising_tag_list is not None:
             categorising_tags = list(set(categorising_tag_list))
 
-        ## scalability test
-        ## start = time.clock()
+
         #try:
         self.__create_inprogress_file()
         
@@ -795,6 +795,10 @@ class Store(QtCore.QObject):
         #print self.__categorising_nav_path
         #print self.__navigation_path
         # is it not an android store
+
+        start = time.clock() ## performance measure
+        self.__log.info("starting to create TagTrees for item: %s" % file_name)
+
         if not self.__is_android_store():
             for path in self.__paths_to_maintain:
                 if path == self.__describing_nav_path:
@@ -815,12 +819,17 @@ class Store(QtCore.QObject):
         #    raise Exception, self.trUtf8("An error occurred during saving file and tags to configuration file!")
         ## scalability test
         ## print "number of tags: " + str(len(tags)) + ", time: " + str(time.clock()-start)
+        self.__log.info("tagged item " + file_name + \
+                            ", # descr tags: " + str(len(describing_tags)) + \
+                            ", # categ tags: " + str(len(categorising_tags)) + \
+                            ", TagTree creation time: " + str(time.clock()-start))  ## performance measure
         
     def __build_store_navigation(self, link_name, tag_list, current_path):
         """
         builds the whole directory and link-structure (describing & categorising nav path) inside a stores filesystem
         """
         link_source = self.__watcher_path + "/" + link_name
+
         for tag in tag_list:
             self.__file_system.create_dir(current_path + "/" + tag)
             self.__file_system.create_link(link_source, current_path + "/" + tag + "/" + link_name)
