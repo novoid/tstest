@@ -14,7 +14,8 @@
 ## You should have received a copy of the GNU General Public License along with this program;
 ## if not, see <http://www.gnu.org/licenses/>.
 
-import time #for performance tests only
+#import time #for performance tests only
+from time import time
 from PyQt4 import QtCore
 from tscore.configwrapper import ConfigWrapper
 from tscore.enums import EFileType, EFileEvent, EOS, EConflictType, \
@@ -796,8 +797,8 @@ class Store(QtCore.QObject):
         #print self.__navigation_path
         # is it not an android store
 
-        start = time.clock() ## performance measure
-        self.__log.info("starting to create TagTrees for item: %s" % file_name)
+        start = time()#time.clock() ## performance measure
+        self.__log.info("starting to create TagTrees for item: %s" % file_name) ## FIXXME: remove this line if time measurement works
 
         if not self.__is_android_store():
             for path in self.__paths_to_maintain:
@@ -822,7 +823,7 @@ class Store(QtCore.QObject):
         self.__log.info("tagged item " + file_name + \
                             ", # descr tags: " + str(len(describing_tags)) + \
                             ", # categ tags: " + str(len(categorising_tags)) + \
-                            ", (" + str(time.clock()-start) + ")")  ## performance measure
+                            "; %f" % (time()-start) )  ## performance measure
         ## CAUTION: time.clock() measures something weird, but not actual time
         
     def __build_store_navigation(self, link_name, tag_list, current_path):
