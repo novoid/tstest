@@ -1,0 +1,1 @@
+"C:\Programme\WinRAR\winrar.exe" a -ag+YYYYMMDDHHMM tagstore @liste.lst

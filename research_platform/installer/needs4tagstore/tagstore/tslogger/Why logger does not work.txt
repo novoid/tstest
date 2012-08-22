@@ -1,0 +1,12 @@
+for 64bit systems:
+
+	Drivers for 64bit systems have to be digitally signed with a 'Software Publisher Certificate'
+
+	For further information see
+	[cert]: http://msdn.microsoft.com/en-us/library/windows/hardware/ff552299(v=vs.85).aspx
+	[sign]: http://msdn.microsoft.com/en-us/windows/hardware/gg487543.aspx 
+
+
+Blue screen problem:
+The Logger can not handle more than 1-2 files with more than 3-4 tags. -> Too much system "actions" that "overload" and kill the logger.
+This causes a permanent damage to the operating system.

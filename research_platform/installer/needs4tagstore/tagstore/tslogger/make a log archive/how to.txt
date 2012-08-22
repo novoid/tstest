@@ -1,0 +1,11 @@
+First of all install Winrar under C:\Programm\WinRAR or change the path in 02_
+
+
+Files have to be saved in the tagstore store.
+
+01_ and 03_ have to be executed as administrator
+02_ with double click
+
+in the order: 01_, 02_, 03_
+
+liste.lst contains the paths that are put in the archive
