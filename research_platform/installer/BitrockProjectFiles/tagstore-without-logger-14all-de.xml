@@ -1,0 +1,293 @@
+<project>
+    <shortName>tagstore</shortName>
+    <fullName>Tagstore</fullName>
+    <version>1.0</version>
+    <installerFilename>${product_shortname}-${platform_name}-installer.${platform_exec_suffix}</installerFilename>
+    <licenseFile>../../../../../tagstore/research_platform/installer/needs4tagstore/tagstore/tagstore_license.txt</licenseFile>
+    <leftImage>../../../../../tagstore/research_platform/installer/needs4tagstore/tagstore/tslogos/tagstore_logo_colour_163x315_transparent_down.png</leftImage>
+    <logoImage>../../../../../tagstore/research_platform/installer/needs4tagstore/tagstore/tslogos/tagstore_logo_colour_200x85.png</logoImage>
+    <defaultLanguage>de</defaultLanguage>
+    <componentList>
+        <component>
+            <name>default</name>
+            <description>Default Component</description>
+            <canBeEdited>1</canBeEdited>
+            <selected>1</selected>
+            <show>1</show>
+            <folderList>
+                <folder>
+                    <description>Program Files</description>
+                    <destination>${installdir}</destination>
+                    <name>programfiles</name>
+                    <platforms>all</platforms>
+                    <distributionFileList>
+                        <distributionDirectory>
+                            <origin>../../../../../tagstore/research_platform/tagstore/tscore</origin>
+                        </distributionDirectory>
+                        <distributionDirectory>
+                            <origin>../../../../../tagstore/research_platform/tagstore/tsgui</origin>
+                        </distributionDirectory>
+                        <distributionDirectory>
+                            <origin>../../../../../tagstore/research_platform/tagstore/tsos</origin>
+                        </distributionDirectory>
+                        <distributionDirectory>
+                            <origin>../../../../../tagstore/research_platform/tagstore/tsresources</origin>
+                        </distributionDirectory>
+                        <distributionDirectory>
+                            <origin>../../../../../tagstore/research_platform/tagstore/tstest</origin>
+                        </distributionDirectory>
+                        <distributionFile>
+                            <origin>../../../../../tagstore/research_platform/tagstore/tagstore.py</origin>
+                        </distributionFile>
+                        <distributionFile>
+                            <origin>../../../../../tagstore/research_platform/tagstore/tagstore_manager.py</origin>
+                        </distributionFile>
+                        <distributionFile>
+                            <origin>../../../../../tagstore/research_platform/installer/needs4tagstore/tagstore/tagstore_license.txt</origin>
+                        </distributionFile>
+                        <distributionDirectory>
+                            <origin>../../../../../tagstore/research_platform/installer/needs4tagstore/tagstore/tslogos</origin>
+                        </distributionDirectory>
+                        <distributionFile>
+                            <origin>../../../../../tagstore/research_platform/tagstore/compile_sources.sh</origin>
+                        </distributionFile>
+                        <distributionFile>
+                            <origin>../../../../../tagstore/research_platform/tagstore/tagstore_retag.py</origin>
+                        </distributionFile>
+                        <distributionFile>
+                            <origin>../../../../../tagstore/research_platform/tagstore/tagstore_sync.py</origin>
+                        </distributionFile>
+                    </distributionFileList>
+                    <shortcutList>
+                        <shortcut>
+                            <comment>Uninstall</comment>
+                            <exec>${installdir}/${uninstallerName}</exec>
+                            <icon></icon>
+                            <name>Uninstall ${product_fullname}</name>
+                            <path>${installdir}</path>
+                            <platforms>all</platforms>
+                            <runAsAdmin>0</runAsAdmin>
+                            <runInTerminal>0</runInTerminal>
+                            <windowsExec>${installdir}/${uninstallerName}.exe</windowsExec>
+                            <windowsExecArgs></windowsExecArgs>
+                            <windowsIcon></windowsIcon>
+                            <windowsPath>${installdir}</windowsPath>
+                        </shortcut>
+                    </shortcutList>
+                </folder>
+                <folder>
+                    <description>Program Files</description>
+                    <destination>${installdir}</destination>
+                    <name>programfileslinux</name>
+                    <platforms>linux</platforms>
+                </folder>
+                <folder>
+                    <description>Program Files</description>
+                    <destination>${installdir}</destination>
+                    <name>programfileswindows</name>
+                    <platforms>windows</platforms>
+                    <distributionFileList>
+                        <distributionFile>
+                            <origin>../../../../../tagstore/research_platform/installer/needs4tagstore/pywin32-214.win32-py2.7.exe</origin>
+                        </distributionFile>
+                        <distributionFile>
+                            <origin>../../../../../tagstore/research_platform/installer/needs4tagstore/PyQt-Py2.7-x86-gpl-4.9.4-1.exe</origin>
+                        </distributionFile>
+                        <distributionFile>
+                            <origin>../../../../../tagstore/research_platform/installer/needs4tagstore/python-2.7.3.msi</origin>
+                        </distributionFile>
+                        <distributionFile>
+                            <origin>../../../../../tagstore/research_platform/installer/needs4tagstore/tagstore/restart_tagstore.bat</origin>
+                        </distributionFile>
+                        <distributionFile>
+                            <origin>../../../../../tagstore/research_platform/tagstore/tagstore.pyw</origin>
+                        </distributionFile>
+                        <distributionFile>
+                            <origin>../../../../../tagstore/research_platform/tagstore/tagstore_manager.pyw</origin>
+                        </distributionFile>
+                        <distributionFile>
+                            <origin>../../../../../tagstore/research_platform/installer/needs4tagstore/install_python.bat</origin>
+                        </distributionFile>
+                        <distributionFile>
+                            <origin>../../../../../tagstore/research_platform/tagstore/administration.pyw</origin>
+                        </distributionFile>
+                        <distributionFile>
+                            <origin>../../../../../tagstore/research_platform/tagstore/tagstore_retag.pyw</origin>
+                        </distributionFile>
+                    </distributionFileList>
+                </folder>
+                <folder>
+                    <description>Program Files</description>
+                    <destination>${installdir}</destination>
+                    <name>programfilesosx</name>
+                    <platforms>osx</platforms>
+                    <distributionFileList>
+                        <distributionFile>
+                            <origin>../../../../../tagstore/research_platform/installer/needs4tagstore/python-2.7-macosx10.5.dmg</origin>
+                        </distributionFile>
+                    </distributionFileList>
+                </folder>
+            </folderList>
+            <startMenuShortcutList>
+                <startMenuShortcut>
+                    <comment>Start ${product_fullname}</comment>
+                    <name>Start tagstore</name>
+                    <runAsAdmin>0</runAsAdmin>
+                    <runInTerminal>0</runInTerminal>
+                    <windowsExec>${installdir}/tagstore.pyw</windowsExec>
+                    <windowsExecArgs>/min</windowsExecArgs>
+                    <windowsIcon></windowsIcon>
+                    <windowsPath>${installdir}/</windowsPath>
+                </startMenuShortcut>
+                <startMenuShortcut>
+                    <comment>Start tagstore_manager</comment>
+                    <name>Start tagstore_manager</name>
+                    <runAsAdmin>0</runAsAdmin>
+                    <runInTerminal>0</runInTerminal>
+                    <windowsExec>${installdir}/tagstore_manager.pyw</windowsExec>
+                    <windowsExecArgs></windowsExecArgs>
+                    <windowsIcon></windowsIcon>
+                    <windowsPath>${installdir}/</windowsPath>
+                </startMenuShortcut>
+                <startMenuShortcut>
+                    <comment>Uninstall ${product_fullname}</comment>
+                    <name>Uninstall ${product_fullname}</name>
+                    <runAsAdmin>0</runAsAdmin>
+                    <runInTerminal>0</runInTerminal>
+                    <windowsExec>${installdir}/${uninstallerName}.exe</windowsExec>
+                    <windowsExecArgs></windowsExecArgs>
+                    <windowsIcon></windowsIcon>
+                    <windowsPath>${installdir}/</windowsPath>
+                </startMenuShortcut>
+                <startMenuShortcut>
+                    <comment>Restart ${product_fullname}</comment>
+                    <name>Restart tagstore</name>
+                    <runAsAdmin>0</runAsAdmin>
+                    <runInTerminal>0</runInTerminal>
+                    <windowsExec>${installdir}/restart_tagstore.bat</windowsExec>
+                    <windowsExecArgs>/min</windowsExecArgs>
+                    <windowsIcon></windowsIcon>
+                    <windowsPath>${installdir}/</windowsPath>
+                </startMenuShortcut>
+            </startMenuShortcutList>
+        </component>
+    </componentList>
+    <readyToInstallActionList>
+        <showInfo>
+            <text>Info:
+Im Zuge der Installation werden folgende Komponenten mit-installiert:
+
+- python-2.7.3
+- PyQt-Py2.7-x86-gpl-4.9.4-1
+- pywin32-214.win32-py2.7
+
+Diese Komponenten sind für eine reibungslose Funktionalität von tagstore notwendig.
+
+Sollten erwähnte Komponenten bereits auf dem System installiert sein, kann der jeweilige Schritt übersprungen werden, indem man die Installation des betreffenden Paketes abbricht.
+Die Installation von tagstore wird anschließend fortgesetzt.</text>
+        </showInfo>
+    </readyToInstallActionList>
+    <postInstallationActionList>
+        <runProgram>
+            <abortOnError>0</abortOnError>
+            <customErrorMessage>Installation of python canceled, tagstore installation will continue</customErrorMessage>
+            <program>${installdir}\install_python.bat</program>
+            <programArguments></programArguments>
+            <ruleEvaluationLogic>or</ruleEvaluationLogic>
+            <workingDirectory>${installdir}</workingDirectory>
+        </runProgram>
+        <runProgram>
+            <abortOnError>0</abortOnError>
+            <customErrorMessage>Installation of PyQt canceled, tagstore installation will continue</customErrorMessage>
+            <program>${installdir}\PyQt-Py2.7-x86-gpl-4.9.4-1.exe</program>
+            <programArguments></programArguments>
+            <ruleEvaluationLogic>or</ruleEvaluationLogic>
+        </runProgram>
+        <runProgram>
+            <abortOnError>0</abortOnError>
+            <customErrorMessage>Installation of pywin canceled, tagstore installation will continue</customErrorMessage>
+            <program>${installdir}\pywin32-214.win32-py2.7.exe</program>
+            <programArguments></programArguments>
+            <ruleEvaluationLogic>or</ruleEvaluationLogic>
+        </runProgram>
+        <createShortcuts>
+            <abortOnError>0</abortOnError>
+            <customErrorMessage>programm tagstore not added to autostart</customErrorMessage>
+            <destination>${user_home_directory}\Start Menu\Programs\Startup</destination>
+            <ruleEvaluationLogic>or</ruleEvaluationLogic>
+            <shortcutList>
+                <shortcut>
+                    <comment>tagstore</comment>
+                    <exec></exec>
+                    <icon></icon>
+                    <name>tagstore</name>
+                    <path></path>
+                    <platforms>windows</platforms>
+                    <runAsAdmin>0</runAsAdmin>
+                    <runInTerminal>0</runInTerminal>
+                    <windowsExec>${installdir}\tagstore.pyw</windowsExec>
+                    <windowsExecArgs>/min</windowsExecArgs>
+                    <windowsIcon></windowsIcon>
+                    <windowsPath></windowsPath>
+                </shortcut>
+            </shortcutList>
+        </createShortcuts>
+        <addDirectoryToPath>
+            <insertAt>beginning</insertAt>
+            <path>${platform_install_prefix}\Phyton27\Lib\site-packages\PyQt4\bin</path>
+        </addDirectoryToPath>
+        <deleteFile>
+            <path>${installdir}\install_python.bat</path>
+        </deleteFile>
+        <deleteFile>
+            <path>${installdir}\python-2.7.3.msi</path>
+        </deleteFile>
+        <deleteFile>
+            <path>${installdir}\PyQt-Py2.7-x86-gpl-4.9.4-1.exe</path>
+        </deleteFile>
+        <deleteFile>
+            <path>${installdir}\pywin32-214.win32-py2.7.exe</path>
+        </deleteFile>
+    </postInstallationActionList>
+    <cdromDirectory>${product_shortname}-cdrom</cdromDirectory>
+    <enableRollback>1</enableRollback>
+    <enableTimestamp>1</enableTimestamp>
+    <saveRelativePaths>1</saveRelativePaths>
+    <vendor>Karl Voit TUGraz</vendor>
+    <finalPageActionList>
+        <showInfo>
+            <abortOnError>0</abortOnError>
+            <customErrorMessage>User_Info not displayed</customErrorMessage>
+            <ruleEvaluationLogic>or</ruleEvaluationLogic>
+            <show>0</show>
+            <text>Wichtig!
+
+Bitte Starten Sie nach erfolgreicher Installation Ihren Computer neu!
+
+
+Bitte starten Sie das Programm 'tagstore_manager' vor dem ersten Start des Programmes 'tagstore' zum Anlegen eines neuen 'stores'!
+
+Das Programm ist zu finden unter:
+
+Start/Alle Programme/Tagstore/Start tagstore_manager
+
+Ein Assistent wird Sie beim Anlegen Ihres ersten 'stores' unterstützen.</text>
+            <title>User_Info</title>
+        </showInfo>
+    </finalPageActionList>
+    <parameterList>
+        <directoryParameter>
+            <name>installdir</name>
+            <description>Installer.Parameter.installdir.description</description>
+            <explanation>Installer.Parameter.installdir.explanation</explanation>
+            <value></value>
+            <default>/${product_shortname}</default>
+            <allowEmptyValue>0</allowEmptyValue>
+            <cliOptionName>prefix</cliOptionName>
+            <mustBeWritable>1</mustBeWritable>
+            <mustExist>0</mustExist>
+            <width>40</width>
+        </directoryParameter>
+    </parameterList>
+</project>
+
