@@ -1,6 +1,6 @@
 <project>
     <shortName>tagstore</shortName>
-    <fullName>Tagstore</fullName>
+    <fullName>tagstore</fullName>
     <version>1.0</version>
     <installerFilename>${product_shortname}-${platform_name}-installer.${platform_exec_suffix}</installerFilename>
     <licenseFile>../../../../../tagstore/research_platform/installer/needs4tagstore/tagstore/tagstore_license.txt</licenseFile>
@@ -269,7 +269,7 @@ Bitte starten Sie das Programm 'tagstore_manager' vor dem ersten Start des Progr
 
 Das Programm ist zu finden unter:
 
-Start/Alle Programme/Tagstore/Start tagstore_manager
+Start/Alle Programme/tagstore/Start tagstore_manager
 
 Ein Assistent wird Sie beim Anlegen Ihres ersten 'stores' unterstützen.</text>
             <title>User_Info</title>
