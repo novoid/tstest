@@ -111,7 +111,7 @@ public class DatabaseResetTask implements Runnable {
 		//
 		// construct sync log
 		//
-		SyncFileLog file_log = new SyncFileLog();
+		SyncFileLog file_log = SyncFileLog.getInstance();
 		
 		//
 		// clear the log

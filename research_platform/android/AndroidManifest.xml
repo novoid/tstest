@@ -6,7 +6,8 @@
 
     <uses-sdk android:minSdkVersion="4" android:targetSdkVersion="4" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-
+    <uses-permission android:name="android.permission.INTERNET"></uses-permission>
+    
     <application android:icon="@drawable/icon" android:label="@string/app_name" android:debuggable="true">
     	<service android:enabled="true" android:name="org.me.TagStore.core.FileWatchdogService" />
         <activity android:name=".MainPagerActivity"
@@ -18,8 +19,21 @@
             </intent-filter>
         </activity>
 
+      <activity
+      android:name="com.dropbox.client2.android.AuthActivity"
+      android:launchMode="singleTask"
+      android:configChanges="orientation|keyboard">
+      <intent-filter>
+        <data android:scheme="db-ad35fyo1q9o0x1w" />
+        <action android:name="android.intent.action.VIEW" />
+        <category android:name="android.intent.category.BROWSABLE"/>
+        <category android:name="android.intent.category.DEFAULT" />
+      </intent-filter>
+    </activity>          
             
-            
+
+   		<activity android:name=".DropboxSettingsActivity" />      
+   		<activity android:name=".DropboxSynchronizerActivity" />
 		<activity android:name=".InfoTab" />
 		<activity android:name=".ConfigurationTabActivity" />
 		<activity android:name=".AddFileTagActivity" />

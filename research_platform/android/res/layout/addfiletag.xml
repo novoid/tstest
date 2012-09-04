@@ -4,18 +4,6 @@
     android:layout_height="match_parent"
     android:layout_margin="5dip">
 
-<!--     
-        <AutoCompleteTextView 
-    		android:text="" 
-    		android:layout_height="wrap_content" 
-    		android:layout_width="fill_parent" 
-    		android:id="@+id/tag_field"
-
-    		android:lines="1">
-    </AutoCompleteTextView>
- -->
-
-
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     		android:id="@+id/linear_layout"
             android:layout_width="fill_parent"
@@ -46,25 +34,32 @@
 
                 <Button
                     android:id="@+id/button_tag_one"
+                    android:background="@drawable/buttonshape"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="50dip"
                     android:layout_weight="1"
+                    android:layout_marginLeft="5dip"                    
+                    android:layout_marginRight="5dip"
                     android:text="Tag1"
                     android:textSize="13dp" />
 
                 <Button
                     android:id="@+id/button_tag_two"
+                    android:background="@drawable/buttonshape"                    
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="50dip"
                     android:layout_weight="1"
+                    android:layout_marginRight="5dip"                    
                     android:text="Tag2"
                     android:textSize="13dp" />
 
                 <Button
                     android:id="@+id/button_tag_three"
+                    android:background="@drawable/buttonshape"                    
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="50dip"
                     android:layout_weight="1"
+                    android:layout_marginRight="5dip"
                     android:text="Tag3"
                     android:textSize="13dp" />
             </TableRow>
@@ -73,25 +68,32 @@
 
                 <Button
                     android:id="@+id/button_tag_five"
+                    android:background="@drawable/buttonshape"                    
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="50dip"
                     android:layout_weight="1"
+                    android:layout_marginLeft="5dip"                    
+                    android:layout_marginRight="5dip"                    
                     android:text="Tag5"
                     android:textSize="13dp" />
 
                 <Button
                     android:id="@+id/button_tag_four"
+                    android:background="@drawable/buttonshape"                    
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="50dip"
                     android:layout_weight="1"
+                    android:layout_marginRight="5dip"                      
                     android:text="Tag4"
                     android:textSize="13dp" />
 
                 <Button
                     android:id="@+id/button_tag_six"
+                    android:background="@drawable/buttonshape"                    
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="50dip"
                     android:layout_weight="1"
+                    android:layout_marginRight="5dip"                      
                     android:text="Tag6"
                     android:textSize="13dp" />
             </TableRow>
@@ -104,13 +106,17 @@
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:layout_alignParentBottom="true"
-    android:layout_marginBottom="20dip"
+    android:layout_marginBottom="10dip"
     android:layout_alignParentLeft="true" >
 
     <Button
         android:id="@+id/button_tag_done"
+        android:background="@drawable/buttonshape"        
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="35dip"
+        android:paddingRight="10dip"
+        android:paddingLeft="10dip"  
+        android:layout_marginRight="10dip"      
         android:layout_alignParentRight="true"
         android:text="@string/tag_me" />
 </RelativeLayout>
@@ -125,10 +131,10 @@
      
         <AutoCompleteTextView 
     		android:text="" 
-    		android:layout_height="wrap_content" 
+    		android:layout_height="50dip" 
     		android:layout_width="fill_parent" 
     		android:id="@+id/tag_field"
-
+            android:background="@drawable/buttonshape"
     		android:lines="1">
     </AutoCompleteTextView>
 </LinearLayout>

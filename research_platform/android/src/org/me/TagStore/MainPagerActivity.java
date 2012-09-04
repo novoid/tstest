@@ -369,7 +369,7 @@ public class MainPagerActivity extends FragmentActivity {
 		//
 		// english locale for development
 		//
-		//initLocale();
+		initLocale();
 
 		//
 		// no window should be displayed
@@ -502,7 +502,7 @@ public class MainPagerActivity extends FragmentActivity {
 		    	intent = new Intent(MainPagerActivity.this, ConfigurationTabActivity.class);
 		    	break;
 		    case R.string.sync_tagstore:
-		    	intent = new Intent(MainPagerActivity.this, SynchronizeTagStoreActivity.class);
+		    	intent = new Intent(MainPagerActivity.this, DropboxSynchronizerActivity.class);
 		    	break;
 		    case R.string.about_tagstore:
 		    	intent = new Intent(MainPagerActivity.this, InfoTab.class);

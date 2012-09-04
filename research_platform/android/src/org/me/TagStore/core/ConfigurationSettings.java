@@ -129,7 +129,7 @@ public class ConfigurationSettings {
 	/**
 	 * log directory name
 	 */
-	public final static String CONFIGURATION_DIRECTORY = "tagstore/.tagstore";
+	public final static String CONFIGURATION_DIRECTORY = ".tagstore";
 
 	/**
 	 * log file name
@@ -209,4 +209,40 @@ public class ConfigurationSettings {
 	 */
 	public static final String TAG_FILE_ACTIVITY_CLASS_NAME = "org.me.TagStore.AddFileTagActivity";
 
+	/**
+	 * synchronization type preference
+	 */
+	public static final String SYNCHRONIZATION_TYPE_PREFERENCE = "synchronization_type_preference";
+
+	/**
+	 * dropbox preference settings
+	 */
+	public static final String DROPBOX_PREFERENCE = "synchronization_dropbox_preference";
+
+	/**
+	 * current synchronization type
+	 */
+	public static final String CURRENT_SYNCHRONIZATION_TYPE = "current_synchronization_type";
+
+	/*
+	 * default synchronization type
+	 */
+	public static final String DEFAULT_SYNCHRONIZATION_TYPE = "USB";
+
+	/**
+	 * synchronization types
+	 */
+	public static final String SYNCHRONIZATION_DROPBOX_TYPE = "Dropbox";
+	public static final String SYNCHRONIZATION_USB_TYPE="USB";
+
+	/**
+	 * current tagstore used for synchronizing
+	 */
+	public static final String CURRENT_DROPBOX_SYNCHRONIZATION_TAGSTORE = "current_dropbox_synchronization_tagstore";
+
+	public static final String DEFAULT_SYNC_FILE_NAME = "sync.tgs";
+	public static final String DEFAULT_ANDROID_SYNC_FILE_NAME = "tagstoresync.tgs";
+
+	public static final String TAGSTORE_LOCK_FILE_NAME = "tagstore.synchronization.lock";
+	
 }

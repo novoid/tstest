@@ -10,7 +10,7 @@
     <string name="no_data">No data</string>
     <string name="select">Select</string>
     <string name="done">Done</string>
-    <string name="synchronization_state">Sychronization State:</string>
+    <string name="synchronization_state">Synchronization State:</string>
     <string name="last_synchronization">Last Synchronization:</string>
     <string name="unknown">Unknown</string>
     <string name="synchronize">Synchronize</string>
@@ -102,8 +102,31 @@
     <string name="video">Video</string>
     <string name="image">Image</string>        
     <string name="open_as">Open with</string>
-    <string name="controlled_vocabulary_preference">Controlled Vocabular</string>
-    <string name="controlled_vocabulary_summary">When this preference is activated, only tags from the controlled vocabulary are used</string>
+    <string name="controlled_vocabulary_preference">Controlled Vocabulary</string>
+    <string name="controlled_vocabulary_summary">When this preference is activated, only tags from the controlled vocabulary are used.</string>
     <string name="tag_not_in_controlled_vocabulary">The tag is not contained in the controlled vocabulary</string>
-    <string name="error_vocabulary_file_not_exists">The vocabulary file does not exist</string>    
+    <string name="error_vocabulary_file_not_exists">The vocabulary file does not exist</string>
+    <string name="synchronization_settings">Synchronization</string>    
+    <string name="synchronization_type_preference_summary">This preference lets you choose the preferred synchronization method.</string>
+    <string name="synchronization_settings_dropbox">Dropbox Settings</string>
+    <string name="synchronization_settings_dropbox_summary">This preference lets you customize the Dropbox Synchronization Settings.</string>
+    <string name="authenticate">Authenticate</string>
+    <string name="unlink">Unlink</string>
+    <string name="select_tagstore">Select tagstore</string>
+    <string name="enumerate_tagstores">Enumerating tagstores&#8230;</string>
+    <string name="no_tagstores_found">No tagstores were found. Please create a tagstore in the Dropbox folder App/tagstore first!</string>
+    <string name="error_failed_configure_tagstore">Error: failed to configure synchronization tagstore</string>
+    <string name="analyize_store_tag_file">Analyzing stores&#8230;</string>
+    <string name="error_failed_connect">Error: failed to connect!</string>
+    <string name="synchronize_tagstores">Synchronizing tagstores&#8230;</string>
+    <string name="progress">Progress:</string>
+    <string name="status">Status:</string>
+    <string name="downloading">Downloading</string>
+    <string name="uploading">Uploading </string>
+    <string name="error_upload_file">Error: failed to upload file </string>
+    <string name="error_download_file">Error: failed to download file </string>
+    <string name="updating_stores">Updating stores&#8230;</string>
+    <string name="sync_completed">Synchronization completed on "</string>
+    <string name="sync_active">Another sync is currently active. Please try later!</string>
+    <string name="conflict_dialog_msg_format" formatted="false">Do you want to replace the file %s from store %s with file %s from store %s \?</string>
 </resources>

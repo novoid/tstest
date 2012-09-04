@@ -3,6 +3,7 @@ package org.me.TagStore.core;
 import java.io.File;
 import java.util.ArrayList;
 
+import org.me.TagStore.R;
 import org.me.TagStore.core.DBManager;
 import org.me.TagStore.core.FileSystemObserver;
 import org.me.TagStore.core.Logger;
@@ -11,6 +12,7 @@ import org.me.TagStore.ui.StatusBarNotification;
 
 import android.app.Service;
 import android.content.Intent;
+import android.os.Environment;
 import android.os.IBinder;
 
 public class FileWatchdogService extends Service implements org.me.TagStore.core.StorageTimerTask.TimerTaskCallback {
@@ -35,6 +37,12 @@ public class FileWatchdogService extends Service implements org.me.TagStore.core
 	 */
 	private FileSystemObserverNotification m_notification;
 
+	/**
+	 * stores the sync active status
+	 */
+	private boolean m_sync_active;
+	
+	
 	/**
 	 * holds the status bar notification
 	 */
@@ -79,6 +87,21 @@ public class FileWatchdogService extends Service implements org.me.TagStore.core
 
 	}
 
+	/**
+	 * returns true when a sync is active
+	 */
+	private boolean isSyncActive() {
+		
+		String file_path = Environment.getExternalStorageDirectory() + File.separator + 
+			ConfigurationSettings.TAGSTORE_DIRECTORY + File.separator +
+			getString(R.string.storage_directory) + File.separator +
+			ConfigurationSettings.TAGSTORE_LOCK_FILE_NAME;
+		
+		File file = new File(file_path);
+		return file.exists();
+	}
+	
+	
 	protected void notificationCallback(String file_name, org.me.TagStore.interfaces.FileSystemObserverNotification.NotificationType type) {
 
 		Logger.i("Received notification of : " + file_name + " Type: " + type);
@@ -88,6 +111,32 @@ public class FileWatchdogService extends Service implements org.me.TagStore.core
 		//
 		DBManager db_man = DBManager.getInstance();
 
+		if (isSyncActive()) {
+			
+			// ignore file changes
+			m_sync_active = true;
+			return;
+		}
+		else
+		{
+			// was the sync active
+			if (m_sync_active) {
+				
+				// sync no longer is active
+				m_sync_active = false;
+				
+				// get list of new files
+				DirectoryChangeWorker worker = new DirectoryChangeWorker();
+				
+				// get list of new files
+				ArrayList<String> files = worker.getAllNewFiles();
+				if (files.size() != 0)
+					Logger.e("FIXME: need to add untagged files");
+				
+			}
+			
+		}
+		
 		if (type == org.me.TagStore.interfaces.FileSystemObserverNotification.NotificationType.FILE_DELETED) {
 			
 			//

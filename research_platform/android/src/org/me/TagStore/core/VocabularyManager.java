@@ -145,6 +145,12 @@ public class VocabularyManager {
 		StringBuilder path = new StringBuilder(Environment.getExternalStorageDirectory().getAbsolutePath());
 		
 		//
+		// append tagstore directory
+		//
+		path.append(File.separator);
+		path.append(ConfigurationSettings.TAGSTORE_DIRECTORY);
+		
+		//
 		// append configuration directory
 		//
 		path.append(File.separator);

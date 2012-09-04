@@ -4,10 +4,12 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 
 import android.content.Context;
@@ -218,6 +220,49 @@ public class IOUtils {
 		//
 		return result;
 	}	
+	
+	public static void copyFile(File sourceFile, File destFile) {
+	    if(!destFile.exists()) {
+	        try {
+				destFile.createNewFile();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				Logger.e("file: " + destFile);
+				return;
+			}
+	    }
+
+	    FileChannel source = null;
+	    FileChannel destination = null;
+
+	    try {
+	        source = new FileInputStream(sourceFile).getChannel();
+	        destination = new FileOutputStream(destFile).getChannel();
+	        destination.transferFrom(source, 0, source.size());
+	    }
+	    catch(IOException e)
+	    {
+	    	
+	    }
+	    finally {
+	    	try
+	    	{
+	    		if(source != null) {
+	    			source.close();
+	    		}
+	        }
+	    	catch(IOException e) {
+	    	}
+	    	try
+	    	{
+	    		if(destination != null) {
+	    			destination.close();
+	    		}
+	    	}catch(IOException e) {
+	    	}
+	    }
+	}
 	
 	
 }

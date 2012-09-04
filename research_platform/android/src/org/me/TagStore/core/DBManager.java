@@ -155,6 +155,9 @@ public class DBManager {
 	 */
 	private final static String MAP_FIELD_FILE = "fid";
 
+	private final static String SYNC_TABLE_PREFIX ="sync_";
+	
+	
 	/**
 	 * sync table name
 	 */
@@ -185,6 +188,11 @@ public class DBManager {
 	 */
 	private final static String SYNC_FIELD_HASH_SUM = "sync_hash_sum";
 
+	/**
+	 * sync revision
+	 */
+	private final static String SYNC_FIELD_REV ="sync_rev";
+	
 
 	/**
 	 * gets an instance of the database manager
@@ -979,6 +987,76 @@ public class DBManager {
 	}
 
 	/**
+	 * adds a sync date
+	 * @param store_name name of the store
+	 * @param remote_path remove path
+	 * @param rev file revision
+	 * @param time_stamp file time stamp
+	 * @param hash_sum file hash sum
+	 * @return true on success
+	 */
+	public boolean addSyncFileLog(String store_name, String remote_path,
+			String rev, String time_stamp, String hash_sum) {
+		
+		// table name 
+		String table_name = SYNC_TABLE_PREFIX + store_name;
+		
+	
+		// construct new content values
+		ContentValues values = new ContentValues();
+
+		// store values
+		values.put(SYNC_FIELD_PATH, remote_path);
+		values.put(SYNC_FIELD_DATE, time_stamp);
+		values.put(SYNC_FIELD_HASH_SUM, hash_sum);
+		values.put(SYNC_FIELD_REV, rev);
+		
+		long rows_affected;
+		if (getSyncFileRev(store_name, remote_path) != null) {
+			
+			// update row
+			rows_affected = m_db.update(table_name, values, SYNC_FIELD_PATH + "=?", new String[]{remote_path});
+		}
+		else
+		{
+			// add mapping
+			rows_affected = m_db.insert(table_name, null, values);
+		}
+		
+		if (rows_affected == 0)
+			return false;
+		else
+			return true;		
+		
+	}
+	
+	public String getSyncFileRev(String store_name, String file_name) {
+		
+		if (m_db == null)
+			return null;
+		
+		// table name 
+		String table_name = SYNC_TABLE_PREFIX + store_name;	
+		
+		
+		Cursor cursor = m_db.query(table_name,
+				new String[] { SYNC_FIELD_REV }, SYNC_FIELD_PATH + "=?",
+				new String[] { file_name }, null, null, null);
+
+		//
+		// get first entry of result set
+		//
+		String result = getFirstEntryOfResultSet(cursor);
+		
+		//
+		// close cursor
+		//
+		cursor.close();
+		return result;
+	}
+	
+	
+	/**
 	 * return true when file is already pending
 	 * @param file_name
 	 * @return
@@ -1659,6 +1737,39 @@ public class DBManager {
 		return list;
 	}
 	
+	/**
+	 * create sync table
+	 * @param name of the store
+	 */
+	public boolean createSyncTable(String store_name) {
+		
+		// table name 
+		String table_name = SYNC_TABLE_PREFIX + store_name;	
+
+		// create table
+		String sql_stmt = "CREATE TABLE IF NOT EXISTS " + table_name + "(" +
+		SYNC_FIELD_ID + " INTEGER primary key" + "," +  
+        SYNC_FIELD_PATH + " TEXT" + "," + 
+        SYNC_FIELD_DATE + " TEXT" + "," + 
+        SYNC_FIELD_HASH_SUM + " TEXT" + "," +
+        SYNC_FIELD_REV + " TEXT" + ")";
+		
+		Logger.i("execute: " + sql_stmt);
+		
+		try
+		{
+			// execute sql
+			m_db.execSQL(sql_stmt);
+			return true;
+		}
+		catch(SQLException exc)
+		{
+			Logger.e("SQLException while executing " + sql_stmt);
+		}
+		// failed
+		return false;
+	}
+	
 	public boolean resetDatabase(Context ctx) {
 
 		if (m_db == null)
@@ -1987,5 +2098,9 @@ public class DBManager {
 			onCreate(db);
 		}
 	}
+
+
+
+
 
 }

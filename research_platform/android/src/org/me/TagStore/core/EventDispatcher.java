@@ -24,7 +24,13 @@ public class EventDispatcher {
 		SYNC_COMPLETE_EVENT,  // sync task completed
 		FILE_TAGGED_EVENT,    // a file was tagged event
 		TAG_STACK_BUTTON_EVENT, // a tag button was pressed
-		TAG_STACK_LONG_BUTTON_EVENT // a long tag button was pressed
+		TAG_STACK_LONG_BUTTON_EVENT, // a long tag button was pressed
+		SYNC_DOWNLOAD_EVENT,         // sync downloads a file
+		SYNC_UPLOAD_EVENT,           // sync uploads a file
+		SYNC_INFO_EVENT,             // sync information msg event
+		SYNC_ERROR_EVENT,             // sync error msg event
+        SYNC_FILE_INFO_EVENT,          // sync file info event
+        SYNC_CONFLICT_EVENT           // sync conflict event
 	}
 
 	/**
@@ -132,9 +138,12 @@ public class EventDispatcher {
 		m_map.put(EventId.ITEM_MENU_EVENT.name(), new EventDetails("org.me.TagStore.interfaces.GeneralDialogCallback", "processMenuFileSelection"));
 		m_map.put(EventId.ITEM_CONFLICT_EVENT.name(), new EventDetails("org.me.TagStore.interfaces.OptionsDialogCallback", "processOptionsDialogCommand"));
 		m_map.put(EventId.SYNC_COMPLETE_EVENT.name(), new EventDetails("org.me.TagStore.interfaces.SyncTaskCallback", "onSyncTaskCompletion"));
-		
-		
-				
+		m_map.put(EventId.SYNC_DOWNLOAD_EVENT.name(), new EventDetails("org.me.TagStore.interfaces.SynchronizationAlgorithmCallback", "onDownloadFile"));
+		m_map.put(EventId.SYNC_UPLOAD_EVENT.name(), new EventDetails("org.me.TagStore.interfaces.SynchronizationAlgorithmCallback", "onUploadFile"));
+		m_map.put(EventId.SYNC_INFO_EVENT.name(), new EventDetails("org.me.TagStore.interfaces.SynchronizationAlgorithmCallback", "notifyInfo"));
+		m_map.put(EventId.SYNC_ERROR_EVENT.name(), new EventDetails("org.me.TagStore.interfaces.SynchronizationAlgorithmCallback", "notifyError"));
+		m_map.put(EventId.SYNC_FILE_INFO_EVENT.name(), new EventDetails("org.me.TagStore.interfaces.SynchronizationAlgorithmCallback", "notifyFileSyncInfo"));
+		m_map.put(EventId.SYNC_CONFLICT_EVENT.name(), new EventDetails("org.me.TagStore.interfaces.SynchronizationAlgorithmCallback", "onNotifyConflict"));
 	}
 	
 	/**
@@ -251,6 +260,7 @@ public class EventDispatcher {
 						//
 						// invoke registered callbacks
 						//
+						Logger.i("calling " + details.m_interface_function);
 						method.invoke(obj, event_args);
 					}
 					

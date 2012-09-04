@@ -195,6 +195,8 @@ public class ConfigurationTabActivity extends PreferenceActivity implements OnPr
 		addClickListener(ConfigurationSettings.DATABASE_PREFERENCE, true, false);
 		addClickListener(ConfigurationSettings.ICON_VIEW_ITEM_ROW_PREFERENCE, false, true);
 		addClickListener(ConfigurationSettings.ICON_VIEW_SORT_MODE_PREFERENCE, false, true);
+		addClickListener(ConfigurationSettings.SYNCHRONIZATION_TYPE_PREFERENCE, false, true);
+		addClickListener(ConfigurationSettings.DROPBOX_PREFERENCE, true, false);
 		
 		//
 		// build main service connection
@@ -241,6 +243,17 @@ public class ConfigurationTabActivity extends PreferenceActivity implements OnPr
 		toggleDisplayPreference(current_view_class);
 		
 		//
+		// get current synchronization type
+		//
+		String current_sync_type = settings.getString(ConfigurationSettings.CURRENT_SYNCHRONIZATION_TYPE,
+				                                      ConfigurationSettings.DEFAULT_SYNCHRONIZATION_TYPE);
+		
+		//
+		// toggle sync settings
+		//
+		toggleSynchronizationPreference(current_sync_type);
+		
+		//
 		// register us with event dispatcher
 		//
 		EventDispatcher.getInstance().registerEvent(EventDispatcher.EventId.DATABASE_RESET_EVENT, this);
@@ -270,6 +283,15 @@ public class ConfigurationTabActivity extends PreferenceActivity implements OnPr
 			// launch alert dialog for reset
 			//
 			showDialog(RESET_DIALOG_ID);
+			return true;
+		}
+		else if (key.equals(ConfigurationSettings.DROPBOX_PREFERENCE))
+		{
+			//
+			// launch dropbox configuration dialog
+			//
+			Intent intent = new Intent(ConfigurationTabActivity.this, DropboxSettingsActivity.class);
+			super.startActivity(intent);			
 			return true;
 		}
 		return false;		
@@ -304,6 +326,20 @@ public class ConfigurationTabActivity extends PreferenceActivity implements OnPr
 		togglePreferenceState(ConfigurationSettings.ICON_VIEW_SORT_MODE_PREFERENCE, icon_view);
 	}
 	
+	private void toggleSynchronizationPreference(String value) {
+		
+		//
+		// check if dropbox sync is selected
+		//
+		boolean dropboxsync = value.equals(ConfigurationSettings.SYNCHRONIZATION_DROPBOX_TYPE);
+		
+		Logger.i("value: " + value);
+		//
+		// enable/disable state
+		//
+		togglePreferenceState(ConfigurationSettings.DROPBOX_PREFERENCE, dropboxsync);
+	}
+	
 
 	@Override
 	public boolean onPreferenceChange(Preference preference, Object newValue) {
@@ -327,7 +363,7 @@ public class ConfigurationTabActivity extends PreferenceActivity implements OnPr
 			//
 			// save display preferences
 			//
-			saveDisplayPreferences(default_display_class, null, null);
+			saveDisplayPreferences(default_display_class, null, null, null);
 			return true;
 		}
 		else if(key.equals(ConfigurationSettings.ICON_VIEW_ITEM_ROW_PREFERENCE))
@@ -335,7 +371,7 @@ public class ConfigurationTabActivity extends PreferenceActivity implements OnPr
 			//
 			// save display preferences
 			//
-			saveDisplayPreferences(null, (String)newValue, null);
+			saveDisplayPreferences(null, (String)newValue, null, null);
 			return true;
 		}
 		else if (key.equals(ConfigurationSettings.ICON_VIEW_SORT_MODE_PREFERENCE))
@@ -343,7 +379,7 @@ public class ConfigurationTabActivity extends PreferenceActivity implements OnPr
 			//
 			// save display preferences
 			//
-			saveDisplayPreferences(null, null, (String)newValue);
+			saveDisplayPreferences(null, null, (String)newValue, null);
 			return true;
 		}
 		else if (key.equals(ConfigurationSettings.NOTIFICATION_PREFERENCE))
@@ -364,6 +400,24 @@ public class ConfigurationTabActivity extends PreferenceActivity implements OnPr
 				//
 				m_status_bar.removeStatusBarNotification();
 			}
+			return true;
+		}
+		else if (key.equals(ConfigurationSettings.SYNCHRONIZATION_TYPE_PREFERENCE))
+		{
+			//
+			// get selected sync type
+			//
+			String sync_type = (String)newValue;
+
+			//
+			// toggle sync 
+			//
+			toggleSynchronizationPreference(sync_type);			
+			
+			//
+			// save display preferences
+			//
+			saveDisplayPreferences(null, null, null, sync_type);	
 			return true;
 		}
 		else if (key.equals(ConfigurationSettings.VOCABULARY_PREFERENCE))
@@ -410,7 +464,7 @@ public class ConfigurationTabActivity extends PreferenceActivity implements OnPr
 	 * @param items_per_row items per row icon view
 	 * @param sort_mode sort mode for icon view
 	 */
-	private void saveDisplayPreferences(String default_display_class, String items_per_row, String sort_mode) {
+	private void saveDisplayPreferences(String default_display_class, String items_per_row, String sort_mode, String sync_type) {
 		
 		//
 		// acquire shared settings
@@ -458,6 +512,14 @@ public class ConfigurationTabActivity extends PreferenceActivity implements OnPr
 			// store sort mode
 			//
 			editor.putString(ConfigurationSettings.CURRENT_LIST_VIEW_SORT_MODE, sort_mode);
+		}
+		
+		if (sync_type != null)
+		{
+			//
+			// store sync type
+			//
+			editor.putString(ConfigurationSettings.CURRENT_SYNCHRONIZATION_TYPE, sync_type);
 		}
 		
 		//

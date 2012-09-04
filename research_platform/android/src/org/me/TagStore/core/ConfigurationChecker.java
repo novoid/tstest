@@ -79,7 +79,7 @@ public class ConfigurationChecker implements org.me.TagStore.core.StorageTimerTa
 			boolean created = file.mkdir();
 			if (!created)
 			{
-				Logger.e("Error: failed to create directory: " + ConfigurationSettings.CONFIGURATION_DIRECTORY);
+				Logger.e("Error: failed to create directory: " + path);
 				return false;
 			}			
 		}
@@ -99,7 +99,7 @@ public class ConfigurationChecker implements org.me.TagStore.core.StorageTimerTa
 		//
 		// get full path
 		//
-		String resource_path = getFullPath(ConfigurationSettings.CONFIGURATION_DIRECTORY) + File.separator + resource_name;
+		String resource_path = getFullPath(ConfigurationSettings.TAGSTORE_DIRECTORY + File.separator + ConfigurationSettings.CONFIGURATION_DIRECTORY) + File.separator + resource_name;
 		
 		//
 		// does it exist
@@ -130,7 +130,7 @@ public class ConfigurationChecker implements org.me.TagStore.core.StorageTimerTa
 		//
 		if(!createDirectoryIfNotExists(getFullPath(ConfigurationSettings.TAGSTORE_DIRECTORY)))
 				return false;
-		if (!createDirectoryIfNotExists(getFullPath(ConfigurationSettings.CONFIGURATION_DIRECTORY)))
+		if (!createDirectoryIfNotExists(getFullPath(ConfigurationSettings.TAGSTORE_DIRECTORY + File.separator + ConfigurationSettings.CONFIGURATION_DIRECTORY)))
 				return false;
 		if (!createDirectoryIfNotExists(getFullPath(ConfigurationSettings.TAGSTORE_DIRECTORY) + File.separator + m_context.getString(R.string.storage_directory)))
 				return false;

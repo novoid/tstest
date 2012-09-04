@@ -6,13 +6,18 @@
                 android:layout_alignParentLeft="true"
                 android:gravity="center_vertical" android:layout_height="50dp"
                 android:textSize="20dp" 
+				android:layout_marginRight="5dip"
                 android:id="@+id/directory_name_text">
         </TextView>
         <ImageButton android:layout_width="wrap_content"
         android:layout_height="50dp"
         android:id="@+id/directory_button"
         android:layout_alignParentRight="true" 
-        android:src="@drawable/icon">
+        android:src="@drawable/icon"
+		android:paddingLeft="5dip"
+		android:paddingRight="5dip"
+        android:layout_marginRight="5dip"
+        android:background="@drawable/buttonshape">
         </ImageButton>
                 
 

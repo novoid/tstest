@@ -51,13 +51,25 @@
 	    
 	</PreferenceCategory>
 	    
-	    
-        
-        
 	<PreferenceCategory android:title="@string/database_options">
 	    <Preference android:title="@string/database_options" 
 	        		android:summary="@string/database_preference_summary"
 	        		android:key="database_preference" />
 	</PreferenceCategory>
 
+    <PreferenceCategory android:title="@string/synchronization_settings">
+        <ListPreference android:title="@string/synchronization_settings"
+            			android:summary="@string/synchronization_type_preference_summary"
+            			android:key="synchronization_type_preference"
+            			android:entries="@array/synchronization_type_list_keys"
+            			android:entryValues="@array/synchronization_type_list_values" 
+            			android:defaultValue="USB">
+        </ListPreference>	
+
+        <Preference android:title="@string/synchronization_settings_dropbox" 
+	        		android:summary="@string/synchronization_settings_dropbox_summary"
+	        		android:key="synchronization_dropbox_preference" />
+	</PreferenceCategory>
+        
+	
 </PreferenceScreen>

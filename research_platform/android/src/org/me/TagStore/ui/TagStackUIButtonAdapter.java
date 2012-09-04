@@ -2,8 +2,10 @@ package org.me.TagStore.ui;
 
 import java.util.Iterator;
 
+import org.me.TagStore.R;
 import org.me.TagStore.core.EventDispatcher;
 import org.me.TagStore.core.TagStackManager;
+
 
 import android.content.Context;
 import android.util.AttributeSet;
@@ -84,6 +86,7 @@ public class TagStackUIButtonAdapter extends RelativeLayout
         	m_buttons[index].setId(index + 1);
 			m_buttons[index].setOnClickListener(m_button_listener);
 			m_buttons[index].setOnLongClickListener(m_button_long_listener);
+			m_buttons[index].setBackgroundResource(R.drawable.buttonshape);
 			
     		//
     		// new layout param
