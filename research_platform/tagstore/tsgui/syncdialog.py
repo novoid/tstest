@@ -299,6 +299,13 @@ class SyncDialog(QtGui.QDialog):
         """
         self.__sync_button.setEnabled(enabled)        
 
+    def set_close_button_text(self, message):
+        """
+        updates the cancel button text
+        """
+
+        self.__close_button.setText(message)
+
     def start_auto_sync(self):
         """
         starts the the sync process if auto_sync is true and the source and target path have been set
@@ -355,6 +362,14 @@ class SyncDialogController(QtCore.QObject):
         
         self.__sync_dialog.set_status_msg(message)
     
+    def set_close_button_text(self, message):
+        """
+        updates the cancel button text
+        """
+
+        self.__sync_dialog.set_close_button_text(message)
+
+
     def show_conflict_dialog(self, title, message, file_name):
         """
         displays the conflict dialog

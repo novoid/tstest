@@ -292,6 +292,7 @@ class SyncController(QtCore.QObject):
 
         self.__sync_dialog.set_status_msg(msg)
         self.__sync_dialog.toggle_sync_button(True)
+        self.__sync_dialog.set_close_button_text(self.trUtf8("Finish"))
         self.__remove_lock_file()
             
     def __create_source_store(self, source_store):
@@ -408,33 +409,35 @@ class SyncController(QtCore.QObject):
         # conflict list
         self.__conflict_file_list = []
 
+        # prepare the sync
+        self.__prepare_sync(source_store, target_store)
+
+        # now create the lock files
+        lock_file = self.__create_lock_file()
+        if not lock_file:
+            self.__log.info("another sync is in progress please wait until it is finished")
+            self.__sync_dialog.set_status_msg("Another sync is pending, please wait until it is finished")
+            self.__sync_dialog.set_close_button_text(self.trUtf8("Finish"))
+            return
+
         # start with source tagstore -> target tagstore
-        self.__handle_sync(source_store, target_store, True)
+        self.__handle_sync()
+
+        # switch stores
+        self.__prepare_sync(target_store, source_store)
 
         # push changes from target store to source tagstore
-        self.__handle_sync(target_store, source_store, False)
+        self.__handle_sync()
         
         self.__log.info("Number of conflicts %d" %(len(self.__conflict_file_list)))
         
         # launch conflict dialog
         self.__show_conflict_dialog()
         
-    def __handle_sync(self, source_store, target_store, create_lock):
+    def __handle_sync(self):
         """
         executes a sync
         """
-        
-        # prepare the sync
-        self.__prepare_sync(source_store, target_store)
-
-        # now create the lock files
-        if create_lock:
-            lock_file = self.__create_lock_file()
-            if not lock_file:
-                self.__log.info("another sync is in progress please wait untill it is finished")
-                self.__sync_dialog.set_status_msg("Another sync is pending, please wait untill it is finished")
-                self.__sync_dialog.toggle_sync_button(True)            
-                return       
 
         # start the sync
         self.__start_sync(self.__source_store, self.__target_store, self.__source_items, self.__target_items, self.__target_sync_items)
@@ -545,9 +548,10 @@ class SyncController(QtCore.QObject):
         # source and target file have been modified, do their tags match
         if self.__are_all_tags_equal(source_store, target_store, source_item, target_item):
             # sync the file
-            self.__log.info("[SYNC] Updating file '%s'" % source_item)
-            self.__sync_new_file(source_item, self.__get_target_file_path(target_item))
-            return True
+            self.__log.info("[Conflict] Both files have been modified '%s'" % target_item)
+            if add_conflict_list:
+                self.__add_conflict_item(source_store, target_store, target_items, target_sync_items, source_item, target_item)
+            return False
 
         # both files and tags are modified
         self.__log.info("[Conflict] Both files and tags are modified '%s'" % target_item)
