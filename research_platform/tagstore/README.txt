@@ -101,3 +101,12 @@ set the number of recent/popular describing tags which should be shown as decisi
 
 in the same directory where this file lies, there is a file called tagstore.py. 
 run "tagstore.py -h" for displaying optional starting parameters.
+
+***************************
+Known bugs
+***************************
+- tagstore can not be installed and run from C:\program files
+  - Reason: tagstore needs writing permission to its config files
+    which are located in the install directory
+- tagstore can not be installed in a folder which starts with an
+  underline (_)
