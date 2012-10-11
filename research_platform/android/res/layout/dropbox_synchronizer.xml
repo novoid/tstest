@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/relativeLayout01"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+     <TextView
+        android:id="@+id/tagstore_synchronize_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:paddingTop="40dip"
+        android:paddingBottom="40dip"        
+        android:text="@string/synchronize_tagstores"
+        android:textStyle="bold" />
+
+    <ImageView
+        android:id="@+id/source_tagstore_image"
+        android:layout_width="wrap_content"
+        android:layout_height="50dip"
+        android:layout_alignParentLeft="true"
+        android:layout_marginTop="5dip"
+        android:layout_marginBottom="5dip"
+        android:layout_marginRight="5dip"
+        android:layout_below="@id/tagstore_synchronize_label"
+        android:paddingLeft="3dp"
+        android:paddingRight="5dp"
+        android:src="@drawable/tagstore" >
+    </ImageView>
+
+    <ImageView
+        android:id="@+id/target_tagstore_image"
+        android:layout_width="wrap_content"
+        android:layout_height="50dip"
+        android:layout_marginTop="5dip"        
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="5dip"
+        android:layout_marginRight="5dip"
+        android:layout_below="@id/tagstore_synchronize_label"        
+        android:paddingLeft="3dp"
+        android:paddingRight="5dp"
+        android:src="@drawable/tagstore" >
+    </ImageView>
+
+    <TextView
+        android:id="@+id/source_tagstore_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/source_tagstore_image"
+        android:layout_marginLeft="54dp"
+        android:text="Android"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/target_tagstore_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/source_tagstore_label"
+        android:layout_alignBottom="@+id/source_tagstore_label"
+        android:layout_alignLeft="@+id/target_tagstore_image"
+        android:layout_marginLeft="53dp"
+        android:text="target"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/progress_label"
+     	android:layout_marginTop="5dip"
+     	android:layout_marginBottom="5dip"                
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/target_tagstore_label"
+        android:layout_centerHorizontal="true"
+        android:text="@string/progress"
+        android:textStyle="bold" />    
+    
+     <ProgressBar
+         style="@android:style/Widget.ProgressBar.Horizontal"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:layout_alignLeft="@+id/source_tagstore_label"
+         android:layout_alignRight="@+id/target_tagstore_label"
+         android:layout_below="@id/progress_label"
+         android:id="@+id/pb" />
+    
+    <TextView
+        android:id="@+id/status_label"
+     	android:layout_marginTop="10dip"
+     	android:layout_marginBottom="5dip"                
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/pb"
+        android:layout_alignLeft="@+id/source_tagstore_label"
+        android:text="@string/status"
+        android:textStyle="bold" />        
+
+    <TextView
+        android:id="@+id/status_text"
+     	android:layout_marginTop="10dip"
+     	android:layout_marginBottom="5dip"  
+     	android:layout_marginLeft="10dip"              
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/pb"
+        android:layout_toRightOf="@id/status_label"
+        android:text=""
+        android:textColor="#5599FF"
+        android:textStyle="bold" />    
+         
+    <Button 
+    	android:id="@+id/button_synchronize" 
+    	android:layout_width="wrap_content"
+    	android:layout_centerHorizontal="true" 
+    	android:layout_height="50dip"
+    	android:text="@string/synchronize"
+    	android:background="@drawable/buttonshape"
+    	android:layout_marginBottom="15dip"
+    	android:paddingLeft="5dip"
+    	android:paddingRight="5dip"     	 
+    	android:layout_alignParentBottom="true">
+    </Button>
+    
+     
+</RelativeLayout>
+    

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+    
+        <Button
+            android:id="@+id/button_unlink"
+            android:layout_width="wrap_content"
+            android:layout_height="50dip"
+            android:layout_alignLeft="@+id/button_select_tagstore"
+            android:layout_alignRight="@+id/button_select_tagstore"
+            android:layout_centerVertical="true"
+            android:background="@drawable/buttonshape"
+            android:paddingLeft="5dip"
+            android:paddingRight="5dip"
+            android:text="@string/unlink" />
+    
+        <Button
+        android:id="@+id/button_select_tagstore"
+        android:layout_width="wrap_content"
+        android:layout_height="50dip"
+		android:layout_centerHorizontal="true"
+        android:layout_below="@id/button_unlink"
+        android:background="@drawable/buttonshape"
+        android:layout_marginTop="20dip"
+        android:paddingLeft="5dip"
+        android:paddingRight="5dip"        
+        android:text="@string/select_tagstore" />        
+        
+        <Button
+        android:id="@+id/button_authenticate"
+        android:layout_width="wrap_content"
+        android:layout_height="50dip"
+		android:layout_centerHorizontal="true"
+		android:layout_above="@id/button_unlink"
+		android:layout_marginBottom="20dip"
+        android:paddingLeft="5dip"
+        android:paddingRight="5dip"
+        android:layout_alignRight="@id/button_select_tagstore"
+        android:layout_alignLeft="@id/button_select_tagstore"
+        android:background="@drawable/buttonshape"
+        android:text="@string/authenticate" />
+    
+
+
+
+        
+
+</RelativeLayout>

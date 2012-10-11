@@ -5,8 +5,6 @@
   android:layout_height="wrap_content"
   android:padding="10px" android:orientation="vertical">
 
-
- 
     <TextView android:text="@string/last_synchronization" 
     	android:textSize="30dp" 
     	android:layout_height="wrap_content" 
@@ -22,15 +20,19 @@
 		android:textSize="20dp" 
 		android:text="@string/unknown">
     </TextView>
+     <Button
+        android:id="@+id/button_synchronize"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/buttonshape"
+        android:paddingBottom="5dip"
+        android:paddingLeft="5dip"
+        android:paddingRight="5dip"
+        android:paddingTop="5dip"
+        android:text="@string/synchronize" >
 
-    <Button 
-    	android:id="@+id/button_synchronize" 
-    	android:layout_width="wrap_content"
-    	android:layout_centerHorizontal="true" 
-    	android:layout_height="wrap_content"
-    	android:text="@string/synchronize"
-    	android:background="@drawable/buttonshape"
-    	android:layout_alignParentBottom="true">
     </Button>
     
 </RelativeLayout>

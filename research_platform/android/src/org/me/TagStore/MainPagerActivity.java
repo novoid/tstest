@@ -21,6 +21,7 @@ import org.me.TagStore.ui.ToastManager;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -502,7 +503,7 @@ public class MainPagerActivity extends FragmentActivity {
 		    	intent = new Intent(MainPagerActivity.this, ConfigurationTabActivity.class);
 		    	break;
 		    case R.string.sync_tagstore:
-		    	intent = new Intent(MainPagerActivity.this, DropboxSynchronizerActivity.class);
+		    	intent = createSyncIntent();
 		    	break;
 		    case R.string.about_tagstore:
 		    	intent = new Intent(MainPagerActivity.this, InfoTab.class);
@@ -515,6 +516,26 @@ public class MainPagerActivity extends FragmentActivity {
 		super.startActivity(intent);
 		return true;
 	}
+	
+	public Intent createSyncIntent() {
+		
+		SharedPreferences preferences = getSharedPreferences(
+				ConfigurationSettings.TAGSTORE_PREFERENCES_NAME,
+				Context.MODE_PRIVATE);
+		
+		// synchronization type
+		String sync_type = preferences.getString(ConfigurationSettings.CURRENT_SYNCHRONIZATION_TYPE, ConfigurationSettings.DEFAULT_SYNCHRONIZATION_TYPE);
+		
+		if (sync_type.equals(ConfigurationSettings.SYNCHRONIZATION_USB_TYPE))
+		{
+			// construct special synchronizer activity
+			return new Intent(MainPagerActivity.this, SynchronizeTagStoreActivity.class);
+		}
+		
+		// default synchronizer activity
+		return new Intent(MainPagerActivity.this, DropboxSynchronizerActivity.class);
+	}
+	
 	
 	public boolean onCreateOptionsMenu (Menu menu)
 	{

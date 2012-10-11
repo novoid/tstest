@@ -233,16 +233,61 @@ public class ConfigurationSettings {
 	 * synchronization types
 	 */
 	public static final String SYNCHRONIZATION_DROPBOX_TYPE = "Dropbox";
+	
+	/**
+	 * usb synchronization type
+	 */
 	public static final String SYNCHRONIZATION_USB_TYPE="USB";
 
 	/**
 	 * current tagstore used for synchronizing
 	 */
-	public static final String CURRENT_DROPBOX_SYNCHRONIZATION_TAGSTORE = "current_dropbox_synchronization_tagstore";
+	public static final String CURRENT_SYNCHRONIZATION_TAGSTORE = "current_synchronization_tagstore";
 
+	/**
+	 * default tagstore sync extension
+	 */
 	public static final String DEFAULT_SYNC_FILE_NAME = "sync.tgs";
+	
+	/**
+	 * default android sync file name
+	 */
 	public static final String DEFAULT_ANDROID_SYNC_FILE_NAME = "tagstoresync.tgs";
 
+	/**
+	 * tagstore lock name
+	 */
 	public static final String TAGSTORE_LOCK_FILE_NAME = "tagstore.synchronization.lock";
+
+	/**
+	 * smb synchronization type
+	 */
+	public static final String SYNCHRONIZATION_SMB_TYPE = "SMB";
+
+	public static final String SMB_PREFERENCE = "synchronization_smb_preference";
+
+	/**
+	 * smb user name
+	 */
+	public static final String SMB_USER_NAME = "smb_user_name";
 	
+	/**
+	 * smb password
+	 */
+	public static final String SMB_PASSWORD ="smb_pwd";
+	
+	/**
+	 * smb server
+	 */
+	public static final String SMB_SERVER ="smb_server";
+	
+	/**
+	 * smb share
+	 */
+	public static final String SMB_SHARE ="smb_share";
+
+	/**
+	 * nfs synchronization type
+	 */
+	public static final String SYNCHRONIZATION_NFS_TYPE = "NFS";
 }

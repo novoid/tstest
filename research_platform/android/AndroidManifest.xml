@@ -32,6 +32,7 @@
     </activity>          
             
 
+   		<activity android:name=".SMBSettingsActivity" />      
    		<activity android:name=".DropboxSettingsActivity" />      
    		<activity android:name=".DropboxSynchronizerActivity" />
 		<activity android:name=".InfoTab" />

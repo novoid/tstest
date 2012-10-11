@@ -64,7 +64,7 @@
                     android:textSize="13dp" />
             </TableRow>
 
-            <TableRow >
+            <TableRow android:paddingTop="10dip">
 
                 <Button
                     android:id="@+id/button_tag_five"
@@ -73,7 +73,8 @@
                     android:layout_height="50dip"
                     android:layout_weight="1"
                     android:layout_marginLeft="5dip"                    
-                    android:layout_marginRight="5dip"                    
+                    android:layout_marginRight="5dip" 
+					android:paddingTop="10dip"                                       
                     android:text="Tag5"
                     android:textSize="13dp" />
 
@@ -84,6 +85,7 @@
                     android:layout_height="50dip"
                     android:layout_weight="1"
                     android:layout_marginRight="5dip"                      
+					android:paddingTop="10dip"                    
                     android:text="Tag4"
                     android:textSize="13dp" />
 
@@ -93,7 +95,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="50dip"
                     android:layout_weight="1"
-                    android:layout_marginRight="5dip"                      
+                    android:layout_marginRight="5dip"
+					android:paddingTop="10dip"                                          
                     android:text="Tag6"
                     android:textSize="13dp" />
             </TableRow>
@@ -124,6 +127,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     		android:id="@+id/linear_layout2"
 			android:layout_below="@id/table_layout"
+			android:paddingTop="10dip"
 			android:layout_above="@id/relative_layout"    		
             android:layout_width="fill_parent"
             android:layout_height="wrap_content">

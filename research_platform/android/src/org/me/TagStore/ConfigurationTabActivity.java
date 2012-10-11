@@ -196,6 +196,7 @@ public class ConfigurationTabActivity extends PreferenceActivity implements OnPr
 		addClickListener(ConfigurationSettings.ICON_VIEW_ITEM_ROW_PREFERENCE, false, true);
 		addClickListener(ConfigurationSettings.ICON_VIEW_SORT_MODE_PREFERENCE, false, true);
 		addClickListener(ConfigurationSettings.SYNCHRONIZATION_TYPE_PREFERENCE, false, true);
+		addClickListener(ConfigurationSettings.SMB_PREFERENCE, true, false);
 		addClickListener(ConfigurationSettings.DROPBOX_PREFERENCE, true, false);
 		
 		//
@@ -294,6 +295,15 @@ public class ConfigurationTabActivity extends PreferenceActivity implements OnPr
 			super.startActivity(intent);			
 			return true;
 		}
+		else if (key.equals(ConfigurationSettings.SMB_PREFERENCE)) {
+			
+			//
+			// launch SMB configuration dialog
+			//
+			Intent intent = new Intent(ConfigurationTabActivity.this, SMBSettingsActivity.class);
+			super.startActivity(intent);			
+			return true;
+		}
 		return false;		
 	}
 	
@@ -332,12 +342,15 @@ public class ConfigurationTabActivity extends PreferenceActivity implements OnPr
 		// check if dropbox sync is selected
 		//
 		boolean dropboxsync = value.equals(ConfigurationSettings.SYNCHRONIZATION_DROPBOX_TYPE);
+		boolean smbsync = value.equals(ConfigurationSettings.SYNCHRONIZATION_SMB_TYPE);
 		
 		Logger.i("value: " + value);
+		
 		//
 		// enable/disable state
 		//
 		togglePreferenceState(ConfigurationSettings.DROPBOX_PREFERENCE, dropboxsync);
+		togglePreferenceState(ConfigurationSettings.SMB_PREFERENCE, smbsync);
 	}
 	
 

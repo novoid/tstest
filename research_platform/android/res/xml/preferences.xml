@@ -69,6 +69,12 @@
         <Preference android:title="@string/synchronization_settings_dropbox" 
 	        		android:summary="@string/synchronization_settings_dropbox_summary"
 	        		android:key="synchronization_dropbox_preference" />
+        
+        <Preference android:title="@string/synchronization_settings_smb"
+            		android:summary="@string/synchronization_settings_smb_summary"
+            		android:key="synchronization_smb_preference" />
+        
+        
 	</PreferenceCategory>
         
 	

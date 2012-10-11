@@ -2,7 +2,6 @@
 <resources>
     <string name="app_name">tagstore</string>
     <string name="edit_text_field"></string>
-    <string name="directory_name_string">Directory:</string>
     <string name="tag_accept">Tag!</string>
     <string name="file_name">File name:</string>
     <string name="cancel">Cancel</string>
@@ -22,14 +21,14 @@
     <string name="reset_factory_setting">By hitting reset button, the database will remove stored tags / settings. No other files will be modified</string>
     <string name="string_back">Back</string>
     <string name="enable_notification_string">Enable status bar notification</string>
-    <string name="enable_notification_description">When enabled, tagstore displays a status bar notification when a new file arrives in one of the observed directories.</string>
-    <string name="tagstore_directories">Directories</string>
+    <string name="enable_notification_description">When enabled, tagstore displays a status bar notification when a new file arrives in one of the observed folders.</string>
+    <string name="tagstore_directories">Folders</string>
     <string name="sync_tagstore">Sync</string>
     <string name="about_tagstore">About</string>
     <string name="notification_settings">Notification</string>
     <string name="listview_settings">List View</string>
     <string name="database_options">Database</string>
-    <string name="directory_present">Directory is already in list!</string>
+    <string name="directory_present">Folder is already in list!</string>
     <string name="one_tag_minimum">There must be at least one tag for the file</string>
     <string name="bytes">Bytes</string>
     <string name="format_delete">The file %s was deleted.</string>
@@ -40,7 +39,7 @@
     <string name="details">Details</string>
     <string name="send">Send</string>
     <string name="delete">Delete</string>
-    <string name="add_directory">Add directory...</string>
+    <string name="add_directory">Add folder...</string>
     <string name="no_update">No updates found!</string>
     <string name="cloud_view">Cloud View</string>
     <string name="sort_mode">Sort mode</string>
@@ -78,20 +77,20 @@
     <string name="tag_files">Num. of files:</string>
     <string name="tag_link">Num. of linked tags:</string>
     <string name="file_date">Date:</string>
-    <string name="select_directory">Select a directory in which to copy the file</string>
+    <string name="select_directory">Select a folder in which to copy the file</string>
     <string name="error_wrong_action">Error: wrong action</string>
-    <string name="error_no_directories">Please define observed directories first in the tagstore!</string>
+    <string name="error_no_directories">Please define observed folders first in the tagstore!</string>
     <string name="error_failed_retrieve_parameters">Failed to retrieve parameters</string>
-    <string name="error_file_target_directory">A file with that name is already present in that directory</string>
+    <string name="error_file_target_directory">A file with that name is already present in that folder!</string>
     <string name="error_file_removed">The file has been deleted</string>
     <string name="error_failed_share">Failed to share file</string>
     <string name="share_success">Successfully shared file</string>
     <string name="storage_directory">storage</string>
-    <string name="error_tagstore_directory">The tagstore storage directory is unremovable</string>
+    <string name="error_tagstore_directory">The tagstore storage folder is unremovable</string>
     <string name="file_present_tagstore">The file is already included in the tagstore</string>
     <string name="file_present_tagstore_not_tagged">The file is already included in the tagstore but has not yet been tagged</string>
     <string name="no_app_registered">No application registered to handle file %s</string>
-    <string name="directory_preference_summary">Choose the directories to be watched and organised by tagstore.</string>
+    <string name="directory_preference_summary">Choose the folders to be watched and organised by tagstore.</string>
     <string name="display_preference_summary">Choose the display preference how the tagstore should be visualized.</string>
     <string name="database_preference_summary">This preference allows you to reset the tagstore database. All settings and tags are removed.</string>
     <string name="database_reset_question">Do you want to reset the tagstore to the default?</string>
@@ -129,4 +128,17 @@
     <string name="sync_completed">Synchronization completed on "</string>
     <string name="sync_active">Another sync is currently active. Please try later!</string>
     <string name="conflict_dialog_msg_format" formatted="false">Do you want to replace the file %s from store %s with file %s from store %s \?</string>
+    <string name="synchronization_settings_smb">SMB Settings</string>
+    <string name="synchronization_settings_smb_summary">This preference lets you customize the SMB Synchronization Settings.</string>
+    <string name="user_name">User:</string>
+    <string name="password">Pwd:</string>
+    <string name="server">Server:</string>
+    <string name="share">Share:</string>
+    <string name="connect">Connect</string>
+    <string name="error_no_user_name">Please set a user name first!</string>
+    <string name="error_no_password">Please set a password first!</string>
+    <string name="error_no_server">Please set the server first!</string>
+    <string name="error_no_share">Please set the share first!</string>
+    <string name="connect_success">Connected successfully!</string>
+    <string name="smb_configuration">SMB Configuration</string>
 </resources>

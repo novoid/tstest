@@ -26,11 +26,13 @@
     <string-array name="synchronization_type_list_keys">
         <item>Sync via USB</item>
         <item>Sync via Dropbox</item>
+         <item>Sync via SMB</item>       
     </string-array>
     
     <string-array name="synchronization_type_list_values">
         <item>USB</item>
         <item>Dropbox</item>
+        <item>SMB</item>
     </string-array>
 
     

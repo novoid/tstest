@@ -118,7 +118,7 @@ public class SynchronizationAlgorithmBackend {
 				Context.MODE_PRIVATE);
 		
 		// read last tagstore name
-		m_target_store_path = settings.getString(ConfigurationSettings.CURRENT_DROPBOX_SYNCHRONIZATION_TAGSTORE, "");
+		m_target_store_path = settings.getString(ConfigurationSettings.CURRENT_SYNCHRONIZATION_TAGSTORE, "");
 		
 		// init paths
 		initPaths();
