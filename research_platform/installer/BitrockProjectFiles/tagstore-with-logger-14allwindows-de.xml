@@ -1,11 +1,11 @@
 <project>
     <shortName>tagstore</shortName>
-    <fullName>tagstore</fullName>
-    <version>1.0</version>
-    <installerFilename>${product_shortname}-${platform_name}-installer.${platform_exec_suffix}</installerFilename>
+    <fullName>Tagstore</fullName>
+    <version>1.01</version>
     <licenseFile>C:/tagstore/research_platform/installer/needs4tagstore/tagstore/tagstore_license.txt</licenseFile>
     <leftImage>C:/tagstore/research_platform/installer/needs4tagstore/tagstore/tslogos/tagstore_logo_colour_163x315_transparent_down.png</leftImage>
     <logoImage>C:/tagstore/research_platform/installer/needs4tagstore/tagstore/tslogos/tagstore_logo_colour_200x85.png</logoImage>
+    <splashImage>E:/tagstore/research_platform/installer/needs4tagstore/tagstore/tslogos/tagstore_splash.png</splashImage>
     <defaultLanguage>de</defaultLanguage>
     <componentList>
         <component>
@@ -119,6 +119,9 @@
                         </distributionDirectory>
                         <distributionFile>
                             <origin>C:/tagstore/research_platform/installer/needs4tagstore/tagstore/flmonsvc.exe</origin>
+                        </distributionFile>
+                        <distributionFile>
+                            <origin>E:/tagstore/research_platform/tagstore/README_WIN.txt</origin>
                         </distributionFile>
                     </distributionFileList>
                 </folder>
@@ -266,6 +269,13 @@ Die Installation von tagstore wird anschließend fortgesetzt.</text>
         <deleteFile>
             <path>${installdir}\tslogger\setup\vcredist_x86.exe</path>
         </deleteFile>
+        <createDirectory>
+            <path>${user_home_directory}\AppData\Local\tagstore\</path>
+        </createDirectory>
+        <renameFile>
+            <destination>${user_home_directory}\AppData\Local\tagstore\tagstore.cfg</destination>
+            <origin>${installdir}\tsresources\conf\tagstore.cfg</origin>
+        </renameFile>
     </postInstallationActionList>
     <cdromDirectory>${product_shortname}-cdrom</cdromDirectory>
     <compressionAlgorithm>lzma</compressionAlgorithm>
@@ -302,7 +312,7 @@ Ein Assistent wird Sie beim Anlegen Ihres ersten 'stores' unterstützen.</text>
             <description>Installer.Parameter.installdir.description</description>
             <explanation>Installer.Parameter.installdir.explanation</explanation>
             <value></value>
-            <default>/${product_shortname}</default>
+            <default>${platform_install_prefix}/${product_shortname}</default>
             <allowEmptyValue>0</allowEmptyValue>
             <cliOptionName>prefix</cliOptionName>
             <mustBeWritable>1</mustBeWritable>

@@ -1,11 +1,11 @@
-﻿<project>
+<project>
     <shortName>tagstore</shortName>
-    <fullName>tagstore</fullName>
-    <version>1.0</version>
-    <installerFilename>${product_shortname}-${platform_name}-installer.${platform_exec_suffix}</installerFilename>
-    <licenseFile>../../../../../tagstore/research_platform/installer/needs4tagstore/tagstore/tagstore_license.txt</licenseFile>
-    <leftImage>../../../../../tagstore/research_platform/installer/needs4tagstore/tagstore/tslogos/tagstore_logo_colour_163x315_transparent_down.png</leftImage>
-    <logoImage>../../../../../tagstore/research_platform/installer/needs4tagstore/tagstore/tslogos/tagstore_logo_colour_200x85.png</logoImage>
+    <fullName>Tagstore</fullName>
+    <version>1.01</version>
+    <licenseFile>../needs4tagstore/tagstore/tagstore_license.txt</licenseFile>
+    <leftImage>../needs4tagstore/tagstore/tslogos/tagstore_logo_colour_163x315_transparent_down.png</leftImage>
+    <logoImage>../needs4tagstore/tagstore/tslogos/tagstore_logo_colour_200x85.png</logoImage>
+    <splashImage>../needs4tagstore/tagstore/tslogos/tagstore_splash.png</splashImage>
     <defaultLanguage>de</defaultLanguage>
     <componentList>
         <component>
@@ -22,40 +22,40 @@
                     <platforms>all</platforms>
                     <distributionFileList>
                         <distributionDirectory>
-                            <origin>../../../../../tagstore/research_platform/tagstore/tscore</origin>
+                            <origin>../../tagstore/tscore</origin>
                         </distributionDirectory>
                         <distributionDirectory>
-                            <origin>../../../../../tagstore/research_platform/tagstore/tsgui</origin>
+                            <origin>../../tagstore/tsgui</origin>
                         </distributionDirectory>
                         <distributionDirectory>
-                            <origin>../../../../../tagstore/research_platform/tagstore/tsos</origin>
+                            <origin>../../tagstore/tsos</origin>
                         </distributionDirectory>
                         <distributionDirectory>
-                            <origin>../../../../../tagstore/research_platform/tagstore/tsresources</origin>
+                            <origin>../../tagstore/tsresources</origin>
                         </distributionDirectory>
                         <distributionDirectory>
-                            <origin>../../../../../tagstore/research_platform/tagstore/tstest</origin>
+                            <origin>../../tagstore/tstest</origin>
                         </distributionDirectory>
                         <distributionFile>
-                            <origin>../../../../../tagstore/research_platform/tagstore/tagstore.py</origin>
+                            <origin>../../tagstore/tagstore.py</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../../../tagstore/research_platform/tagstore/tagstore_manager.py</origin>
+                            <origin>../../tagstore/tagstore_manager.py</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../../../tagstore/research_platform/installer/needs4tagstore/tagstore/tagstore_license.txt</origin>
+                            <origin>../needs4tagstore/tagstore/tagstore_license.txt</origin>
                         </distributionFile>
                         <distributionDirectory>
-                            <origin>../../../../../tagstore/research_platform/installer/needs4tagstore/tagstore/tslogos</origin>
+                            <origin>../needs4tagstore/tagstore/tslogos</origin>
                         </distributionDirectory>
                         <distributionFile>
-                            <origin>../../../../../tagstore/research_platform/tagstore/compile_sources.sh</origin>
+                            <origin>../../tagstore/compile_sources.sh</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../../../tagstore/research_platform/tagstore/tagstore_retag.py</origin>
+                            <origin>../../tagstore/tagstore_retag.py</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../../../tagstore/research_platform/tagstore/tagstore_sync.py</origin>
+                            <origin>../../tagstore/tagstore_sync.py</origin>
                         </distributionFile>
                     </distributionFileList>
                     <shortcutList>
@@ -88,31 +88,34 @@
                     <platforms>windows</platforms>
                     <distributionFileList>
                         <distributionFile>
-                            <origin>../../../../../tagstore/research_platform/installer/needs4tagstore/pywin32-214.win32-py2.7.exe</origin>
+                            <origin>../needs4tagstore/pywin32-214.win32-py2.7.exe</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../../../tagstore/research_platform/installer/needs4tagstore/PyQt-Py2.7-x86-gpl-4.9.4-1.exe</origin>
+                            <origin>../needs4tagstore/PyQt-Py2.7-x86-gpl-4.9.4-1.exe</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../../../tagstore/research_platform/installer/needs4tagstore/python-2.7.3.msi</origin>
+                            <origin>../needs4tagstore/python-2.7.3.msi</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../../../tagstore/research_platform/installer/needs4tagstore/tagstore/restart_tagstore.bat</origin>
+                            <origin>../needs4tagstore/tagstore/restart_tagstore.bat</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../../../tagstore/research_platform/tagstore/tagstore.pyw</origin>
+                            <origin>../../tagstore/tagstore.pyw</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../../../tagstore/research_platform/tagstore/tagstore_manager.pyw</origin>
+                            <origin>../../tagstore/tagstore_manager.pyw</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../../../tagstore/research_platform/installer/needs4tagstore/install_python.bat</origin>
+                            <origin>../needs4tagstore/install_python.bat</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../../../tagstore/research_platform/tagstore/administration.pyw</origin>
+                            <origin>../../tagstore/administration.pyw</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../../../tagstore/research_platform/tagstore/tagstore_retag.pyw</origin>
+                            <origin>../../tagstore/tagstore_retag.pyw</origin>
+                        </distributionFile>
+                        <distributionFile>
+                            <origin>../README_WIN.txt</origin>
                         </distributionFile>
                     </distributionFileList>
                 </folder>
@@ -123,7 +126,7 @@
                     <platforms>osx</platforms>
                     <distributionFileList>
                         <distributionFile>
-                            <origin>../../../../../tagstore/research_platform/installer/needs4tagstore/python-2.7-macosx10.5.dmg</origin>
+                            <origin>../needs4tagstore/python-2.7-macosx10.5.dmg</origin>
                         </distributionFile>
                     </distributionFileList>
                 </folder>
@@ -292,6 +295,13 @@ Die Installation von tagstore wird anschließend fortgesetzt.</text>
         <deleteFile>
             <path>${installdir}\pywin32-214.win32-py2.7.exe</path>
         </deleteFile>
+        <createDirectory>
+            <path>${user_home_directory}\AppData\Local\tagstore\</path>
+        </createDirectory>
+        <renameFile>
+            <destination>${user_home_directory}\AppData\Local\tagstore\tagstore.cfg</destination>
+            <origin>${installdir}\tsresources\conf\tagstore.cfg</origin>
+        </renameFile>
     </postInstallationActionList>
     <cdromDirectory>${product_shortname}-cdrom</cdromDirectory>
     <enableRollback>1</enableRollback>
@@ -325,7 +335,7 @@ Ein Assistent wird Sie beim Anlegen Ihres ersten 'stores' unterstützen.</text>
             <description>Installer.Parameter.installdir.description</description>
             <explanation>Installer.Parameter.installdir.explanation</explanation>
             <value></value>
-            <default>/${product_shortname}</default>
+            <default>${platform_install_prefix}/${product_shortname}</default>
             <allowEmptyValue>0</allowEmptyValue>
             <cliOptionName>prefix</cliOptionName>
             <mustBeWritable>1</mustBeWritable>

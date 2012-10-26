@@ -10,7 +10,7 @@ Advanced Settings: (another 2 Post-installation actions required)
 - Create directory: 
 ${user_home_directory}\AppData\Local\tagstore\
 
-- Copy file:
+- Rename file:
 ${installdir}\tsresources\conf\tagstore.cfg
 to:
 ${user_home_directory}\AppData\Local\tagstore\tagstore.cfg
