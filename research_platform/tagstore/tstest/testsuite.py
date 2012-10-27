@@ -23,6 +23,7 @@ from tscore import pathhelper
 from tscore.pathhelper import PathHelper
 import datetime
 from tscore.tsconstants import TsConstants
+from tscore.tsrestrictions import TsRestrictions
 from tsos.filesystem import FileSystemWrapper
 from tscore.store import Store
 
@@ -114,7 +115,7 @@ class Test(unittest.TestCase):
         config = ConfigWrapper("../tsresources/conf/tagstore.cfg")
         extensions = config.get_ignored_extension()
         
-        assert(extensions == TsConstants.IGNORED_EXTENSIONS)
+        assert(extensions == TsRestrictions.IGNORED_EXTENSIONS)
     
     def get_fresh_tagwrapper(self):
         ## at first create a new and clean tagfile in the current directory ...

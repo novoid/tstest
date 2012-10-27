@@ -56,7 +56,7 @@ class PendingChanges:
         """
         timestamp = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
         for item in self.__queue:
-            if item["file"] == file_name:
+            if item["file"] == unicode(file_name):
                 item["type"] = type_enum
                 item["event"] = event_enum
                 return
@@ -69,15 +69,15 @@ class PendingChanges:
         ## delete file before rename
         self.remove(unicode(new_file_name))      
         for item in self.__queue:
-            if item["file"] == old_file_name:
-                item["file"] = new_file_name
+            if item["file"] == unicode(old_file_name):
+                item["file"] = unicode(new_file_name)
     
     def remove(self, file_name):
         """
         removes file from instance
         """
         for item in self.__queue:
-            if item["file"] == file_name:
+            if item["file"] == unicode(file_name):
                 self.__queue.remove(item)
                 return
 

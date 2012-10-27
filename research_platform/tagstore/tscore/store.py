@@ -27,6 +27,7 @@ from tscore.pendingchanges import PendingChanges
 from tscore.specialcharhelper import SpecialCharHelper
 from tscore.tagwrapper import TagWrapper
 from tscore.tsconstants import TsConstants
+from tscore.tsrestrictions import TsRestrictions
 from tscore.vocabularywrapper import VocabularyWrapper
 from tscore.recommender import Recommender
 from tscore.tagcloud import TagCloud
@@ -775,7 +776,7 @@ class Store(QtCore.QObject):
         ## throw error if inodes run short
         if self.__file_system.inode_shortage(self.__config_path):
             self.__log.error("inode threshold has exceeded")
-            raise InodeShortageException(TsConstants.INODE_THRESHOLD)
+            raise InodeShortageException(TsRestrictions.INODE_THRESHOLD)
         ## throw error if item-names and tag-names (new and existing) are in conflict
         conflict = self.__name_in_conflict(file_name, describing_tag_list, categorising_tag_list)
         if conflict[0] != "":

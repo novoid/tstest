@@ -17,7 +17,7 @@
 import sys
 import os
 import logging.handlers
-from tscore.tsconstants import TsConstants
+from tscore.tsrestrictions import TsRestrictions
 import shutil
 if sys.platform[:3] == "win":
     from windows import FileSystem
@@ -46,7 +46,7 @@ class FileSystemWrapper():
         self.__IGNORED_DIR_PREFIXES = ["."]
         
         if ignored_extensions is None:
-            self.__IGNORED_EXTENSIONS = TsConstants.IGNORED_EXTENSIONS
+            self.__IGNORED_EXTENSIONS = TsRestrictions.IGNORED_EXTENSIONS
         else:
             self.__IGNORED_EXTENSIONS = ignored_extensions
     
@@ -59,6 +59,12 @@ class FileSystemWrapper():
         """
         return self.file_system.get_type()
         
+    def get_user_profile_path(self):
+        """
+        returns the user profile path of the current user
+        """
+        return unicode((os.environ['USERPROFILE']).replace("\\", "/").rstrip("/"))
+            
     def path_exists(self, path):
         """
         returns True if given path exists, else False
@@ -164,6 +170,8 @@ class FileSystemWrapper():
                     os.unlink(item_path)
                 else:
                     os.remove(item_path)
+            #self.__log.debug("deleting dir: %s" % path_name)
+            sys.stdout.write("deleting dir: %s" % path_name)
             os.rmdir(path_name)
         
     def create_link(self, source, link_path):
@@ -235,11 +243,11 @@ class FileSystemWrapper():
         
     def inode_shortage(self, file_path):
         """
-        returns True, if the free number of inodes (non-root) < TsConstants.INODE_THRESHOLD (10%) of all available
+        returns True, if the free number of inodes (non-root) < TsRestrictions.INODE_THRESHOLD (10%) of all available
         Caution: Windows does not support this functionality, that's why it returns False in any case
         """
         file_path = unicode(file_path)
-        return self.file_system.inode_shortage(file_path, TsConstants.INODE_THRESHOLD)
+        return self.file_system.inode_shortage(file_path, TsRestrictions.INODE_THRESHOLD)
         
         
 ## end

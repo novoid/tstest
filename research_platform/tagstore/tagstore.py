@@ -295,9 +295,7 @@ class Tagstore(QtCore.QObject):
     def pending_file_operations(self, store):
         """
         event handler: handles all operations with user interaction
-        """
-        #TODO @chris: encoding problem?
-        
+        """        
         self.__log.info("new pending file operation added")
 
         dialog_controller = self.DIALOGS[store.get_id()]

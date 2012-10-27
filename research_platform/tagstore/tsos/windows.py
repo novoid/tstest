@@ -16,6 +16,7 @@
 
 import win32com.client
 import os
+import unicodedata
 from tscore.enums import EOS
 
 class FileSystem():
@@ -43,6 +44,7 @@ class FileSystem():
         removes a windows .lnk link from file system and empty folders as well
         """
         file_path = unicode(link+".lnk")
+        #file_path = unicodedata.normalize("NFKD", link)+".lnk"  #TRIAL ONLY
         if os.path.exists(file_path):
             os.remove(file_path)
 

@@ -15,6 +15,9 @@
 ## You should have received a copy of the GNU General Public License along with this program;
 ## if not, see <http://www.gnu.org/licenses/>.
 
+from tsos.filesystem import FileSystemWrapper
+from tscore.enums import EOS
+
 class TsConstants(object):
     """
     class for providing internal used constants
@@ -27,13 +30,17 @@ class TsConstants(object):
     LOG_FILESIZE = 524288
     STORE_LOGGER_NAME = "StoreLogger"
     STORE_LOG_FILENAME = "store.log"
-    ## the percentage of inodes which must be left free 
-    INODE_THRESHOLD = 10
-    
-    IGNORED_EXTENSIONS = [".lnk", ".crdownload", "Thumbs.db", "~"]
     
     CONFIG_DIR = "./tsresources/conf/"
     CONFIG_PATH = "./tsresources/conf/tagstore.cfg"
+    ##overwrite settings path for windows, if the config exists in the AppData directory
+    file_system = FileSystemWrapper()
+    if file_system.get_os() == EOS.Windows:
+        dir = file_system.get_user_profile_path()
+        if file_system.path_exists(dir):
+            CONFIG_DIR = dir + "/AppData/Local/tagstore"
+            CONFIG_PATH = CONFIG_DIR + "/tagstore.cfg"
+    
     STORE_CONFIG_TEMPLATE_PATH = "./tsresources/conf/store.cfg.template"
     STORE_TAGFILE_TEMPLATE_PATH = "./tsresources/conf/store.tgs.template"
 
