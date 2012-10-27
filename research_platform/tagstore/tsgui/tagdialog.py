@@ -323,6 +323,7 @@ class TagDialog(QtGui.QDialog):
         NOT_ALLOWED_CATEGORIZING_TAG_NAME
         NOT_DEFINED_CATEGORIZING_TAG_NAME
         NO_ITEM_SELECTED
+        NO_ERROR
         """               
         if error_enum == ETagErrorEnum.NOT_ALLOWED_CHAR_DESCRIBING_TAG:
             self.__set_tag_info(self.trUtf8("At least one describing tag contains a special character, which is not allowed to be used"))
@@ -332,7 +333,10 @@ class TagDialog(QtGui.QDialog):
             self.__set_category_info(self.trUtf8("At least one categorizing tag contains a special character, which is not allowed to be used"))
         elif error_enum == ETagErrorEnum.NOT_ALLOWED_CATEGORIZING_TAG_NAME:
             self.__set_category_info(self.trUtf8("At least one categorizing tag is equal to a reserved keyword"))
-
+        else:
+            self.__set_category_info(self.trUtf8(""))
+                                     
+                                     
     def set_parent(self, parent):
         self.setParent(parent)
 
@@ -1018,9 +1022,11 @@ class TagDialogController(QtCore.QObject):
         if SpecialCharHelper.contains_special_chars(tag_list):
             self.__tag_dialog.set_error_occured(ETagErrorEnum.NOT_ALLOWED_CHAR_DESCRIBING_TAG)
             return
-        if SpecialCharHelper.is_special_string(tag_list):
+        elif SpecialCharHelper.is_special_string(tag_list):
             self.__tag_dialog.set_error_occured(ETagErrorEnum.NOT_ALLOWED_DESCRIBING_TAG_NAME)
             return
+        else:
+            self.__tag_dialog.set_error_occured(ETagErrorEnum.NO_ERROR)
         
         ## just check this, if the category line is enabled
         if (category_setting == ECategorySetting.ENABLED or category_setting == ECategorySetting.ENABLED) and category_mandatory and (category_list is None or len(category_list) == 0):
@@ -1062,9 +1068,11 @@ class TagDialogController(QtCore.QObject):
         if SpecialCharHelper.contains_special_chars(category_list):
             self.__tag_dialog.set_error_occured(ETagErrorEnum.NOT_ALLOWED_CHAR_CATEGORIZING_TAG)
             return
-        if SpecialCharHelper.is_special_string(category_list):
+        elif SpecialCharHelper.is_special_string(category_list):
             self.__tag_dialog.set_error_occured(ETagErrorEnum.NOT_ALLOWED_CATEGORIZING_TAG_NAME)
             return
+        else:
+            self.__tag_dialog.set_error_occured(ETagErrorEnum.NO_ERROR)
             
         self.__items_to_remove = item_list
         item_str_list = []

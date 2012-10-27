@@ -65,7 +65,8 @@ ETagErrorEnum = Enum(["NO_DESCRIBING_TAG",
                       "NOT_ALLOWED_DESCRIBING_TAG_NAME",
                       "NOT_ALLOWED_CATEGORIZING_TAG_NAME",
                       "NOT_DEFINED_CATEGORIZING_TAG_NAME",
-                      "NO_ITEM_SELECTED"])
+                      "NO_ITEM_SELECTED",
+                      "NO_ERROR"])
 
 
 ## end
