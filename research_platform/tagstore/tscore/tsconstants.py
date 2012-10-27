@@ -24,15 +24,17 @@ class TsConstants(object):
     just do provide a single-point of access
     """
     
+    CONFIG_DIR = "./tsresources/conf/"
+    CONFIG_PATH = "./tsresources/conf/tagstore.cfg"
+    
     LOGGER_NAME = "TagStoreLogger"
     LOG_FILENAME = "tagstore.log"
     LOG_BACKUP_COUNT = 3
     LOG_FILESIZE = 524288
+
     STORE_LOGGER_NAME = "StoreLogger"
     STORE_LOG_FILENAME = "store.log"
     
-    CONFIG_DIR = "./tsresources/conf/"
-    CONFIG_PATH = "./tsresources/conf/tagstore.cfg"
     ##overwrite settings path for windows, if the config exists in the AppData directory
     file_system = FileSystemWrapper()
     if file_system.get_os() == EOS.Windows:
@@ -40,6 +42,7 @@ class TsConstants(object):
         if file_system.path_exists(dir):
             CONFIG_DIR = dir + "/AppData/Local/tagstore"
             CONFIG_PATH = CONFIG_DIR + "/tagstore.cfg"
+            LOG_FILENAME = dir + "/AppData/Local/tagstore/" + "tagstore.log"
     
     STORE_CONFIG_TEMPLATE_PATH = "./tsresources/conf/store.cfg.template"
     STORE_TAGFILE_TEMPLATE_PATH = "./tsresources/conf/store.tgs.template"
