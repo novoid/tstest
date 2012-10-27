@@ -147,7 +147,7 @@ class FileSystemWrapper():
         if self.path_exists(path_name):
             self.__log.debug("deleting dir content: %s" % path_name)
             for item in os.listdir(unicode(path_name)):
-                item_path = unicode(path_name) + "/" + item
+                item_path = unicode(path_name) + unicode("/") + item
                 if os.path.isdir(item_path):
                     self.delete_dir(item_path)
                 elif os.path.islink(item_path):
@@ -163,7 +163,7 @@ class FileSystemWrapper():
         if self.path_exists(path_name):
             self.__log.debug("deleting dir: %s" % path_name)
             for item in os.listdir(path_name):
-                item_path = path_name + "/" + item
+                item_path = path_name + unicode("/") + item
                 if os.path.isdir(item_path):
                     self.delete_dir(item_path)
                 elif os.path.islink(item_path):
@@ -171,7 +171,6 @@ class FileSystemWrapper():
                 else:
                     os.remove(item_path)
             #self.__log.debug("deleting dir: %s" % path_name)
-            sys.stdout.write("deleting dir: %s" % path_name)
             os.rmdir(path_name)
         
     def create_link(self, source, link_path):
