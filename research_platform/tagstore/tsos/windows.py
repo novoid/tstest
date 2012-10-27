@@ -52,10 +52,7 @@ class FileSystem():
         parent_path = os.path.dirname(unicode(link))
         if os.path.exists(parent_path):             #existing
             if len(os.listdir(parent_path)) == 0:   #empty
-                os.rmdir(parent_path)
-        else:
-            x = parent_path #test only
-                        
+                os.rmdir(parent_path)                       
         
     def inode_shortage(self, file_path, threshold_pct):
         """
