@@ -37,7 +37,7 @@ public class IconViewListItemClickListener implements OnClickListener {
 		m_is_tag = is_tag;
 	}
 
-	@Override
+	
 	public void onClick(View v) {
 
 		Logger.i("onClick: " + m_item_name + " is_tag: " + m_is_tag);

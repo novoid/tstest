@@ -52,7 +52,7 @@ public class RetagButtonClickListener  implements OnClickListener
 		m_tag_field = (EditText)view.findViewById(R.id.tag_field);
 	}
 
-	@Override
+	
 	public void onClick(View v) {
 
 		//

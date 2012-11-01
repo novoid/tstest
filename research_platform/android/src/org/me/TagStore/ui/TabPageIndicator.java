@@ -384,7 +384,7 @@ public class TabPageIndicator extends View implements ViewPager.OnPageChangeList
 		setMeasuredDimension(width_size, height_size);
 	}
 
-	@Override
+	
 	public void onPageScrollStateChanged(int state) {
 		
 		if (m_listener != null)
@@ -397,7 +397,7 @@ public class TabPageIndicator extends View implements ViewPager.OnPageChangeList
 		
 	}
 
-	@Override
+	
 	public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 		
 		if (m_listener != null)
@@ -411,7 +411,7 @@ public class TabPageIndicator extends View implements ViewPager.OnPageChangeList
 		invalidate();
 	}
 
-	@Override
+	
 	public void onPageSelected(int position) {
 		
 		Logger.e("onPageSelected: " + position);

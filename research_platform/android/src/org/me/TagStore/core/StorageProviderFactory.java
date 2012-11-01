@@ -54,11 +54,7 @@ public class StorageProviderFactory {
 			// acquire smb storage provider
 			return SMBStorageProvider.getInstance();
 		}
-		else if (provider_name.equals(ConfigurationSettings.SYNCHRONIZATION_NFS_TYPE)) {
-			
-			//acquire nfs storage provider
-			return NFSStorageProvider.getInstance();
-		}
+
 		
 		
 		// not supported

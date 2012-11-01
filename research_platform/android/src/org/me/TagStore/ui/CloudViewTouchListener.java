@@ -85,7 +85,7 @@ public class CloudViewTouchListener implements OnTouchListener {
 
 	}
 
-	@Override
+	
 	public boolean onTouch(View v, MotionEvent event) {
 
 		//

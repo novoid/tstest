@@ -153,7 +153,7 @@ public class MainServiceConnection implements ServiceConnection {
 	
 	
 	@SuppressWarnings("unchecked")
-	@Override
+	
 	public void onServiceConnected(ComponentName name, IBinder service) {
 
 		m_service_connected = true;
@@ -196,7 +196,7 @@ public class MainServiceConnection implements ServiceConnection {
 		Logger.i("MainActivity::onServiceConnected service " + m_service);
 	}
 
-	@Override
+	
 	public void onServiceDisconnected(ComponentName name) {
 
 		//

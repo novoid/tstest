@@ -112,7 +112,7 @@ public class FileDialogBrowser extends ListActivity {
 		//
 		m_SelectButton.setOnClickListener(new OnClickListener() {
 
-			@Override
+
 			public void onClick(View v) {
 				if (m_CurrentPath != null) {
 
@@ -141,7 +141,6 @@ public class FileDialogBrowser extends ListActivity {
 		//
 		m_CancelButton.setOnClickListener(new OnClickListener() {
 
-			@Override
 			public void onClick(View v) {
 				finish();
 			}

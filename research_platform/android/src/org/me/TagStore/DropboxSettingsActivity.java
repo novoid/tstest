@@ -4,10 +4,8 @@ import java.util.ArrayList;
 
 import org.me.TagStore.core.ConfigurationSettings;
 import org.me.TagStore.core.DBManager;
-import org.me.TagStore.core.DatabaseResetTask;
 import org.me.TagStore.core.DropboxStorageProvider;
 import org.me.TagStore.core.Logger;
-import org.me.TagStore.interfaces.StorageProvider;
 import org.me.TagStore.ui.ToastManager;
 
 import android.app.Activity;
@@ -23,7 +21,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.Toast;
 
 /**
  * This class implements Dropbox specific settings, such as authentication, logging out, and
@@ -115,7 +112,7 @@ public class DropboxSettingsActivity extends Activity {
 			// add click listener
 			m_button_authenticate.setOnClickListener(new OnClickListener() {
 
-				@Override
+				
 				public void onClick(View v) {
 
 					performAuthentication();
@@ -131,7 +128,7 @@ public class DropboxSettingsActivity extends Activity {
 			// add click listener
 			m_button_unlink.setOnClickListener(new OnClickListener() {
 
-				@Override
+				
 				public void onClick(View v) {
 
 					performUnlink();
@@ -147,7 +144,7 @@ public class DropboxSettingsActivity extends Activity {
 			// add click listener
 			m_button_select.setOnClickListener(new OnClickListener() {
 
-				@Override
+				
 				public void onClick(View v) {
 
 					performSelect();
@@ -238,7 +235,6 @@ public class DropboxSettingsActivity extends Activity {
 			builder.setTitle(R.string.select_tagstore);
 			builder.setItems(list, new DialogInterface.OnClickListener() {
 
-				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					handleSelection(m_tagstore_list.get(which));
 				} 
@@ -268,9 +264,6 @@ public class DropboxSettingsActivity extends Activity {
 		// get settings editor
 		Editor editor = settings.edit();
 		
-		// read last tagstore name
-		String last_store = settings.getString(ConfigurationSettings.CURRENT_SYNCHRONIZATION_TAGSTORE, "");
-
 		// remove preceding slash
 		String table_name = ((String)tagstore_name).substring(1);
 

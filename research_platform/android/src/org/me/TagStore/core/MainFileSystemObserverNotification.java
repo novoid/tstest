@@ -38,7 +38,7 @@ public class MainFileSystemObserverNotification implements
 		m_launcher = new AddFileTabLauncher();
 	}
 
-	@Override
+	
 	public void notify(String file_name, NotificationType type) {
 
 		//
@@ -62,7 +62,7 @@ public class MainFileSystemObserverNotification implements
 
 		
 		
-		@Override
+		
 		public void run() {
 			
 			//

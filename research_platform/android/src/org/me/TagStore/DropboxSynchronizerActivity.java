@@ -1,15 +1,11 @@
 package org.me.TagStore;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 
 import org.me.TagStore.core.ConfigurationSettings;
-import org.me.TagStore.core.DropboxStorageProvider;
 import org.me.TagStore.core.EventDispatcher;
 import org.me.TagStore.core.Logger;
-import org.me.TagStore.core.NFSStorageProvider;
-import org.me.TagStore.core.SMBStorageProvider;
 import org.me.TagStore.core.StorageProviderFactory;
 import org.me.TagStore.core.SynchronizationAlgorithmBackend;
 import org.me.TagStore.core.SynchronizationAlgorithmBackend.ConflictData;
@@ -22,17 +18,14 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 
 public class DropboxSynchronizerActivity extends Activity implements SynchronizationAlgorithmCallback,  SyncTaskCallback{
@@ -113,6 +106,8 @@ public class DropboxSynchronizerActivity extends Activity implements Synchroniza
 		initializeUI();
 	}
 	
+	
+	/*
 	private boolean test() {
 		
 		NFSStorageProvider provider = (NFSStorageProvider)m_provider;
@@ -150,7 +145,7 @@ public class DropboxSynchronizerActivity extends Activity implements Synchroniza
 		}
 		return false;
 	}
-	
+	*/
 	/**
 	 * initializes the backend
 	 * @return true on success
@@ -161,11 +156,12 @@ public class DropboxSynchronizerActivity extends Activity implements Synchroniza
 		StorageProviderFactory provider_factory = new StorageProviderFactory(DropboxSynchronizerActivity.this);
 		
 		// construct storage provider
-		m_provider = provider_factory.getStorageProviderWithName(ConfigurationSettings.SYNCHRONIZATION_NFS_TYPE);
+		m_provider = provider_factory.getDefaultStorageProvider();
 
+		/*
 		if (!test())
 			return false;
-		
+		*/
 		
 		// construct synchronization backend
 		m_backend = new SynchronizationAlgorithmBackend(m_provider, DropboxSynchronizerActivity.this);
@@ -225,7 +221,7 @@ public class DropboxSynchronizerActivity extends Activity implements Synchroniza
 		if (m_synchronize_button != null) {
 			m_synchronize_button.setOnClickListener(new OnClickListener() {
 
-				@Override
+				
 				public void onClick(View v) {
 					performSynchronization();
 				}
@@ -260,7 +256,6 @@ public class DropboxSynchronizerActivity extends Activity implements Synchroniza
 		// construct sync thread
 		Thread sync_thread = new Thread(new Runnable() {
 
-			@Override
 			public void run() {
 				m_backend.synchronize();
 			}
@@ -305,7 +300,6 @@ public class DropboxSynchronizerActivity extends Activity implements Synchroniza
 	}
 	
 	
-	@Override
 	public void onUploadFile(String file_name) {
 
 		m_current_progress++;
@@ -314,7 +308,6 @@ public class DropboxSynchronizerActivity extends Activity implements Synchroniza
 		
 	}
 
-	@Override
 	public void onDownloadFile(String file_name) {
 
 		m_current_progress++;		
@@ -323,13 +316,11 @@ public class DropboxSynchronizerActivity extends Activity implements Synchroniza
 
 	}
 
-	@Override
 	public void notifyInfo(String msg) {
 
 		setStatusText(msg, STATUS_NOTIFICATION_COLOR);
 	}
 
-	@Override
 	public void notifyError(String msg) {
 
 		setStatusText(msg, STATUS_ERROR_COLOR);
@@ -355,7 +346,6 @@ public class DropboxSynchronizerActivity extends Activity implements Synchroniza
 		
 		runOnUiThread(new Runnable() {
 
-			@Override
 			public void run() {
 
 				// log it
@@ -380,7 +370,6 @@ public class DropboxSynchronizerActivity extends Activity implements Synchroniza
 		
 		runOnUiThread(new Runnable() {
 
-			@Override
 			public void run() {
 			
 				if(m_backend.hasConflicts()) {
@@ -420,7 +409,6 @@ public class DropboxSynchronizerActivity extends Activity implements Synchroniza
 		alert_dialog.setButton("Yes", new DialogInterface.OnClickListener() {
 			
 			
-			@Override
 			public void onClick(DialogInterface dialog, int which) {
 
 				// handle conflict
@@ -431,7 +419,6 @@ public class DropboxSynchronizerActivity extends Activity implements Synchroniza
 		
 		alert_dialog.setButton2("No", new DialogInterface.OnClickListener() {
 			
-			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				
 				if(m_backend.hasConflicts()) {
@@ -460,13 +447,11 @@ public class DropboxSynchronizerActivity extends Activity implements Synchroniza
 	}
 	
 	
-	@Override
 	public void onSyncTaskCompletion(int new_files, int old_files,
 			int modified_files) {
 
 		runOnUiThread(new Runnable() {
 
-			@Override
 			public void run() {
 
 		
@@ -494,11 +479,9 @@ public class DropboxSynchronizerActivity extends Activity implements Synchroniza
 		});
 	}
 
-	@Override
 	public void notifyFileSyncInfo(final int source_files, final int target_files) {
 		runOnUiThread(new Runnable() {
 
-			@Override
 			public void run() {
 
 				// source store files + target store files + 2 * (target store file + target sync store file)

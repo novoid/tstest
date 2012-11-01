@@ -56,7 +56,7 @@ public class IconViewListAdapter extends BaseAdapter {
 		m_LayoutInflater = LayoutInflater.from(context);
 	}
 
-	@Override
+	
 	public int getCount() {
 
 		//
@@ -65,7 +65,7 @@ public class IconViewListAdapter extends BaseAdapter {
 		return m_list_map.size();
 	}
 
-	@Override
+	
 	public Object getItem(int position) {
 
 		//
@@ -74,7 +74,7 @@ public class IconViewListAdapter extends BaseAdapter {
 		return m_list_map.get(position);
 	}
 
-	@Override
+	
 	public long getItemId(int position) {
 
 		//
@@ -83,7 +83,7 @@ public class IconViewListAdapter extends BaseAdapter {
 		return position;
 	}
 
-	@Override
+	
 	public View getView(int position, View convertView, ViewGroup parent) {
 
 		IconViewListItemUIElements element = null;

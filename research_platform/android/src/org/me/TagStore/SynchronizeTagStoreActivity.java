@@ -84,7 +84,7 @@ public class SynchronizeTagStoreActivity extends Activity implements SyncTaskCal
 			//
 			m_synch_button.setOnClickListener(new OnClickListener() {
 
-				@Override
+
 				public void onClick(View v) {
 					//
 					// invoke synchronization
@@ -208,7 +208,6 @@ public class SynchronizeTagStoreActivity extends Activity implements SyncTaskCal
 		
 	}
 	
-	@Override
 	public void onSyncTaskCompletion(int new_files, int old_files,
 			int modified_files) {
 

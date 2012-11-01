@@ -40,7 +40,7 @@ public class IconViewListItemLongClickListener implements OnLongClickListener {
 		m_item_tag = item_tag;
 	}
 
-	@Override
+	
 	public boolean onLongClick(View v) {
 
 		Logger.i("onLongClick: " + m_item_name + " is_tag: " + m_item_tag);

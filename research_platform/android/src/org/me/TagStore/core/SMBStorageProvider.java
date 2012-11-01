@@ -8,9 +8,7 @@ import java.io.StreamTokenizer;
 import java.net.MalformedURLException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.LinkedList;
 
 import jcifs.UniAddress;
 import jcifs.smb.NtlmPasswordAuthentication;
@@ -47,13 +45,13 @@ public class SMBStorageProvider implements StorageProvider {
 	 */
     private UniAddress m_domain;
 	
-	@Override
+	
 	public boolean isLoggedIn() {
 		
 		return m_authentication != null;
 	}
 
-	@Override
+	
 	public ArrayList<String> getFiles(String directory_path, String hash) {
 
 		ArrayList<String> list = new ArrayList<String>();
@@ -88,7 +86,7 @@ public class SMBStorageProvider implements StorageProvider {
 		
 	}
 
-	@Override
+	
 	public boolean isFile(String filepath) {
 
         try {
@@ -112,7 +110,7 @@ public class SMBStorageProvider implements StorageProvider {
 		return false;
 	}
 
-	@Override
+	
 	public boolean uploadFile(String filename, String target_file_path) {
 
         SmbFileOutputStream out = null;
@@ -196,7 +194,7 @@ public class SMBStorageProvider implements StorageProvider {
 		return ret;
 	}
 
-	@Override
+	
 	public boolean downloadFile(String newfile, String source_file_path) {
 
 	     	SmbFileInputStream in = null;
@@ -277,14 +275,14 @@ public class SMBStorageProvider implements StorageProvider {
 			return ret;		
 	}
 
-	@Override
+	
 	public void unlink(Context context) {
 		
 		// reset authentication
 		m_authentication = null;
 	}
 
-	@Override
+	
 	public long getFileSize(String filepath) {
 
         try {
@@ -305,7 +303,7 @@ public class SMBStorageProvider implements StorageProvider {
 		return -1;
 	}
 
-	@Override
+	
 	public void deleteFile(String file_path) {
 
         try {
@@ -324,13 +322,13 @@ public class SMBStorageProvider implements StorageProvider {
 		}
 	}
 
-	@Override
+	
 	public String getFileRevision(String file_path) {
 		// not supported
 		return null;
 	}
 
-	@Override
+	
 	public Date getFileModificationDate(String file_path) {
 		
         try {

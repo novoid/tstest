@@ -312,7 +312,7 @@ public class MainPageAdapter extends FragmentStatePagerAdapter implements
 		return fragment;
 	}
 
-	@Override
+	
 	public int getCount() {
 		return m_fragments.size();
 	}
@@ -322,7 +322,7 @@ public class MainPageAdapter extends FragmentStatePagerAdapter implements
 	//
 	// TabIndicatorCallback support function
 	//	
-	@Override
+	
 	public String getTitle(int position) {
 		return m_titles.get(position);
 	}
@@ -333,17 +333,17 @@ public class MainPageAdapter extends FragmentStatePagerAdapter implements
 	//
 	// ViewPager.OnPageChangeListener interface functions
 	//
-	@Override
+	
 	public void onPageScrollStateChanged(int state) {
 		
 	}
 	
-	@Override
+	
 	public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 		
 	}
 
-	@Override
+	
 	public void onPageSelected(int position) {
 
 		//

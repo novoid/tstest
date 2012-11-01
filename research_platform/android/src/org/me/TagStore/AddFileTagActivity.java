@@ -114,7 +114,6 @@ public class AddFileTagActivity extends Fragment implements OptionsDialogCallbac
 	 */
 	private boolean m_perform_tag = false;
 	
-	@Override
 	public void renamedFile(String old_file_name, String new_file) {
 
 		Logger.i("renamedFile: " + old_file_name + " new file_name: " + new_file);
@@ -166,7 +165,6 @@ public class AddFileTagActivity extends Fragment implements OptionsDialogCallbac
 		//
 	}
 
-	@Override
 	public void renamedTag(String old_tag_name, String new_tag_name) {
 		
 		Logger.i("renamedTag: old_tag_name: " + old_tag_name + " new_tag_name:" + new_tag_name);
@@ -214,7 +212,6 @@ public class AddFileTagActivity extends Fragment implements OptionsDialogCallbac
 		//
 	}
 
-	@Override
 	public void processOptionsDialogCommand(String file_name, boolean ignore) {
 
 		Logger.i("processOptionsDialogCommand: file_name " + file_name
@@ -600,7 +597,7 @@ public class AddFileTagActivity extends Fragment implements OptionsDialogCallbac
         //
 		file_name_text_view.setOnClickListener(new OnClickListener() {
 
-			@Override
+			
 			public void onClick(View v) {
 
 				//
@@ -614,7 +611,7 @@ public class AddFileTagActivity extends Fragment implements OptionsDialogCallbac
 		//
 		file_name_text_view.setOnLongClickListener(new OnLongClickListener() {
 
-			@Override
+			
 			public boolean onLongClick(View v) {
 
 				//
@@ -677,7 +674,7 @@ public class AddFileTagActivity extends Fragment implements OptionsDialogCallbac
 		// add click listener
 		//
 		button.setOnClickListener(new OnClickListener() {
-			@Override
+			
 			public void onClick(View v) {
 				//
 				// call performTag to do the work
@@ -1324,7 +1321,7 @@ public class AddFileTagActivity extends Fragment implements OptionsDialogCallbac
 			m_popular_button = popular_button;
 		}
 
-		@Override
+		
 		public void onClick(View v) {
 
 			//
@@ -1345,7 +1342,7 @@ public class AddFileTagActivity extends Fragment implements OptionsDialogCallbac
 		}
 	}
 
-	@Override
+	
 	public void processMenuFileSelection(MENU_ITEM_ENUM selection) {
 		
 		//

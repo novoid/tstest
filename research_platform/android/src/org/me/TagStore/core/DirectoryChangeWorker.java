@@ -76,7 +76,7 @@ public class DirectoryChangeWorker {
 		//
 		File [] file_list = path.listFiles(new FileFilter() {
 
-			@Override
+			
 			public boolean accept(File pathname) {
 				return (pathname.isDirectory() == false);
 			}

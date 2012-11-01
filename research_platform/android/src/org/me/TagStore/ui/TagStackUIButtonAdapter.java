@@ -188,7 +188,7 @@ public class TagStackUIButtonAdapter extends RelativeLayout
 	 */
 	private class ButtonClickListener implements OnClickListener {
 
-		@Override
+		
 		public void onClick(View arg0) {
 
 			//
@@ -216,7 +216,7 @@ public class TagStackUIButtonAdapter extends RelativeLayout
 	 */
 	private class ButtonLongClickListener implements OnLongClickListener {
 
-		@Override
+		
 		public boolean onLongClick(View arg0) {
 			//
 			// get button text

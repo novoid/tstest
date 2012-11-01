@@ -27,7 +27,7 @@ public class SyncTask implements Runnable {
 	}
 	
 	
-	@Override
+	
 	public void run() {
 
 		//

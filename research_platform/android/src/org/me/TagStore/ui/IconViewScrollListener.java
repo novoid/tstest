@@ -39,7 +39,7 @@ public class IconViewScrollListener implements OnScrollListener {
 	 */
 	int m_item_offset = 0;
 
-	@Override
+	
 	public void onScroll(AbsListView view, int firstVisibleItem,
 			int visibleItemCount, int totalItemCount) {
 

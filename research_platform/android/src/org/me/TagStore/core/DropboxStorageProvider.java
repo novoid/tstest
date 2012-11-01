@@ -37,7 +37,7 @@ public class DropboxStorageProvider implements StorageProvider {
      * tagstore's Dropbox access type
      */
     final static private AccessType ACCESS_TYPE = AccessType.APP_FOLDER;
-    final static private String APP_FOLDER_NAME = "tagstore";
+
     
     /* Dropbox preferences name and access key */
     final static private String ACCOUNT_PREFS_NAME = "prefs";
@@ -97,7 +97,7 @@ public class DropboxStorageProvider implements StorageProvider {
     /* (non-Javadoc)
 	 * @see org.me.TagStore.core.StorageProvider#isLoggedIn()
 	 */
-    @Override
+    
 	public boolean isLoggedIn() {
     	
     	if (mDBApi != null) {
@@ -113,7 +113,7 @@ public class DropboxStorageProvider implements StorageProvider {
     /* (non-Javadoc)
 	 * @see org.me.TagStore.core.StorageProvider#getFiles(java.lang.String, java.lang.String)
 	 */
-    @Override
+    
 	public ArrayList<String> getFiles(String directory_path, String hash) {
     	
     	// check if the api has already been initialized
@@ -149,7 +149,7 @@ public class DropboxStorageProvider implements StorageProvider {
     /* (non-Javadoc)
 	 * @see org.me.TagStore.core.StorageProvider#isFile(java.lang.String)
 	 */
-    @Override
+    
 	public boolean isFile(String filepath) {
     	
     	// check if the api has already been initialized
@@ -219,7 +219,7 @@ public class DropboxStorageProvider implements StorageProvider {
     /* (non-Javadoc)
 	 * @see org.me.TagStore.core.StorageProvider#uploadFile(java.lang.String, java.lang.String, java.lang.String)
 	 */
-    @Override
+    
 	public boolean uploadFile(String filename,
     		                  String target_path) {
     	
@@ -262,7 +262,7 @@ public class DropboxStorageProvider implements StorageProvider {
     /* (non-Javadoc)
 	 * @see org.me.TagStore.core.StorageProvider#downloadFile(java.lang.String, java.lang.String)
 	 */
-    @Override
+    
 	public boolean downloadFile(String newfile,
     		                    String source_path) {
     	
@@ -430,7 +430,7 @@ public class DropboxStorageProvider implements StorageProvider {
     /* (non-Javadoc)
 	 * @see org.me.TagStore.core.StorageProvider#unlink(android.content.Context)
 	 */
-	@Override
+	
 	public void unlink(Context context) {
 
 		if (mDBApi != null)
@@ -460,7 +460,7 @@ public class DropboxStorageProvider implements StorageProvider {
 		
 	}
 
-	@Override
+	
 	public long getFileSize(String filepath) {
 
     	try {

@@ -15,7 +15,6 @@ import org.me.TagStore.interfaces.StorageProvider;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Handler;
 
 public class SynchronizationAlgorithmBackend {
 
@@ -628,6 +627,7 @@ public class SynchronizationAlgorithmBackend {
 
 	}
 	
+	@SuppressWarnings("unused")
 	private void dumpFileLogs() {
 		
         Logger.i("source entries");

@@ -100,7 +100,7 @@ public class SMBSettingsActivity extends Activity {
 			// add click listener
 			m_button_authenticate.setOnClickListener(new OnClickListener() {
 
-				@Override
+
 				public void onClick(View v) {
 
 					performAuthentication();
@@ -116,7 +116,6 @@ public class SMBSettingsActivity extends Activity {
 			// add click listener
 			m_button_unlink.setOnClickListener(new OnClickListener() {
 
-				@Override
 				public void onClick(View v) {
 
 					performUnlink();
@@ -132,7 +131,6 @@ public class SMBSettingsActivity extends Activity {
 			// add click listener
 			m_button_select.setOnClickListener(new OnClickListener() {
 
-				@Override
 				public void onClick(View v) {
 
 					performSelect();
@@ -223,7 +221,7 @@ public class SMBSettingsActivity extends Activity {
 			builder.setTitle(R.string.select_tagstore);
 			builder.setItems(list, new DialogInterface.OnClickListener() {
 
-				@Override
+
 				public void onClick(DialogInterface dialog, int which) {
 					handleSelection(m_tagstore_list.get(which));
 				} 
@@ -294,7 +292,6 @@ public class SMBSettingsActivity extends Activity {
 			// set click listener
 			button_connect.setOnClickListener(new OnClickListener() {
 
-				@Override
 				public void onClick(View v) {
 					
 					if (user_name_txt != null) {

@@ -335,7 +335,7 @@ public class RenameDialogButtonListener implements OnClickListener
 		}
 	}
 	
-	@Override
+	
 	public void onClick(View v) {
 
 		//

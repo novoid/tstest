@@ -354,7 +354,7 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 		refreshView();
 	}
 	
-	@Override
+	
 	public boolean tagButtonLongClicked(String tag) {
 		
 		Logger.i("tagButtonLongClicked: " + tag);
@@ -397,7 +397,7 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 		refreshView();
 	}
 	
-	@Override
+	
 	public void renamedTag(String old_tag_name, String new_tag_name) {
 		//
 		// refresh view
@@ -706,7 +706,7 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 			//
 			Collections.sort(tag_list, new Comparator<String>() {
 
-				@Override
+				
 				public int compare(String tag1, String tag2) {
 
 					//
@@ -935,7 +935,7 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 		buildListView(getView());
 	}
 	
-	@Override
+	
 	public void backKeyPressed() {
 		
 		Logger.i("backKeyPressed");
@@ -951,7 +951,7 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 	}
 
 
-	@Override
+	
 	public void notifyFileTagged(String file_name) {
 
 		Logger.i("notifyFileTagged: " + file_name);

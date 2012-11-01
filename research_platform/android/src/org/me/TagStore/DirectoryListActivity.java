@@ -490,7 +490,7 @@ public class DirectoryListActivity extends ListActivity {
 				// add remove button
 				//
 				map_entry.put(DIRECTORY_IMAGE,
-						new Integer(R.drawable.remove_button));
+						Integer.valueOf(R.drawable.remove_button));
 			}
 			else
 			{
@@ -498,27 +498,27 @@ public class DirectoryListActivity extends ListActivity {
 				// default tagstore storage directory
 				//
 				map_entry.put(DIRECTORY_IMAGE,
-						new Integer(R.drawable.storage_button));
+						Integer.valueOf(R.drawable.storage_button));
 			}
 			
 			//
 			// it is a directory entry
 			//
 			map_entry.put(DIRECTORY_ENTRY,
-					new Boolean(true));
+					Boolean.valueOf(true));
 			
 		} else {
 			//
 			// add "add directory" button
 			//
 			map_entry.put(DIRECTORY_IMAGE,
-					new Integer(R.drawable.add_directory));
+					Integer.valueOf(R.drawable.add_directory));
 			
 			//
 			// not a directory entry
 			//
 			map_entry.put(DIRECTORY_ENTRY,
-					new Boolean(false));
+					Boolean.valueOf(false));
 		}
 
 		//
@@ -680,7 +680,7 @@ public class DirectoryListActivity extends ListActivity {
 			m_LayoutInflater = LayoutInflater.from(activity);
 		}
 
-		@Override
+		
 		public int getCount() {
 
 			//
@@ -689,7 +689,7 @@ public class DirectoryListActivity extends ListActivity {
 			return m_ListViewMap.size();
 		}
 
-		@Override
+		
 		public Object getItem(int index) {
 
 			//
@@ -698,7 +698,7 @@ public class DirectoryListActivity extends ListActivity {
 			return m_ListViewMap.get(index);
 		}
 
-		@Override
+		
 		public long getItemId(int position) {
 
 			//
@@ -708,7 +708,6 @@ public class DirectoryListActivity extends ListActivity {
 		}
 
 		@SuppressWarnings("unchecked")
-		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 
 			//
@@ -849,7 +848,7 @@ public class DirectoryListActivity extends ListActivity {
 
 			}
 
-			@Override
+			
 			public void onClick(View v) {
 
 				//

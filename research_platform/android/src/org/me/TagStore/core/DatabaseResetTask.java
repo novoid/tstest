@@ -31,7 +31,7 @@ public class DatabaseResetTask implements Runnable {
 		m_connection = connection;
 	}
 
-	@Override
+	
 	public void run() {
 
 		//

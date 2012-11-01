@@ -216,7 +216,6 @@ public class TagStoreCloudViewActivity extends Fragment implements GeneralDialog
 		refreshView();
 	}
 	
-	@Override
 	public void renamedTag(String old_tag_name, String new_tag_name) 
 	{
 		//
@@ -338,7 +337,7 @@ public class TagStoreCloudViewActivity extends Fragment implements GeneralDialog
 		refreshView();
 	}
 
-	@Override
+
 	public void processMenuFileSelection(MENU_ITEM_ENUM action_id) {
 
 		//
@@ -385,7 +384,7 @@ public class TagStoreCloudViewActivity extends Fragment implements GeneralDialog
 		m_dialog_operations.performDialogItemOperation(item_path, false, MENU_ITEM_ENUM.MENU_ITEM_OPEN);
 	}
 
-	@Override
+	
 	public void onListItemClick(final String item_name, final boolean is_tag) {
 		
 		//
@@ -393,7 +392,7 @@ public class TagStoreCloudViewActivity extends Fragment implements GeneralDialog
 		//
 		getActivity().runOnUiThread( new Runnable() {
 
-			@Override
+			
 			public void run() {
 				
 				if (!is_tag)
@@ -413,7 +412,7 @@ public class TagStoreCloudViewActivity extends Fragment implements GeneralDialog
 		
 	}
 
-	@Override
+	
 	public void onLongListItemClick(String item_name, boolean is_tag) {
 
 		if (item_name == null)
@@ -442,7 +441,7 @@ public class TagStoreCloudViewActivity extends Fragment implements GeneralDialog
 		}
 	}
 
-	@Override
+	
 	public void backKeyPressed() {
 		
 		Logger.i("cloud view backKeyPressed");
@@ -476,7 +475,7 @@ public class TagStoreCloudViewActivity extends Fragment implements GeneralDialog
 			m_dialog_op = dialog_op;
 		}
 
-		@Override
+		
 		public void run() {
 
 			//
@@ -488,7 +487,7 @@ public class TagStoreCloudViewActivity extends Fragment implements GeneralDialog
 		}
 	}
 
-	@Override
+	
 	public void retaggedFile(String file_name, String tag_text) {
 
 		//
@@ -499,7 +498,7 @@ public class TagStoreCloudViewActivity extends Fragment implements GeneralDialog
 		
 	}
 
-	@Override
+	
 	public void tagButtonClicked(String tag) {
 		Logger.i("tagButtonClicked: " + tag);
 		
@@ -524,7 +523,7 @@ public class TagStoreCloudViewActivity extends Fragment implements GeneralDialog
 		refreshView();
 	}
 
-	@Override
+	
 	public boolean tagButtonLongClicked(String tag) {
 		
 		

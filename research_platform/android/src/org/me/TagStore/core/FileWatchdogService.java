@@ -48,7 +48,7 @@ public class FileWatchdogService extends Service implements org.me.TagStore.core
 	 */
 	private StatusBarNotification m_status_bar;
 	
-	@Override
+	
 	public void onCreate() {
 
 		Logger.e("FileWatchdogService::onCreate");
@@ -72,7 +72,7 @@ public class FileWatchdogService extends Service implements org.me.TagStore.core
 		//
 		m_notification = new FileSystemObserverNotification() {
 
-			@Override
+			
 			public void notify(String file_name, NotificationType type) {
 				notificationCallback(file_name, type);
 
@@ -226,7 +226,7 @@ public class FileWatchdogService extends Service implements org.me.TagStore.core
 
 
 
-	@Override
+	
 	public void onDestroy() {
 		Logger.i("FileWatchdogService::onDestroy");
 		//
@@ -252,7 +252,7 @@ public class FileWatchdogService extends Service implements org.me.TagStore.core
 		StorageTimerTask.acquireInstance().addCallback(this);
 	}
 
-	@Override
+	
 	public int onStartCommand(Intent intent, int flags, int startId) 
 	{
 		
@@ -299,7 +299,7 @@ public class FileWatchdogService extends Service implements org.me.TagStore.core
 	
 	
 	
-	@Override
+	
 	public IBinder onBind(Intent intent) {
 
 		//
@@ -310,7 +310,7 @@ public class FileWatchdogService extends Service implements org.me.TagStore.core
 		return new FileWatchdogServiceBinder<FileWatchdogService>(this);
 	}
 
-	@Override
+	
 	public void diskAvailable() {
 
 		//
@@ -346,7 +346,7 @@ public class FileWatchdogService extends Service implements org.me.TagStore.core
 		}
 	}
 
-	@Override
+	
 	public void diskNotAvailable() {
 
 		//

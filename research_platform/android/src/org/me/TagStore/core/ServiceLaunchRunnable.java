@@ -36,7 +36,7 @@ public class ServiceLaunchRunnable implements Runnable {
 		m_connection = connection;
 	}
 
-	@Override
+	
 	public void run() {
 
 		//
