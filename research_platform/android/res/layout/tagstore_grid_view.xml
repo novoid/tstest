@@ -5,7 +5,7 @@
   android:id="@+id/tagstore_list_view_id"
   android:layout_height="match_parent">
 
-  <org.me.TagStore.ui.TagStackUIButtonAdapter
+  <org.me.tagstore.ui.TagStackUIButtonAdapter
     android:id="@+id/button_adapter"
         android:layout_alignParentTop="true"    
         android:layout_width="fill_parent"

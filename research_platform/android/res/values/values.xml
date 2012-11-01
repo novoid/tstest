@@ -5,8 +5,8 @@
         <item >@string/cloud_view</item>
     </string-array>
     <string-array name="setting_list_view_value">
-        <item >org.me.TagStore.TagStoreGridViewActivity</item>
-        <item >org.me.TagStore.TagStoreCloudViewActivity</item>
+        <item >org.me.tagstore.TagStoreGridViewActivity</item>
+        <item >org.me.tagstore.TagStoreCloudViewActivity</item>
     </string-array>
     <string-array name="icon_view_items_per_row">
         <item >1</item>

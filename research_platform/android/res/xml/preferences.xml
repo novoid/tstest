@@ -10,7 +10,7 @@
             			android:key="display_preference"
             			android:entries="@array/setting_list_view_type"
             			android:entryValues="@array/setting_list_view_value" 
-            			android:defaultValue="org.me.TagStore.TagStoreGridViewActivity">
+            			android:defaultValue="org.me.tagstore.TagStoreGridViewActivity">
         </ListPreference>
         
 		<ListPreference android:title="@string/num_columns"
