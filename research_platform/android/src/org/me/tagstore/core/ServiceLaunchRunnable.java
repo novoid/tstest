@@ -1,13 +1,13 @@
 package org.me.tagstore.core;
 
-
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 
 /**
- * This class implements starting the file watch dog service in a separate thread, which improves startup time
- * @author Johannes Anderwald
- *
+ * This class implements starting the file watch dog service in a separate
+ * thread, which improves startup time
+ * 
  */
 public class ServiceLaunchRunnable implements Runnable {
 
@@ -19,16 +19,19 @@ public class ServiceLaunchRunnable implements Runnable {
 	/**
 	 * stores the service connection
 	 */
-	private final MainServiceConnection m_connection;
-	
-	
+	private ServiceConnection m_connection;
+
 	/**
-	 * constructor of class ServiceLaunchRunnable
+	 * initializes the service launch runnable
+	 * 
 	 * @param context
-	 * @param mainPagerActivity TODO
+	 *            application context
+	 * @param connection
+	 *            service connection
 	 */
-	public ServiceLaunchRunnable(Context context, MainServiceConnection connection) {
-		
+	public void initializeServiceLaunchRunnable(Context context,
+			ServiceConnection connection) {
+
 		//
 		// init members
 		//
@@ -36,7 +39,6 @@ public class ServiceLaunchRunnable implements Runnable {
 		m_connection = connection;
 	}
 
-	
 	public void run() {
 
 		//
@@ -44,7 +46,7 @@ public class ServiceLaunchRunnable implements Runnable {
 		//
 		Intent intent = new Intent(m_context, FileWatchdogService.class);
 		Logger.i("Service::launch " + System.currentTimeMillis());
-		
+
 		//
 		// start service
 		//
@@ -53,8 +55,7 @@ public class ServiceLaunchRunnable implements Runnable {
 		//
 		// bind the service now
 		//
-		m_context.bindService(intent, m_connection,
-				Context.BIND_AUTO_CREATE);
+		m_context.bindService(intent, m_connection, Context.BIND_AUTO_CREATE);
 
 		Logger.d("ServiceLaunchRunnable::run service started");
 	}

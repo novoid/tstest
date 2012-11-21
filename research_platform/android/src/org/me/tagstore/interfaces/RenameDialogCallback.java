@@ -2,7 +2,6 @@ package org.me.tagstore.interfaces;
 
 /**
  * This interface is used as a callback which is invoked when rename button is clicked in the rename dialog
- * @author Johannes Anderwald
  *
  */
 public interface RenameDialogCallback

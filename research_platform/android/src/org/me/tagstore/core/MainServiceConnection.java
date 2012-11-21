@@ -1,104 +1,99 @@
 package org.me.tagstore.core;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 
 import org.me.tagstore.interfaces.FileSystemObserverNotification;
+import org.me.tagstore.interfaces.WatchdogServiceConnection;
 
 import android.content.ComponentName;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 
-public class MainServiceConnection implements ServiceConnection {
+public class MainServiceConnection implements ServiceConnection,
+		WatchdogServiceConnection {
 
 	/**
 	 * holds reference to service
 	 */
-	private FileWatchdogService m_service;
+	private FileWatchdogService m_service = null;
 
 	/**
 	 * stores observer notifications
 	 */
-	private final ArrayList<FileSystemObserverNotification> m_observers;
-	
+	private final HashSet<FileSystemObserverNotification> m_observers = new HashSet<FileSystemObserverNotification>();
+
 	/**
 	 * stores the startup timestamp
 	 */
 	private long m_timestamp;
-	
+
 	/**
 	 * setting if service is connected
 	 */
 	private boolean m_service_connected;
-	
-	/**
-	 * @param mainPagerActivity
-	 */
-	public MainServiceConnection() {
-		
-		//
-		// init members
-		//
-		m_service = null;
-		m_observers = new ArrayList<FileSystemObserverNotification>();
-	}
 
 	/**
 	 * returns true when service is connected
+	 * 
 	 * @return boolean
 	 */
 	public boolean isServiceConnected() {
 		Logger.i("isServiceConnected: " + m_service_connected);
 		return m_service != null;
 	}
-	
+
 	/**
 	 * returns the timestamp when the service has connected
+	 * 
 	 * @return
 	 */
 	public long getServiceConnectTimestamp() {
 		return m_timestamp;
 	}
-	
-	/**
-	 * unregisters the external observers
-	 * @param notification to be unregistered
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.me.tagstore.core.WatchdogServiceConnection#unregisterExternalNotification
+	 * (org.me.tagstore.interfaces.FileSystemObserverNotification)
 	 */
-	public boolean unregisterExternalNotification(FileSystemObserverNotification notification) {
-		
-		if (m_service != null) 
-		{
+	public boolean unregisterExternalNotification(
+			FileSystemObserverNotification notification) {
+
+		if (m_service != null) {
 			//
 			// unregister notification
 			//
 			return m_service.unregisterExternalNotification(notification);
 		}
-		
+
 		//
 		// failed to unregister
 		//
 		return false;
 	}
-	
-	/**
-	 * registers an external observer
-	 * @param notification to be registered
-	 * @return true on success
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.me.tagstore.core.WatchdogServiceConnection#registerExternalNotification
+	 * (org.me.tagstore.interfaces.FileSystemObserverNotification)
 	 */
-	public boolean registerExternalNotification(FileSystemObserverNotification notification) {
-		
+	public boolean registerExternalNotification(
+			FileSystemObserverNotification notification) {
+
 		if (m_service != null) {
 			//
 			// register our notification handler
 			//
 			return m_service.registerExternalNotification(notification);
-		}
-		else
-		{
+		} else {
 			//
 			// perform this synchronized
 			//
-			synchronized(this)
-			{
+			synchronized (this) {
 				//
 				// add to pending notification list
 				//
@@ -106,22 +101,23 @@ public class MainServiceConnection implements ServiceConnection {
 			}
 		}
 	}
-	
-	/**
-	 * registers a new directory to be observed
-	 * @param path to be observed
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.me.tagstore.core.WatchdogServiceConnection#registerDirectory(java
+	 * .lang.String)
 	 */
 	public boolean registerDirectory(String path) {
-		
+
 		if (m_service != null) {
-			
+
 			//
 			// register the path
 			//
 			return m_service.registerDirectory(path);
-		}
-		else
-		{
+		} else {
 			//
 			// no service yet connected
 			//
@@ -129,31 +125,29 @@ public class MainServiceConnection implements ServiceConnection {
 		}
 	}
 
-	/**
-	 * unregisters the directory to be observed
-	 * @param path to be unregisterd
-	 * @return true on success
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.me.tagstore.core.WatchdogServiceConnection#unregisterDirectory(java
+	 * .lang.String)
 	 */
 	public boolean unregisterDirectory(String path) {
-		
-		if (m_service != null)
-		{
+
+		if (m_service != null) {
 			//
 			// unregister path
 			//
 			return m_service.unregisterDirectory(path);
 		}
-		
+
 		//
 		// no service yet connected
 		//
 		return false;
 	}
-	
-	
-	
+
 	@SuppressWarnings("unchecked")
-	
 	public void onServiceConnected(ComponentName name, IBinder service) {
 
 		m_service_connected = true;
@@ -167,27 +161,24 @@ public class MainServiceConnection implements ServiceConnection {
 		// save timestamp
 		//
 		m_timestamp = System.currentTimeMillis();
-		
-		
+
 		Logger.e("Service::launch " + m_timestamp);
-		
+
 		//
 		// register any pending observers
 		//
-		synchronized(this)
-		{
-			for(FileSystemObserverNotification observer : m_observers)
-			{
+		synchronized (this) {
+			for (FileSystemObserverNotification observer : m_observers) {
 				//
 				// register observers
 				//
-				boolean result = m_service.registerExternalNotification(observer);
-				if (!result)
-				{
+				boolean result = m_service
+						.registerExternalNotification(observer);
+				if (!result) {
 					Logger.e("Error: failed to register external observer");
 				}
 			}
-			
+
 			//
 			// clear list
 			//
@@ -196,7 +187,6 @@ public class MainServiceConnection implements ServiceConnection {
 		Logger.i("MainActivity::onServiceConnected service " + m_service);
 	}
 
-	
 	public void onServiceDisconnected(ComponentName name) {
 
 		//

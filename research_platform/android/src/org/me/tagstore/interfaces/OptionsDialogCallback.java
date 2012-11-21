@@ -2,7 +2,6 @@ package org.me.tagstore.interfaces;
 
 /**
  * This interface is used as a call-back mechanism which is invoked a button of the options dialog is pressed
- * @author Johannes Anderwald
  *
  */
 public interface OptionsDialogCallback

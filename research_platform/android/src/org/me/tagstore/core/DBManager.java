@@ -15,7 +15,6 @@ import java.util.ArrayList;
 /**
  * manages access to sqlite engine
  * 
- * @author Johannes Anderwald
  */
 public class DBManager {
 
@@ -73,7 +72,7 @@ public class DBManager {
 	 * name of field for pending file paths
 	 */
 	private final static String PENDING_FIELD_PATH = "pending_file_path";
-	
+
 	/**
 	 * pending file primary key field name
 	 */
@@ -103,12 +102,11 @@ public class DBManager {
 	 * stores the creation date of the file
 	 */
 	private final static String FILE_FIELD_CREATE_DATE = "file_creation_date";
-	
+
 	/**
 	 * stores the hash sum of the file
 	 */
 	private final static String FILE_FIELD_HASH_SUM = "file_hash_sum";
-	
 
 	/**
 	 * name of table tag
@@ -143,8 +141,8 @@ public class DBManager {
 	/**
 	 * mapping id
 	 */
-	private final static String MAP_FIELD_ID="mid";
-	
+	private final static String MAP_FIELD_ID = "mid";
+
 	/**
 	 * tag field map id
 	 */
@@ -155,9 +153,8 @@ public class DBManager {
 	 */
 	private final static String MAP_FIELD_FILE = "fid";
 
-	private final static String SYNC_TABLE_PREFIX ="sync_";
-	
-	
+	private final static String SYNC_TABLE_PREFIX = "sync_";
+
 	/**
 	 * sync table name
 	 */
@@ -172,12 +169,12 @@ public class DBManager {
 	 * sync file path
 	 */
 	private final static String SYNC_FIELD_PATH = "sync_path";
-	
+
 	/**
 	 * sync date
 	 */
 	private final static String SYNC_FIELD_DATE = "sync_date";
-	
+
 	/**
 	 * sync tags
 	 */
@@ -191,8 +188,7 @@ public class DBManager {
 	/**
 	 * sync revision
 	 */
-	private final static String SYNC_FIELD_REV ="sync_rev";
-	
+	private final static String SYNC_FIELD_REV = "sync_rev";
 
 	/**
 	 * gets an instance of the database manager
@@ -241,7 +237,7 @@ public class DBManager {
 		addTag("tag3");
 
 		char[] current_tag = { 'A' };
-		for (int index = 4; index < 27*10; index++) {
+		for (int index = 4; index < 27 * 10; index++) {
 
 			if (index % 10 == 0)
 				current_tag[0]++;
@@ -276,56 +272,62 @@ public class DBManager {
 
 	/**
 	 * stores the result of the cursor in the array list
-	 * @param cursor to collect the results from
-	 * @param result_list contains the result list
+	 * 
+	 * @param cursor
+	 *            to collect the results from
+	 * @param result_list
+	 *            contains the result list
 	 */
 	private void collectResultSet(Cursor cursor, ArrayList<String> result_list) {
-		
+
 		//
 		// are there any data sets
 		//
 		if (!cursor.moveToFirst())
 			return;
-		
+
 		//
 		// add the result
 		//
-		do
-		{
+		do {
 			result_list.add(cursor.getString(0));
-		}while(cursor.moveToNext());
+		} while (cursor.moveToNext());
 	}
-	
+
 	/**
 	 * returns the first column of the first entry
-	 * @param cursor database cursor
+	 * 
+	 * @param cursor
+	 *            database cursor
 	 * @return if there are no entries, then null is returned
 	 */
 	private String getFirstEntryOfResultSet(Cursor cursor) {
-		
+
 		//
 		// are there any data
 		//
 		if (!cursor.moveToFirst())
 			return null;
-		
+
 		//
 		// get first string
 		//
 		String result = cursor.getString(0);
-		
+
 		//
 		// are there more entries
 		//
-		if (cursor.moveToNext())
-		{
+		if (cursor.moveToNext()) {
 			//
 			// BUG: duplicate entries
 			//
 			Logger.e("Duplicate entries found: ");
-			StackTraceElement [] elements = Thread.currentThread().getStackTrace();
-			for(StackTraceElement element : elements)
-				Logger.e("    at " + element.getClassName() + "." + element.getMethodName() + "(" + element.getFileName() + ":" + element.getLineNumber() + ")");
+			StackTraceElement[] elements = Thread.currentThread()
+					.getStackTrace();
+			for (StackTraceElement element : elements)
+				Logger.e("    at " + element.getClassName() + "."
+						+ element.getMethodName() + "(" + element.getFileName()
+						+ ":" + element.getLineNumber() + ")");
 		}
 
 		//
@@ -333,22 +335,23 @@ public class DBManager {
 		//
 		return result;
 	}
-	
+
 	/**
 	 * returns all files present in the tagstore
+	 * 
 	 * @return
 	 */
 	public ArrayList<String> getFiles() {
-		
+
 		if (m_db == null)
-			return null;
-		
+			return new ArrayList<String>();
+
 		//
 		// query database
 		//
-		Cursor cursor = m_db.query(FILE_TABLE_NAME, new String[]{FILE_FIELD_PATH}, null, null, null, null, null);
-		
-		
+		Cursor cursor = m_db.query(FILE_TABLE_NAME,
+				new String[] { FILE_FIELD_PATH }, null, null, null, null, null);
+
 		//
 		// construct array list
 		//
@@ -358,129 +361,78 @@ public class DBManager {
 		// collect result set
 		//
 		collectResultSet(cursor, list);
-		
+
 		//
 		// close cursor
 		//
 		cursor.close();
-		
+
 		//
 		// done
 		//
 		return list;
 	}
-	
-	
-	/**
-	 * inserts a tag
-	 * 
-	 * @param tag_name
-	 *            tag to be inserted
-	 */
-	public void insertTag(String tag_name) {
-
-		//
-		// construct new content values
-		//
-		ContentValues values = new ContentValues();
-
-		//
-		// put tag name
-		//
-		values.put(TAG_FIELD_NAME, tag_name);
-
-		//
-		// construct date format
-		//
-		SimpleDateFormat date_format = new SimpleDateFormat(
-				"yyyy-MM-dd HH:mm:ss");
-
-		//
-		// format date
-		//
-		String date = date_format.format(new Date());
-
-		//
-		// insert date
-		//
-		values.put(TAG_FIELD_CREATE_DATE, date);
-
-		//
-		// insert usage count 1
-		//
-		values.put(TAG_FIELD_USAGE, new Integer(1));
-
-		//
-		// now execute the query
-		//
-		long rows_affected = m_db.insert(TAG_TABLE_NAME, null, values);
-
-		//
-		// informal debug print
-		//
-		Logger.i("DBManager::insertTag inserted " + rows_affected);
-	}
 
 	/**
 	 * returns an array list of files which are associated with this tag
 	 * 
-	 * @param tag_name tag list to be queried
+	 * @param tag_name
+	 *            tag list to be queried
 	 * @return ArrayList<String>
 	 */
 	public ArrayList<String> getLinkedFiles(ArrayList<String> tag_names) {
 
-		String query ="";
-		
+		String query = "";
+
 		//
 		// construct string builder
 		//
 		StringBuilder builder = new StringBuilder();
-		
-		if (tag_names.size() == 1)
-		{
-			query = "SELECT " + MAP_FIELD_FILE + " FROM " + MAP_TABLE_NAME + " WHERE " + 
-			MAP_FIELD_TAG + " =?";
-		}
-		else
-		{
+
+		if (tag_names.size() == 1) {
+			query = "SELECT " + MAP_FIELD_FILE + " FROM " + MAP_TABLE_NAME
+					+ " WHERE " + MAP_FIELD_TAG + " =?";
+		} else {
 			//
 			// build query
 			//
-			for(int index = 0; index < tag_names.size(); index++)
-			{
-				if (builder.length() == 0)
-				{
-					builder.append("SELECT T1." + MAP_FIELD_FILE + " FROM " + MAP_TABLE_NAME + " AS T1 WHERE T1." + MAP_FIELD_TAG + "=?");
-				}
-				else
-				{
+			for (int index = 0; index < tag_names.size(); index++) {
+				if (builder.length() == 0) {
+					builder.append("SELECT T1." + MAP_FIELD_FILE + " FROM "
+							+ MAP_TABLE_NAME + " AS T1 WHERE T1."
+							+ MAP_FIELD_TAG + "=?");
+				} else {
 					int pos = builder.indexOf(" FROM");
-					String str = ", T" + Integer.toString(index + 1) + "." + MAP_FIELD_FILE;
+					String str = ", T" + Integer.toString(index + 1) + "."
+							+ MAP_FIELD_FILE;
 					builder.insert(pos, str);
-					
+
 					pos = builder.indexOf(" WHERE");
-					str = ", " + MAP_TABLE_NAME + " AS T" + Integer.toString(index + 1);
+					str = ", " + MAP_TABLE_NAME + " AS T"
+							+ Integer.toString(index + 1);
 					builder.insert(pos, str);
-					
-					str = " AND T"  + Integer.toString(index + 1) + "." + MAP_FIELD_TAG + " =? AND T1." + MAP_FIELD_FILE + " = T" + Integer.toString(index + 1) + "." + MAP_FIELD_FILE;
+
+					str = " AND T" + Integer.toString(index + 1) + "."
+							+ MAP_FIELD_TAG + " =? AND T1." + MAP_FIELD_FILE
+							+ " = T" + Integer.toString(index + 1) + "."
+							+ MAP_FIELD_FILE;
 					builder.append(str);
 				}
-				
+
 				query = builder.toString();
 			}
 		}
-		
-		String [] ids = new String[tag_names.size()];
-		for(int index = 0; index < tag_names.size(); index++)
-		{
+
+		String[] ids = new String[tag_names.size()];
+		for (int index = 0; index < tag_names.size(); index++) {
 			//
 			// convert to ids
 			//
-			ids[index] = new String(Long.toString(getTagId(tag_names.get(index))));
+			ids[index] = new String(
+					Long.toString(getTagId(tag_names.get(index))));
 		}
 
-		Cursor cursor = m_db.rawQuery(query,
-				ids);
+		Cursor cursor = m_db.rawQuery(query, ids);
 
 		if (cursor.moveToFirst() == false) {
 			//
@@ -497,17 +449,19 @@ public class DBManager {
 		ArrayList<String> list = new ArrayList<String>();
 
 		do {
-			
+
 			//
 			// add result
 			//
-			Cursor file_cursor = m_db.query(FILE_TABLE_NAME, new String[] {FILE_FIELD_PATH}, FILE_FIELD_ID + "=?", new String[]{cursor.getString(0)}, null, null, null);
-			
+			Cursor file_cursor = m_db.query(FILE_TABLE_NAME,
+					new String[] { FILE_FIELD_PATH }, FILE_FIELD_ID + "=?",
+					new String[] { cursor.getString(0) }, null, null, null);
+
 			//
 			// collect result
 			//
 			collectResultSet(file_cursor, list);
-			
+
 			//
 			// close cursor
 			//
@@ -529,29 +483,29 @@ public class DBManager {
 	/**
 	 * returns a list of tags which are linked to these tags
 	 * 
-	 * @param tag_stack list of selected tags
+	 * @param tag_stack
+	 *            list of selected tags
 	 * @return
 	 */
 	public ArrayList<String> getLinkedTags(ArrayList<String> tag_names) {
 
-		
 		ArrayList<String> result_list = new ArrayList<String>();
-		
-		for (String tag : tag_names) 
-		{
-			final String query = "SELECT " + TAG_FIELD_NAME + " FROM " + TAG_TABLE_NAME
-			+ " WHERE " + TAG_FIELD_ID + " IN (SELECT DISTINCT "
-			+ TAG_FIELD_ID + " FROM " + MAP_TABLE_NAME + " WHERE "
-			+ FILE_FIELD_ID + " IN ( SELECT " + FILE_FIELD_ID + " FROM "
-			+ MAP_TABLE_NAME + " WHERE " + TAG_FIELD_ID + " = ?) AND "
-			+ TAG_FIELD_ID + "<> ? )";
-			
-			String [] ids = new String[2];
+
+		for (String tag : tag_names) {
+			final String query = "SELECT " + TAG_FIELD_NAME + " FROM "
+					+ TAG_TABLE_NAME + " WHERE " + TAG_FIELD_ID
+					+ " IN (SELECT DISTINCT " + TAG_FIELD_ID + " FROM "
+					+ MAP_TABLE_NAME + " WHERE " + FILE_FIELD_ID
+					+ " IN ( SELECT " + FILE_FIELD_ID + " FROM "
+					+ MAP_TABLE_NAME + " WHERE " + TAG_FIELD_ID + " = ?) AND "
+					+ TAG_FIELD_ID + "<> ? )";
+
+			String[] ids = new String[2];
 			ids[0] = new String(Long.toString(getTagId(tag)));
 			ids[1] = new String(Long.toString(getTagId(tag)));
-			
+
 			Cursor cursor = m_db.rawQuery(query, ids);
-		
+
 			//
 			// construct array list
 			//
@@ -561,23 +515,21 @@ public class DBManager {
 			// collect result
 			//
 			collectResultSet(cursor, list);
-			
+
 			//
 			// close cursor
 			//
 			cursor.close();
-			
-			if (tag_names.indexOf(tag) == 0)
-			{
+
+			if (tag_names.indexOf(tag) == 0) {
 				//
 				// first entry
 				//
 				result_list.addAll(list);
-			}
-			else
-			{
+			} else {
 				//
-				// remove all tags from the result list which were not found while querying the current tag
+				// remove all tags from the result list which were not found
+				// while querying the current tag
 				//
 				result_list.retainAll(list);
 			}
@@ -592,7 +544,7 @@ public class DBManager {
 
 		if (m_db == null)
 			return null;
-		
+
 		Cursor cursor = m_db.query(TAG_TABLE_NAME,
 				new String[] { TAG_FIELD_NAME }, null, null, null, null,
 				TAG_FIELD_NAME + " ASC");
@@ -611,7 +563,7 @@ public class DBManager {
 		// close cursor
 		//
 		cursor.close();
-		
+
 		//
 		// return result list
 		//
@@ -627,7 +579,7 @@ public class DBManager {
 
 		if (m_db == null)
 			return null;
-			
+
 		Cursor cursor = m_db.query(TAG_TABLE_NAME, new String[] {
 				TAG_FIELD_NAME, TAG_FIELD_USAGE }, null, null, null, null,
 				TAG_FIELD_USAGE + " DESC");
@@ -641,12 +593,11 @@ public class DBManager {
 		// collect result
 		//
 		collectResultSet(cursor, list);
-		
+
 		//
 		// close cursor
 		//
 		cursor.close();
-
 
 		//
 		// return result list
@@ -664,7 +615,7 @@ public class DBManager {
 
 		if (m_db == null)
 			return null;
-		
+
 		Cursor cursor = m_db
 				.query(TAG_TABLE_NAME, new String[] { TAG_FIELD_NAME,
 						TAG_FIELD_USAGE }, null, null, null, null, null);
@@ -802,24 +753,25 @@ public class DBManager {
 
 	/**
 	 * removes a pending file from the database
-	 * @param filename file to be removed from the pending list
+	 * 
+	 * @param filename
+	 *            file to be removed from the pending list
 	 * @return true on success
 	 */
 	public boolean removePendingFile(String filename) {
-		
+
 		if (m_db == null)
 			return false;
-		
+
 		//
 		// remove file from pending file list
 		//
 		int pending_affected = m_db.delete(PENDING_FILE_TABLE_NAME,
-					PENDING_FIELD_PATH + "=?", new String[] { filename });
-	
+				PENDING_FIELD_PATH + "=?", new String[] { filename });
+
 		return pending_affected != 0;
 	}
-	
-	
+
 	/**
 	 * removes a file from the database
 	 * 
@@ -841,9 +793,8 @@ public class DBManager {
 			//
 			// remove file from tag store
 			//
-			file_cache_affected = m_db.delete(FILE_TABLE_NAME,
-					FILE_FIELD_PATH + "=?", new String[] { filename });
-
+			file_cache_affected = m_db.delete(FILE_TABLE_NAME, FILE_FIELD_PATH
+					+ "=?", new String[] { filename });
 
 			//
 			// informal debug message
@@ -864,39 +815,42 @@ public class DBManager {
 
 	/**
 	 * returns date of the file
+	 * 
 	 * @param file_name
 	 * @return
 	 */
 	public String getFileDate(String file_name) {
-		
+
 		//
 		// query database
 		//
 		Cursor cursor = m_db.query(FILE_TABLE_NAME,
-				new String[] { FILE_FIELD_CREATE_DATE}, FILE_FIELD_PATH + "=?",
-				new String[] { file_name }, null, null, null);
-		
+				new String[] { FILE_FIELD_CREATE_DATE },
+				FILE_FIELD_PATH + "=?", new String[] { file_name }, null, null,
+				null);
+
 		//
 		// get first entry of result set
 		//
 		String result = getFirstEntryOfResultSet(cursor);
-		
+
 		//
 		// close cursor
 		//
 		cursor.close();
-		
+
 		//
 		// done
 		//
 		return result;
 
 	}
-	
-	
+
 	/**
 	 * returns the hash sum of a stored file
-	 * @param file_name name of the file
+	 * 
+	 * @param file_name
+	 *            name of the file
 	 * @return hash sum hex coded string
 	 */
 	public String getHashsum(String file_name) {
@@ -904,26 +858,26 @@ public class DBManager {
 		// query database
 		//
 		Cursor cursor = m_db.query(FILE_TABLE_NAME,
-				new String[] { FILE_FIELD_HASH_SUM}, FILE_FIELD_PATH + "=?",
+				new String[] { FILE_FIELD_HASH_SUM }, FILE_FIELD_PATH + "=?",
 				new String[] { file_name }, null, null, null);
 
 		//
 		// get first entry of result set
 		//
 		String result = getFirstEntryOfResultSet(cursor);
-		
+
 		//
 		// close cursor
 		//
 		cursor.close();
-		
+
 		//
 		// done
 		//
 		return result;
 
 	}
-	
+
 	/**
 	 * returns the tag id corresponding to this tag
 	 * 
@@ -941,12 +895,12 @@ public class DBManager {
 		// get first entry of result set
 		//
 		String result = getFirstEntryOfResultSet(cursor);
-		
+
 		//
 		// close cursor
 		//
 		cursor.close();
-		
+
 		if (result == null)
 			return -1;
 		else
@@ -964,7 +918,7 @@ public class DBManager {
 
 		if (m_db == null)
 			return -1;
-		
+
 		Cursor cursor = m_db.query(FILE_TABLE_NAME,
 				new String[] { FILE_FIELD_ID }, FILE_FIELD_PATH + "=?",
 				new String[] { file_name }, null, null, null);
@@ -973,13 +927,12 @@ public class DBManager {
 		// get first entry of result set
 		//
 		String result = getFirstEntryOfResultSet(cursor);
-		
+
 		//
 		// close cursor
 		//
 		cursor.close();
-		
-		
+
 		if (result == null)
 			return -1;
 		else
@@ -988,20 +941,25 @@ public class DBManager {
 
 	/**
 	 * adds a sync date
-	 * @param store_name name of the store
-	 * @param remote_path remove path
-	 * @param rev file revision
-	 * @param time_stamp file time stamp
-	 * @param hash_sum file hash sum
+	 * 
+	 * @param store_name
+	 *            name of the store
+	 * @param remote_path
+	 *            remove path
+	 * @param rev
+	 *            file revision
+	 * @param time_stamp
+	 *            file time stamp
+	 * @param hash_sum
+	 *            file hash sum
 	 * @return true on success
 	 */
 	public boolean addSyncFileLog(String store_name, String remote_path,
 			String rev, String time_stamp, String hash_sum) {
-		
-		// table name 
+
+		// table name
 		String table_name = SYNC_TABLE_PREFIX + store_name;
-		
-	
+
 		// construct new content values
 		ContentValues values = new ContentValues();
 
@@ -1010,83 +968,80 @@ public class DBManager {
 		values.put(SYNC_FIELD_DATE, time_stamp);
 		values.put(SYNC_FIELD_HASH_SUM, hash_sum);
 		values.put(SYNC_FIELD_REV, rev);
-		
+
 		long rows_affected;
 		if (getSyncFileRev(store_name, remote_path) != null) {
-			
+
 			// update row
-			rows_affected = m_db.update(table_name, values, SYNC_FIELD_PATH + "=?", new String[]{remote_path});
-		}
-		else
-		{
+			rows_affected = m_db.update(table_name, values, SYNC_FIELD_PATH
+					+ "=?", new String[] { remote_path });
+		} else {
 			// add mapping
 			rows_affected = m_db.insert(table_name, null, values);
 		}
-		
+
 		if (rows_affected == 0)
 			return false;
 		else
-			return true;		
-		
+			return true;
+
 	}
-	
+
 	public String getSyncFileRev(String store_name, String file_name) {
-		
+
 		if (m_db == null)
 			return null;
-		
-		// table name 
-		String table_name = SYNC_TABLE_PREFIX + store_name;	
-		
-		
-		Cursor cursor = m_db.query(table_name,
-				new String[] { SYNC_FIELD_REV }, SYNC_FIELD_PATH + "=?",
-				new String[] { file_name }, null, null, null);
+
+		// table name
+		String table_name = SYNC_TABLE_PREFIX + store_name;
+
+		Cursor cursor = m_db.query(table_name, new String[] { SYNC_FIELD_REV },
+				SYNC_FIELD_PATH + "=?", new String[] { file_name }, null, null,
+				null);
 
 		//
 		// get first entry of result set
 		//
 		String result = getFirstEntryOfResultSet(cursor);
-		
+
 		//
 		// close cursor
 		//
 		cursor.close();
 		return result;
 	}
-	
-	
+
 	/**
 	 * return true when file is already pending
+	 * 
 	 * @param file_name
 	 * @return
 	 */
 	public boolean isPendingFile(String file_name) {
-		
+
 		if (m_db == null)
 			return false;
-		
+
 		Cursor cursor = m_db.query(PENDING_FILE_TABLE_NAME,
-				new String[] { PENDING_FIELD_ID}, PENDING_FIELD_PATH + "=?",
+				new String[] { PENDING_FIELD_ID }, PENDING_FIELD_PATH + "=?",
 				new String[] { file_name }, null, null, null);
 
 		//
 		// get first entry of result set
 		//
 		String result = getFirstEntryOfResultSet(cursor);
-		
+
 		//
 		// close cursor
 		//
 		cursor.close();
-		
-		
+
 		if (result == null)
 			return false;
 		else
-			return true;		
+			return true;
 	}
-	
+
 	/**
 	 * set tag reference count
 	 * 
@@ -1121,53 +1076,53 @@ public class DBManager {
 
 	/**
 	 * deletes a tag from the database and removes all associated files from it
+	 * 
 	 * @param tag_name
 	 */
 	public void deleteTag(String tag_name) {
-		
+
 		//
 		// first get the tag id
 		//
 		long tag_id = getTagId(tag_name);
-		if (tag_id < 0)
-		{
+		if (tag_id < 0) {
 			//
 			// invalid tag
 			//
 			return;
 		}
-		
-		
+
 		//
 		// now query all associated files
 		//
-		Cursor cursor = m_db.query(MAP_TABLE_NAME, new String[] {MAP_FIELD_FILE}, MAP_FIELD_TAG + " =?",  new String[] {Long.toString(tag_id)}, null, null, null);
-		
+		Cursor cursor = m_db.query(MAP_TABLE_NAME,
+				new String[] { MAP_FIELD_FILE }, MAP_FIELD_TAG + " =?",
+				new String[] { Long.toString(tag_id) }, null, null, null);
+
 		//
 		// are there any files associated?
 		//
-		if (cursor.moveToFirst() == false)
-		{
+		if (cursor.moveToFirst() == false) {
 			//
 			// no files associated
 			//
-			Logger.i("Error: tag " + tag_name + " has no associated files tag id:" + tag_id);
+			Logger.i("Error: tag " + tag_name
+					+ " has no associated files tag id:" + tag_id);
 			cursor.close();
 			return;
 		}
-		
-		do
-		{
+
+		do {
 			//
 			// get file id
 			//
 			long file_id = cursor.getLong(0);
-			
-			
-			
-			String raw_query = "SELECT COUNT(*) FROM " + MAP_TABLE_NAME + " WHERE " + MAP_FIELD_FILE + "= ? ";
-			Cursor raw_cursor = m_db.rawQuery(raw_query, new String[]{Long.toString(file_id)});
-			
+
+			String raw_query = "SELECT COUNT(*) FROM " + MAP_TABLE_NAME
+					+ " WHERE " + MAP_FIELD_FILE + "= ? ";
+			Cursor raw_cursor = m_db.rawQuery(raw_query,
+					new String[] { Long.toString(file_id) });
+
 			if (raw_cursor.moveToFirst() == false) {
 				//
 				// no entries -> bug
@@ -1181,14 +1136,15 @@ public class DBManager {
 			// get number of tags associated to this file
 			//
 			int tags_associated = raw_cursor.getInt(0);
-			
-			if (tags_associated == 1)
-			{
+
+			if (tags_associated == 1) {
 				//
-				// the file has only one tag associated -> the tag which is deleted
+				// the file has only one tag associated -> the tag which is
+				// deleted
 				// remove the file from the store
 				//
-				m_db.delete(FILE_TABLE_NAME, FILE_FIELD_ID + "=?", new String[]{Long.toString(file_id)});
+				m_db.delete(FILE_TABLE_NAME, FILE_FIELD_ID + "=?",
+						new String[] { Long.toString(file_id) });
 				Logger.i("Removed file id: " + file_id + " from store");
 			}
 
@@ -1196,16 +1152,14 @@ public class DBManager {
 			// close cursor
 			//
 			raw_cursor.close();
-			
 
-		}while(cursor.moveToNext());
-		
-		
+		} while (cursor.moveToNext());
+
 		//
 		// close the cursor
 		//
 		cursor.close();
-		
+
 		//
 		// now remove all entries from the mapping table
 		//
@@ -1214,10 +1168,10 @@ public class DBManager {
 		//
 		// now remove the tag from tag table
 		//
-		m_db.delete(TAG_TABLE_NAME, TAG_FIELD_ID + "=?", new String[]{Long.toString(tag_id)});
+		m_db.delete(TAG_TABLE_NAME, TAG_FIELD_ID + "=?",
+				new String[] { Long.toString(tag_id) });
 	}
-	
-	
+
 	/**
 	 * creates an entry in the map table between file and tag
 	 * 
@@ -1227,7 +1181,7 @@ public class DBManager {
 	 *            id of tag
 	 * @return true on success
 	 */
-	boolean addFileTagMapping(long file_id, long tag_id) {
+	public boolean addFileTagMapping(long file_id, long tag_id) {
 
 		//
 		// construct new content values
@@ -1265,6 +1219,12 @@ public class DBManager {
 	 *            to be added
 	 */
 	public void addTag(String tag) {
+
+		//
+		// check if it already exists
+		//
+		if (getTagId(tag) != -1)
+			return;
 
 		//
 		// construct new content values
@@ -1316,14 +1276,13 @@ public class DBManager {
 	 */
 	public ArrayList<String> getPendingFiles() {
 
-		if (m_db == null)
-		{
+		if (m_db == null) {
 			//
 			// database not yet initialized
 			//
 			return null;
 		}
-		
+
 		Cursor cursor = m_db.query(PENDING_FILE_TABLE_NAME,
 				new String[] { PENDING_FIELD_PATH }, null, null, null, null,
 				PENDING_FIELD_ID + " DESC");
@@ -1337,13 +1296,12 @@ public class DBManager {
 		// collect result set
 		//
 		collectResultSet(cursor, list);
-		
-		
+
 		//
 		// close cursor
 		//
 		cursor.close();
-		
+
 		//
 		// done
 		//
@@ -1356,14 +1314,18 @@ public class DBManager {
 	 * 
 	 * @param file_name
 	 *            to be added
-	 * @param hash_sum 
+	 * @param hash_sum
 	 * @return true
 	 */
 	public void addPendingFile(String file_name) {
 
 		if (m_db == null)
 			return;
-		
+
+		// check if it already exists
+		if (getPendingFileId(file_name) != -1)
+			return;
+
 		//
 		// construct new content values
 		//
@@ -1373,7 +1335,7 @@ public class DBManager {
 		// put file path into it
 		//
 		values.put(PENDING_FIELD_PATH, file_name);
-	
+
 		//
 		// now execute the insert
 		//
@@ -1385,6 +1347,31 @@ public class DBManager {
 		Logger.i("DBManager::addPendingFile> rows_affected: " + rows_affected);
 	}
 
+	private long getPendingFileId(String file_name) {
+
+		if (m_db == null)
+			return -1;
+
+		Cursor cursor = m_db.query(PENDING_FILE_TABLE_NAME,
+				new String[] { PENDING_FIELD_ID }, PENDING_FIELD_PATH + "=?",
+				new String[] { file_name }, null, null, null);
+
+		//
+		// get first entry of result set
+		//
+		String result = getFirstEntryOfResultSet(cursor);
+
+		//
+		// close cursor
+		//
+		cursor.close();
+
+		if (result == null)
+			return -1;
+		else
+			return Long.parseLong(result);
+	}
+
 	/**
 	 * adds a file to the tag store
 	 * 
@@ -1394,7 +1381,7 @@ public class DBManager {
 	 *            mime type of file
 	 * @param file_create_date
 	 *            create date of file
-	 * @param hash_sum 
+	 * @param hash_sum
 	 * @return row id of inserted file
 	 */
 	public long addFile(String file_name, String file_type,
@@ -1402,7 +1389,7 @@ public class DBManager {
 
 		if (m_db == null)
 			return -1;
-		
+
 		//
 		// construct content values
 		//
@@ -1422,7 +1409,7 @@ public class DBManager {
 		// add create date
 		//
 		values.put(FILE_FIELD_CREATE_DATE, file_create_date);
-		
+
 		//
 		// add file hash sum
 		//
@@ -1447,13 +1434,14 @@ public class DBManager {
 	/**
 	 * adds an directory to the observed directory list
 	 * 
-	 * @param directory to be observed
+	 * @param directory
+	 *            to be observed
 	 */
 	public boolean addDirectory(String directory) {
 
 		if (m_db == null)
 			return false;
-		
+
 		//
 		// construct new content values
 		//
@@ -1501,14 +1489,12 @@ public class DBManager {
 		// delete directory from observed table list
 		//
 		long rows_affected = m_db.delete(DIRECTORY_TABLE_NAME,
-				DIRECTORY_FIELD_PATH + "=?",
-				new String[] { directory_path });
+				DIRECTORY_FIELD_PATH + "=?", new String[] { directory_path });
 
 		//
 		// informal debug message
 		//
-		Logger.i("DBManager::removeDirectory> executeInsert: "
-				+ rows_affected);
+		Logger.i("DBManager::removeDirectory> executeInsert: " + rows_affected);
 
 		//
 		// done
@@ -1517,35 +1503,36 @@ public class DBManager {
 	}
 
 	/**
-	 * queries the directory table if the passed directory path is added to the list of observed directories
-	 * @param directory_path directory path to check
+	 * queries the directory table if the passed directory path is added to the
+	 * list of observed directories
+	 * 
+	 * @param directory_path
+	 *            directory path to check
 	 * @return true when it is observed false if not
 	 */
 	public boolean isDirectoryObserved(String directory_path) {
-		
+
 		Cursor cursor = m_db.query(DIRECTORY_TABLE_NAME,
-				new String[] { DIRECTORY_FIELD_ID }, DIRECTORY_FIELD_PATH + "=?",
-				new String[] { directory_path }, null, null, null);
+				new String[] { DIRECTORY_FIELD_ID }, DIRECTORY_FIELD_PATH
+						+ "=?", new String[] { directory_path }, null, null,
+				null);
 
 		//
 		// get first entry of result set
 		//
 		String result = getFirstEntryOfResultSet(cursor);
-		
+
 		//
 		// close cursor
 		//
 		cursor.close();
-		
-		
+
 		if (result == null)
 			return false;
 		else
 			return true;
 	}
-	
-	
-	
+
 	/**
 	 * returns all observed directories
 	 * 
@@ -1557,28 +1544,27 @@ public class DBManager {
 		// construct array list
 		//
 		ArrayList<String> list = new ArrayList<String>();
-		
+
 		if (m_db == null)
 			return list;
-		
+
 		//
 		// read directories
 		//
 		Cursor cursor = m_db.query(DIRECTORY_TABLE_NAME,
-				new String[] { DIRECTORY_FIELD_PATH }, null, null, null,
-				null, null);
+				new String[] { DIRECTORY_FIELD_PATH }, null, null, null, null,
+				null);
 
 		//
 		// collect result
 		//
-		collectResultSet(cursor, list);			
+		collectResultSet(cursor, list);
 
 		//
 		// close cursor
 		//
 		cursor.close();
-		
-		
+
 		//
 		// return result list
 		//
@@ -1587,17 +1573,18 @@ public class DBManager {
 
 	/**
 	 * returns a list of directories which have the same file name
+	 * 
 	 * @param file_name
 	 * @return
 	 */
 	public ArrayList<String> getSimilarFilePaths(String file_name) {
-		
+
 		//
 		// read directories
 		//
 		Cursor cursor = m_db.query(FILE_TABLE_NAME,
-				new String[] { FILE_FIELD_PATH }, FILE_FIELD_PATH + " LIKE ?", new String[]{"%/" + file_name}, null,
-				null, null);
+				new String[] { FILE_FIELD_PATH }, FILE_FIELD_PATH + " LIKE ?",
+				new String[] { "%/" + file_name }, null, null, null);
 
 		//
 		// construct array list
@@ -1613,13 +1600,13 @@ public class DBManager {
 		// close cursor
 		//
 		cursor.close();
-		
+
 		//
 		// return result list
 		//
 		return list;
 	}
-	
+
 	public boolean renameTag(String old_tag_name, String new_tag_name) {
 		//
 		// construct new content values
@@ -1636,25 +1623,28 @@ public class DBManager {
 		//
 		long affected = m_db.update(TAG_TABLE_NAME, values, TAG_FIELD_NAME
 				+ "=?", new String[] { old_tag_name });
-		
+
 		//
 		// informal debug print
 		//
 		Logger.i("DBManager::renameTag> result " + affected);
-		
+
 		//
 		// return result
 		//
-		return affected != -1;
+		return affected != 0;
 	}
-	
+
 	/**
 	 * renames a file in the database
-	 * @param old_file_name old file name
-	 * @param new_file_name new file name
+	 * 
+	 * @param old_file_name
+	 *            old file name
+	 * @param new_file_name
+	 *            new file name
 	 */
-	public void renameFile(String old_file_name, String new_file_name) {
-		
+	public boolean renameFile(String old_file_name, String new_file_name) {
+
 		//
 		// construct new content values
 		//
@@ -1671,47 +1661,49 @@ public class DBManager {
 		long affected = m_db.update(FILE_TABLE_NAME, values, FILE_FIELD_PATH
 				+ "=?", new String[] { old_file_name });
 
-		if (affected == 0)
-		{
+		if (affected == 0) {
 			//
 			// try rename in the pending list
 			//
 			values = new ContentValues();
 			values.put(PENDING_FIELD_PATH, new_file_name);
-			
-			affected = m_db.update(PENDING_FILE_TABLE_NAME, values, PENDING_FIELD_PATH + "=?", new String[] {old_file_name});
+
+			affected = m_db.update(PENDING_FILE_TABLE_NAME, values,
+					PENDING_FIELD_PATH + "=?", new String[] { old_file_name });
 		}
-		
-		
+
 		//
 		// informal debug print
 		//
 		Logger.i("DBManager::renameFile> result " + affected);
-		
+		return affected != 0;
 	}
 
 	/**
 	 * returns all associated tags of that file
-	 * @param file_name file name whose tags are returned
+	 * 
+	 * @param file_name
+	 *            file name whose tags are returned
 	 * @return list of tags
 	 */
 	public ArrayList<String> getAssociatedTags(String file_name) {
-		
+
 		//
 		// first get the file id
 		//
 		long fid = getFileId(file_name);
-		if (fid < 0)
-		{
+		if (fid < 0) {
 			//
 			// invalid file id
 			//
 			return null;
 		}
-		
-		String raw_query = "SELECT " + TAG_FIELD_NAME + " FROM " + TAG_TABLE_NAME + " WHERE " + TAG_FIELD_ID 
-		+ " IN (SELECT " + MAP_FIELD_TAG + " FROM " + MAP_TABLE_NAME + " WHERE " + MAP_FIELD_FILE + " = ? )";
-		
+
+		String raw_query = "SELECT " + TAG_FIELD_NAME + " FROM "
+				+ TAG_TABLE_NAME + " WHERE " + TAG_FIELD_ID + " IN (SELECT "
+				+ MAP_FIELD_TAG + " FROM " + MAP_TABLE_NAME + " WHERE "
+				+ MAP_FIELD_FILE + " = ? )";
+
 		Cursor cursor = m_db.rawQuery(raw_query,
 				new String[] { Long.toString(fid) });
 
@@ -1719,7 +1711,7 @@ public class DBManager {
 		// construct array list
 		//
 		ArrayList<String> list = new ArrayList<String>();
-		
+
 		//
 		// return result list
 		//
@@ -1729,52 +1721,49 @@ public class DBManager {
 		// close cursor
 		//
 		cursor.close();
-		
-		
+
 		//
 		// return result list
 		//
 		return list;
 	}
-	
+
 	/**
 	 * create sync table
-	 * @param name of the store
+	 * 
+	 * @param name
+	 *            of the store
 	 */
 	public boolean createSyncTable(String store_name) {
-		
-		// table name 
-		String table_name = SYNC_TABLE_PREFIX + store_name;	
+
+		// table name
+		String table_name = SYNC_TABLE_PREFIX + store_name;
 
 		// create table
-		String sql_stmt = "CREATE TABLE IF NOT EXISTS " + table_name + "(" +
-		SYNC_FIELD_ID + " INTEGER primary key" + "," +  
-        SYNC_FIELD_PATH + " TEXT" + "," + 
-        SYNC_FIELD_DATE + " TEXT" + "," + 
-        SYNC_FIELD_HASH_SUM + " TEXT" + "," +
-        SYNC_FIELD_REV + " TEXT" + ")";
-		
+		String sql_stmt = "CREATE TABLE IF NOT EXISTS " + table_name + "("
+				+ SYNC_FIELD_ID + " INTEGER primary key" + ","
+				+ SYNC_FIELD_PATH + " TEXT" + "," + SYNC_FIELD_DATE + " TEXT"
+				+ "," + SYNC_FIELD_HASH_SUM + " TEXT" + "," + SYNC_FIELD_REV
+				+ " TEXT" + ")";
+
 		Logger.i("execute: " + sql_stmt);
-		
-		try
-		{
+
+		try {
 			// execute sql
 			m_db.execSQL(sql_stmt);
 			return true;
-		}
-		catch(SQLException exc)
-		{
+		} catch (SQLException exc) {
 			Logger.e("SQLException while executing " + sql_stmt);
 		}
 		// failed
 		return false;
 	}
-	
+
 	public boolean resetDatabase(Context ctx) {
 
 		if (m_db == null)
 			return false;
-		
+
 		//
 		// now close the database
 		//
@@ -1798,7 +1787,7 @@ public class DBManager {
 		//
 		// construct test database
 		//
-		//constructTestDatabase();
+		// constructTestDatabase();
 
 		//
 		// return result
@@ -1806,7 +1795,7 @@ public class DBManager {
 		return deleted_database;
 	}
 
-	public void initialize(Context ctx) {
+	public void initializeDBManager(Context ctx) {
 
 		if (m_db == null) {
 
@@ -1861,14 +1850,16 @@ public class DBManager {
 		layout.addFieldToSQLTableLayout(FILE_FIELD_TYPE, "TEXT", "type of file");
 		layout.addFieldToSQLTableLayout(FILE_FIELD_CREATE_DATE, "TEXT",
 				"creation date of file");
-		layout.addFieldToSQLTableLayout(FILE_FIELD_HASH_SUM, "TEXT", "hash sum of file");
+		layout.addFieldToSQLTableLayout(FILE_FIELD_HASH_SUM, "TEXT",
+				"hash sum of file");
 		m_layouts.add(layout);
 
 		//
 		// construct the mapping table
 		//
 		layout = new SQLTableLayout(MAP_TABLE_NAME);
-		layout.addFieldToSQLTableLayout(MAP_FIELD_ID, "INTEGER primary key", "map id");
+		layout.addFieldToSQLTableLayout(MAP_FIELD_ID, "INTEGER primary key",
+				"map id");
 		layout.addFieldToSQLTableLayout(MAP_FIELD_FILE, "INTEGER", "file id");
 		layout.addFieldToSQLTableLayout(MAP_FIELD_TAG, "INTEGER", "tag id");
 		m_layouts.add(layout);
@@ -1877,8 +1868,8 @@ public class DBManager {
 		// construct the directory table
 		//
 		layout = new SQLTableLayout(DIRECTORY_TABLE_NAME);
-		layout.addFieldToSQLTableLayout(DIRECTORY_FIELD_ID, "INTEGER primary key",
-				"directory id");
+		layout.addFieldToSQLTableLayout(DIRECTORY_FIELD_ID,
+				"INTEGER primary key", "directory id");
 		layout.addFieldToSQLTableLayout(DIRECTORY_FIELD_PATH, "TEXT",
 				"path of directory");
 		m_layouts.add(layout);
@@ -1887,22 +1878,25 @@ public class DBManager {
 		// construct pending file table
 		//
 		layout = new SQLTableLayout(PENDING_FILE_TABLE_NAME);
-		layout.addFieldToSQLTableLayout(PENDING_FIELD_ID, "INTEGER primary key",
-				"pending id");
+		layout.addFieldToSQLTableLayout(PENDING_FIELD_ID,
+				"INTEGER primary key", "pending id");
 		layout.addFieldToSQLTableLayout(PENDING_FIELD_PATH, "TEXT",
 				"pending path of file");
 		m_layouts.add(layout);
-		
-		
+
 		//
 		// construct synchronized table
 		//
 		layout = new SQLTableLayout(SYNC_TABLE_NAME);
-		layout.addFieldToSQLTableLayout(SYNC_FIELD_ID, "INTEGER primary key", "sync id");
-		layout.addFieldToSQLTableLayout(SYNC_FIELD_PATH, "TEXT", "path of synced file");
+		layout.addFieldToSQLTableLayout(SYNC_FIELD_ID, "INTEGER primary key",
+				"sync id");
+		layout.addFieldToSQLTableLayout(SYNC_FIELD_PATH, "TEXT",
+				"path of synced file");
 		layout.addFieldToSQLTableLayout(SYNC_FIELD_DATE, "TEXT", "sync date");
-		layout.addFieldToSQLTableLayout(SYNC_FIELD_TAGS, "TEXT", "tags of synced file");
-		layout.addFieldToSQLTableLayout(SYNC_FIELD_HASH_SUM, "TEXT", "hash sum of synced file");
+		layout.addFieldToSQLTableLayout(SYNC_FIELD_TAGS, "TEXT",
+				"tags of synced file");
+		layout.addFieldToSQLTableLayout(SYNC_FIELD_HASH_SUM, "TEXT",
+				"hash sum of synced file");
 		m_layouts.add(layout);
 	}
 
@@ -2098,9 +2092,5 @@ public class DBManager {
 			onCreate(db);
 		}
 	}
-
-
-
-
 
 }

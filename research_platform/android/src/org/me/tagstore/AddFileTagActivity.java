@@ -28,7 +28,6 @@ import org.me.tagstore.ui.ToastManager;
 import org.me.tagstore.ui.UIEditorActionListener;
 import org.me.tagstore.ui.UITagTextWatcher;
 
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -48,9 +47,8 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.TextView;
 
-public class AddFileTagActivity extends Fragment implements OptionsDialogCallback, 
-															RenameDialogCallback, 
-															GeneralDialogCallback {
+public class AddFileTagActivity extends Fragment implements
+		OptionsDialogCallback, RenameDialogCallback, GeneralDialogCallback {
 
 	/**
 	 * stores the file name of the currently tagged file
@@ -58,8 +56,8 @@ public class AddFileTagActivity extends Fragment implements OptionsDialogCallbac
 	private String m_file_name = "";
 
 	/**
-	 * stores the file path of the file which has the same file name as the current file name and which is
-	 * already present in the tag store
+	 * stores the file path of the file which has the same file name as the
+	 * current file name and which is already present in the tag store
 	 */
 	private String m_duplicate_file_name = "";
 
@@ -77,7 +75,7 @@ public class AddFileTagActivity extends Fragment implements OptionsDialogCallbac
 	 * common dialog operations object
 	 */
 	private DialogItemOperations m_dialog_operations;
-	
+
 	/**
 	 * stores the button ids
 	 */
@@ -109,18 +107,19 @@ public class AddFileTagActivity extends Fragment implements OptionsDialogCallbac
 	 * dialog fragment
 	 */
 	private CommonDialogFragment m_fragment = null;
-	
+
 	/**
 	 * indicator if the tagging should be performed automatically
 	 */
 	private boolean m_perform_tag = false;
-	
+
 	public void renamedFile(String old_file_name, String new_file) {
 
-		Logger.i("renamedFile: " + old_file_name + " new file_name: " + new_file);
-		
+		Logger.i("renamedFile: " + old_file_name + " new file_name: "
+				+ new_file);
+
 		if (old_file_name.compareTo(m_file_name) == 0) {
-			
+
 			//
 			// set file name
 			//
@@ -133,7 +132,7 @@ public class AddFileTagActivity extends Fragment implements OptionsDialogCallbac
 					R.id.pending_file_list);
 
 			if (file_name_text_view != null) {
-				
+
 				//
 				// update file name in the text view
 				//
@@ -141,35 +140,32 @@ public class AddFileTagActivity extends Fragment implements OptionsDialogCallbac
 				content.setSpan(new UnderlineSpan(), 0, content.length(), 0);
 				file_name_text_view.setText(content);
 			}
-			
+
 			//
 			// perform tag
 			//
-			if (m_perform_tag)
-			{
+			if (m_perform_tag) {
 				performTag();
 			}
-		}
-		else if (old_file_name.compareTo(m_rename_file_name) == 0)
-		{
-			if (m_perform_tag)
-			{
+		} else if (old_file_name.compareTo(m_rename_file_name) == 0) {
+			if (m_perform_tag) {
 				//
 				// the existing file in the tagstore got renamed
 				//
 				performTag();
 			}
 		}
-		
+
 		//
 		// a file got renamed which does not interest us at the moment
 		//
 	}
 
 	public void renamedTag(String old_tag_name, String new_tag_name) {
-		
-		Logger.i("renamedTag: old_tag_name: " + old_tag_name + " new_tag_name:" + new_tag_name);
-		
+
+		Logger.i("renamedTag: old_tag_name: " + old_tag_name + " new_tag_name:"
+				+ new_tag_name);
+
 		//
 		// first scan the active buttons if the old tag name is present
 		//
@@ -195,19 +191,18 @@ public class AddFileTagActivity extends Fragment implements OptionsDialogCallbac
 		//
 		// search in popular list
 		//
-		if (m_popular_tags.contains(old_tag_name))
-		{
+		if (m_popular_tags.contains(old_tag_name)) {
 			//
 			// remove old tag name
 			//
 			m_popular_tags.remove(old_tag_name);
-			
+
 			//
 			// add new tag name
 			//
 			m_popular_tags.add(new_tag_name);
 		}
-		
+
 		//
 		// FIXME: should the current tag line be updated too?
 		//
@@ -225,27 +220,27 @@ public class AddFileTagActivity extends Fragment implements OptionsDialogCallbac
 
 		if (ignore) {
 			if (file_name.compareTo(m_duplicate_file_name) == 0) {
-				
+
 				//
 				// remove the file from the tag store
 				//
 				db_man.removeFile(file_name);
-				
+
 				//
 				// tag the file
 				//
 				performTag();
-				
+
 			} else if (file_name.compareTo(m_file_name) == 0) {
 				//
 				// remove file from pending list
 				//
 				db_man.removePendingFile(file_name);
-				
+
 				//
 				// update GUI
 				//
-				initialize(getView(), false);				
+				initialize(getView(), false);
 			}
 		} else {
 			//
@@ -256,7 +251,9 @@ public class AddFileTagActivity extends Fragment implements OptionsDialogCallbac
 			//
 			// display dialog
 			//
-			CommonDialogFragment dialog_fragment = CommonDialogFragment.newInstance(getActivity(), m_rename_file_name, false, DialogIds.DIALOG_RENAME);
+			CommonDialogFragment dialog_fragment = CommonDialogFragment
+					.newInstance(getActivity(), m_rename_file_name, false,
+							DialogIds.DIALOG_RENAME);
 			dialog_fragment.setDialogItemOperation(m_dialog_operations);
 			dialog_fragment.show(getFragmentManager(), "FIXME");
 		}
@@ -270,7 +267,7 @@ public class AddFileTagActivity extends Fragment implements OptionsDialogCallbac
 		super.onPause();
 
 		Logger.i("AddFile::onPause");
-		
+
 		if (m_text_view != null) {
 
 			//
@@ -282,7 +279,7 @@ public class AddFileTagActivity extends Fragment implements OptionsDialogCallbac
 			// convert to string
 			//
 			String tag_line = edit.toString();
-			
+
 			//
 			// store in editor
 			//
@@ -312,24 +309,28 @@ public class AddFileTagActivity extends Fragment implements OptionsDialogCallbac
 	}
 
 	public void onStop() {
-		
+
 		//
 		// inform base class
 		//
 		super.onStop();
-		
+
 		//
 		// unregister us from event dispatcher
 		//
-		EventDispatcher.getInstance().unregisterEvent(EventDispatcher.EventId.TAG_RENAMED_EVENT, this);
-		EventDispatcher.getInstance().unregisterEvent(EventDispatcher.EventId.FILE_RENAMED_EVENT, this);
-		EventDispatcher.getInstance().unregisterEvent(EventDispatcher.EventId.ITEM_CONFLICT_EVENT, this);
-		EventDispatcher.getInstance().unregisterEvent(EventDispatcher.EventId.ITEM_MENU_EVENT, this);		
+		EventDispatcher.getInstance().unregisterEvent(
+				EventDispatcher.EventId.TAG_RENAMED_EVENT, this);
+		EventDispatcher.getInstance().unregisterEvent(
+				EventDispatcher.EventId.FILE_RENAMED_EVENT, this);
+		EventDispatcher.getInstance().unregisterEvent(
+				EventDispatcher.EventId.ITEM_CONFLICT_EVENT, this);
+		EventDispatcher.getInstance().unregisterEvent(
+				EventDispatcher.EventId.ITEM_MENU_EVENT, this);
 	}
-	
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		
+
 		//
 		// let base class initialize
 		//
@@ -338,20 +339,35 @@ public class AddFileTagActivity extends Fragment implements OptionsDialogCallbac
 		//
 		// construct on create dialog operations object
 		//
-		m_dialog_operations = new DialogItemOperations(getActivity(), getFragmentManager());
-		
+		m_dialog_operations = new DialogItemOperations();
+		FileTagUtility utility = new FileTagUtility();
+		utility.initializeFileTagUtility();
+
+		FileDialogBuilder builder = new FileDialogBuilder();
+		builder.initializeFileDialogBuilder(DBManager.getInstance(), utility);
+
+		m_dialog_operations.initDialogItemOperations(getActivity(),
+				getFragmentManager(), utility, ToastManager.getInstance(),
+				builder);
+
 		//
 		// create status bar
 		//
-		m_status_bar = new StatusBarNotification(getActivity().getApplicationContext());
-		
+		m_status_bar = new StatusBarNotification();
+		m_status_bar.initializeStatusBarNotification(getActivity()
+				.getApplicationContext());
+
 		//
 		// register us with the event dispatcher
 		//
-		EventDispatcher.getInstance().registerEvent(EventDispatcher.EventId.TAG_RENAMED_EVENT, this);
-		EventDispatcher.getInstance().registerEvent(EventDispatcher.EventId.FILE_RENAMED_EVENT, this);
-		EventDispatcher.getInstance().registerEvent(EventDispatcher.EventId.ITEM_CONFLICT_EVENT, this);		
-		EventDispatcher.getInstance().registerEvent(EventDispatcher.EventId.ITEM_MENU_EVENT, this);
+		EventDispatcher.getInstance().registerEvent(
+				EventDispatcher.EventId.TAG_RENAMED_EVENT, this);
+		EventDispatcher.getInstance().registerEvent(
+				EventDispatcher.EventId.FILE_RENAMED_EVENT, this);
+		EventDispatcher.getInstance().registerEvent(
+				EventDispatcher.EventId.ITEM_CONFLICT_EVENT, this);
+		EventDispatcher.getInstance().registerEvent(
+				EventDispatcher.EventId.ITEM_MENU_EVENT, this);
 	}
 
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -368,7 +384,6 @@ public class AddFileTagActivity extends Fragment implements OptionsDialogCallbac
 		return view;
 	}
 
-	
 	/**
 	 * collapses the screen keyboard
 	 */
@@ -378,12 +393,11 @@ public class AddFileTagActivity extends Fragment implements OptionsDialogCallbac
 		// get activity
 		//
 		Activity activity = getActivity();
-		if (activity != null)
-		{
-			InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
-		
-			if (imm != null && m_text_view != null)
-			{
+		if (activity != null) {
+			InputMethodManager imm = (InputMethodManager) activity
+					.getSystemService(Context.INPUT_METHOD_SERVICE);
+
+			if (imm != null && m_text_view != null) {
 				imm.hideSoftInputFromWindow(m_text_view.getWindowToken(), 0);
 			}
 		}
@@ -410,7 +424,7 @@ public class AddFileTagActivity extends Fragment implements OptionsDialogCallbac
 			// set current tag line
 			//
 			setCurrentPreferenceTagLine("");
-			
+
 			//
 			// no more files
 			//
@@ -419,7 +433,7 @@ public class AddFileTagActivity extends Fragment implements OptionsDialogCallbac
 			//
 			// remove add file tag fragment
 			//
-			adapter.removeAddFileTagFragment();			
+			adapter.removeAddFileTagFragment();
 			return;
 		}
 
@@ -536,6 +550,10 @@ public class AddFileTagActivity extends Fragment implements OptionsDialogCallbac
 		// construct pending file checker
 		//
 		PendingFileChecker file_checker = new PendingFileChecker();
+		FileTagUtility utility = new FileTagUtility();
+		utility.initializeFileTagUtility();
+		file_checker.initializePendingFileChecker(DBManager.getInstance(),
+				utility);
 
 		//
 		// are there pending files
@@ -591,20 +609,21 @@ public class AddFileTagActivity extends Fragment implements OptionsDialogCallbac
 		//
 		SpannableString content = new SpannableString(m_file_name);
 		content.setSpan(new UnderlineSpan(), 0, content.length(), 0);
-		file_name_text_view.setText(content);		
+		file_name_text_view.setText(content);
 
-        //
-        // set file name click listener
-        //
+		//
+		// set file name click listener
+		//
 		file_name_text_view.setOnClickListener(new OnClickListener() {
 
-			
 			public void onClick(View v) {
 
 				//
 				// launch file
 				//
-				m_dialog_operations.performDialogItemOperation(m_file_name, false, FileDialogBuilder.MENU_ITEM_ENUM.MENU_ITEM_OPEN);			}
+				m_dialog_operations.performDialogItemOperation(m_file_name,
+						false, FileDialogBuilder.MENU_ITEM_ENUM.MENU_ITEM_OPEN);
+			}
 		});
 
 		//
@@ -612,30 +631,30 @@ public class AddFileTagActivity extends Fragment implements OptionsDialogCallbac
 		//
 		file_name_text_view.setOnLongClickListener(new OnLongClickListener() {
 
-			
 			public boolean onLongClick(View v) {
 
 				//
 				// don't tag when the dialog is finished
 				//
 				m_perform_tag = false;
-				
+
 				//
 				// launch file options dialog
 				//
-				m_fragment = CommonDialogFragment.newInstance(getActivity(), m_file_name, false, DialogIds.DIALOG_GENERAL_FILE_MENU);
-				m_fragment.setDialogItemOperation(m_dialog_operations);			
+				m_fragment = CommonDialogFragment.newInstance(getActivity(),
+						m_file_name, false, DialogIds.DIALOG_GENERAL_FILE_MENU);
+				m_fragment.setDialogItemOperation(m_dialog_operations);
 				m_fragment.show(getFragmentManager(), "FIXME");
-				Logger.i("onLongClick: " + m_file_name + "fragment: " + m_fragment);		
-				
+				Logger.i("onLongClick: " + m_file_name + "fragment: "
+						+ m_fragment);
+
 				//
 				// handled
 				//
 				return true;
 			}
 		});
-		
-		
+
 		//
 		// get reference to auto complete field
 		//
@@ -654,9 +673,15 @@ public class AddFileTagActivity extends Fragment implements OptionsDialogCallbac
 		m_text_view.setOnEditorActionListener(new UIEditorActionListener());
 
 		//
+		// construct text watcher
+		//
+		UITagTextWatcher watcher = new UITagTextWatcher();
+		watcher.initializeUITagTextWatcher(true, true);
+
+		//
 		// add text changed listener
 		//
-		m_text_view.addTextChangedListener(new UITagTextWatcher(true));
+		m_text_view.addTextChangedListener(watcher);
 
 		//
 		// get the tag me button
@@ -675,7 +700,7 @@ public class AddFileTagActivity extends Fragment implements OptionsDialogCallbac
 		// add click listener
 		//
 		button.setOnClickListener(new OnClickListener() {
-			
+
 			public void onClick(View v) {
 				//
 				// call performTag to do the work
@@ -727,12 +752,12 @@ public class AddFileTagActivity extends Fragment implements OptionsDialogCallbac
 	}
 
 	private void initTags() {
-		
+
 		//
 		// new tags list
 		//
 		m_popular_tags = new LinkedHashSet<String>();
-		
+
 		//
 		// acquire database manager instance
 		//
@@ -754,30 +779,28 @@ public class AddFileTagActivity extends Fragment implements OptionsDialogCallbac
 
 		Logger.i("TagStoreListViewActivity::fillListMap sort_mode " + sort_mode);
 
-		
-		ArrayList<String> tags = null;		
-		
-		if (VocabularyManager.getInstance().getControlledVocabularyState())
-		{
+		ArrayList<String> tags = null;
+
+		if (VocabularyManager.getInstance().getControlledVocabularyState()) {
 			//
 			// get controlled vocabulary
 			//
-			HashSet<String> vocabulary = VocabularyManager.getInstance().getVocabulary();
-			
-			if (vocabulary != null)
-			{
+			HashSet<String> vocabulary = VocabularyManager.getInstance()
+					.getVocabulary();
+
+			if (vocabulary != null) {
 				//
 				// add all vocabulary entries
 				//
 				m_popular_tags.addAll(vocabulary);
-			}			
-			
+			}
+
 			//
 			// done for now
 			//
-			return;			
+			return;
 		}
-		
+
 		if (sort_mode
 				.compareTo(ConfigurationSettings.LIST_VIEW_SORT_MODE_ALPHABETIC) == 0) {
 			//
@@ -798,18 +821,15 @@ public class AddFileTagActivity extends Fragment implements OptionsDialogCallbac
 			tags = null;
 			Logger.e("Error: AddFileTagActivity::initTags get recent tags is not implemented yet");
 		}
-		
-		if (tags != null)
-		{
+
+		if (tags != null) {
 			//
 			// add all tags
 			//
 			m_popular_tags.addAll(tags);
 		}
 	}
-	
-	
-	
+
 	/**
 	 * initializes the tag buttons
 	 * 
@@ -821,7 +841,7 @@ public class AddFileTagActivity extends Fragment implements OptionsDialogCallbac
 		// init tags
 		//
 		initTags();
-		
+
 		if (m_popular_tags == null || m_popular_tags.size() == 0) {
 			//
 			// no tags to add
@@ -844,12 +864,11 @@ public class AddFileTagActivity extends Fragment implements OptionsDialogCallbac
 					button.setVisibility(View.INVISIBLE);
 				}
 			}
-			
+
 			//
 			// restore tag field contents
 			//
-			if (m_text_view != null)
-			{
+			if (m_text_view != null) {
 				//
 				// set line
 				//
@@ -860,8 +879,7 @@ public class AddFileTagActivity extends Fragment implements OptionsDialogCallbac
 				//
 				m_text_view.setSelection(m_text_view.length());
 			}
-			
-			
+
 			return true;
 		}
 
@@ -881,8 +899,7 @@ public class AddFileTagActivity extends Fragment implements OptionsDialogCallbac
 		int number_tags = Math.min(NUMBER_POPULAR_TAGS, m_popular_tags.size());
 
 		int index = 0;
-		for(String popular_tag : m_popular_tags.toArray(new String[1]))
-		{
+		for (String popular_tag : m_popular_tags.toArray(new String[1])) {
 			//
 			// initialize popular button
 			//
@@ -893,7 +910,7 @@ public class AddFileTagActivity extends Fragment implements OptionsDialogCallbac
 			// remove tag
 			//
 			m_popular_tags.remove(popular_tag);
-			
+
 			//
 			// update index
 			//
@@ -987,7 +1004,8 @@ public class AddFileTagActivity extends Fragment implements OptionsDialogCallbac
 				//
 				// field is empty
 				//
-				m_text_view.setText(button_text + ConfigurationSettings.TAG_DELIMITER);
+				m_text_view.setText(button_text
+						+ ConfigurationSettings.TAG_DELIMITER);
 			} else {
 
 				//
@@ -1002,12 +1020,16 @@ public class AddFileTagActivity extends Fragment implements OptionsDialogCallbac
 					//
 					// no need to put a separator before the tag is appended
 					//
-					m_text_view.append(button_text + ConfigurationSettings.TAG_DELIMITER);
+					m_text_view.append(button_text
+							+ ConfigurationSettings.TAG_DELIMITER);
 				} else {
 					//
 					// add delimiter before appending the tag
 					//
-					m_text_view.append(ConfigurationSettings.TAG_DELIMITER + button_text + ConfigurationSettings.TAG_DELIMITER);
+					m_text_view
+							.append(ConfigurationSettings.TAG_DELIMITER
+									+ button_text
+									+ ConfigurationSettings.TAG_DELIMITER);
 				}
 			}
 
@@ -1062,36 +1084,35 @@ public class AddFileTagActivity extends Fragment implements OptionsDialogCallbac
 
 	/**
 	 * gets an editor for common preferences
+	 * 
 	 * @return
 	 */
 	private SharedPreferences.Editor getEditor() {
-		
+
 		//
 		// get activity
 		//
 		Activity activity = getActivity();
-		if (activity != null)
-		{
+		if (activity != null) {
 			//
 			// get settings
 			//
 			SharedPreferences settings = activity.getSharedPreferences(
-				ConfigurationSettings.TAGSTORE_PREFERENCES_NAME,
-				Context.MODE_PRIVATE);		
-			
+					ConfigurationSettings.TAGSTORE_PREFERENCES_NAME,
+					Context.MODE_PRIVATE);
+
 			//
 			// get settings editor
 			//
 			return settings.edit();
 		}
-		
+
 		//
 		// no activity!
 		//
 		return null;
 	}
-	
-	
+
 	/**
 	 * updates the current file in the shared settings. If file name is empty,
 	 * 
@@ -1104,12 +1125,12 @@ public class AddFileTagActivity extends Fragment implements OptionsDialogCallbac
 		// get editor
 		//
 		SharedPreferences.Editor editor = getEditor();
-		if (editor != null)
-		{
+		if (editor != null) {
 			//
 			// set current file
 			//
-			editor.putString(ConfigurationSettings.CURRENT_FILE_TO_TAG, file_name);
+			editor.putString(ConfigurationSettings.CURRENT_FILE_TO_TAG,
+					file_name);
 
 			Logger.e("AddFileTagActivity::setCurrentPreferenceFile file_name "
 					+ file_name);
@@ -1122,13 +1143,12 @@ public class AddFileTagActivity extends Fragment implements OptionsDialogCallbac
 	}
 
 	private void setCurrentPreferenceTagLine(String tag_line) {
-		
+
 		//
 		// get editor
 		//
 		SharedPreferences.Editor editor = getEditor();
-		if (editor != null)
-		{
+		if (editor != null) {
 			//
 			// all files have been tagged, clear current tag line
 			//
@@ -1145,12 +1165,11 @@ public class AddFileTagActivity extends Fragment implements OptionsDialogCallbac
 	 * removes notification from notification manager
 	 */
 	protected void removeNotification() {
-		
+
 		//
 		// remove status bar notification when enabled
 		//
-		if (m_status_bar.isStatusBarNotificationEnabled())
-		{
+		if (m_status_bar.isStatusBarNotificationEnabled()) {
 			//
 			// cancel it
 			//
@@ -1173,9 +1192,15 @@ public class AddFileTagActivity extends Fragment implements OptionsDialogCallbac
 		}
 
 		//
+		// create file tag utility
+		//
+		FileTagUtility utility = new FileTagUtility();
+		utility.initializeFileTagUtility();
+
+		//
 		// first validate the tags
 		//
-		if (!FileTagUtility.validateTags(tag_text, m_text_view)) {
+		if (!utility.validateTags(tag_text, m_text_view)) {
 
 			//
 			// done for now
@@ -1187,16 +1212,18 @@ public class AddFileTagActivity extends Fragment implements OptionsDialogCallbac
 		// check if it is unique
 		//
 		if (!isFileNameUnique(m_file_name)) {
-			
+
 			//
 			// enable auto-tag mode
 			//
 			m_perform_tag = true;
-			
+
 			//
 			// show options dialog
 			//
-			CommonDialogFragment dialog_fragment = CommonDialogFragment.newInstance(getActivity(), m_file_name, false, DialogIds.DIALOG_OPTIONS);
+			CommonDialogFragment dialog_fragment = CommonDialogFragment
+					.newInstance(getActivity(), m_file_name, false,
+							DialogIds.DIALOG_OPTIONS);
 			dialog_fragment.setDialogItemOperation(m_dialog_operations);
 			dialog_fragment.show(getFragmentManager(), "FIXME");
 			return;
@@ -1206,63 +1233,70 @@ public class AddFileTagActivity extends Fragment implements OptionsDialogCallbac
 		// extract file name from path
 		//
 		String file_name = new File(m_file_name).getName();
-		
-		
+
+		//
+		// construct tag validator
+		//
+		TagValidator validator = new TagValidator();
+
 		//
 		// check if the file name contains invalid characters
 		//
-		if (TagValidator.containsReservedCharacters(file_name))
-		{
+		if (validator.containsReservedCharacters(file_name)) {
 			//
 			// display toast
 			//
-			ToastManager.getInstance().displayToastWithString(R.string.reserved_character_file_name);
+			ToastManager.getInstance().displayToastWithString(
+					R.string.reserved_character_file_name);
 			Logger.e("invalid character found in " + file_name);
-			
-			//
-			// enable auto-tag mode
-			//
-			m_perform_tag = true;
-			
-			//
-			// launch rename dialog
-			//
-			CommonDialogFragment dialog_fragment = CommonDialogFragment.newInstance(getActivity(), m_file_name, false, DialogIds.DIALOG_RENAME);
-			dialog_fragment.setDialogItemOperation(m_dialog_operations);
-			dialog_fragment.show(getFragmentManager(), "FIXME");
-			return;			
-		}
-		
-		
-		//
-		// check if the file name is a reserved keyword
-		//
-		if (TagValidator.isReservedKeyword(file_name))
-		{
-			//
-			// not allowed
-			//
-			ToastManager.getInstance().displayToastWithString(R.string.reserved_keyword_file_name);
 
 			//
 			// enable auto-tag mode
 			//
 			m_perform_tag = true;
-			
+
 			//
 			// launch rename dialog
 			//
-			CommonDialogFragment dialog_fragment = CommonDialogFragment.newInstance(getActivity(), m_file_name, false, DialogIds.DIALOG_RENAME);
+			CommonDialogFragment dialog_fragment = CommonDialogFragment
+					.newInstance(getActivity(), m_file_name, false,
+							DialogIds.DIALOG_RENAME);
 			dialog_fragment.setDialogItemOperation(m_dialog_operations);
 			dialog_fragment.show(getFragmentManager(), "FIXME");
 			return;
 		}
-		
+
+		//
+		// check if the file name is a reserved keyword
+		//
+		if (validator.isReservedKeyword(file_name)) {
+			//
+			// not allowed
+			//
+			ToastManager.getInstance().displayToastWithString(
+					R.string.reserved_keyword_file_name);
+
+			//
+			// enable auto-tag mode
+			//
+			m_perform_tag = true;
+
+			//
+			// launch rename dialog
+			//
+			CommonDialogFragment dialog_fragment = CommonDialogFragment
+					.newInstance(getActivity(), m_file_name, false,
+							DialogIds.DIALOG_RENAME);
+			dialog_fragment.setDialogItemOperation(m_dialog_operations);
+			dialog_fragment.show(getFragmentManager(), "FIXME");
+			return;
+		}
+
 		//
 		// add file
 		//
-		if (FileTagUtility.tagFile(m_file_name, tag_text, true) == false) {
-			
+		if (utility.tagFile(m_file_name, tag_text, true) == false) {
+
 			//
 			// failed to tag
 			//
@@ -1272,8 +1306,10 @@ public class AddFileTagActivity extends Fragment implements OptionsDialogCallbac
 		//
 		// dispatch tagged event
 		//
-		EventDispatcher.getInstance().signalEvent(EventDispatcher.EventId.FILE_TAGGED_EVENT, new Object[]{m_file_name});
-		
+		EventDispatcher.getInstance().signalEvent(
+				EventDispatcher.EventId.FILE_TAGGED_EVENT,
+				new Object[] { m_file_name });
+
 		Logger.i("AddFileTag::performTag file : " + m_file_name
 				+ " added to database");
 
@@ -1291,7 +1327,7 @@ public class AddFileTagActivity extends Fragment implements OptionsDialogCallbac
 	 * @author Johannes Anderwald
 	 * 
 	 */
-	private class ButtonTagClickListener implements OnClickListener {
+	public class ButtonTagClickListener implements OnClickListener {
 
 		/**
 		 * indicates that one of the popular button were pressed
@@ -1322,7 +1358,6 @@ public class AddFileTagActivity extends Fragment implements OptionsDialogCallbac
 			m_popular_button = popular_button;
 		}
 
-		
 		public void onClick(View v) {
 
 			//
@@ -1343,34 +1378,33 @@ public class AddFileTagActivity extends Fragment implements OptionsDialogCallbac
 		}
 	}
 
-	
 	public void processMenuFileSelection(MENU_ITEM_ENUM selection) {
-		
+
 		//
 		// check if the view is current visible
 		//
-		if (MainPageAdapter.getInstance().getCurrentItem() != 1)
-		{
+		if (MainPageAdapter.getInstance().getCurrentItem() != 1) {
 			//
-			// HACK: ViewPageAdapter does not call onPause when switching to next fragment
+			// HACK: ViewPageAdapter does not call onPause when switching to
+			// next fragment
 			//
 			return;
 		}
-		
+
 		//
 		// defer control to common dialog operations object
 		//
-		m_dialog_operations.performDialogItemOperation(m_file_name, false, selection);
-		
-	    //	
-	    // check if the operation was a file deletion action
-	    //	
-		if (selection == MENU_ITEM_ENUM.MENU_ITEM_DELETE)
-		{
+		m_dialog_operations.performDialogItemOperation(m_file_name, false,
+				selection);
+
+		//
+		// check if the operation was a file deletion action
+		//
+		if (selection == MENU_ITEM_ENUM.MENU_ITEM_DELETE) {
 			//
 			// reinit view
 			//
-			initialize(getView(), false);			
+			initialize(getView(), false);
 		}
 	}
 }

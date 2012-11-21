@@ -12,7 +12,6 @@ import android.os.FileObserver;
  * This class is used to watch the file system for notifications when a file is
  * created or deleted. The class is used in a singleton pattern
  * 
- * @author Johannes Anderwald
  * 
  */
 public class FileSystemObserver {
@@ -20,23 +19,12 @@ public class FileSystemObserver {
 	/**
 	 * stores the mapping between path and notification
 	 */
-	private HashMap<String, FsObserver> m_observer_map = null;
+	private HashMap<String, FsObserver> m_observer_map = new HashMap<String, FsObserver>();
 
 	/**
 	 * stores the static instance of FileSystemObserver
 	 */
 	static private final FileSystemObserver s_instance = new FileSystemObserver();
-
-	/**
-	 * private constructor of class FileSystemObserver
-	 */
-	private FileSystemObserver() {
-
-		//
-		// allocate observer map
-		//
-		m_observer_map = new HashMap<String, FsObserver>();
-	}
 
 	/**
 	 * acquires an instance of FileSystemObserver
@@ -85,7 +73,7 @@ public class FileSystemObserver {
 		// check if the path is a directory
 		//
 		if (!file.isDirectory()) {
-			
+
 			//
 			// path must be a directory
 			//
@@ -94,7 +82,7 @@ public class FileSystemObserver {
 		}
 
 		if (!file.exists()) {
-			
+
 			//
 			// error file does not exist
 			//
@@ -107,10 +95,11 @@ public class FileSystemObserver {
 		// check if the path already exists
 		//
 		if (m_observer_map.containsKey(destination_path)) {
-			
+
 			//
 			// observer is already registered
 			//
+			Logger.e("Info: Path is already registered");
 			return true;
 		}
 
@@ -129,8 +118,9 @@ public class FileSystemObserver {
 		//
 		observer.startWatching();
 
-		Logger.i("FileSystemObserver::addObserver path " + destination_path + " was added");
-		
+		Logger.i("FileSystemObserver::addObserver path " + destination_path
+				+ " was added");
+
 		//
 		// done
 		//
@@ -159,6 +149,7 @@ public class FileSystemObserver {
 
 	/**
 	 * removes an observer from the map and stops it if it exists
+	 * 
 	 * @param path
 	 * @return
 	 */
@@ -168,39 +159,39 @@ public class FileSystemObserver {
 		// check if the path already exists
 		//
 		if (m_observer_map.containsKey(path)) {
-			
+
 			//
 			// get the observer
 			//
 			FsObserver observer = m_observer_map.get(path);
-			
+
 			//
 			// remove it from list
 			//
 			m_observer_map.remove(path);
-			
+
 			//
 			// set the notification to null
 			//
 			observer.setNotification(null);
-			
+
 			//
 			// stop the observer
 			//
 			observer.stopWatching();
-			
+
 			//
 			// done
 			//
 			return true;
 		}
-		
+
 		//
 		// observer not found
 		//
 		return false;
 	}
-	
+
 	/**
 	 * This class is used internally for receiving call backs of the
 	 * FileObserver class. It then analyzes the action and in the case it is
@@ -272,8 +263,11 @@ public class FileSystemObserver {
 				FileSystemObserverNotification.NotificationType notification_type) {
 
 			if (m_notification != null) {
+
 				Logger.i("performNotify: " + cur_file + " Type: "
-						+ notification_type);
+						+ notification_type + " notification: "
+						+ m_notification.hashCode() + "thread_id: "
+						+ Thread.currentThread().getId());
 				m_notification.notify(cur_file.getPath(), notification_type);
 			}
 		}
@@ -282,7 +276,8 @@ public class FileSystemObserver {
 		 * adds a file or directory to the internal list depending on the
 		 * Android OS version
 		 * 
-		 * @param path of the file / directory to be added
+		 * @param path
+		 *            of the file / directory to be added
 		 */
 		private void addFileOrDirectory(File cur_file) {
 
@@ -294,30 +289,28 @@ public class FileSystemObserver {
 				//
 				// notify of new file
 				//
-				performNotify(cur_file, FileSystemObserverNotification.NotificationType.FILE_CREATED);
-			} 
+				performNotify(
+						cur_file,
+						FileSystemObserverNotification.NotificationType.FILE_CREATED);
+			}
 		}
 
 		/**
 		 * deletes a file or directory from the internal list depending on the
 		 * Android OS version.
 		 * 
-		 * @param path of the file / directory
+		 * @param path
+		 *            of the file / directory
 		 */
 		public void deleteFileOrDirectory(File cur_file) {
 
 			//
-			// check if it is a file
+			// notify of new file
 			//
-			if (cur_file.isFile())
-			{
-				//
-				// notify of new file
-				//
-				performNotify(cur_file, FileSystemObserverNotification.NotificationType.FILE_DELETED);
-			}
+			performNotify(
+					cur_file,
+					FileSystemObserverNotification.NotificationType.FILE_DELETED);
 		}
-
 
 		/**
 		 * callback routine of FileObserver
@@ -343,6 +336,7 @@ public class FileSystemObserver {
 			//
 			// check notification type
 			//
+			Logger.e("Event " + event + " path: " + path);
 			if ((event & FileObserver.CREATE) != 0) {
 
 				//
@@ -355,10 +349,8 @@ public class FileSystemObserver {
 				// remove file / directory
 				//
 				deleteFileOrDirectory(new File(filename));
-
 			}
 		}
 	}
-
 
 }

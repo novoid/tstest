@@ -7,110 +7,113 @@ import org.me.tagstore.R;
 import android.content.Context;
 import android.os.Environment;
 
-
 /**
  * checks if all configuration files exists. If not they are created
- * @author Johannes Anderwald
- *
+ * 
  */
-public class ConfigurationChecker implements org.me.tagstore.core.StorageTimerTask.TimerTaskCallback {
+public class ConfigurationChecker implements
+		org.me.tagstore.core.StorageTimerTask.TimerTaskCallback {
 
-	
 	/**
 	 * stores the context
 	 */
-	private final Context m_context;
-	
+	private Context m_context;
+
 	/**
-	 * constructor of TagStoreFileChecker
+	 * sets the context
+	 * 
+	 * @param context
 	 */
-	public ConfigurationChecker(Context context) {
+	public void initializeConfigurationChecker(Context context) {
 		m_context = context;
 	}
-	
 
 	/**
 	 * returns the full path of directory residing on the external disk
-	 * @param relative_path relative path to be appended to the path of the external disk
+	 * 
+	 * @param relative_path
+	 *            relative path to be appended to the path of the external disk
 	 * @return String
 	 */
-	private String getFullPath (String relative_path) {
-		
+	private String getFullPath(String relative_path) {
+
 		//
 		// get sdcard directory
 		//
-		String path = Environment.getExternalStorageDirectory().getAbsolutePath();
-		
+		String path = Environment.getExternalStorageDirectory()
+				.getAbsolutePath();
+
 		//
 		// append relative path
 		//
 		path += File.separator + relative_path;
-		
+
 		//
 		// done
 		//
 		return path;
 	}
-	
+
 	/**
 	 * constructs directory if not existing
-	 * @param path to be checked
+	 * 
+	 * @param path
+	 *            to be checked
 	 */
-	private boolean createDirectoryIfNotExists(String path)
-	{
+	private boolean createDirectoryIfNotExists(String path) {
 		File file = new File(path);
-		
+
 		//
 		// check if it exists
 		//
-		if (file.exists())
-		{
-			if (file.isFile())
-			{
+		if (file.exists()) {
+			if (file.isFile()) {
 				Logger.e("Error: path " + path + " is a file !!!");
 				return false;
 			}
-		}
-		else
-		{
+		} else {
 			//
 			// create directory
 			//
 			boolean created = file.mkdir();
-			if (!created)
-			{
+			if (!created) {
 				Logger.e("Error: failed to create directory: " + path);
 				return false;
-			}			
+			}
 		}
-		
+
 		//
 		// done
 		//
 		return true;
 	}
-	
+
 	/**
 	 * copies to resource file to the target location if it does not yet exist
-	 * @param resource_name name of resource file
+	 * 
+	 * @param resource_name
+	 *            name of resource file
 	 */
 	private boolean copyResourceIfNotExists(String resource_name) {
-		
+
 		//
 		// get full path
 		//
-		String resource_path = getFullPath(ConfigurationSettings.TAGSTORE_DIRECTORY + File.separator + ConfigurationSettings.CONFIGURATION_DIRECTORY) + File.separator + resource_name;
-		
+		String resource_path = getFullPath(ConfigurationSettings.TAGSTORE_DIRECTORY
+				+ File.separator
+				+ ConfigurationSettings.CONFIGURATION_DIRECTORY)
+				+ File.separator + resource_name;
+
 		//
 		// does it exist
 		//
 		File file = new File(resource_path);
-		if (!file.exists())
-		{
+		if (!file.exists()) {
 			//
 			// copy default resource from asset
 			//
-			return IOUtils.copyResource(m_context, ConfigurationSettings.CFG_FILENAME, file);			
+			IOUtils utils = new IOUtils();
+			return utils.copyResource(m_context, resource_name, file);
 		}
 
 		//
@@ -118,69 +121,73 @@ public class ConfigurationChecker implements org.me.tagstore.core.StorageTimerTa
 		//
 		return true;
 	}
-	
+
 	/**
 	 * initializes the configuration
+	 * 
 	 * @return
 	 */
 	private boolean initConfiguration() {
-		
+
 		//
 		// construct default directories
 		//
-		if(!createDirectoryIfNotExists(getFullPath(ConfigurationSettings.TAGSTORE_DIRECTORY)))
-				return false;
-		if (!createDirectoryIfNotExists(getFullPath(ConfigurationSettings.TAGSTORE_DIRECTORY + File.separator + ConfigurationSettings.CONFIGURATION_DIRECTORY)))
-				return false;
-		if (!createDirectoryIfNotExists(getFullPath(ConfigurationSettings.TAGSTORE_DIRECTORY) + File.separator + m_context.getString(R.string.storage_directory)))
-				return false;
-		
+		if (!createDirectoryIfNotExists(getFullPath(ConfigurationSettings.TAGSTORE_DIRECTORY)))
+			return false;
+		if (!createDirectoryIfNotExists(getFullPath(ConfigurationSettings.TAGSTORE_DIRECTORY
+				+ File.separator
+				+ ConfigurationSettings.CONFIGURATION_DIRECTORY)))
+			return false;
+		if (!createDirectoryIfNotExists(getFullPath(ConfigurationSettings.TAGSTORE_DIRECTORY)
+				+ File.separator
+				+ m_context.getString(R.string.storage_directory)))
+			return false;
+
 		//
 		// copy default configuration if does not yet exist
 		//
 		if (!copyResourceIfNotExists(ConfigurationSettings.CFG_FILENAME))
 			return false;
-		
+
 		if (!copyResourceIfNotExists(ConfigurationSettings.LOG_FILENAME))
 			return false;
-		
+
 		//
 		// done initializing configuration
 		//
 		return true;
 	}
-	
-	
+
 	/**
 	 * called when the disk is available
 	 */
-	public void diskAvailable() {
-		
+	public boolean diskAvailable() {
+
 		Logger.i("ConfigurationChecker::diskAvailable");
-		
+
 		//
 		// initialize the configuration
 		//
-		if (!initConfiguration())
-		{
+		if (!initConfiguration()) {
 			Logger.e("ConfigurationChecker::initConfiguration failed - retrying later");
-			return;
+			return true;
 		}
-		
+
 		//
-		// successfully initialized the configuration, lets remove us from the scheduler
+		// successfully initialized the configuration, lets remove us from the
+		// scheduler
 		//
-		StorageTimerTask task = StorageTimerTask.acquireInstance();
-		task.removeCallback(this);
+		return false;
 	}
 
 	/**
 	 * called when disk is not available
 	 */
-	public void diskNotAvailable() {
-		
+	public boolean diskNotAvailable() {
+
 		//
 		// no op
 		//
+		return true;
 	}
 }

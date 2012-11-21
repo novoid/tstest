@@ -2,7 +2,6 @@ package org.me.tagstore.interfaces;
 
 /**
  * this interface is used to inform a view that a key was pressed
- * @author Johannes Anderwald
  *
  */
 public interface BackKeyCallback {

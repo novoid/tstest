@@ -14,34 +14,33 @@ import android.content.SharedPreferences;
 
 /**
  * helper class to add notifications to the status bar
- * @author Johannes Anderwald
- *
+ * 
  */
 public class StatusBarNotification {
 
 	/**
 	 * notification manager
 	 */
-	private final NotificationManager m_notification_manager;
-	
-	
+	private NotificationManager m_notification_manager;
+
 	/**
 	 * stores the context
 	 */
-	private final Context m_context;
+	private Context m_context;
 
 	/**
 	 * private settings
 	 */
 	private SharedPreferences m_settings;
-	
+
 	/**
 	 * constructor of class StatusBarNotification
-	 * @param context application context
+	 * 
+	 * @param context
+	 *            application context
 	 */
-	public StatusBarNotification(Context context) {
+	public void initializeStatusBarNotification(Context context) {
 
-		
 		//
 		// get notification service name
 		//
@@ -50,48 +49,50 @@ public class StatusBarNotification {
 		//
 		// get notification service manager instance
 		//
-		m_notification_manager = (NotificationManager) context.getSystemService(ns_name);
-		
+		m_notification_manager = (NotificationManager) context
+				.getSystemService(ns_name);
+
 		//
 		// store context
 		//
 		m_context = context;
-		
+
 		//
 		// get settings
 		//
 		m_settings = m_context.getSharedPreferences(
 				ConfigurationSettings.TAGSTORE_PREFERENCES_NAME,
 				Context.MODE_PRIVATE);
-		
-		
+
 	}
 
 	/**
 	 * returns true when notification settings are enabled
+	 * 
 	 * @return
 	 */
 	public boolean isStatusBarNotificationEnabled() {
-		
+
 		//
 		// are notification settings enabled
 		//
-		return m_settings.getBoolean(ConfigurationSettings.SHOW_TOOLBAR_NOTIFICATIONS, true);
+		return m_settings.getBoolean(
+				ConfigurationSettings.SHOW_TOOLBAR_NOTIFICATIONS,
+				ConfigurationSettings.DEFAULT_TOOLBAR_NOTIFICATION);
 	}
-	
+
 	/**
 	 * removes a status bar notification
 	 */
 	public void removeStatusBarNotification() {
-		
+
 		//
 		// clear notification if it exists
 		//
 		m_notification_manager.cancel(ConfigurationSettings.NOTIFICATION_ID);
-		
+
 	}
-	
-	
+
 	/**
 	 * adds a notification to the status bar
 	 * 
@@ -111,12 +112,12 @@ public class StatusBarNotification {
 		// get new file localized
 		//
 		String new_file = m_context.getString(R.string.new_file);
-		
+
 		//
 		// get notification description localized
 		//
 		String description = m_context.getString(R.string.status_bar);
-		
+
 		//
 		// set notification title
 		//
@@ -159,7 +160,9 @@ public class StatusBarNotification {
 
 	/**
 	 * enables / disables notification of status bar
-	 * @param enable_notifications if true it is enabled
+	 * 
+	 * @param enable_notifications
+	 *            if true it is enabled
 	 */
 	public void setStatusBarNotificationState(boolean enable_notifications) {
 

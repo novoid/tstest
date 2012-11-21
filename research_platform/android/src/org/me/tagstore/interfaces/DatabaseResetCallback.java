@@ -2,7 +2,6 @@ package org.me.tagstore.interfaces;
 
 /**
  * this interface is used to signal completion when a database reset has been completed
- * @author Johannes Anderwald
  *
  */
 public interface DatabaseResetCallback {

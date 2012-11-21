@@ -119,13 +119,12 @@ public class ConfigurationSettings {
 	 * boolean setting if tool bar notifications should be enabled
 	 */
 	public static final String SHOW_TOOLBAR_NOTIFICATIONS = "toolbar_notifications";
-	
+
 	/**
 	 * root directory
 	 */
-	public final static String TAGSTORE_DIRECTORY = "tagstore"; 
-	
-	
+	public final static String TAGSTORE_DIRECTORY = "tagstore";
+
 	/**
 	 * log directory name
 	 */
@@ -135,39 +134,36 @@ public class ConfigurationSettings {
 	 * log file name
 	 */
 	public final static String LOG_FILENAME = "store.tgs";
-	
-	
+
 	/**
 	 * storage task timer interval
 	 */
 	public static final long STORAGE_TASK_TIMER_INTERVAL = 15000;
-	
+
 	/**
 	 * delimiter for tags
 	 */
-	public static final String TAG_DELIMITER=",";
+	public static final String TAG_DELIMITER = ",";
 
 	/**
 	 * name of configuration file
 	 */
 	public static final String CFG_FILENAME = "store.cfg";
-	
+
 	/**
 	 * name of the directory preference
 	 */
-	public final static String DIRECTORY_PREFERENCE="directory_preference";
+	public final static String DIRECTORY_PREFERENCE = "directory_preference";
 
 	/**
 	 * name of the display preference
 	 */
 	public static final String DISPLAY_PREFERENCE = "display_preference";
 
-
 	/**
 	 * name of the notification preference
 	 */
 	public static final String NOTIFICATION_PREFERENCE = "notification_preference";
-
 
 	/**
 	 * name of the database preference
@@ -195,7 +191,7 @@ public class ConfigurationSettings {
 	public static final boolean DEFAULT_CONTROLLED_VOCABULARY_STATE = false;
 
 	/**
-	 * name of the preference of the controlled vocabulary 
+	 * name of the preference of the controlled vocabulary
 	 */
 	public static final String VOCABULARY_PREFERENCE = "vocabulary_preference";
 
@@ -233,11 +229,11 @@ public class ConfigurationSettings {
 	 * synchronization types
 	 */
 	public static final String SYNCHRONIZATION_DROPBOX_TYPE = "Dropbox";
-	
+
 	/**
 	 * usb synchronization type
 	 */
-	public static final String SYNCHRONIZATION_USB_TYPE="USB";
+	public static final String SYNCHRONIZATION_USB_TYPE = "USB";
 
 	/**
 	 * current tagstore used for synchronizing
@@ -248,7 +244,7 @@ public class ConfigurationSettings {
 	 * default tagstore sync extension
 	 */
 	public static final String DEFAULT_SYNC_FILE_NAME = "sync.tgs";
-	
+
 	/**
 	 * default android sync file name
 	 */
@@ -270,24 +266,61 @@ public class ConfigurationSettings {
 	 * smb user name
 	 */
 	public static final String SMB_USER_NAME = "smb_user_name";
-	
+
 	/**
 	 * smb password
 	 */
-	public static final String SMB_PASSWORD ="smb_pwd";
-	
+	public static final String SMB_PASSWORD = "smb_pwd";
+
 	/**
 	 * smb server
 	 */
-	public static final String SMB_SERVER ="smb_server";
-	
+	public static final String SMB_SERVER = "smb_server";
+
 	/**
 	 * smb share
 	 */
-	public static final String SMB_SHARE ="smb_share";
+	public static final String SMB_SHARE = "smb_share";
 
 	/**
 	 * nfs synchronization type
 	 */
 	public static final String SYNCHRONIZATION_NFS_TYPE = "NFS";
+
+	/**
+	 * preference screen
+	 */
+	public static final String PREFERENCE_SCREEN = "preference_screen_key";
+
+	/**
+	 * directory name key
+	 */
+	public static final String DIRECTORY_NAME = "DIRECTORY_NAME";
+
+	/**
+	 * if the entry is a directory
+	 */
+	public static final String DIRECTORY_ENTRY = "DIRECTORY_ENTRY";
+
+	/**
+	 * stores directory image key
+	 */
+	public static final String DIRECTORY_IMAGE = "DIRECTORY_IMAGE";
+
+	/**
+	 * key to user interface elements
+	 * 
+	 */
+	public static final String DIRECTORY_UI_ELEMENT = "DIRECTORY_UI_ELEMENT";
+
+	/**
+	 * toolbar notification
+	 */
+	public static final boolean DEFAULT_TOOLBAR_NOTIFICATION = false;
+
+	/**
+	 * storage task timer delay
+	 */
+	public static final long STORAGE_TASK_TIMER_DELAY = 300;
+
 }

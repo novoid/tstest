@@ -2,7 +2,6 @@ package org.me.tagstore.interfaces;
 
 /**
  * This class is used to inform the view that an item was clicked. 
- * @author Johannes Anderwald
  *
  */
 public interface ItemViewClickListener {

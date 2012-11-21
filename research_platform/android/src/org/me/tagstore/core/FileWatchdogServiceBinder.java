@@ -11,13 +11,8 @@ public class FileWatchdogServiceBinder<S> extends Binder {
 	 */
 	private S mService;
 
-	/**
-	 * constructor of class service binder
-	 * 
-	 * @param service
-	 */
-	public FileWatchdogServiceBinder(S service) {
-		mService = service; // new WeakReference<S>(service);
+	public void initializeFileWatchdogServiceBinder(S service) {
+		mService = service;
 	}
 
 	public S getService() {

@@ -7,23 +7,20 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
 /**
- * This class implements the UIEditorActionListener. It is used to collapse the keyboard when enter is pressed
- * @author Johannes Anderwald
- *
+ * This class implements the UIEditorActionListener. It is used to collapse the
+ * keyboard when enter is pressed
+ * 
  */
 public class UIEditorActionListener implements OnEditorActionListener {
 
-	
-	public boolean onEditorAction(TextView v, int actionId, KeyEvent event)
-	{
+	public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 		if (event != null) {
 			if (event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
 				//
 				// collapse keyboard
 				//
-				InputMethodManager imm = (InputMethodManager) v
-						.getContext().getSystemService(
-								Context.INPUT_METHOD_SERVICE);
+				InputMethodManager imm = (InputMethodManager) v.getContext()
+						.getSystemService(Context.INPUT_METHOD_SERVICE);
 				imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
 
 				//

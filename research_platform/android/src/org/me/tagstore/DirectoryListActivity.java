@@ -37,44 +37,20 @@ public class DirectoryListActivity extends ListActivity {
 	private ArrayList<HashMap<String, Object>> m_ListViewMap;
 
 	/**
-	 * directory name key
-	 */
-	private static final String DIRECTORY_NAME = "DIRECTORY_NAME";
-
-	
-	/**
-	 * if the entry is a directory
-	 */
-	private static final String DIRECTORY_ENTRY = "DIRECTORY_ENTRY";
-	
-	/**
-	 * stores directory image key
-	 */
-	private static final String DIRECTORY_IMAGE = "DIRECTORY_IMAGE";
-
-	/**
-	 * key to user interface elements
-	 * 
-	 */
-	private static final String DIRECTORY_UI_ELEMENT = "DIRECTORY_UI_ELEMENT";
-
-	/**
 	 * directory request code
 	 */
 	public static int DIRECTORY_LIST_REQUEST_CODE = 20;
 
-	
 	/**
 	 * stores the connection handle to the watch dog service
 	 */
 	private MainServiceConnection m_connection;
-	
+
 	/**
 	 * stores the path to the tagstore storage directory
 	 */
 	private String m_tagstore_directory;
-	
-	
+
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
@@ -126,16 +102,16 @@ public class DirectoryListActivity extends ListActivity {
 			//
 			// set list adapter to list view
 			//
-			setListAdapter(list_adapter);		
-						
-			
+			setListAdapter(list_adapter);
+
 			return;
 		}
 
 		//
 		// inform user that the entry was already present
 		//
-		ToastManager.getInstance().displayToastWithString(R.string.directory_present);
+		ToastManager.getInstance().displayToastWithString(
+				R.string.directory_present);
 	}
 
 	@Override
@@ -145,29 +121,30 @@ public class DirectoryListActivity extends ListActivity {
 		// pass onto lower classes
 		//
 		super.onCreate(savedInstanceState);
-		
+
 		//
 		// initialize tagstore directory
 		//
-		m_tagstore_directory = Environment.getExternalStorageDirectory().getAbsolutePath();
-		m_tagstore_directory += File.separator + ConfigurationSettings.TAGSTORE_DIRECTORY;
-		m_tagstore_directory += File.separator + getString(R.string.storage_directory);
-		
+		m_tagstore_directory = Environment.getExternalStorageDirectory()
+				.getAbsolutePath();
+		m_tagstore_directory += File.separator
+				+ ConfigurationSettings.TAGSTORE_DIRECTORY;
+		m_tagstore_directory += File.separator
+				+ getString(R.string.storage_directory);
+
 		//
 		// informal debug message
 		//
 		Logger.d("DirectoryListActivity::onCreate");
-		
+
 		//
-		// initialize 
+		// initialize
 		//
 		initialize();
 	}
-	
-	
-	
-	 private void initialize() {
-			
+
+	private void initialize() {
+
 		//
 		// construct new list map
 		//
@@ -177,9 +154,9 @@ public class DirectoryListActivity extends ListActivity {
 		//
 		// get localized directory
 		//
-		String add_directory_string = DirectoryListActivity.this.getString(R.string.add_directory);
-		
-		
+		String add_directory_string = DirectoryListActivity.this
+				.getString(R.string.add_directory);
+
 		//
 		// add directory button
 		//
@@ -189,7 +166,7 @@ public class DirectoryListActivity extends ListActivity {
 		// read directories from database
 		//
 		addDirectoriesFromDatabase();
-		
+
 		//
 		// construct new list adapter
 		//
@@ -198,23 +175,26 @@ public class DirectoryListActivity extends ListActivity {
 		//
 		// set list adapter to list view
 		//
-		setListAdapter(list_adapter);		
-		
+		setListAdapter(list_adapter);
+
 		//
 		// build main service connection
 		//
 		m_connection = new MainServiceConnection();
-		
+
 		//
 		// construct service launcher
 		//
-		ServiceLaunchRunnable launcher = new ServiceLaunchRunnable(DirectoryListActivity.this.getApplicationContext(), m_connection);
-		
+		ServiceLaunchRunnable launcher = new ServiceLaunchRunnable();
+		launcher.initializeServiceLaunchRunnable(
+				DirectoryListActivity.this.getApplicationContext(),
+				m_connection);
+
 		//
 		// create a thread which will start the service
 		//
 		Thread launcher_thread = new Thread(launcher);
-		
+
 		//
 		// now start the thread
 		//
@@ -238,7 +218,8 @@ public class DirectoryListActivity extends ListActivity {
 			//
 			// get directory path
 			//
-			String current_directory = (String) map_entry.get(DIRECTORY_NAME);
+			String current_directory = (String) map_entry
+					.get(ConfigurationSettings.DIRECTORY_NAME);
 
 			if (current_directory.compareTo(directory_name) == 0) {
 				//
@@ -291,9 +272,9 @@ public class DirectoryListActivity extends ListActivity {
 		// call super method
 		//
 		super.onPause();
-		
+
 		Logger.i("DirectoryList::onPause");
-		
+
 		//
 		// get instance of database manager
 		//
@@ -305,48 +286,48 @@ public class DirectoryListActivity extends ListActivity {
 		ArrayList<String> db_directories = db_man.getDirectories();
 		if (db_directories == null)
 			db_directories = new ArrayList<String>();
-		
+
 		//
 		// compute list of new directories
 		//
 		ArrayList<String> current_directories = new ArrayList<String>();
-		
-		for(HashMap<String, Object> map_entry : m_ListViewMap)
-		{
+
+		for (HashMap<String, Object> map_entry : m_ListViewMap) {
 			//
 			// get directory image
 			//
-			Integer dir_image = (Integer)map_entry.get(DIRECTORY_IMAGE);
-			if (dir_image == R.drawable.add_directory)
-			{
+			Integer dir_image = (Integer) map_entry
+					.get(ConfigurationSettings.DIRECTORY_IMAGE);
+			if (dir_image == R.drawable.add_directory) {
 				//
 				// skip add directory entry
 				//
 				continue;
 			}
-			
+
 			//
 			// get directory value
 			//
-			String directory_path = (String) map_entry.get(DIRECTORY_NAME);
-			
+			String directory_path = (String) map_entry
+					.get(ConfigurationSettings.DIRECTORY_NAME);
+
 			//
 			// store in list
 			//
 			current_directories.add(directory_path);
 		}
-		
+
 		//
 		// compute list of deleted directories
 		//
-		ArrayList<String> deleted_directories = new ArrayList<String>(db_directories);
+		ArrayList<String> deleted_directories = new ArrayList<String>(
+				db_directories);
 		deleted_directories.removeAll(current_directories);
-		
+
 		//
 		// remove deleted directories
 		//
-		for(String directory : deleted_directories)
-		{
+		for (String directory : deleted_directories) {
 			//
 			// remove path from database
 			//
@@ -356,30 +337,29 @@ public class DirectoryListActivity extends ListActivity {
 			// remove path from watch dog service
 			//
 			m_connection.unregisterDirectory(directory);
-			
+
 			//
 			// remove pending items
 			//
-			removePendingFilesfromDirectory(directory);			
+			removePendingFilesfromDirectory(directory);
 		}
-		
+
 		//
 		// compute list of new added directories
 		//
 		current_directories.removeAll(db_directories);
-		
+
 		//
 		// now add them
 		//
-		for(String directory : current_directories)
-		{
+		for (String directory : current_directories) {
 			Logger.e("adding: " + directory);
-			
+
 			//
 			// add path to directory
 			//
 			db_man.addDirectory(directory);
-			
+
 			//
 			// add path to observed list
 			//
@@ -388,57 +368,68 @@ public class DirectoryListActivity extends ListActivity {
 			//
 			// add new files from that directory
 			//
-			queryAddNewDirectories(directory);			
+			queryAddNewDirectories(directory);
 		}
-		
+
 		//
 		// cancel any on-going toast when switching the view
 		//
-		ToastManager.getInstance().cancelToast();		
+		ToastManager.getInstance().cancelToast();
 	}
 
 	/**
 	 * adds all files from the that directory to the pending file list
+	 * 
 	 * @param directory_path
 	 */
 	private void queryAddNewDirectories(String directory_path) {
-		
-		//
-		// construct directory change worker
-		//
-		DirectoryChangeWorker change_worker = new DirectoryChangeWorker();
-		
+
 		//
 		// get instance of database manager
 		//
 		DBManager db_man = DBManager.getInstance();
-		
+
+		//
+		// construct directory change worker
+		//
+		DirectoryChangeWorker change_worker = new DirectoryChangeWorker();
+		FileTagUtility utility = new FileTagUtility();
+		utility.initializeFileTagUtility();
+		change_worker.initializeDirectoryChangeWorker(db_man, utility,
+				new PendingFileChecker());
+
 		//
 		// get new files from directory
 		//
-		ArrayList<String> files = change_worker.getNewFilesFromDirectory(directory_path);
-		
-		for(String file : files)
-		{
+		ArrayList<String> files = change_worker
+				.getNewFilesFromDirectory(directory_path);
+
+		for (String file : files) {
 			Logger.i("new file in directory: " + file);
 			db_man.addPendingFile(file);
 		}
 	}
-	
-	
-	
-	
+
 	/**
 	 * removes all pending files which are placed in that directory
+	 * 
 	 * @param directory_path
 	 */
 	private void removePendingFilesfromDirectory(String directory_path) {
-		
+
+		//
+		// new file tag utility class
+		//
+		FileTagUtility utility = new FileTagUtility();
+		utility.initializeFileTagUtility();
+
 		//
 		// get pending file checker
 		//
 		PendingFileChecker file_checker = new PendingFileChecker();
-		
+		file_checker.initializePendingFileChecker(DBManager.getInstance(),
+				utility);
+
 		//
 		// get pending files
 		//
@@ -447,21 +438,17 @@ public class DirectoryListActivity extends ListActivity {
 		//
 		// loop all files and remove pending files
 		//
-		for(String current_file : pending_files)
-		{
+		for (String current_file : pending_files) {
 			File cfile = new File(current_file);
-			if (cfile.getParent().compareTo(directory_path) == 0)
-			{
+			if (cfile.getParent().compareTo(directory_path) == 0) {
 				//
 				// file is directory which got removed
 				//
-				FileTagUtility.removePendingFile(current_file);
+				utility.removePendingFile(current_file);
 			}
 		}
 	}
-	
-	
-	
+
 	/**
 	 * adds an item to the list view
 	 * 
@@ -472,7 +459,7 @@ public class DirectoryListActivity extends ListActivity {
 	 */
 	protected void addItem(String item_name, boolean is_directory) {
 
-		//s
+		// s
 		// construct new entry
 		//
 		HashMap<String, Object> map_entry = new HashMap<String, Object>();
@@ -480,44 +467,41 @@ public class DirectoryListActivity extends ListActivity {
 		//
 		// store directory name in it
 		//
-		map_entry.put(DIRECTORY_NAME, item_name);
+		map_entry.put(ConfigurationSettings.DIRECTORY_NAME, item_name);
 
 		if (is_directory) {
-			
-			if (!item_name.equals(m_tagstore_directory))
-			{
+
+			if (!item_name.equals(m_tagstore_directory)) {
 				//
 				// add remove button
 				//
-				map_entry.put(DIRECTORY_IMAGE,
+				map_entry.put(ConfigurationSettings.DIRECTORY_IMAGE,
 						Integer.valueOf(R.drawable.remove_button));
-			}
-			else
-			{
+			} else {
 				//
 				// default tagstore storage directory
 				//
-				map_entry.put(DIRECTORY_IMAGE,
+				map_entry.put(ConfigurationSettings.DIRECTORY_IMAGE,
 						Integer.valueOf(R.drawable.storage_button));
 			}
-			
+
 			//
 			// it is a directory entry
 			//
-			map_entry.put(DIRECTORY_ENTRY,
+			map_entry.put(ConfigurationSettings.DIRECTORY_ENTRY,
 					Boolean.valueOf(true));
-			
+
 		} else {
 			//
 			// add "add directory" button
 			//
-			map_entry.put(DIRECTORY_IMAGE,
+			map_entry.put(ConfigurationSettings.DIRECTORY_IMAGE,
 					Integer.valueOf(R.drawable.add_directory));
-			
+
 			//
 			// not a directory entry
 			//
-			map_entry.put(DIRECTORY_ENTRY,
+			map_entry.put(ConfigurationSettings.DIRECTORY_ENTRY,
 					Boolean.valueOf(false));
 		}
 
@@ -526,31 +510,32 @@ public class DirectoryListActivity extends ListActivity {
 		//
 		m_ListViewMap.add(map_entry);
 	}
-	
+
 	/**
 	 * launches the file dialog browser
 	 */
 	private void launchFileDialogBrowser() {
-		
+
 		//
 		// get current storage state
 		//
 		String storage_state = Environment.getExternalStorageState();
-		if (!storage_state.equals(Environment.MEDIA_MOUNTED) && !storage_state.equals(Environment.MEDIA_MOUNTED_READ_ONLY))
-		{
+		if (!storage_state.equals(Environment.MEDIA_MOUNTED)
+				&& !storage_state.equals(Environment.MEDIA_MOUNTED_READ_ONLY)) {
 			Logger.e("Error: storage_state is : " + storage_state);
-			
+
 			//
 			// the media is currently not accessible
 			//
-			ToastManager.getInstance().displayToastWithString(R.string.error_media_not_mounted);
-			
+			ToastManager.getInstance().displayToastWithString(
+					R.string.error_media_not_mounted);
+
 			//
 			// done
 			//
 			return;
 		}
-		
+
 		//
 		// time to start new activity
 		//
@@ -560,7 +545,8 @@ public class DirectoryListActivity extends ListActivity {
 		//
 		// get SD card directory
 		//
-		String sd_card_directory = Environment.getExternalStorageDirectory().getAbsolutePath();
+		String sd_card_directory = Environment.getExternalStorageDirectory()
+				.getAbsolutePath();
 
 		//
 		// add start directory
@@ -572,10 +558,10 @@ public class DirectoryListActivity extends ListActivity {
 		// now create view
 		//
 
-		startActivityForResult(new_intent, DirectoryListActivity.DIRECTORY_LIST_REQUEST_CODE);
+		startActivityForResult(new_intent,
+				DirectoryListActivity.DIRECTORY_LIST_REQUEST_CODE);
 	}
-	
-	
+
 	@Override
 	public void onListItemClick(ListView listView, View view, int position,
 			long id) {
@@ -585,42 +571,43 @@ public class DirectoryListActivity extends ListActivity {
 		//
 		// get entry
 		//
-		HashMap<String, Object> map_entry = m_ListViewMap.get((int)id);
-		
+		HashMap<String, Object> map_entry = m_ListViewMap.get((int) id);
+
 		//
 		// is it a directory
 		//
-		boolean directory_entry = ((Boolean)map_entry.get(DIRECTORY_ENTRY)).booleanValue();
-		if (!directory_entry)
-		{
+		boolean directory_entry = ((Boolean) map_entry
+				.get(ConfigurationSettings.DIRECTORY_ENTRY)).booleanValue();
+		if (!directory_entry) {
 			//
 			// launch browser
 			//
 			launchFileDialogBrowser();
 			return;
 		}
-		
+
 		//
 		// get directory path
 		//
-		String path = (String)map_entry.get(DIRECTORY_NAME);
-		
+		String path = (String) map_entry
+				.get(ConfigurationSettings.DIRECTORY_NAME);
+
 		//
 		// is it the default tagstore directory
 		//
-		if (m_tagstore_directory.equals(path))
-		{
+		if (m_tagstore_directory.equals(path)) {
 			//
 			// the tagstore directory storage directory can not be removed
 			//
-			ToastManager.getInstance().displayToastWithString(R.string.error_tagstore_directory);
+			ToastManager.getInstance().displayToastWithString(
+					R.string.error_tagstore_directory);
 			return;
-		}		
-		
+		}
+
 		//
 		// remove item
 		//
-		m_ListViewMap.remove((int)id);
+		m_ListViewMap.remove((int) id);
 
 		//
 		// re-create list adapter, how inefficient ;)
@@ -649,7 +636,7 @@ public class DirectoryListActivity extends ListActivity {
 		/**
 		 * stores the content
 		 */
-		//private ArrayList<HashMap<String, Object>> m_Content;
+		// private ArrayList<HashMap<String, Object>> m_Content;
 
 		/*
 		 * layout builder
@@ -680,7 +667,6 @@ public class DirectoryListActivity extends ListActivity {
 			m_LayoutInflater = LayoutInflater.from(activity);
 		}
 
-		
 		public int getCount() {
 
 			//
@@ -689,7 +675,6 @@ public class DirectoryListActivity extends ListActivity {
 			return m_ListViewMap.size();
 		}
 
-		
 		public Object getItem(int index) {
 
 			//
@@ -698,7 +683,6 @@ public class DirectoryListActivity extends ListActivity {
 			return m_ListViewMap.get(index);
 		}
 
-		
 		public long getItemId(int position) {
 
 			//
@@ -756,26 +740,27 @@ public class DirectoryListActivity extends ListActivity {
 				//
 				// store element item in map entry
 				//
-				map_entry.put(DIRECTORY_UI_ELEMENT, element);
+				map_entry.put(ConfigurationSettings.DIRECTORY_UI_ELEMENT,
+						element);
 			} else {
 				//
 				// get ui element
 				//
 				element = (ListItemUIElements) map_entry
-						.get(DIRECTORY_UI_ELEMENT);
+						.get(ConfigurationSettings.DIRECTORY_UI_ELEMENT);
 			}
 
 			//
 			// get item text
 			//
 			String item_text = (String) map_entry
-					.get(DirectoryListActivity.DIRECTORY_NAME);
+					.get(ConfigurationSettings.DIRECTORY_NAME);
 
 			//
 			// get button image
 			//
 			Integer resource_id = (Integer) map_entry
-					.get(DirectoryListActivity.DIRECTORY_IMAGE);
+					.get(ConfigurationSettings.DIRECTORY_IMAGE);
 
 			if (element.m_ItemName != null && item_text != null) {
 				//
@@ -848,7 +833,6 @@ public class DirectoryListActivity extends ListActivity {
 
 			}
 
-			
 			public void onClick(View v) {
 
 				//

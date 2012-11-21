@@ -13,32 +13,31 @@ public class MainFileSystemObserverNotification implements
 	/**
 	 * application context
 	 */
-	private final Activity m_activity;
-	
+	private Activity m_activity;
+
 	/**
 	 * add file tab launcher
 	 */
-	private final AddFileTabLauncher m_launcher;
-	
-	
-	/**
-	 * constructor of class MainFileSystemObserverNotification
-	 * @param context application context
-	 */
-	public MainFileSystemObserverNotification(Activity activity) {
-		
+	public AddFileTabLauncher m_launcher;
+
+	private MainPageAdapter m_adapter;
+
+	public void initializeMainFileSystemObserverNotification(Activity activity,
+			MainPageAdapter adapter) {
+
 		//
-		// store context
+		// init members
 		//
 		m_activity = activity;
-		
+		m_adapter = adapter;
+
 		//
 		// construct laucher thread
 		//
 		m_launcher = new AddFileTabLauncher();
+
 	}
 
-	
 	public void notify(String file_name, NotificationType type) {
 
 		//
@@ -55,22 +54,21 @@ public class MainFileSystemObserverNotification implements
 
 	/**
 	 * Helper class which adds the add file tab
+	 * 
 	 * @author Johannes Anderwald
-	 *
+	 * 
 	 */
 	private class AddFileTabLauncher implements Runnable {
 
-		
-		
-		
 		public void run() {
-			
+
+			if (m_adapter == null)
+				m_adapter = MainPageAdapter.getInstance();
+
 			//
 			// new file arrived, is there already a file queued
 			//
-			MainPageAdapter adapter = MainPageAdapter.getInstance();
-			if (adapter.isAddFileTagFragmentActive())
-			{
+			if (m_adapter.isAddFileTagFragmentActive()) {
 				//
 				// already present
 				//
@@ -80,30 +78,23 @@ public class MainFileSystemObserverNotification implements
 			//
 			// get current index
 			//
-			int current_index = adapter.getCurrentItem();
-			
-			
+			int current_index = m_adapter.getCurrentItem();
+
 			//
 			// get localized new file
 			//
-			String new_file = m_activity.getString(
-					R.string.new_file);
-			
+			String new_file = m_activity.getString(R.string.new_file);
+
 			//
 			// rebuild tabs
 			//
-			adapter.addFragment(AddFileTagActivity.class.getName(),
-					new_file);					
+			m_adapter.addFragment(AddFileTagActivity.class.getName(), new_file);
 
-			
 			Logger.e("AddFileTabLauncher::current index: " + current_index);
-			adapter.setCurrentFragmentByIndex(current_index);
-			
+			m_adapter.setCurrentFragmentByIndex(current_index);
+
 		}
-		
-		
-		
+
 	}
-	
-	
+
 }

@@ -1,9 +1,9 @@
 package org.me.tagstore.ui;
 
-import org.me.tagstore.R;
 import org.me.tagstore.core.EventDispatcher;
 import org.me.tagstore.core.FileTagUtility;
 import org.me.tagstore.core.Logger;
+import org.me.tagstore.interfaces.EventDispatcherInterface;
 
 import android.support.v4.app.DialogFragment;
 import android.view.View;
@@ -12,98 +12,102 @@ import android.widget.EditText;
 
 /**
  * This class implements the re-tagging of files
- * @author Johannes Anderwald
- *
+ * 
  */
-public class RetagButtonClickListener  implements OnClickListener
-{
+public class RetagButtonClickListener implements OnClickListener {
 	/**
 	 * stores the file which is re-tagged
 	 */
-	private final String m_file;
-	
+	private String m_file;
+
 	/**
 	 * stores the edit field
 	 */
-	private final EditText m_tag_field;
-	
+	private EditText m_tag_field;
+
 	/**
 	 * stores the dialog fragment
 	 */
-	private final DialogFragment m_fragment;
-	
-	/**
-	 * constructor of class RetagButtonClickListener
-	 * @param current_file file which is retagged
-	 * @param callback callback interface
-	 * @param fragment dialog this click listener is bound to
-	 */
-	public RetagButtonClickListener(View view, String current_file, DialogFragment fragment) 
-	{
+	private DialogFragment m_fragment;
+
+	private EventDispatcherInterface m_event_dispatcher;
+
+	private FileTagUtility m_utility;
+
+	public void initializeRetagButtonClickListener(EditText edit_text,
+			String current_file, DialogFragment fragment,
+			EventDispatcherInterface event_dispatcher, FileTagUtility utility) {
 		//
 		// init members
 		//
 		m_file = current_file;
 		m_fragment = fragment;
-		
-		//
-		// get tag field
-		//
-		m_tag_field = (EditText)view.findViewById(R.id.tag_field);
+		m_event_dispatcher = event_dispatcher;
+		m_tag_field = edit_text;
+		m_utility = utility;
 	}
 
-	
 	public void onClick(View v) {
 
 		//
 		// is there an edit field
 		//
-		if (m_tag_field == null)
-		{
+		if (m_tag_field == null) {
 			//
 			// bug bug bug
 			//
 			Logger.e("Error: RetagButtonClickListener no tag field found");
 			return;
 		}
-		
+
+		if (m_file == null) {
+
+			//
+			// bug bug bug
+			//
+			Logger.e("RetagButtonClickListener no file provided");
+			return;
+
+		}
+
 		//
 		// get text of tag field
 		//
 		String tag_text = m_tag_field.getText().toString();
-		
+
 		//
 		// validate the tags now
 		//
-		if (!FileTagUtility.validateTags(tag_text, m_tag_field))
-		{
+		if (!m_utility.validateTags(tag_text, m_tag_field)) {
 			//
 			// failed
 			//
 			return;
 		}
-		
+
 		//
 		// retag the file
 		//
-		boolean result = FileTagUtility.retagFile(m_file, tag_text, true);
-		
-		if (result)
-		{
+		boolean result = m_utility.retagFile(m_file, tag_text, true);
+		Logger.e("retagFile: " + result);
+		if (result) {
 			//
 			// prepare event args
 			//
-			Object [] event_args = new Object[]  {m_file, tag_text};
-			
+			Object[] event_args = new Object[] { m_file, tag_text };
+
 			//
 			// signal event
 			//
-			EventDispatcher.getInstance().signalEvent(EventDispatcher.EventId.FILE_RETAG_EVENT, event_args);
+			m_event_dispatcher.signalEvent(
+					EventDispatcher.EventId.FILE_RETAG_EVENT, event_args);
 		}
-		
-		//
-		// dismiss the dialog
-		//
-		m_fragment.dismiss();
+
+		if (m_fragment != null) {
+			//
+			// dismiss the dialog
+			//
+			m_fragment.dismiss();
+		}
 	}
 }

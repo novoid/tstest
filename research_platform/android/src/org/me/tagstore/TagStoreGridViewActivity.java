@@ -46,16 +46,10 @@ import android.view.animation.GridLayoutAnimationController;
 import android.view.animation.LayoutAnimationController;
 import android.widget.GridView;
 
-
-
-public class TagStoreGridViewActivity extends DialogFragment implements GeneralDialogCallback, 
-																  RenameDialogCallback, 
-																  TagStackUIButtonCallback, 
-																  ItemViewClickListener, 
-																  RetagDialogCallback,
-																  BackKeyCallback,
-																  TagEventNotification
-{
+public class TagStoreGridViewActivity extends DialogFragment implements
+		GeneralDialogCallback, RenameDialogCallback, TagStackUIButtonCallback,
+		ItemViewClickListener, RetagDialogCallback, BackKeyCallback,
+		TagEventNotification {
 	/**
 	 * list view contents
 	 */
@@ -65,12 +59,12 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 	 * stores the tag navigation button adapter
 	 */
 	private TagStackUIButtonAdapter m_tag_stack_adapter;
-	
+
 	/**
 	 * stores the common dialog operations object
 	 */
 	private DialogItemOperations m_dialog_operations;
-	
+
 	/**
 	 * scroll listener of view
 	 */
@@ -80,12 +74,12 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 	 * common dialog fragment
 	 */
 	private CommonDialogFragment m_fragment;
-	
+
 	/**
 	 * current selected item
 	 */
 	private String m_current_tag;
-	
+
 	/**
 	 * is current item a tag
 	 */
@@ -105,51 +99,49 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 		// cancel any active toast
 		//
 		ToastManager toast = ToastManager.getInstance();
-		if (toast != null)
-		{
+		if (toast != null) {
 			//
 			// cancel toast
 			//
 			toast.cancelToast();
 		}
-		
+
 		//
 		// unregister us with event dispatcher
 		//
-		unregisterEvents(getEvents());	
-		
+		unregisterEvents(getEvents());
+
 	}
 
-	
-	public void onStart() { 
-	    super.onStart(); 
-	    
-	    //
-	    // find grid view
-	    //
-	    GridView grid_view = (GridView)getView().findViewById(R.id.grid_list_view);
-	    if (grid_view != null)
-	    {
-	    	//
-	    	// get layout animation
-	    	//
-	    	LayoutAnimationController controller = grid_view.getLayoutAnimation();
-	    	if (controller != null)
-	    	{
-	    		//
-	    		// start animation
-	    		//
-	    		controller.start();
-	    	}
-	    }
-	    Logger.i("onStart");
+	public void onStart() {
+		super.onStart();
+
+		//
+		// find grid view
+		//
+		GridView grid_view = (GridView) getView().findViewById(
+				R.id.grid_list_view);
+		if (grid_view != null) {
+			//
+			// get layout animation
+			//
+			LayoutAnimationController controller = grid_view
+					.getLayoutAnimation();
+			if (controller != null) {
+				//
+				// start animation
+				//
+				controller.start();
+			}
+		}
+		Logger.i("onStart");
 		//
 		// register us with event dispatcher
 		//
-		registerEvents(getEvents());	
-	    
-	}	
-	
+		registerEvents(getEvents());
+
+	}
+
 	@Override
 	public void onResume() {
 
@@ -163,7 +155,7 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 		//
 		// register us with event dispatcher
 		//
-		registerEvents(getEvents());	
+		registerEvents(getEvents());
 
 		//
 		// refresh view
@@ -173,12 +165,13 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 
 	/**
 	 * unregisters the events from the event dispatcher
+	 * 
 	 * @param events
 	 */
-	private void unregisterEvents(final ArrayList<EventDispatcher.EventId> events) {
-		
-		for(EventDispatcher.EventId event : events)
-		{
+	private void unregisterEvents(
+			final ArrayList<EventDispatcher.EventId> events) {
+
+		for (EventDispatcher.EventId event : events) {
 			//
 			// unregister event
 			//
@@ -187,20 +180,19 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 	}
 
 	private void registerEvents(final ArrayList<EventDispatcher.EventId> events) {
-		
-		for(EventDispatcher.EventId event : events)
-		{
+
+		for (EventDispatcher.EventId event : events) {
 			//
 			// unregister event
 			//
 			EventDispatcher.getInstance().registerEvent(event, this);
-		}		
+		}
 	}
-	
+
 	private ArrayList<EventDispatcher.EventId> getEvents() {
-		
+
 		ArrayList<EventDispatcher.EventId> events = new ArrayList<EventDispatcher.EventId>();
-		
+
 		//
 		// add interested events
 		//
@@ -209,7 +201,7 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 		events.add(EventDispatcher.EventId.BACK_KEY_EVENT);
 		events.add(EventDispatcher.EventId.ITEM_CLICK_EVENT);
 		events.add(EventDispatcher.EventId.ITEM_LONG_CLICK_EVENT);
-		events.add(EventDispatcher.EventId.FILE_TAGGED_EVENT);		
+		events.add(EventDispatcher.EventId.FILE_TAGGED_EVENT);
 		events.add(EventDispatcher.EventId.FILE_RENAMED_EVENT);
 		events.add(EventDispatcher.EventId.TAG_RENAMED_EVENT);
 		events.add(EventDispatcher.EventId.FILE_RETAG_EVENT);
@@ -219,28 +211,27 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 	}
 
 	public void onStop() {
-		
+
 		//
 		// call base method
 		//
 		super.onStop();
-		
+
 		Logger.i("onStop");
-		
+
 		//
 		// unregister us with event dispatcher
 		//
 		unregisterEvents(getEvents());
 	}
-	
+
 	public void onCreate(Bundle savedInstanceState) {
 
 		//
 		// pass onto lower classes
 		//
 		super.onCreate(savedInstanceState);
-		
-		
+
 		//
 		// informal debug message
 		//
@@ -254,12 +245,19 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 		//
 		// create dialog operations object
 		//
-		m_dialog_operations = new DialogItemOperations(getActivity(), getFragmentManager());
-		
+		m_dialog_operations = new DialogItemOperations();
+		FileTagUtility utility = new FileTagUtility();
+		utility.initializeFileTagUtility();
+		FileDialogBuilder builder = new FileDialogBuilder();
+		builder.initializeFileDialogBuilder(DBManager.getInstance(), utility);
+		m_dialog_operations.initDialogItemOperations(getActivity(),
+				getFragmentManager(), utility, ToastManager.getInstance(),
+				builder);
+
 		//
 		// register us with event dispatcher
 		//
-		registerEvents(getEvents());	
+		registerEvents(getEvents());
 	}
 
 	/**
@@ -267,14 +265,13 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 	 */
 	private void refreshView() {
 
-		if (m_list_map != null)
-		{
+		if (m_list_map != null) {
 			//
 			// clear the map
 			//
 			m_list_map.clear();
 		}
-		
+
 		//
 		// acquire tag stack manager
 		//
@@ -284,9 +281,8 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 		// verify the tag stack
 		//
 		tag_stack.verifyTags();
-		
-		if (tag_stack.isEmpty())
-		{
+
+		if (tag_stack.isEmpty()) {
 			//
 			// refresh root view
 			//
@@ -295,11 +291,11 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 				// failed to fill list map
 				//
 				Logger.e("Error: TagStoreListActivity::onResume failed to fill list map");
-				
+
 				//
 				// update tag tree
 				//
-				buildTagTreeForUI();				
+				buildTagTreeForUI();
 				return;
 			}
 
@@ -307,14 +303,14 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 			// now build the list the view
 			//
 			buildListView(getView());
-			
+
 			//
 			// done
 			//
 			return;
-		
+
 		}
-			
+
 		//
 		// fill list map with this tag
 		//
@@ -327,101 +323,93 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 	}
 
 	/**
-	 * refreshes view and displays all associated tags and files in respect to the given tag
-	 * @param tag 
+	 * refreshes view and displays all associated tags and files in respect to
+	 * the given tag
+	 * 
+	 * @param tag
 	 */
 	public void tagButtonClicked(String tag) {
-		
+
 		Logger.i("tagButtonClicked: " + tag);
-		
+
 		//
 		// get tag stack manager
 		//
 		TagStackManager tag_stack = TagStackManager.getInstance();
-		
+
 		//
 		// clear tag stack
 		//
 		tag_stack.clearTags();
-		
+
 		//
 		// add the tag
 		//
 		tag_stack.addTag(tag);
-		
+
 		//
 		// refresh view
 		//
 		refreshView();
 	}
-	
-	
-	public boolean tagButtonLongClicked(String tag) {
-		
+
+	public void tagButtonLongClicked(String tag) {
+
 		Logger.i("tagButtonLongClicked: " + tag);
-		
+
 		//
 		// save current tag
 		//
 		m_current_tag = tag;
 		m_is_tag = true;
-		
-		
+
 		FragmentManager fm = getFragmentManager();
 		if (fm == null)
 			Logger.e("fm is null");
-		
+
 		if (getActivity() == null)
 			Logger.e("activity is null");
-		
-		
+
 		//
 		// construct new common dialog fragment which will show the dialog
 		//
-		m_fragment = CommonDialogFragment.newInstance(getActivity(), tag, true, DialogIds.DIALOG_GENERAL_TAG_MENU);
+		m_fragment = CommonDialogFragment.newInstance(getActivity(), tag, true,
+				DialogIds.DIALOG_GENERAL_TAG_MENU);
 		m_fragment.setDialogItemOperation(m_dialog_operations);
 		m_fragment.show(getFragmentManager(), "FIXME");
-		
-		//
-		// long click was handled
-		//
-		return true;
 	}
 
-	
-	
 	public void renamedFile(String old_file_name, String new_file) {
-		
+
 		//
 		// refresh view
 		//
 		refreshView();
 	}
-	
-	
+
 	public void renamedTag(String old_tag_name, String new_tag_name) {
 		//
 		// refresh view
 		//
 		refreshView();
-		
+
 	}
-	
+
 	public void retaggedFile(String file_name, String tag_text) {
 
 		//
 		// refresh view
 		//
-		refreshView();		
+		refreshView();
 	}
 
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		
+
 		//
 		// get tag stack manager
 		//
 		TagStackManager tag_stack = TagStackManager.getInstance();
-	
+
 		//
 		// check if not back button was pressed
 		//
@@ -432,7 +420,8 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 			return false;
 		}
 
-		Logger.i("TagStoreListViewActivity::onKeyDown empty: " + tag_stack.isEmpty());
+		Logger.i("TagStoreListViewActivity::onKeyDown empty: "
+				+ tag_stack.isEmpty());
 
 		//
 		// check if object stack is empty
@@ -460,8 +449,6 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 		return true;
 	}
 
-
-
 	/**
 	 * fills the list map with contents
 	 * 
@@ -473,13 +460,12 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 		// acquire database manager
 		//
 		DBManager db_man = DBManager.getInstance();
-		
+
 		//
 		// tag list
 		//
 		ArrayList<String> tag_list = null;
-		
-			
+
 		//
 		// acquire shared settings
 		//
@@ -540,19 +526,21 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 		return true;
 	}
 
-	 public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle saved) {
-			
-			//
-			// construct layout
-			//
-			View view = inflater.inflate(R.layout.tagstore_grid_view, null);
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle saved) {
 
-			//
-			// find tag stack button
-			//
-			m_tag_stack_adapter = (TagStackUIButtonAdapter)view.findViewById(R.id.button_adapter);
-			
-			return view;
+		//
+		// construct layout
+		//
+		View view = inflater.inflate(R.layout.tagstore_grid_view, null);
+
+		//
+		// find tag stack button
+		//
+		m_tag_stack_adapter = (TagStackUIButtonAdapter) view
+				.findViewById(R.id.button_adapter);
+
+		return view;
 	}
 
 	/**
@@ -595,48 +583,52 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 		//
 		// lets get the grid view
 		//
-		GridView grid_view = (GridView)view.findViewById(R.id.grid_list_view);
-		if (grid_view == null)
-		{
+		GridView grid_view = (GridView) view.findViewById(R.id.grid_list_view);
+		if (grid_view == null) {
 			Logger.e("Error: no grid view found");
 			return;
 		}
-		
-		
+
 		//
 		// construct list adapter
 		//
-		IconViewListAdapter list_adapter = new IconViewListAdapter(m_list_map, getActivity().getApplicationContext());
+		IconViewListAdapter list_adapter = new IconViewListAdapter();
+		list_adapter.initIconViewListAdapter(m_list_map, getActivity()
+				.getApplicationContext(), EventDispatcher.getInstance());
 
 		//
 		// load animation
 		//
-		Animation animation = AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_in);
-		
+		Animation animation = AnimationUtils.loadAnimation(getActivity(),
+				android.R.anim.fade_in);
+
 		//
 		// now construct the grid layout animation controller
 		//
-		GridLayoutAnimationController animation_controller = new GridLayoutAnimationController(animation, 0.2f, 0.2f);
-		
+		GridLayoutAnimationController animation_controller = new GridLayoutAnimationController(
+				animation, 0.2f, 0.2f);
+
 		//
 		// set the animation controller
 		//
 		grid_view.setLayoutAnimation(animation_controller);
-		
+
 		//
 		// set icon adapter to grid view
 		//
 		grid_view.setAdapter(list_adapter);
-		
+
 		//
 		// set number of items per row
 		//
 		grid_view.setNumColumns(num_items_per_row);
-		
+
 		//
 		// construct new list view scroll listener
 		//
-		m_scroll_listener = new IconViewScrollListener(list_adapter, getActivity().getApplicationContext());
+		m_scroll_listener = new IconViewScrollListener();
+		m_scroll_listener.initIconViewScrollListener(list_adapter,
+				ToastManager.getInstance());
 
 		//
 		// set new scroll listener
@@ -647,16 +639,17 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 	/**
 	 * launches an item
 	 * 
-	 * @param item_path position of item
+	 * @param item_path
+	 *            position of item
 	 */
 	private void launchItem(String item_path) {
 
-		if (m_dialog_operations != null)
-		{
+		if (m_dialog_operations != null) {
 			//
 			// let dialog operations handle it
 			//
-			m_dialog_operations.performDialogItemOperation(item_path, false, FileDialogBuilder.MENU_ITEM_ENUM.MENU_ITEM_OPEN);
+			m_dialog_operations.performDialogItemOperation(item_path, false,
+					FileDialogBuilder.MENU_ITEM_ENUM.MENU_ITEM_OPEN);
 		}
 	}
 
@@ -673,13 +666,14 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 		//
 		// get instance of database manager
 		//
-		DBManager db_man = DBManager.getInstance();		
-		
+		DBManager db_man = DBManager.getInstance();
+
 		//
 		// get tag reference counts
 		//
-		final HashMap<String, Integer> ref_count = db_man.getTagReferenceCount();
-		
+		final HashMap<String, Integer> ref_count = db_man
+				.getTagReferenceCount();
+
 		//
 		// acquire shared settings
 		//
@@ -707,7 +701,6 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 			//
 			Collections.sort(tag_list, new Comparator<String>() {
 
-				
 				public int compare(String tag1, String tag2) {
 
 					//
@@ -738,24 +731,28 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 
 	/**
 	 * adds an item to the list view
-	 * @param item_name name of the item
-	 * @param is_tag if true the item is a tag
+	 * 
+	 * @param item_name
+	 *            name of the item
+	 * @param is_tag
+	 *            if true the item is a tag
 	 */
 	protected void addItem(String item_name, boolean is_tag) {
-		
+
 		//
 		// construct entry
 		//
-		HashMap<String, Object> map_entry = IconViewItemBuilder.buildIconViewItem(getActivity().getApplicationContext(), item_name, is_tag);
-		if (map_entry != null)
-		{
+		HashMap<String, Object> map_entry = IconViewItemBuilder
+				.buildIconViewItem(getActivity().getApplicationContext(),
+						item_name, is_tag);
+		if (map_entry != null) {
 			//
 			// add to list
 			//
 			m_list_map.add(map_entry);
 		}
 	}
-	
+
 	/**
 	 * fills the list map with tags related to item name and associated files
 	 */
@@ -765,11 +762,18 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 		// get instance of tagstack manager
 		//
 		TagStackManager tag_stack = TagStackManager.getInstance();
-		
+
+		//
+		// new file tag utility class
+		//
+		FileTagUtility utility = new FileTagUtility();
+		utility.initializeFileTagUtility();
+
 		//
 		// get associated tags
 		//
-		ArrayList<String> linked_tags = FileTagUtility.getLinkedTags();
+		ArrayList<String> linked_tags = utility.getLinkedTags(TagStackManager
+				.getInstance());
 
 		//
 		// apply sorting
@@ -780,16 +784,16 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 		// add them to list
 		//
 		for (String linked_tag : linked_tags) {
-			
+
 			//
 			// check if the tag is already in visted link
 			//
-			if (tag_stack.containsTag(linked_tag))
-			{
+			if (tag_stack.containsTag(linked_tag)) {
 				//
 				// this should never happen
 				//
-				Logger.e("Error: DB query bug detected in TagStoreGridViewActivity::fillListMapWithTag duplicate tag:" + linked_tag);
+				Logger.e("Error: DB query bug detected in TagStoreGridViewActivity::fillListMapWithTag duplicate tag:"
+						+ linked_tag);
 				continue;
 			}
 
@@ -802,8 +806,9 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 		//
 		// get linked files
 		//
-		ArrayList<String> linked_files = FileTagUtility.getLinkedFiles();
-		
+		ArrayList<String> linked_files = utility.getLinkedFiles(TagStackManager
+				.getInstance());
+
 		if (linked_files != null) {
 			//
 			// add linked files
@@ -822,15 +827,16 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 	 * @param action_id
 	 *            what the user has selected
 	 */
-	public void processMenuFileSelection(FileDialogBuilder.MENU_ITEM_ENUM action_id) {
+	public void processMenuFileSelection(
+			FileDialogBuilder.MENU_ITEM_ENUM action_id) {
 
 		//
 		// check if the view is current visible
 		//
-		if (MainPageAdapter.getInstance().getCurrentItem() != 0)
-		{
+		if (MainPageAdapter.getInstance().getCurrentItem() != 0) {
 			//
-			// HACK: ViewPageAdapter does not call onPause when switching to next fragment
+			// HACK: ViewPageAdapter does not call onPause when switching to
+			// next fragment
 			//
 			return;
 		}
@@ -838,10 +844,10 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 		//
 		// defer control to common dialog operations object
 		//
-		boolean result = m_dialog_operations.performDialogItemOperation(m_current_tag, m_is_tag, action_id);
-		
-		if (result)
-		{
+		boolean result = m_dialog_operations.performDialogItemOperation(
+				m_current_tag, m_is_tag, action_id);
+
+		if (result) {
 			//
 			// refresh the view
 			//
@@ -852,53 +858,50 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 	public void onLongListItemClick(String item_name, boolean is_tag) {
 
 		Logger.d("onLongListItemClick: " + item_name + " is_tag: " + is_tag);
-		Logger.d("FragmentManager:" + getFragmentManager() + " Activity: " + getActivity());
+		Logger.d("FragmentManager:" + getFragmentManager() + " Activity: "
+				+ getActivity());
 		Logger.d("ThreadID: " + Thread.currentThread().getId());
-		
-		
-		
+
 		//
 		// store event details
 		//
 		m_current_tag = item_name;
 		m_is_tag = is_tag;
-		
+
 		//
 		// check if this is an tag item
 		//
 		if (m_is_tag) {
-			
+
 			//
 			// launch general tag menu
 			//
-			m_fragment = CommonDialogFragment.newInstance(getActivity(), m_current_tag, true, DialogIds.DIALOG_GENERAL_TAG_MENU);
+			m_fragment = CommonDialogFragment.newInstance(getActivity(),
+					m_current_tag, true, DialogIds.DIALOG_GENERAL_TAG_MENU);
 			m_fragment.setDialogItemOperation(m_dialog_operations);
-			m_fragment.show(getFragmentManager(), "FIXME");			
-		}
-		else
-		{
+			m_fragment.show(getFragmentManager(), "FIXME");
+		} else {
 			//
 			// request new dialog to be shown
 			//
-			m_fragment = CommonDialogFragment.newInstance(getActivity(), m_current_tag, false, DialogIds.DIALOG_GENERAL_FILE_MENU);
-			m_fragment.setDialogItemOperation(m_dialog_operations);			
-			m_fragment.show(getFragmentManager(), "FIXME");				
+			m_fragment = CommonDialogFragment.newInstance(getActivity(),
+					m_current_tag, false, DialogIds.DIALOG_GENERAL_FILE_MENU);
+			m_fragment.setDialogItemOperation(m_dialog_operations);
+			m_fragment.show(getFragmentManager(), "FIXME");
 		}
 	}
 
 	public void onListItemClick(String item_name, boolean is_tag) {
 
-		Logger.d("onListItemClick: item" + item_name + " tag: " + is_tag + " was clicked");
+		Logger.d("onListItemClick: item" + item_name + " tag: " + is_tag
+				+ " was clicked");
 
-		if (getActivity() == null)
-		{
+		if (getActivity() == null) {
 			Logger.e("Error: no activity attached");
 			return;
 		}
-		
-		
-		if (!is_tag)
-		{
+
+		if (!is_tag) {
 			//
 			// launch item
 			//
@@ -914,7 +917,7 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 		// get tag stack manager
 		//
 		TagStackManager tag_stack = TagStackManager.getInstance();
-		
+
 		//
 		// add item to visited tag stack
 		//
@@ -929,30 +932,26 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 		// fill list map with this tag
 		//
 		fillListMapWithTagStack();
-	
+
 		//
 		// now rebuild list
 		//
 		buildListView(getView());
 	}
-	
-	
+
 	public void backKeyPressed() {
-		
+
 		Logger.i("backKeyPressed");
-		
+
 		Activity activity = getActivity();
-		if (activity == null)
-		{
+		if (activity == null) {
 			Logger.e("Error: Fragment has no activity!");
 			return;
 		}
-		
+
 		refreshView();
 	}
 
-
-	
 	public void notifyFileTagged(String file_name) {
 
 		Logger.i("notifyFileTagged: " + file_name);
@@ -960,6 +959,6 @@ public class TagStoreGridViewActivity extends DialogFragment implements GeneralD
 		// refresh view
 		//
 		refreshView();
-		
+
 	}
 }

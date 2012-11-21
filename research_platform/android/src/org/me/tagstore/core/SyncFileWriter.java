@@ -1,132 +1,138 @@
 package org.me.tagstore.core;
 
-
 import java.util.ArrayList;
 
 /**
- * This class enumerates all present files in the tagstore and writes them to the sync file log
- * @author Johannes Anderwald
- *
+ * This class enumerates all present files in the tagstore and writes them to
+ * the tagstore store file
+ * 
  */
 public class SyncFileWriter {
 
 	/**
-	 * instance of database manager
+	 * database manager instance
 	 */
-	private final DBManager m_db;
-	
+	private DBManager m_db_man = null;
+
 	/**
-	 * stores all sync entries
+	 * sync file log instance
 	 */
-	private final ArrayList<SyncLogEntry> m_entries;
-	
+	private SyncFileLog m_file_log = null;
+
 	/**
-	 * constructor of class SyncManager
+	 * sets the database manager and file log. Used for unit testing
+	 * 
+	 * @param db_man
+	 *            database manager
+	 * @param file_log
+	 *            file log
 	 */
-	public SyncFileWriter() { 
-		
-		//
-		// acquire database manager
-		//
-		m_db = DBManager.getInstance();
-		
-		//
-		// construct entries
-		//
-		m_entries = new ArrayList<SyncLogEntry>();
+	public void setDBManagerAndFileLog(DBManager db_man, SyncFileLog file_log) {
+		m_db_man = db_man;
+		m_file_log = file_log;
 	}
 
-	
 	/**
-	 * converts a array list of tags into a string where each tag is seperated by a comma
-	 * @param tags to be converted
+	 * converts a array list of tags into a string where each tag is separated
+	 * by a comma
+	 * 
+	 * @param tags
+	 *            to be converted
 	 * @return string
 	 */
 	private String convertToString(ArrayList<String> tags) {
-		
+
 		StringBuilder builder = new StringBuilder();
-		
-		for (String tag : tags)
-		{
+
+		for (String tag : tags) {
 			if (builder.length() == 0)
 				builder.append(tag);
 			else
 				builder.append(", " + tag);
 		}
-		
+
 		return builder.toString();
 	}
-	
+
 	/**
 	 * fills the sync log entry array
 	 */
-	private void constructSyncLogEntries() {
-		
-		//
-		// clear log entries
-		//
-		m_entries.clear();
-		
-		
+	private void constructSyncLogEntries(ArrayList<SyncLogEntry> entries) {
+
+		if (m_db_man == null) {
+
+			//
+			// get instance of database manager
+			//
+			m_db_man = DBManager.getInstance();
+		}
+
 		//
 		// get all files
 		//
-		ArrayList<String> files = m_db.getFiles();
-		
+		ArrayList<String> files = m_db_man.getFiles();
+
 		//
 		// enumerate each files' tag and build sync log entry
 		//
-		for (String file_name : files)
-		{
-			
+		for (String file_name : files) {
+
 			SyncLogEntry new_entry = new SyncLogEntry();
-			
+
 			//
 			// get tags, timestamp and hashsum
 			//
-			new_entry.m_tags = convertToString(m_db.getAssociatedTags(file_name));
-			new_entry.m_time_stamp = m_db.getFileDate(file_name);
-			new_entry.m_hash_sum = m_db.getHashsum(file_name);
+			new_entry.m_tags = convertToString(m_db_man
+					.getAssociatedTags(file_name));
+			new_entry.m_time_stamp = m_db_man.getFileDate(file_name);
+			new_entry.m_hash_sum = m_db_man.getHashsum(file_name);
 			new_entry.m_file_name = file_name;
-			
+
 			//
 			// add entry
 			//
-			m_entries.add(new_entry);
+			entries.add(new_entry);
 		}
 	}
 
 	/**
 	 * writes the sync log entries
 	 */
-	private void writeSyncLogEntries() {
-		
-		//
-		// instantiate sync file log
-		//
-		SyncFileLog file_log = SyncFileLog.getInstance();
-		
+	private boolean writeSyncLogEntries(ArrayList<SyncLogEntry> entries) {
+
+		if (m_file_log == null) {
+			//
+			// instantiate sync file log
+			//
+			m_file_log = new SyncFileLog();
+		}
+
 		//
 		// write log entries
 		//
-		file_log.writeLogEntries(m_entries);
+		return m_file_log.writeLogEntries(entries);
 	}
-	
+
 	/**
 	 * writes all files currently available into the tag store sync log file
 	 */
-	public void writeTagstoreFiles() {
-		
+	public boolean writeTagstoreFiles() {
+
 		Logger.e("SyncFileWriter::writeTagstoreFiles()");
-		
+
+		//
+		// construct log entry list
+		//
+		ArrayList<SyncLogEntry> entries = new ArrayList<SyncLogEntry>();
+
 		//
 		// now update those entries from the database
 		//
-		constructSyncLogEntries();
-		
+		constructSyncLogEntries(entries);
+
 		//
 		// write sync log entries
 		//
-		writeSyncLogEntries();
+		return writeSyncLogEntries(entries);
 	}
 }

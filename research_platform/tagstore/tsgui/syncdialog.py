@@ -194,8 +194,8 @@ class SyncDialog(QtGui.QDialog):
         #self.__config_button.setText(QtGui.QApplication.translate("tagstore", "Choose", None, QtGui.QApplication.UnicodeUTF8))
         
         self.__sync_status_description_label.setText(QtGui.QApplication.translate("tagstore", "Sync Status:", None, QtGui.QApplication.UnicodeUTF8))
-        self.__source_tagstore_label.setText(QtGui.QApplication.translate("tagstore", "Source Tagstore:", None, QtGui.QApplication.UnicodeUTF8))
-        self.__target_tagstore_label.setText(QtGui.QApplication.translate("tagstore", "Target Tagstore:", None, QtGui.QApplication.UnicodeUTF8))
+        self.__source_tagstore_label.setText(QtGui.QApplication.translate("tagstore", "Store1:", None, QtGui.QApplication.UnicodeUTF8))
+        self.__target_tagstore_label.setText(QtGui.QApplication.translate("tagstore", "Store2:", None, QtGui.QApplication.UnicodeUTF8))
         
        
     def __handle_source_tagstore_changed(self, index):

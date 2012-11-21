@@ -2,7 +2,6 @@ package org.me.tagstore.interfaces;
 
 /**
  * This interface is used to receive events when a file has been tagged
- * @author Johannes Anderwald
  *
  */
 public interface TagEventNotification {

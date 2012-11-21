@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.me.tagstore.R;
+import org.me.tagstore.interfaces.EventDispatcherInterface;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -12,27 +13,31 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
 /**
- * this class implements the list adapter which is used to display the items
- * in the list view
+ * this class implements the list adapter which is used to display the items in
+ * the list view
  * 
- * @author Johannes Anderwald
  */
 public class IconViewListAdapter extends BaseAdapter {
 
 	/**
 	 * number of items to display per row
 	 */
-	private final Context m_context;
+	private Context m_context;
 
 	/**
 	 * stores the item data to display
 	 */
-	private final ArrayList<HashMap<String, Object>> m_list_map;
+	private ArrayList<HashMap<String, Object>> m_list_map;
 
 	/*
 	 * layout builder
 	 */
-	private final LayoutInflater m_LayoutInflater;
+	private LayoutInflater m_LayoutInflater;
+
+	/**
+	 * event dispatcher
+	 */
+	private EventDispatcherInterface m_event_dispatcher;
 
 	/**
 	 * constructor of class TagStoreListAdapter
@@ -41,14 +46,16 @@ public class IconViewListAdapter extends BaseAdapter {
 	 *            stores the details to display
 	 */
 
-	public IconViewListAdapter(ArrayList<HashMap<String, Object>> list_map,
-							   Context context) {
+	public void initIconViewListAdapter(
+			ArrayList<HashMap<String, Object>> list_map, Context context,
+			EventDispatcherInterface event_dispatcher) {
 
 		//
 		// initialize members
 		//
 		m_context = context;
 		m_list_map = list_map;
+		m_event_dispatcher = event_dispatcher;
 
 		//
 		// construct layout inflater from context
@@ -56,7 +63,6 @@ public class IconViewListAdapter extends BaseAdapter {
 		m_LayoutInflater = LayoutInflater.from(context);
 	}
 
-	
 	public int getCount() {
 
 		//
@@ -65,7 +71,6 @@ public class IconViewListAdapter extends BaseAdapter {
 		return m_list_map.size();
 	}
 
-	
 	public Object getItem(int position) {
 
 		//
@@ -74,7 +79,6 @@ public class IconViewListAdapter extends BaseAdapter {
 		return m_list_map.get(position);
 	}
 
-	
 	public long getItemId(int position) {
 
 		//
@@ -83,7 +87,6 @@ public class IconViewListAdapter extends BaseAdapter {
 		return position;
 	}
 
-	
 	public View getView(int position, View convertView, ViewGroup parent) {
 
 		IconViewListItemUIElements element = null;
@@ -99,66 +102,69 @@ public class IconViewListAdapter extends BaseAdapter {
 			//
 			// create new element
 			//
-			element = new IconViewListItemUIElements(m_context);
+			element = new IconViewListItemUIElements();
 
 			//
 			// initialize element
 			//
-			element.initializeWithView(convertView);
+			element.initializeIconViewListItemUIElements(convertView,
+					m_context, m_event_dispatcher);
 
 			//
 			// store element in view
 			//
 			convertView.setTag(element);
-			
+
 		} else {
 			//
 			// get ui element
 			//
 			element = (IconViewListItemUIElements) convertView.getTag();
-			
+
 			//
 			// initialize element
 			//
-			element.initializeWithView(convertView);
+			element.initializeIconViewListItemUIElements(convertView,
+					m_context, m_event_dispatcher);
 		}
 
 		//
 		// get map entry
 		//
 		HashMap<String, Object> map_entry = m_list_map.get(position);
-			
+
 		//
 		// get item name
 		//
 		String display_name = (String) map_entry
-					.get(IconViewItemBuilder.ITEM_NAME);
-		
+				.get(IconViewItemBuilder.ITEM_NAME);
+
 		String item_name = display_name;
-		
+
 		//
 		// is the item a tag
 		//
-		boolean item_tag = !map_entry.containsKey(IconViewItemBuilder.ITEM_PATH);
-		if (!item_tag)
-		{
+		boolean item_tag = !map_entry
+				.containsKey(IconViewItemBuilder.ITEM_PATH);
+		if (!item_tag) {
 			//
 			// get real path
 			//
-			item_name = (String)map_entry.get(IconViewItemBuilder.ITEM_PATH);
+			item_name = (String) map_entry.get(IconViewItemBuilder.ITEM_PATH);
 		}
-		
+
 		//
 		// get item icon
 		//
 		Integer item_image = (Integer) map_entry
-					.get(IconViewItemBuilder.ITEM_ICON);
+				.get(IconViewItemBuilder.ITEM_ICON);
 
 		//
 		// set element item
 		//
-		element.setItemNameAndImage(display_name, item_name, item_image, item_tag);
-		
+		element.setItemNameAndImage(display_name, item_name, item_image,
+				item_tag);
+
 		//
 		// done
 		//

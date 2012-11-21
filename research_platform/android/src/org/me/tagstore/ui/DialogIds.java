@@ -2,8 +2,7 @@ package org.me.tagstore.ui;
 
 /**
  * This class stores the dialog identifiers for all dialogs
- * @author Johannes Anderwald
- *
+ * 
  */
 public class DialogIds {
 
@@ -11,7 +10,7 @@ public class DialogIds {
 	 * general file dialog id
 	 */
 	public static final int DIALOG_GENERAL_FILE_MENU = 1;
-	
+
 	/**
 	 * launches the details view
 	 */
@@ -26,7 +25,7 @@ public class DialogIds {
 	 * retag dialog id
 	 */
 	public static final int DIALOG_RETAG = 4;
-	
+
 	/**
 	 * general tag menu
 	 */
@@ -36,7 +35,7 @@ public class DialogIds {
 	 * tag details dialog
 	 */
 	public static final int DIALOG_DETAILS_TAG = 6;
-	
+
 	/**
 	 * stores the dialog id of options dialog
 	 */

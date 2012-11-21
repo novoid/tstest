@@ -2,7 +2,6 @@ package org.me.tagstore.interfaces;
 
 /**
  * This interface is used to signal the completion of the sync task
- * @author Johannes Anderwald
  *
  */
 public interface SyncTaskCallback {

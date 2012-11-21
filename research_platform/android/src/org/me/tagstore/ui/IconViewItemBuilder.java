@@ -23,7 +23,7 @@ public class IconViewItemBuilder {
 	 * hash map key for path of a file item
 	 */
 	public final static String ITEM_PATH = "item_path";
-	
+
 	/**
 	 * adds an item to the list map
 	 * 
@@ -32,7 +32,8 @@ public class IconViewItemBuilder {
 	 * @param item_icon
 	 *            icon of the item
 	 */
-	public static HashMap<String, Object> buildIconViewItem(Context context, String item_name, boolean is_tag) {
+	public static HashMap<String, Object> buildIconViewItem(Context context,
+			String item_name, boolean is_tag) {
 
 		//
 		// create map entry
@@ -61,7 +62,7 @@ public class IconViewItemBuilder {
 			//
 			map_entry.put(ITEM_NAME, item_name);
 		} else {
-			
+
 			//
 			// TODO: get icon from file type
 			//
@@ -94,7 +95,6 @@ public class IconViewItemBuilder {
 		// return item
 		//
 		return map_entry;
-	}	
-	
-	
+	}
+
 }

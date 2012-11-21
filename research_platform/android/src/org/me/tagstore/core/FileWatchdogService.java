@@ -2,6 +2,7 @@ package org.me.tagstore.core;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 
 import org.me.tagstore.R;
 import org.me.tagstore.interfaces.FileSystemObserverNotification;
@@ -12,7 +13,8 @@ import android.content.Intent;
 import android.os.Environment;
 import android.os.IBinder;
 
-public class FileWatchdogService extends Service implements org.me.tagstore.core.StorageTimerTask.TimerTaskCallback {
+public class FileWatchdogService extends Service implements
+		org.me.tagstore.core.StorageTimerTask.TimerTaskCallback {
 
 	/**
 	 * file system observer class
@@ -22,7 +24,7 @@ public class FileWatchdogService extends Service implements org.me.tagstore.core
 	/**
 	 * stores external registered notifications
 	 */
-	private ArrayList<FileSystemObserverNotification> m_external_observers;
+	private LinkedHashSet<FileSystemObserverNotification> m_external_observers;
 
 	/**
 	 * if notification has been registered
@@ -38,14 +40,17 @@ public class FileWatchdogService extends Service implements org.me.tagstore.core
 	 * stores the sync active status
 	 */
 	private boolean m_sync_active;
-	
-	
+
 	/**
 	 * holds the status bar notification
 	 */
 	private StatusBarNotification m_status_bar;
-	
-	
+
+	/**
+	 * service has been created
+	 */
+	private boolean m_service_created;
+
 	public void onCreate() {
 
 		Logger.e("FileWatchdogService::onCreate");
@@ -62,44 +67,58 @@ public class FileWatchdogService extends Service implements org.me.tagstore.core
 		//
 		// create array list for external observers
 		//
-		m_external_observers = new ArrayList<FileSystemObserverNotification>();
-		
+		m_external_observers = new LinkedHashSet<FileSystemObserverNotification>();
+
 		//
 		// create notification
 		//
 		m_notification = new FileSystemObserverNotification() {
 
-			
 			public void notify(String file_name, NotificationType type) {
 				notificationCallback(file_name, type);
 
 			}
 		};
-		
+
 		//
 		// construct bar notification
 		//
-		m_status_bar = new StatusBarNotification(getApplicationContext());
-		
+		m_status_bar = new StatusBarNotification();
+		m_status_bar.initializeStatusBarNotification(getApplicationContext());
 
+		//
+		// for debugging
+		//
+		m_service_created = true;
+	}
+
+	/**
+	 * returns true when the service has been created
+	 * 
+	 * @return
+	 */
+	public boolean isServiceCreated() {
+		return m_service_created;
 	}
 
 	/**
 	 * returns true when a sync is active
 	 */
-	private boolean isSyncActive() {
-		
-		String file_path = Environment.getExternalStorageDirectory() + File.separator + 
-			ConfigurationSettings.TAGSTORE_DIRECTORY + File.separator +
-			getString(R.string.storage_directory) + File.separator +
-			ConfigurationSettings.TAGSTORE_LOCK_FILE_NAME;
-		
+	public boolean isSyncActive() {
+
+		String file_path = Environment.getExternalStorageDirectory()
+				+ File.separator + ConfigurationSettings.TAGSTORE_DIRECTORY
+				+ File.separator + getString(R.string.storage_directory)
+				+ File.separator
+				+ ConfigurationSettings.TAGSTORE_LOCK_FILE_NAME;
+
 		File file = new File(file_path);
 		return file.exists();
 	}
-	
-	
-	protected void notificationCallback(String file_name, org.me.tagstore.interfaces.FileSystemObserverNotification.NotificationType type) {
+
+	protected void notificationCallback(
+			String file_name,
+			org.me.tagstore.interfaces.FileSystemObserverNotification.NotificationType type) {
 
 		Logger.i("Received notification of : " + file_name + " Type: " + type);
 
@@ -109,39 +128,51 @@ public class FileWatchdogService extends Service implements org.me.tagstore.core
 		DBManager db_man = DBManager.getInstance();
 
 		if (isSyncActive()) {
-			
+
 			// ignore file changes
 			m_sync_active = true;
 			return;
-		}
-		else
-		{
+		} else {
 			// was the sync active
 			if (m_sync_active) {
-				
+
 				// sync no longer is active
 				m_sync_active = false;
-				
+
 				// get list of new files
 				DirectoryChangeWorker worker = new DirectoryChangeWorker();
-				
+				FileTagUtility utility = new FileTagUtility();
+				utility.initializeFileTagUtility();
+				worker.initializeDirectoryChangeWorker(DBManager.getInstance(),
+						utility, new PendingFileChecker());
+
 				// get list of new files
 				ArrayList<String> files = worker.getAllNewFiles();
 				if (files.size() != 0)
 					Logger.e("FIXME: need to add untagged files");
-				
+
 			}
-			
+
 		}
-		
+
 		if (type == org.me.tagstore.interfaces.FileSystemObserverNotification.NotificationType.FILE_DELETED) {
-			
+
 			//
 			// file was deleted
 			// remove file from store
 			//
 			db_man.removeFile(file_name);
 			db_man.removePendingFile(file_name);
+
+			//
+			// notify external observers
+			//
+			for (FileSystemObserverNotification notification : m_external_observers) {
+				//
+				// performing notification
+				//
+				notification.notify(file_name, type);
+			}
 
 			//
 			// done
@@ -192,7 +223,7 @@ public class FileWatchdogService extends Service implements org.me.tagstore.core
 			Logger.i("FileWatchdogService::notificationCallback> new file not in observed list");
 			return;
 		}
-		
+
 		//
 		// file is new and it is in observed directory list
 		// put it into pending file list
@@ -212,8 +243,7 @@ public class FileWatchdogService extends Service implements org.me.tagstore.core
 		//
 		// are notification settings enabled
 		//
-		if (m_status_bar.isStatusBarNotificationEnabled())
-		{
+		if (m_status_bar.isStatusBarNotificationEnabled()) {
 			//
 			// add tool bar notification
 			//
@@ -221,9 +251,6 @@ public class FileWatchdogService extends Service implements org.me.tagstore.core
 		}
 	}
 
-
-
-	
 	public void onDestroy() {
 		Logger.i("FileWatchdogService::onDestroy");
 		//
@@ -246,13 +273,27 @@ public class FileWatchdogService extends Service implements org.me.tagstore.core
 		// register with the storage timer task
 		//
 		Logger.i("internalServiceStartup");
-		StorageTimerTask.acquireInstance().addCallback(this);
+
+		if (Environment.getExternalStorageState().compareTo(
+				Environment.MEDIA_MOUNTED) == 0
+				|| Environment.getExternalStorageState().compareTo(
+						Environment.MEDIA_MOUNTED_READ_ONLY) == 0) {
+
+			//
+			// directly start service
+			//
+			diskAvailable();
+		} else {
+			//
+			// external disk not available
+			// let's try later
+			//
+			StorageTimerTask.acquireInstance().addCallback(this);
+		}
 	}
 
-	
-	public int onStartCommand(Intent intent, int flags, int startId) 
-	{
-		
+	public int onStartCommand(Intent intent, int flags, int startId) {
+
 		Logger.i("FileWatchdogService::onStartCommand flags " + flags
 				+ " startId " + startId + " registered: " + m_registered);
 
@@ -293,10 +334,6 @@ public class FileWatchdogService extends Service implements org.me.tagstore.core
 
 	}
 
-	
-	
-	
-	
 	public IBinder onBind(Intent intent) {
 
 		//
@@ -304,110 +341,125 @@ public class FileWatchdogService extends Service implements org.me.tagstore.core
 		//
 		internalServiceStartup();
 
-		return new FileWatchdogServiceBinder<FileWatchdogService>(this);
+		//
+		// construct service binder
+		//
+		FileWatchdogServiceBinder<FileWatchdogService> binder = new FileWatchdogServiceBinder<FileWatchdogService>();
+		binder.initializeFileWatchdogServiceBinder(FileWatchdogService.this);
+
+		return binder;
 	}
 
-	
-	public void diskAvailable() {
+	public boolean diskAvailable() {
 
 		//
 		// are we already registered
 		//
-		if (!m_registered)
-		{
+		if (!m_registered) {
 			//
 			// get observed directories from the database
 			//
 			DBManager db_man = DBManager.getInstance();
 			ArrayList<String> observed_directory_list = db_man.getDirectories();
 			if (observed_directory_list != null) {
-			
-				//	
+
+				//
 				// add each directory
 				//
-				for(String path : observed_directory_list){
-					
+				for (String path : observed_directory_list) {
+
 					Logger.i("observing directory: " + path);
-					boolean result = m_observer.addObserver(path, m_notification);
-					if (!result)
-					{
-						Logger.e("Error: failed to add observer for path:" + path);
+					boolean result = m_observer.addObserver(path,
+							m_notification);
+					if (!result) {
+						Logger.e("Error: failed to add observer for path:"
+								+ path);
 					}
 				}
-				
+
 				//
 				// we are now registered
 				//
 				m_registered = true;
 			}
 		}
+
+		//
+		// continue scheduling
+		//
+		return true;
 	}
 
-	
-	public void diskNotAvailable() {
+	public boolean diskNotAvailable() {
 
 		//
 		// informal debug print
 		//
-		//Logger.i("diskAvailable(): " + m_registered);
-		
-		if (m_registered)
-		{
+		// Logger.i("diskAvailable(): " + m_registered);
+
+		if (m_registered) {
 			//
 			// unregisters all available observers
 			//
 			m_observer.removeAllObservers();
-			
+
 			//
 			// set to unregistered
 			//
 			m_registered = false;
 		}
+
+		//
+		// continue scheduling
+		//
+		return true;
+
 	}
 
 	/**
 	 * adds a new directory to be observed
+	 * 
 	 * @param path
 	 * @return
 	 */
 	public boolean registerDirectory(String path) {
 
-		if (m_registered)
-		{
+		if (m_registered) {
 			//
 			// only register the directory when external disk is available
-			// if the disk is not available, it will be added when the disk becomes available later
+			// if the disk is not available, it will be added when the disk
+			// becomes available later
 			// Reason: no observers are active when the disk is not mounted
 			// see diskAvailable callback of StorageTimerTask
 			return m_observer.addObserver(path, m_notification);
 		}
-		
+
 		//
 		// no disk available
 		//
 		return false;
 	}
-	
+
 	/**
 	 * removes a path from the observed list
-	 * @param path to be removed
+	 * 
+	 * @param path
+	 *            to be removed
 	 * @return true on success
 	 */
 	public boolean unregisterDirectory(String path) {
-		
-		if (m_registered)
-		{
+
+		if (m_registered) {
 			//
 			// unregister observer
 			//
 			return m_observer.removeObserver(path);
 		}
-		
+
 		//
 		// no observers currently active
 		//
 		return false;
 	}
-	
-	
+
 }

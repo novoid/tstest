@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.ArrayList;
 
 import org.me.tagstore.R;
+import org.me.tagstore.interfaces.EventDispatcherInterface;
+import org.me.tagstore.interfaces.WatchdogServiceConnection;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -12,25 +14,42 @@ import android.os.Environment;
 public class DatabaseResetTask implements Runnable {
 
 	/**
-	 *  application context
+	 * application context
 	 */
-	private final Context m_context;
-	
+	private Context m_context;
+
 	/**
 	 * stores connection to the service
 	 */
-	private final MainServiceConnection m_connection;
+	private WatchdogServiceConnection m_connection;
 
-	
-	public DatabaseResetTask(Context context, MainServiceConnection connection) {
-		
+	/**
+	 * event dispatcher
+	 */
+	private EventDispatcherInterface m_event_dispatcher;
+
+	/**
+	 * initializes the reset task object
+	 * 
+	 * @param context
+	 *            application context
+	 * @param connection
+	 *            connection
+	 * @param event_dispatcher
+	 *            event dispatcher
+	 */
+	public void initializeDatabaseResetTask(Context context,
+			WatchdogServiceConnection connection,
+			EventDispatcherInterface event_dispatcher) {
+
 		//
 		// init members
 		//
 		m_context = context;
 		m_connection = connection;
+		m_event_dispatcher = event_dispatcher;
 	}
-	
+
 	public void run() {
 
 		//
@@ -41,88 +60,91 @@ public class DatabaseResetTask implements Runnable {
 		//
 		// get default storage directory
 		//
-		String default_storage_path = Environment.getExternalStorageDirectory().getAbsolutePath();
-		default_storage_path += File.separator + ConfigurationSettings.TAGSTORE_DIRECTORY;
-		default_storage_path += File.separator + m_context.getString(R.string.storage_directory);			
-		
+		String default_storage_path = Environment.getExternalStorageDirectory()
+				.getAbsolutePath();
+		default_storage_path += File.separator
+				+ ConfigurationSettings.TAGSTORE_DIRECTORY;
+		default_storage_path += File.separator
+				+ m_context.getString(R.string.storage_directory);
+
 		//
 		// get observed directories
 		//
 		ArrayList<String> observed_directory_list = db_man.getDirectories();
 		if (observed_directory_list != null) {
-			
+
 			//
 			// unregister all directories
 			//
-			for(String path : observed_directory_list)
-			{
-				if (!m_connection.unregisterDirectory(path))
-				{
-					Logger.e("DatabaseResetTask failed to unregister path: " + path);
+			for (String path : observed_directory_list) {
+				if (!m_connection.unregisterDirectory(path)) {
+					Logger.e("DatabaseResetTask failed to unregister path: "
+							+ path);
 				}
 			}
 		}
-		
+
 		//
 		// reset the database
 		//
 		boolean reset_database = db_man.resetDatabase(m_context);
-		if (reset_database)
-		{
+		Logger.e("resetDatabase: " + reset_database);
+		if (reset_database) {
 			//
 			// add default storage directory
 			//
 			db_man.addDirectory(default_storage_path);
-			
+
 			//
 			// re-register path with watch dog service
 			//
 			m_connection.registerDirectory(default_storage_path);
-			
+
 			//
 			// clear sync log
 			//
 			clearSyncLog();
-			
+
 			//
 			// clear current file
 			//
-			clearCurrentFile();			
+			clearCurrentFile();
 		}
-		
+
 		//
 		// build event args
 		//
-		Object [] event_args = new Object[]{reset_database};
-		
-		
+		Object[] event_args = new Object[] { reset_database };
+
 		//
 		// signal completion of the database reset task
 		//
-		EventDispatcher.getInstance().signalEvent(EventDispatcher.EventId.DATABASE_RESET_EVENT, event_args);
+		m_event_dispatcher.signalEvent(
+				EventDispatcher.EventId.DATABASE_RESET_EVENT, event_args);
 	}
-	
+
 	/**
 	 * removes all file entries from the log file
 	 */
 	private void clearSyncLog() {
-		
+
 		//
 		// construct sync log
 		//
-		SyncFileLog file_log = SyncFileLog.getInstance();
-		
+		SyncFileLog file_log = new SyncFileLog();
+
 		//
 		// clear the log
 		//
 		file_log.clearLogEntries();
 	}
-	
+
 	/**
-	 * clears the current file setting, which is used to determine which file was last tagged / started to be tagged
+	 * clears the current file setting, which is used to determine which file
+	 * was last tagged / started to be tagged
 	 */
 	private void clearCurrentFile() {
-		
+
 		//
 		// get settings
 		//
@@ -135,16 +157,15 @@ public class DatabaseResetTask implements Runnable {
 		//
 		SharedPreferences.Editor editor = settings.edit();
 
-		// 
+		//
 		// clear all preferences
 		//
 		editor.clear();
-		
+
 		//
 		// and commit the changes
 		//
 		editor.commit();
 	}
-	
-	
+
 }

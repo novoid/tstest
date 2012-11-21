@@ -2,7 +2,6 @@ package org.me.tagstore.interfaces;
 
 /**
  * This interface is used to deliver the title to the TabPageIndicator.
- * @author Johannes Anderwald
  *
  */
 public interface TabPageIndicatorCallback {

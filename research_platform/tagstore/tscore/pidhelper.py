@@ -56,6 +56,10 @@ class PidHelper(object):
         """
         LOG = LogHelper.get_app_logger(logging.INFO)
 
+        if pid != None and pid == "android"
+            # android serialization workarround
+            return True
+
         if sys.platform[:3] == "win":
 
             # check if process exists

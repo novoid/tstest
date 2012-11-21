@@ -11,34 +11,35 @@ public class TimeFormatUtility {
 	 * time zone utility
 	 */
 	public static final String TIME_ZONE = "UTC";
-	
+
 	/**
 	 * time format
 	 */
 	public static final String TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
-	
+
 	/**
 	 * returns the current time in UTC
+	 * 
 	 * @return
 	 */
-	public static String getCurrentTimeInUTC() {
-		
+	public String getCurrentTimeInUTC() {
+
 		//
 		// construct date format
 		//
-		SimpleDateFormat date_format = new SimpleDateFormat(
-				TIME_FORMAT);
+		SimpleDateFormat date_format = new SimpleDateFormat(TIME_FORMAT);
 
 		//
 		// set utc format
 		//
-		date_format.setTimeZone(TimeZone.getTimeZone(TimeFormatUtility.TIME_ZONE));
-		
+		date_format.setTimeZone(TimeZone
+				.getTimeZone(TimeFormatUtility.TIME_ZONE));
+
 		//
 		// format date
 		//
 		String date = date_format.format(new Date());
-		
+
 		//
 		// done
 		//
@@ -46,12 +47,15 @@ public class TimeFormatUtility {
 	}
 
 	/**
-	 * constructs an date object from a string which holds a date in utc time and which was built according to above format
-	 * @param date input date
+	 * constructs an date object from a string which holds a date in utc time
+	 * and which was built according to above format
+	 * 
+	 * @param date
+	 *            input date
 	 * @return Date object
 	 */
-	public static Date parseDate(String date, TimeZone timezone) {
-		
+	public Date parseDate(String date, TimeZone timezone) {
+
 		//
 		// construct date format
 		//
@@ -59,11 +63,16 @@ public class TimeFormatUtility {
 				TimeFormatUtility.TIME_FORMAT);
 
 		//
+		// verify input parameters
+		//
+		if (timezone == null || date == null)
+			return null;
+
+		//
 		// set utc format
 		//
 		date_format.setTimeZone(timezone);
-		
-		
+
 		//
 		// construct date object
 		//
@@ -73,7 +82,7 @@ public class TimeFormatUtility {
 			// parse date object
 			//
 			Date date_object = date_format.parse(date);
-			
+
 			//
 			// done
 			//
@@ -81,16 +90,19 @@ public class TimeFormatUtility {
 		} catch (ParseException e) {
 			e.printStackTrace();
 			return null;
+		} catch (Exception e) {
+			return null;
 		}
 	}
-	
+
 	/**
 	 * converts an date object to local time
+	 * 
 	 * @param date_object
 	 * @return string representation in local time
 	 */
-	public static String convertDateToLocalTime(Date date_object) {
-		
+	public String convertDateToLocalTime(Date date_object) {
+
 		//
 		// construct date format
 		//
@@ -101,14 +113,12 @@ public class TimeFormatUtility {
 		// set local time zone
 		//
 		date_format.setTimeZone(TimeZone.getDefault());
-		
-		
+
 		//
 		// format date
 		//
 		String date = date_format.format(date_object);
-		
-		
+
 		//
 		// done
 		//
@@ -117,11 +127,12 @@ public class TimeFormatUtility {
 
 	/**
 	 * converts a date object in local time to string representation in utc time
+	 * 
 	 * @param date_object
 	 * @return
 	 */
-	public static String convertDateToUTC(Date date_object) {
-		
+	public String convertDateToUTC(Date date_object) {
+
 		//
 		// construct date format
 		//
@@ -131,49 +142,58 @@ public class TimeFormatUtility {
 		//
 		// set local time zone
 		//
-		date_format.setTimeZone(TimeZone.getTimeZone(TimeFormatUtility.TIME_ZONE));
-		
-		
+		date_format.setTimeZone(TimeZone
+				.getTimeZone(TimeFormatUtility.TIME_ZONE));
+
 		//
 		// format date
 		//
 		return date_format.format(date_object);
 	}
-	
+
 	/**
 	 * converts a string representing utc time to a string in local time
-	 * @param date_string date string
+	 * 
+	 * @param date_string
+	 *            date string
 	 * @return date string in local time
 	 */
-	public static String convertStringToLocalTime(String date_string) {
-		
+	public String convertStringToLocalTime(String date_string) {
+
 		//
 		// parse the date
 		//
-		Date date_object = parseDate(date_string, TimeZone.getTimeZone(TimeFormatUtility.TIME_ZONE));
-		
+		Date date_object = parseDate(date_string,
+				TimeZone.getTimeZone(TimeFormatUtility.TIME_ZONE));
+		if (date_object == null)
+			return null;
+
 		//
 		// now convert it
 		//
 		return convertDateToLocalTime(date_object);
 	}
-	
+
 	/**
 	 * converts a string representing utc time to a string in local time
-	 * @param date_string date string
+	 * 
+	 * @param date_string
+	 *            date string
 	 * @return date string in local time
 	 */
-	public static String convertStringToUTCTime(String date_string) {
-		
+	public String convertStringToUTCTime(String date_string) {
+
 		//
 		// parse the date
 		//
 		Date date_object = parseDate(date_string, TimeZone.getDefault());
-		
+		if (date_object == null)
+			return null;
+
 		//
 		// now convert it
 		//
 		return convertDateToUTC(date_object);
 	}
-	
+
 }

@@ -2,7 +2,6 @@ package org.me.tagstore.interfaces;
 
 /**
  * This interface is used for call back when the 'tag me' button in the retag dialog is clicked.
- * @author Johannes Anderwald
  *
  */
 public interface RetagDialogCallback 

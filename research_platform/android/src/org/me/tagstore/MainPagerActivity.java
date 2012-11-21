@@ -49,28 +49,27 @@ public class MainPagerActivity extends FragmentActivity {
 	 * stores the service launcher
 	 */
 	private ServiceLaunchRunnable m_launcher = null;
-	
+
 	/**
 	 * stores the service connection
 	 */
 	private MainServiceConnection m_connection = null;
-	
+
 	/**
 	 * storage timer task
 	 */
 	private StorageTimerTask m_timer_task = null;
-	
+
 	/**
 	 * register notification
 	 */
 	private MainFileSystemObserverNotification m_notification = null;
 
-	
 	/**
 	 * stores the service launcher thread
 	 */
 	private Thread m_launcher_thread = null;
-	
+
 	/**
 	 * stores the tab indicator
 	 */
@@ -79,16 +78,15 @@ public class MainPagerActivity extends FragmentActivity {
 	/**
 	 * tagstore file checker
 	 */
-	private TagStoreFileChecker m_file_checker = null; 
-	
+	private TagStoreFileChecker m_file_checker = null;
+
 	/**
 	 * configuration checker
 	 */
 	private ConfigurationChecker m_configuration_checker = null;
-	
-	
+
 	public void onStop() {
-		
+
 		super.onStop();
 
 		//
@@ -96,23 +94,19 @@ public class MainPagerActivity extends FragmentActivity {
 		//
 		Logger.e("MainPagerActivity::onStop");
 
-		if (m_connection != null && m_notification != null)
-		{
+		if (m_connection != null && m_notification != null) {
 			//
 			// unregister external observer
 			//
 			m_connection.unregisterExternalNotification(m_notification);
-		
-			if (m_connection.isServiceConnected())
-			{
+
+			if (m_connection.isServiceConnected()) {
 				//
 				// unbind service connection
 				//
 				getApplicationContext().unbindService(m_connection);
 			}
-		}
-		else
-		{
+		} else {
 			Logger.e("Error: service not connected");
 		}
 	}
@@ -128,41 +122,37 @@ public class MainPagerActivity extends FragmentActivity {
 			//
 			return super.onKeyDown(keyCode, event);
 		}
-	
-		if (m_tab_indicator == null)
-		{
+
+		if (m_tab_indicator == null) {
 			//
 			// app not yet initialized
 			//
 			return super.onKeyDown(keyCode, event);
-		}		
-		
+		}
+
 		//
 		// get current view index
 		//
 		int index = m_tab_indicator.getCurrentItem();
-		
-		if (index != 0)
-		{
+
+		if (index != 0) {
 			//
 			// pass on to default handler
 			//
 			Logger.i("no backkeycallback");
 			return super.onKeyDown(keyCode, event);
 		}
-		
-		
+
 		//
 		// acquire tag stack
 		//
 		TagStackManager tag_stack = TagStackManager.getInstance();
-		
-		
+
 		//
 		// check if object stack is empty
 		//
 		if (tag_stack.isEmpty()) {
-			
+
 			//
 			// empty stack
 			//
@@ -170,159 +160,160 @@ public class MainPagerActivity extends FragmentActivity {
 		}
 
 		if (tag_stack.getSize() == 1) {
-			
+
 			//
 			// clear tag stack
 			//
 			tag_stack.clearTags();
-		}
-		else
-		{
+		} else {
 			//
 			// pop last tag from tag stack
 			//
 			tag_stack.removeLastTag();
 		}
-		
+
 		//
 		// notify fragment of back key pressed via event dispatcher
 		//
-		EventDispatcher.getInstance().signalEvent(EventDispatcher.EventId.BACK_KEY_EVENT, null);
-		
+		EventDispatcher.getInstance().signalEvent(
+				EventDispatcher.EventId.BACK_KEY_EVENT, null);
+
 		//
 		// key was handled
 		//
 		return true;
 	}
-	
+
 	public void onResume() {
-		
+
 		super.onResume();
-		
+
 		Logger.e("MainPager::onResume");
 	}
-	
+
 	public void onRestart() {
-		
+
 		super.onRestart();
-		
+
 		Logger.e("MainPager::onRestart");
-		
+
 		//
 		// register external notification
 		//
 		m_connection.registerExternalNotification(m_notification);
-				
+
 		//
 		// restart launcher thread
 		//
 		m_launcher_thread = new Thread(m_launcher);
 		m_launcher_thread.start();
-		
+
 		//
 		// register file checker task / configuration checker task
 		//
 		m_timer_task.addCallback(m_file_checker);
 		m_timer_task.addCallback(m_configuration_checker);
-		
+
 		initialize();
 	}
-	
+
 	/**
 	 * initializes the database
 	 */
 	private void initDatabase() {
-		
+
 		long start = System.currentTimeMillis();
-		
+
 		//
 		// initialize database manager
 		//
 		DBManager db_man = DBManager.getInstance();
-		db_man.initialize(this);
-		
+		db_man.initializeDBManager(this);
+
 		long diff = System.currentTimeMillis() - start;
-		
+
 		Logger.e("DB startup time: " + diff);
-		
+
 		//
 		// check if the default storage directory is registered
 		//
-		String path = Environment.getExternalStorageDirectory().getAbsolutePath();
+		String path = Environment.getExternalStorageDirectory()
+				.getAbsolutePath();
 		path += File.separator + ConfigurationSettings.TAGSTORE_DIRECTORY;
 		path += File.separator + getString(R.string.storage_directory);
-		
-		if (!db_man.isDirectoryObserved(path))
-		{
+
+		if (!db_man.isDirectoryObserved(path)) {
 			//
 			// register path
 			//
 			db_man.addDirectory(path);
 		}
 	}
-	
+
 	/**
 	 * initializes the configuration checker
 	 */
 	private void initConfiguration() {
-		
+
 		//
 		// construct configuration checker
 		//
-		m_configuration_checker = new ConfigurationChecker(this);
+		m_configuration_checker = new ConfigurationChecker();
+		m_configuration_checker
+				.initializeConfigurationChecker(getApplicationContext());
 
 		//
 		// construct file checker
 		//
 		m_file_checker = new TagStoreFileChecker();
-		
+
 		//
 		// acquire instance of storage timer task
 		//
 		m_timer_task = StorageTimerTask.acquireInstance();
-		
+
 		//
 		// register tasks
 		//
 		m_timer_task.addCallback(m_configuration_checker);
 		m_timer_task.addCallback(m_file_checker);
-		
+
 	}
-	
+
 	/**
 	 * initializes the toast manager
 	 */
-	private void initToastManager()
-	{
+	private void initToastManager() {
 		//
 		// initializes the toast manager
 		//
 		ToastManager.buildToastManager(getApplicationContext());
 	}
-	
-	private void initLocale()  {
-		
-		   String languageToLoad  = "en";
-		    Locale locale = new Locale(languageToLoad); 
-		    Locale.setDefault(locale);
-		    Configuration config = new Configuration();
-		    config.locale = locale;
-		    getBaseContext().getResources().updateConfiguration(config, 
-		    getBaseContext().getResources().getDisplayMetrics());
+
+	private void initLocale() {
+
+		String languageToLoad = "en";
+		Locale locale = new Locale(languageToLoad);
+		Locale.setDefault(locale);
+		Configuration config = new Configuration();
+		config.locale = locale;
+		getBaseContext().getResources().updateConfiguration(config,
+				getBaseContext().getResources().getDisplayMetrics());
 	}
-	
+
 	private void initVocabulary() {
-		
+
 		//
 		// initialize vocabulary manager
 		//
 		VocabularyManager.buildVocabularyManager(getApplicationContext());
 	}
+
 	/**
 	 * initializes the application
 	 */
 	private void initApplication() {
-		
+
 		//
 		// initialize database manager
 		//
@@ -337,26 +328,20 @@ public class MainPagerActivity extends FragmentActivity {
 		// init cfg
 		//
 		initConfiguration();
-		
-		//
-		// run the configuration tasks
-		//
-		initConfiguration();
 
 		//
 		// init vocabulary manager
 		//
 		initVocabulary();
 	}
-	
+
 	public void onStart() {
-		
+
 		super.onStart();
-		
+
 		initToastManager();
 	}
-	
-	
+
 	public void onCreate(Bundle savedInstanceState) {
 
 		//
@@ -365,17 +350,16 @@ public class MainPagerActivity extends FragmentActivity {
 		super.onCreate(savedInstanceState);
 
 		Logger.e("MainPager::onCreate");
-		
+
 		//
 		// english locale for development
 		//
-		initLocale();
+		// initLocale();
 
 		//
 		// no window should be displayed
 		//
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
-
 
 		//
 		// apply layout
@@ -385,26 +369,20 @@ public class MainPagerActivity extends FragmentActivity {
 		//
 		// init application
 		//
-		initApplication();		
-		
+		initApplication();
+
 		//
 		// initialize rest of ui
 		//
 		initialize();
-		
-/*		
-        StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
-        .detectDiskReads()
-        .detectDiskWrites()
-        .detectNetwork()   // or .detectAll() for all detectable problems
-        .penaltyLog()
-        .build());
-        StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
-        .detectAll()
-        .penaltyLog()
-        .penaltyDeath()
-        .build());
-*/        
+
+		/*
+		 * StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
+		 * .detectDiskReads() .detectDiskWrites() .detectNetwork() // or
+		 * .detectAll() for all detectable problems .penaltyLog() .build());
+		 * StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder() .detectAll()
+		 * .penaltyLog() .penaltyDeath() .build());
+		 */
 	}
 
 	private void initialize() {
@@ -413,15 +391,15 @@ public class MainPagerActivity extends FragmentActivity {
 		// find the view pager
 		//
 		m_view_pager = (ViewPager) findViewById(R.id.view_pager);
-		if (m_view_pager == null)
-		{
+		if (m_view_pager == null) {
 			//
 			// failed to initialize
 			//
-			ToastManager.getInstance().displayToastWithString("Error: failed to initialize application layout");
+			ToastManager.getInstance().displayToastWithString(
+					"Error: failed to initialize application layout");
 			return;
 		}
-		
+
 		//
 		// get tab page indicator
 		//
@@ -430,18 +408,20 @@ public class MainPagerActivity extends FragmentActivity {
 		//
 		// build main page adapter
 		//
-		m_page_adapter = MainPageAdapter.constructPageAdapter(getSupportFragmentManager(), getApplicationContext(), m_tab_indicator);
+		m_page_adapter = MainPageAdapter.constructPageAdapter(
+				getSupportFragmentManager(), getApplicationContext(),
+				m_tab_indicator);
 
 		//
 		// apply adapter
 		//
 		m_view_pager.setAdapter(m_page_adapter);
-		
+
 		//
 		// set view pager
 		//
 		m_tab_indicator.setViewPager(m_view_pager);
-			
+
 		//
 		// set on page change listener
 		//
@@ -456,23 +436,27 @@ public class MainPagerActivity extends FragmentActivity {
 		//
 		// construct new notification
 		//
-		m_notification = new MainFileSystemObserverNotification(this);
+		m_notification = new MainFileSystemObserverNotification();
+		m_notification.initializeMainFileSystemObserverNotification(
+				MainPagerActivity.this, m_page_adapter);
 
 		//
 		// construct service connection
 		//
 		m_connection = new MainServiceConnection();
-		
+
 		//
 		// register external notification
 		//
 		m_connection.registerExternalNotification(m_notification);
-		
+
 		//
 		// construct service launcher
 		//
-		m_launcher = new ServiceLaunchRunnable(getApplicationContext(), m_connection);
-		
+		m_launcher = new ServiceLaunchRunnable();
+		m_launcher.initializeServiceLaunchRunnable(
+				MainPagerActivity.this.getApplicationContext(), m_connection);
+
 		//
 		// create a thread which will start the service
 		//
@@ -482,70 +466,74 @@ public class MainPagerActivity extends FragmentActivity {
 		//
 		m_launcher_thread.start();
 	}
-	
+
 	public boolean onOptionsItemSelected(MenuItem item) {
-		
+
 		//
 		// call base class
 		//
 		super.onOptionsItemSelected(item);
-		
+
 		//
 		// informal debug print
 		//
 		Logger.i("onOptionsItemSelected " + item.getTitle());
-		
+
 		Intent intent = null;
-		switch(item.getItemId())
-		{
-		    case R.string.configuration:
-		    	intent = new Intent(MainPagerActivity.this, ConfigurationTabActivity.class);
-		    	break;
-		    case R.string.sync_tagstore:
-		    	intent = createSyncIntent();
-		    	break;
-		    case R.string.about_tagstore:
-		    	intent = new Intent(MainPagerActivity.this, InfoTab.class);
-		    	break;
+		switch (item.getItemId()) {
+		case R.string.configuration:
+			intent = new Intent(MainPagerActivity.this,
+					ConfigurationTabActivity.class);
+			break;
+		case R.string.sync_tagstore:
+			intent = createSyncIntent();
+			break;
+		case R.string.about_tagstore:
+			intent = new Intent(MainPagerActivity.this, InfoTab.class);
+			break;
 		}
-		
+
 		//
 		// start activity
 		//
 		super.startActivity(intent);
 		return true;
 	}
-	
+
 	public Intent createSyncIntent() {
-		
+
 		SharedPreferences preferences = getSharedPreferences(
 				ConfigurationSettings.TAGSTORE_PREFERENCES_NAME,
 				Context.MODE_PRIVATE);
-		
+
 		// synchronization type
-		String sync_type = preferences.getString(ConfigurationSettings.CURRENT_SYNCHRONIZATION_TYPE, ConfigurationSettings.DEFAULT_SYNCHRONIZATION_TYPE);
-		
-		if (sync_type.equals(ConfigurationSettings.SYNCHRONIZATION_USB_TYPE))
-		{
+		String sync_type = preferences.getString(
+				ConfigurationSettings.CURRENT_SYNCHRONIZATION_TYPE,
+				ConfigurationSettings.DEFAULT_SYNCHRONIZATION_TYPE);
+
+		if (sync_type.equals(ConfigurationSettings.SYNCHRONIZATION_USB_TYPE)) {
 			// construct special synchronizer activity
-			return new Intent(MainPagerActivity.this, SynchronizeTagStoreActivity.class);
+			return new Intent(MainPagerActivity.this,
+					SynchronizeTagStoreActivity.class);
 		}
-		
+
 		// default synchronizer activity
-		return new Intent(MainPagerActivity.this, DropboxSynchronizerActivity.class);
+		return new Intent(MainPagerActivity.this,
+				DropboxSynchronizerActivity.class);
 	}
-	
-	
-	public boolean onCreateOptionsMenu (Menu menu)
-	{
+
+	public boolean onCreateOptionsMenu(Menu menu) {
 		//
 		// initialize the options menu
 		//
-		
-		menu.add(Menu.NONE, R.string.configuration, Menu.NONE, R.string.configuration).setIcon(R.drawable.options_selected);
-		menu.add(Menu.NONE, R.string.sync_tagstore, Menu.NONE, R.string.sync_tagstore).setIcon(R.drawable.refresh);
-		menu.add(Menu.NONE, R.string.about_tagstore, Menu.NONE, R.string.about_tagstore).setIcon(R.drawable.info);
-		
+
+		menu.add(Menu.NONE, R.string.configuration, Menu.NONE,
+				R.string.configuration).setIcon(R.drawable.options_selected);
+		menu.add(Menu.NONE, R.string.sync_tagstore, Menu.NONE,
+				R.string.sync_tagstore).setIcon(R.drawable.refresh);
+		menu.add(Menu.NONE, R.string.about_tagstore, Menu.NONE,
+				R.string.about_tagstore).setIcon(R.drawable.info);
+
 		//
 		// done
 		//

@@ -6,7 +6,6 @@ package org.me.tagstore.interfaces;
  * FileSystemObserverNotification. This notification is then invoked when a file
  * is created or changed.
  * 
- * @author Johannes Anderwald
  * 
  */
 public interface FileSystemObserverNotification {
@@ -27,5 +26,5 @@ public interface FileSystemObserverNotification {
 	 * @param type
 	 *            of change
 	 */
-	public void notify(String file_name, NotificationType type);
+	public abstract void notify(String file_name, NotificationType type);
 }

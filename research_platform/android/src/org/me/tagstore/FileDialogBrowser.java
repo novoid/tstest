@@ -23,7 +23,6 @@ import android.widget.TextView;
 /**
  * This class is used selecting directories to be monitored
  * 
- * @author Johannes Anderwald
  */
 public class FileDialogBrowser extends ListActivity {
 
@@ -86,7 +85,7 @@ public class FileDialogBrowser extends ListActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 
 		//
-		//
+		// informal debug print
 		//
 		Logger.d("FileDialogBrowser::onCreate");
 
@@ -109,7 +108,6 @@ public class FileDialogBrowser extends ListActivity {
 		// add select button click listener
 		//
 		m_SelectButton.setOnClickListener(new OnClickListener() {
-
 
 			public void onClick(View v) {
 				if (m_CurrentPath != null) {
@@ -214,37 +212,39 @@ public class FileDialogBrowser extends ListActivity {
 		SimpleAdapter adapter = new SimpleAdapter(this, m_ListViewMap,
 				R.layout.file_dialog_browser_row, new String[] {
 						DIRECTORY_NAME, DIRECTORY_IMAGE }, new int[] {
-						R.id.directory_name_text, R.id.directory_image });		
-		
+						R.id.directory_name_text, R.id.directory_image });
+
 		//
 		// construct file filter
 		//
 		FileFilter fileFilter = new FileFilter() {
-		    public boolean accept(File file) {
-		    	//
-		    	// only accept directories but don't include the tagstore directory
-		    	//
-		        return file.isDirectory() && (!file.getName().equals(ConfigurationSettings.TAGSTORE_DIRECTORY));
-		    }
+			public boolean accept(File file) {
+				//
+				// only accept directories but don't include the tagstore
+				// directory
+				//
+				return file.isDirectory()
+						&& (!file.getName().equals(
+								ConfigurationSettings.TAGSTORE_DIRECTORY));
+			}
 		};
-		
+
 		//
 		// collect list of directories
 		//
 		File[] cur_files = cur_file.listFiles(fileFilter);
-		
-		if (cur_files != null)
-		{
+
+		if (cur_files != null) {
 			//
 			// now sort the directories
 			//
 			Arrays.sort(cur_files, new Comparator<File>() {
 
 				public int compare(File arg0, File arg1) {
-					return arg0.getName().toLowerCase().compareTo(arg1.getName().toLowerCase());
+					return arg0.getName().toLowerCase()
+							.compareTo(arg1.getName().toLowerCase());
 				}
 			});
-		
 
 			//
 			// enumerate all directories
@@ -273,7 +273,7 @@ public class FileDialogBrowser extends ListActivity {
 				m_ListViewMap.add(map_entry);
 			}
 		}
-			
+
 		//
 		// notify data changed
 		//

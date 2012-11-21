@@ -938,8 +938,8 @@ if __name__ == '__main__':
     opt_parser = OptionParser("tagstore_sync.py [-source_store=<source_store>] [-target_store=<target_store>]")
     
     
-    opt_parser.add_option("-s", "--source_store", dest="source_store", help="absolute or relative path to the source tagstore")
-    opt_parser.add_option("-t", "--target_store", dest="target_store", help="absolute or relative path to the target tagstore")
+    opt_parser.add_option("-s", "--first_store", dest="first_store", help="absolute or relative path to the first tagstore")
+    opt_parser.add_option("-t", "--second_store", dest="second_store", help="absolute or relative path to the second tagstore")
     opt_parser.add_option("-a", "--auto_sync", dest="auto_sync", action="store_true", help="automatically start the sync process")
     #opt_parser.add_option("-c", "--hide_conflict", dest="conflict", help="")
             
@@ -955,11 +955,11 @@ if __name__ == '__main__':
     if options.verbose:
         verbose_mode = True
         
-    if options.source_store:
+    if options.first_store:
         source_store = options.source_store
 
-    if options.target_store:
-        target_store = options.target_store
+    if options.second_store:
+        target_store = options.second_store
 
     if options.auto_sync:
         auto_sync = True

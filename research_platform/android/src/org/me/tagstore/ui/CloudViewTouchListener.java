@@ -5,6 +5,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import org.me.tagstore.core.Logger;
+import org.me.tagstore.interfaces.CloudViewTouchListenerCallback;
 
 import android.view.MotionEvent;
 import android.view.View;
@@ -30,20 +31,14 @@ public class CloudViewTouchListener implements OnTouchListener {
 	/**
 	 * stores cloud view
 	 */
-	private CloudViewSurfaceAdapter m_view;
-	
+	private CloudViewTouchListenerCallback m_view;
+
 	/**
 	 * timer object
 	 */
 	private Timer m_timer;
-	
-	/**
-	 * constructor of class CloudTouchListener
-	 * 
-	 * @param view
-	 * @param m_tag_stack
-	 */
-	public CloudViewTouchListener(CloudViewSurfaceAdapter view) {
+
+	public void initCloudViewTouchListener(CloudViewTouchListenerCallback view) {
 
 		//
 		// construct array list storing Pointer class
@@ -54,7 +49,7 @@ public class CloudViewTouchListener implements OnTouchListener {
 		// store view for handling notifications
 		//
 		m_view = view;
-		
+
 		//
 		// construct new timer
 		//
@@ -85,7 +80,6 @@ public class CloudViewTouchListener implements OnTouchListener {
 
 	}
 
-	
 	public boolean onTouch(View v, MotionEvent event) {
 
 		//
@@ -113,9 +107,9 @@ public class CloudViewTouchListener implements OnTouchListener {
 			pointer.m_id = pointer_id;
 			pointer.m_time = System.currentTimeMillis();
 			pointer.m_moved = false;
-			
+
 			Logger.e("m_time:" + pointer.m_time);
-			
+
 			//
 			// add to pointer list
 			//
@@ -124,12 +118,12 @@ public class CloudViewTouchListener implements OnTouchListener {
 			//
 			// initialize timer
 			//
-			m_timer.schedule(new PointerTimerTask(), CloudViewConstants.CONTEXT_MENU_DELAY);
+			m_timer.schedule(new PointerTimerTask(),
+					CloudViewConstants.CONTEXT_MENU_DELAY);
 
 			Logger.i("onTouch> primary pointer down  ID: " + pointer_id
-					+ " pointer index: "
-					+ event.findPointerIndex(pointer_id) + " X: "
-					+ event.getX(pointer_id) + " Y: "
+					+ " pointer index: " + event.findPointerIndex(pointer_id)
+					+ " X: " + event.getX(pointer_id) + " Y: "
 					+ event.getY(pointer_id));
 		} else if (action == MotionEvent.ACTION_POINTER_DOWN) {
 			//
@@ -147,9 +141,8 @@ public class CloudViewTouchListener implements OnTouchListener {
 			m_pointers.add(pointer);
 
 			Logger.i("onTouch> pointer down  ID: " + pointer_id
-					+ " pointer index: "
-					+ event.findPointerIndex(pointer_id) + " X: "
-					+ event.getX(pointer_id) + " Y: "
+					+ " pointer index: " + event.findPointerIndex(pointer_id)
+					+ " X: " + event.getX(pointer_id) + " Y: "
 					+ event.getY(pointer_id));
 		}
 
@@ -167,14 +160,13 @@ public class CloudViewTouchListener implements OnTouchListener {
 				//
 				// calculate original distance
 				//
-				double distance1 = getDistance(p1.m_x, p2.m_x, p1.m_y,
-						p2.m_y);
+				double distance1 = getDistance(p1.m_x, p2.m_x, p1.m_y, p2.m_y);
 
 				//
 				// calculate new distance
 				//
-				double distance2 = getDistance(p1.m_current_x,
-						p2.m_current_x, p1.m_current_y, p2.m_current_y);
+				double distance2 = getDistance(p1.m_current_x, p2.m_current_x,
+						p1.m_current_y, p2.m_current_y);
 
 				//
 				// is distance smaller
@@ -201,17 +193,19 @@ public class CloudViewTouchListener implements OnTouchListener {
 				// single button press
 				//
 				Pointer p1 = m_pointers.get(0);
-				Logger.e("m_time:" + p1.m_time + " now: " + System.currentTimeMillis() + " diff: " + (System.currentTimeMillis() - p1.m_time));
-				
+				Logger.e("m_time:" + p1.m_time + " now: "
+						+ System.currentTimeMillis() + " diff: "
+						+ (System.currentTimeMillis() - p1.m_time));
+
 				//
 				// check if the mouse has been moved
 				//
-				if (p1.m_moved == false)
-				{
+				if (p1.m_moved == false) {
 					//
 					// move has not been moved
 					//
-					m_view.buttonPressed(p1.m_current_x, p1.m_current_y, System.currentTimeMillis() - p1.m_time);
+					m_view.buttonPressed(p1.m_current_x, p1.m_current_y,
+							System.currentTimeMillis() - p1.m_time);
 				}
 			}
 
@@ -221,26 +215,24 @@ public class CloudViewTouchListener implements OnTouchListener {
 			m_pointers.clear();
 
 			Logger.i("onTouch> primary pointer up  ID: " + pointer_id
-					+ " pointer index: "
-					+ event.findPointerIndex(pointer_id) + " X: "
-					+ event.getX(pointer_id) + " Y: "
+					+ " pointer index: " + event.findPointerIndex(pointer_id)
+					+ " X: " + event.getX(pointer_id) + " Y: "
 					+ event.getY(pointer_id));
 		}
 
 		if (action == MotionEvent.ACTION_POINTER_UP) {
-			
+
 			//
 			// secondary pointer up
 			//
 			Logger.i("onTouch> pointer up  ID: " + pointer_id
-					+ " pointer index: "
-					+ event.findPointerIndex(pointer_id) + " X: "
-					+ event.getX(pointer_id) + " Y: "
+					+ " pointer index: " + event.findPointerIndex(pointer_id)
+					+ " X: " + event.getX(pointer_id) + " Y: "
 					+ event.getY(pointer_id));
 		}
 
 		if (action == MotionEvent.ACTION_MOVE) {
-			
+
 			for (Pointer pointer : m_pointers) {
 				//
 				// get pointer index
@@ -259,71 +251,72 @@ public class CloudViewTouchListener implements OnTouchListener {
 				//
 				float current_x = event.getX(pointer_index);
 				float current_y = event.getY(pointer_index);
-				
+
 				//
 				// calculate difference to old position
 				//
 				float diff_x = pointer.m_current_x - current_x;
 				float diff_y = pointer.m_current_y - current_y;
-				
+
 				//
 				// is there a siginificant move
 				//
-				if (Math.abs(diff_x) >= CloudViewConstants.POINTER_MOVE_THRESHOLD || Math.abs(diff_y) >= CloudViewConstants.POINTER_MOVE_THRESHOLD)
-				{
+				if (Math.abs(diff_x) >= CloudViewConstants.POINTER_MOVE_THRESHOLD
+						|| Math.abs(diff_y) >= CloudViewConstants.POINTER_MOVE_THRESHOLD) {
 					//
 					// pointer has been moved
 					//
-					pointer.m_moved = true;	
-					
+					pointer.m_moved = true;
+
 					//
 					// update pointer details
 					//
 					pointer.m_current_x = current_x;
-					pointer.m_current_y = current_y;	
-					
+					pointer.m_current_y = current_y;
+
 					//
 					// notify view on move
 					//
 					m_view.onPointerMove(pointer_index, diff_x, diff_y);
 				}
-				
-				//Logger.i("move: pointer index: " + pointer_index + " x:" + pointer.m_current_x + " y:" + pointer.m_current_y + " time diff: " + (System.currentTimeMillis() - pointer.m_time));
+
+				// Logger.i("move: pointer index: " + pointer_index + " x:" +
+				// pointer.m_current_x + " y:" + pointer.m_current_y +
+				// " time diff: " + (System.currentTimeMillis() -
+				// pointer.m_time));
 			}
-			
-			
-			
+
 		}
 		return true;
 	}
-	
+
 	/**
-	 * this class is used to inform the view that a long key press is taking place
+	 * this class is used to inform the view that a long key press is taking
+	 * place
+	 * 
 	 * @author Johannes Anderwald
-	 *
+	 * 
 	 */
-	private class PointerTimerTask extends TimerTask
-	{
+	private class PointerTimerTask extends TimerTask {
 
 		@Override
 		public void run() {
-			if (m_pointers.size() == 1)
-			{
+			if (m_pointers.size() == 1) {
 				//
 				// inform view of a long press
 				//
 				Pointer p1 = m_pointers.get(0);
-				
+
 				//
 				// check if the mouse has been moved
 				//
-				if (p1.m_moved == false)
-				{
+				if (p1.m_moved == false) {
 					//
 					// the mouse is not moved, it is a key press
 					//
-					m_view.buttonPressed(p1.m_current_x, p1.m_current_y, System.currentTimeMillis() - p1.m_time);
-				
+					m_view.buttonPressed(p1.m_current_x, p1.m_current_y,
+							System.currentTimeMillis() - p1.m_time);
+
 					//
 					// clear pointer list to avoid redundant notification
 					//
@@ -331,7 +324,7 @@ public class CloudViewTouchListener implements OnTouchListener {
 				}
 			}
 		}
-		
+
 	}
-	
+
 }

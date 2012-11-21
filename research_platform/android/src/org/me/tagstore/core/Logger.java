@@ -6,7 +6,6 @@ import android.util.Log;
  * This class is used to send messages to the log output. Use i method for
  * informal messages, d for debugging messages and e for error messages
  * 
- * @author Johannes Anderwald
  */
 public class Logger {
 
