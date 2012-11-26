@@ -29,6 +29,13 @@ public class DatabaseResetTask implements Runnable {
 	private EventDispatcherInterface m_event_dispatcher;
 
 	/**
+	 * db manager instance
+	 */
+	private DBManager m_db_man;
+
+	private SyncFileLog m_file_log;
+
+	/**
 	 * initializes the reset task object
 	 * 
 	 * @param context
@@ -40,7 +47,7 @@ public class DatabaseResetTask implements Runnable {
 	 */
 	public void initializeDatabaseResetTask(Context context,
 			WatchdogServiceConnection connection,
-			EventDispatcherInterface event_dispatcher) {
+			EventDispatcherInterface event_dispatcher, DBManager db_man, SyncFileLog file_log) {
 
 		//
 		// init members
@@ -48,14 +55,11 @@ public class DatabaseResetTask implements Runnable {
 		m_context = context;
 		m_connection = connection;
 		m_event_dispatcher = event_dispatcher;
+		m_db_man = db_man;
+		m_file_log = file_log;
 	}
 
 	public void run() {
-
-		//
-		// acquire database manager instance
-		//
-		DBManager db_man = DBManager.getInstance();
 
 		//
 		// get default storage directory
@@ -70,7 +74,7 @@ public class DatabaseResetTask implements Runnable {
 		//
 		// get observed directories
 		//
-		ArrayList<String> observed_directory_list = db_man.getDirectories();
+		ArrayList<String> observed_directory_list = m_db_man.getDirectories();
 		if (observed_directory_list != null) {
 
 			//
@@ -87,13 +91,13 @@ public class DatabaseResetTask implements Runnable {
 		//
 		// reset the database
 		//
-		boolean reset_database = db_man.resetDatabase(m_context);
+		boolean reset_database = m_db_man.resetDatabase(m_context);
 		Logger.e("resetDatabase: " + reset_database);
 		if (reset_database) {
 			//
 			// add default storage directory
 			//
-			db_man.addDirectory(default_storage_path);
+			m_db_man.addDirectory(default_storage_path);
 
 			//
 			// re-register path with watch dog service
@@ -128,15 +132,13 @@ public class DatabaseResetTask implements Runnable {
 	 */
 	private void clearSyncLog() {
 
-		//
-		// construct sync log
-		//
-		SyncFileLog file_log = new SyncFileLog();
-
-		//
-		// clear the log
-		//
-		file_log.clearLogEntries();
+		if (m_file_log != null) {
+		
+			//
+			// clear the log
+			//
+			m_file_log.clearLogEntries();
+		}
 	}
 
 	/**

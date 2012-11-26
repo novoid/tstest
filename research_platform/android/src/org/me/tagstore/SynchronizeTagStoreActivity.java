@@ -2,6 +2,7 @@ package org.me.tagstore;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 import org.me.tagstore.R;
 import org.me.tagstore.core.ConfigurationSettings;
@@ -198,7 +199,7 @@ public class SynchronizeTagStoreActivity extends Activity implements
 			// construct date format
 			//
 			SimpleDateFormat date_format = new SimpleDateFormat(
-					"yyyy-MM-dd HH:mm:ss");
+					"yyyy-MM-dd HH:mm:ss", Locale.getDefault());
 
 			//
 			// format date

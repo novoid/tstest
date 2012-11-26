@@ -903,8 +903,7 @@ public class AddFileTagActivity extends Fragment implements
 			//
 			// initialize popular button
 			//
-			initializeTagButton(view, s_tag_button_ids[index], popular_tag,
-					true);
+			initializeTagButton(view, s_tag_button_ids[index], popular_tag);
 
 			//
 			// remove tag
@@ -957,7 +956,7 @@ public class AddFileTagActivity extends Fragment implements
 	 *            indicates if it is from popular tag button
 	 */
 	protected void initializeTagButton(View view, int button_id,
-			String button_text, boolean popular) {
+			String button_text) {
 
 		//
 		// first get the button from the view
@@ -973,8 +972,7 @@ public class AddFileTagActivity extends Fragment implements
 			//
 			// set click listener
 			//
-			button.setOnClickListener(new ButtonTagClickListener(button_id,
-					popular));
+			button.setOnClickListener(new ButtonTagClickListener(button_id));
 
 			//
 			// show button
@@ -993,8 +991,7 @@ public class AddFileTagActivity extends Fragment implements
 	 * @param popular
 	 *            indicates if it was one of the popular buttons
 	 */
-	protected void onTagButtonClick(int button_id, String button_text,
-			boolean popular) {
+	protected void onTagButtonClick(int button_id, String button_text) {
 
 		if (m_text_view != null) {
 			//
@@ -1037,49 +1034,45 @@ public class AddFileTagActivity extends Fragment implements
 		}
 
 		//
-		// check if this was one of the popular tags
+		// get button with this id
 		//
-		if (popular) {
-			//
-			// get button with this id
-			//
-			Button button = (Button) getView().findViewById(button_id);
+		Button button = (Button) getView().findViewById(button_id);
 
+		//
+		// check if there is a unused tag left
+		//
+		if (m_popular_tags.size() > 0) {
 			//
-			// check if there is a unused tag left
+			// grab first tag
 			//
-			if (m_popular_tags.size() > 0) {
+			String new_tag = m_popular_tags.toArray(new String[1])[0];
+			
+			//
+			// check if the view was found
+			//
+			if (button != null) {
 				//
-				// grab first tag
+				// update button text
 				//
-				String new_tag = m_popular_tags.toArray(new String[1])[0];
-
+				button.setText(new_tag);
+				
 				//
-				// check if the view was found
+				// remove consumed tag
 				//
-				if (button != null) {
-					//
-					// update button text
-					//
-					button.setText(new_tag);
-
-					//
-					// remove consumed tag
-					//
-					m_popular_tags.remove(0);
-				}
-			} else {
+				m_popular_tags.remove(new_tag);
+			}
+		} else {
+			//
+			// no more tags left, hide button
+			//
+			if (button != null) {
 				//
-				// no more tags left, hide button
+				// hide button
 				//
-				if (button != null) {
-					//
-					// hide button
-					//
-					button.setVisibility(View.INVISIBLE);
-				}
+				button.setVisibility(View.INVISIBLE);
 			}
 		}
+
 	}
 
 	/**
@@ -1330,11 +1323,6 @@ public class AddFileTagActivity extends Fragment implements
 	public class ButtonTagClickListener implements OnClickListener {
 
 		/**
-		 * indicates that one of the popular button were pressed
-		 */
-		private boolean m_popular_button;
-
-		/**
 		 * id of button
 		 */
 		private int m_button_id;
@@ -1349,13 +1337,12 @@ public class AddFileTagActivity extends Fragment implements
 		 * @param popular_button
 		 *            if it is one of the popular buttons
 		 */
-		ButtonTagClickListener(int button_id, boolean popular_button) {
+		ButtonTagClickListener(int button_id) {
 
 			//
 			// store settings
 			//
 			m_button_id = button_id;
-			m_popular_button = popular_button;
 		}
 
 		public void onClick(View v) {
@@ -1373,8 +1360,7 @@ public class AddFileTagActivity extends Fragment implements
 			//
 			// perform call back
 			//
-			onTagButtonClick(m_button_id, button_text.toString(),
-					m_popular_button);
+			onTagButtonClick(m_button_id, button_text.toString());
 		}
 	}
 

@@ -385,6 +385,9 @@ public class MainPageAdapter extends FragmentStatePagerAdapter implements
 	 * @return int
 	 */
 	public int getCurrentItem() {
-		return m_tab_indicator.getCurrentItem();
+		if (m_tab_indicator != null)
+			return m_tab_indicator.getCurrentItem();
+		else
+			return 0;
 	}
 }

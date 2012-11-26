@@ -68,7 +68,7 @@
     <string name="error_tag_exists">Der Tag existiert bereits</string>
     <string name="choose_one">Wählen Sie eine Option:</string>
     <string name="old_file_name">Aktueller Dateiname:</string>
-    <string name="tag_files">Anzahl der Tags:</string>
+    <string name="tag_files">Anzahl der assozierten Dateien:</string>
     <string name="error_wrong_action">Fehler: falsche Aktion</string>
     <string name="storage_directory">Ablage</string>
     <string name="error_file_removed">Die Datei wurde gelöscht</string>
@@ -103,7 +103,13 @@
     <string name="image">Bilder</string>
     <string name="open_as">Öffnen mit</string>
     <string name="controlled_vocabulary_preference">Kontrolliertes Vokabular</string>
-    <string name="controlled_vocabulary_summary">Wenn diese Option aktiviert ist, werden nur tags aus dem kontrollierten Vokabular verwendet</string>
+    <string name="controlled_vocabulary_summary">Wenn diese Option aktiviert ist, werden nur tags aus dem kontrollierten Vokabular verwendet.</string>
     <string name="tag_not_in_controlled_vocabulary">Der tag ist nicht im kontrollierten Vokabular enthalten</string>
     <string name="error_vocabulary_file_not_exists">Die Vokabel-Datei existiert nicht!</string>
+    <string name ="synchronization_settings">Synchronisierung</string>
+    <string name ="synchronization_type_preference_summary">Hier können Sie die bevorzugte Synchronisierungsmethode auswählen.</string>
+    <string name ="synchronization_settings_dropbox">Dropbox Einstellungen</string>
+    <string name ="synchronization_settings_dropbox_summary">Hier können Sie die Dropbox Einstellungen anpassen.</string>
+    <string name="synchronization_settings_smb">SMB Einstellungen</string>
+    <string name="synchronization_settings_smb_summary">Hier können Sie die SMB Einstellungen anpassen.</string>
 </resources>

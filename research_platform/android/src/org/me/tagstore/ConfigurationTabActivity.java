@@ -2,11 +2,13 @@ package org.me.tagstore;
 
 import org.me.tagstore.R;
 import org.me.tagstore.core.ConfigurationSettings;
+import org.me.tagstore.core.DBManager;
 import org.me.tagstore.core.DatabaseResetTask;
 import org.me.tagstore.core.EventDispatcher;
 import org.me.tagstore.core.Logger;
 import org.me.tagstore.core.MainServiceConnection;
 import org.me.tagstore.core.ServiceLaunchRunnable;
+import org.me.tagstore.core.SyncFileLog;
 import org.me.tagstore.core.VocabularyManager;
 import org.me.tagstore.interfaces.DatabaseResetCallback;
 import org.me.tagstore.ui.MainPageAdapter;
@@ -55,9 +57,6 @@ public class ConfigurationTabActivity extends PreferenceActivity implements
 
 		//
 		// unregister us from the event dispatcher
-		//
-		//
-		// register us with event dispatcher
 		//
 		EventDispatcher.getInstance().unregisterEvent(
 				EventDispatcher.EventId.DATABASE_RESET_EVENT, this);
@@ -108,7 +107,7 @@ public class ConfigurationTabActivity extends PreferenceActivity implements
 							task.initializeDatabaseResetTask(
 									ConfigurationTabActivity.this
 											.getApplicationContext(),
-									m_connection, EventDispatcher.getInstance());
+									m_connection, EventDispatcher.getInstance(), DBManager.getInstance(), new SyncFileLog());
 
 							//
 							// construct worker thread

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Locale;
 
 import org.me.tagstore.R;
 import org.me.tagstore.core.ConfigurationSettings;
@@ -241,8 +242,8 @@ public class FileDialogBrowser extends ListActivity {
 			Arrays.sort(cur_files, new Comparator<File>() {
 
 				public int compare(File arg0, File arg1) {
-					return arg0.getName().toLowerCase()
-							.compareTo(arg1.getName().toLowerCase());
+					return arg0.getName().toLowerCase(Locale.getDefault())
+							.compareTo(arg1.getName().toLowerCase(Locale.getDefault()));
 				}
 			});
 

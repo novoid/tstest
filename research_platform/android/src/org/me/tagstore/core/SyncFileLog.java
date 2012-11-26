@@ -77,7 +77,7 @@ public class SyncFileLog {
 
 		// let FileLog handle it
 		return m_file_log.readLogEntries(getStoreConfigPath(),
-				item_path_prefix, entries);
+				item_path_prefix, entries, true);
 
 	}
 
@@ -101,6 +101,6 @@ public class SyncFileLog {
 
 		// let FileLog handle it
 		return m_file_log.writeLogEntries(getStoreConfigPath(),
-				item_path_prefix, entries);
+				item_path_prefix, entries, true);
 	}
 }

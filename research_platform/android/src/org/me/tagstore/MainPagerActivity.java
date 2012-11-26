@@ -13,6 +13,8 @@ import org.me.tagstore.core.MainFileSystemObserverNotification;
 import org.me.tagstore.core.MainServiceConnection;
 import org.me.tagstore.core.ServiceLaunchRunnable;
 import org.me.tagstore.core.StorageTimerTask;
+import org.me.tagstore.core.SyncFileLog;
+import org.me.tagstore.core.SyncFileWriter;
 import org.me.tagstore.core.TagStackManager;
 import org.me.tagstore.core.TagStoreFileChecker;
 import org.me.tagstore.core.VocabularyManager;
@@ -85,6 +87,24 @@ public class MainPagerActivity extends FragmentActivity {
 	 */
 	private ConfigurationChecker m_configuration_checker = null;
 
+	public final static int REQUEST_CODE = 1;
+	
+	public boolean m_success = false;
+	public boolean m_test_done = false;
+	
+	
+	protected void onActivityResult(int requestCode, int resultCode,
+            Intent data) {
+        if (requestCode == REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                // A contact was picked.  Here we will just display it
+                // to the user.
+                m_success = true;
+            }
+            m_test_done = true;
+        }
+    }	
+	
 	public void onStop() {
 
 		super.onStop();
@@ -207,6 +227,12 @@ public class MainPagerActivity extends FragmentActivity {
 		//
 		m_launcher_thread = new Thread(m_launcher);
 		m_launcher_thread.start();
+		try {
+			m_launcher_thread.join();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 		//
 		// register file checker task / configuration checker task
@@ -266,7 +292,10 @@ public class MainPagerActivity extends FragmentActivity {
 		// construct file checker
 		//
 		m_file_checker = new TagStoreFileChecker();
-
+		SyncFileWriter file_writer = new SyncFileWriter();
+		file_writer.setDBManagerAndFileLog(DBManager.getInstance(), new SyncFileLog());
+		m_file_checker.initializeTagStoreFileChecker(DBManager.getInstance(),  file_writer);
+		
 		//
 		// acquire instance of storage timer task
 		//

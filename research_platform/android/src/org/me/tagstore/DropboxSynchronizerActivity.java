@@ -2,6 +2,7 @@ package org.me.tagstore;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 import org.me.tagstore.R;
 import org.me.tagstore.core.ConfigurationSettings;
@@ -455,8 +456,7 @@ public class DropboxSynchronizerActivity extends Activity implements
 
 		// format result
 		String dialog_msg = String.format(dialog_msg_format,
-				data.m_source_file, data.m_source_store, data.m_target_file,
-				data.m_target_store);
+				data.m_target_file, data.m_target_store, data.m_source_file, data.m_source_store);
 		alert_dialog.setMessage(dialog_msg);
 
 		// set button notifier
@@ -508,7 +508,7 @@ public class DropboxSynchronizerActivity extends Activity implements
 				String msg = getString(R.string.sync_completed);
 
 				SimpleDateFormat date_format = new SimpleDateFormat(
-						"yyyy-MM-dd HH:mm:ss");
+						"yyyy-MM-dd HH:mm:ss", Locale.getDefault());
 
 				// get date
 				String date = date_format.format(new Date());

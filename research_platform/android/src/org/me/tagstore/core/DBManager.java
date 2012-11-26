@@ -781,6 +781,9 @@ public class DBManager {
 	 */
 	public boolean removeFile(String filename) {
 
+		if (m_db == null)
+			return false;
+		
 		try {
 			long pending_affected = 0;
 			long file_cache_affected = 0;

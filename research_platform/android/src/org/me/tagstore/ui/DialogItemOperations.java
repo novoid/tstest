@@ -456,7 +456,7 @@ public class DialogItemOperations {
 			// start activity
 			//
 			Assert.assertTrue(m_activity_group != null);
-			m_activity_group.startActivity(intent);
+			m_activity_group.startActivityForResult(intent, 1);
 		} catch (android.content.ActivityNotFoundException exc) {
 			//
 			// file failed to launch, launch open as dialog

@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Locale;
 
 import org.me.tagstore.R;
 import org.me.tagstore.core.DBManager;
@@ -554,7 +555,7 @@ public class ShareActivity extends ListActivity {
 		//
 		// get intent type
 		//
-		String type = getIntent().getType().toLowerCase();
+		String type = getIntent().getType().toLowerCase(Locale.getDefault());
 
 		String path = null;
 		if (type.startsWith("image")) {

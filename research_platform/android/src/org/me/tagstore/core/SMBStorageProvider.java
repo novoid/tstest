@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.StreamTokenizer;
+import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -21,6 +22,7 @@ import jcifs.smb.SmbSession;
 import org.me.tagstore.interfaces.StorageProvider;
 
 import android.content.Context;
+import android.os.AsyncTask;
 
 public class SMBStorageProvider implements StorageProvider {
 
@@ -322,8 +324,10 @@ public class SMBStorageProvider implements StorageProvider {
 			e.printStackTrace();
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-
+		
 		// clear authentication
 		m_authentication = null;
 
@@ -331,25 +335,78 @@ public class SMBStorageProvider implements StorageProvider {
 		return false;
 	}
 
+	private void initialize() {
+		
+		Thread thread = new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				
+				InetAddress address = null;
+				
+				try {
+					// get address
+					address = InetAddress.getLocalHost();
+					Logger.e("addr: " + address.getHostAddress());
+				} catch (UnknownHostException e) {
+					e.printStackTrace();
+				}
+						
+				// set properties
+				jcifs.Config.setProperty("jcifs.encoding", "Cp1252");
+				jcifs.Config.setProperty("jcifs.smb.lmCompatibility", "0");
+				jcifs.Config.setProperty("jcifs.netbios.hostname", "AndroidPhone");
+				
+				if (address != null) {
+					jcifs.Config.setProperty("jcifs.netbios.laddr", address.getHostAddress());				
+				}
+
+				// register smb url handler
+				jcifs.Config.registerSmbURLHandler();
+				
+			}
+			
+		});
+		
+		try {
+			thread.start();			
+			thread.join();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		
+	}
+	
 	public static StorageProvider getInstance() {
 
 		if (s_Instance == null) {
 
 			// build new instance
 			s_Instance = new SMBStorageProvider();
-
-			// set properties
-			jcifs.Config.setProperty("jcifs.encoding", "Cp1252");
-			jcifs.Config.setProperty("jcifs.smb.lmCompatibility", "0");
-			jcifs.Config.setProperty("jcifs.netbios.hostname", "AndroidPhone");
-
-			// register smb url handler
-			jcifs.Config.registerSmbURLHandler();
-
+			
+			// initialize it
+			s_Instance.initialize();
 		}
 
 		// done
 		return s_Instance;
-
 	}
+	
+	static class SMBStorageProviderInitializer extends AsyncTask<Void, Void, Void> {
+
+		@Override
+		protected Void doInBackground(Void... params) {
+
+		
+			
+			
+			return null;
+		}
+		
+	}
+	
+	
 }

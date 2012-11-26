@@ -17,16 +17,22 @@ public class TagStoreFileChecker implements
 	 * database manager
 	 */
 	private DBManager m_db_man = null;
+	
+	/**
+	 * file log
+	 */
+	private SyncFileWriter m_file_writer = null;
 
 	/**
 	 * sets handle for database manager
 	 * 
 	 * @param db_man
 	 */
-	public void setDBManager(DBManager db_man) {
+	public void initializeTagStoreFileChecker(DBManager db_man, SyncFileWriter file_writer) {
 
 		// store handle
 		m_db_man = db_man;
+		m_file_writer  = file_writer;
 	}
 
 	/**
@@ -51,6 +57,8 @@ public class TagStoreFileChecker implements
 		if (files == null)
 			return true;
 
+		boolean modified = false;
+		
 		//
 		// check if all files still exist
 		//
@@ -60,10 +68,17 @@ public class TagStoreFileChecker implements
 				//
 				// remove file from database
 				//
-				m_db_man.removeFile(file_path);
+				modified = m_db_man.removeFile(file_path);
 			}
 		}
-
+		
+		if (modified) {
+			
+			// refresh database
+			m_file_writer.writeTagstoreFiles();
+		}
+		
+		
 		//
 		// now unregister ourselves
 		//

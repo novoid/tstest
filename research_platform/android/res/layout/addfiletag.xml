@@ -116,11 +116,14 @@
         android:id="@+id/button_tag_done"
         android:background="@drawable/buttonshape"        
         android:layout_width="wrap_content"
-        android:layout_height="35dip"
+        android:layout_height="50dip"
         android:paddingRight="10dip"
-        android:paddingLeft="10dip"  
+        android:paddingLeft="10dip"
+        android:paddingTop="10dip"
+        android:layout_marginBottom="10dip"  
+        android:paddingBottom="10dip"
         android:layout_marginRight="10dip"      
-        android:layout_alignParentRight="true"
+        android:layout_centerHorizontal="true"
         android:text="@string/tag_me" />
 </RelativeLayout>
 

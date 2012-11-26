@@ -221,6 +221,10 @@ public class SynchronizationAlgorithmBackend {
 				+ File.separator
 				+ m_context.getString(R.string.storage_directory);
 
+		// remove slashes
+		String store_name = m_target_store_path.substring(1);
+		store_name = store_name.replace("/", "");
+		
 		m_source_store_sync_tag_path = android.os.Environment
 				.getExternalStorageDirectory().getAbsolutePath()
 				+ File.separator
@@ -228,7 +232,7 @@ public class SynchronizationAlgorithmBackend {
 				+ File.separator
 				+ ConfigurationSettings.CONFIGURATION_DIRECTORY
 				+ File.separator
-				+ m_target_store_path.substring(1)
+				+ store_name
 				+ ConfigurationSettings.DEFAULT_SYNC_FILE_NAME;
 
 	}
@@ -331,19 +335,19 @@ public class SynchronizationAlgorithmBackend {
 
 		// target log entries
 		m_target_log.readLogEntries(m_target_store_tag_path,
-				target_item_path_prefix, m_target_entries);
+				target_item_path_prefix, m_target_entries, false);
 
 		// source log entries
 		m_source_log.readLogEntries(m_source_store_tag_path,
-				source_item_path_prefix, m_source_entries);
+				source_item_path_prefix, m_source_entries, false);
 
 		// target sync log entries
 		m_target_sync_log.readLogEntries(m_target_store_sync_tag_path,
-				target_item_path_prefix, m_target_sync_entries);
+				target_item_path_prefix, m_target_sync_entries, false);
 
 		// source sync log entries
 		m_source_sync_log.readLogEntries(m_source_store_sync_tag_path,
-				source_item_path_prefix, m_source_sync_entries);
+				source_item_path_prefix, m_source_sync_entries, false);
 
 		// notify sync info
 		m_event_dispatcher.signalEvent(
@@ -379,6 +383,9 @@ public class SynchronizationAlgorithmBackend {
 				EventDispatcher.EventId.SYNC_UPLOAD_EVENT,
 				new Object[] { source_path });
 
+		// first delete it
+		m_provider.deleteFile(target_path);
+		
 		// upload file
 		boolean result = m_provider.uploadFile(source_path, target_path);
 		return result;
@@ -396,7 +403,7 @@ public class SynchronizationAlgorithmBackend {
 					new Object[] { error_msg });
 			return false;
 		}
-
+	
 		// first download store file
 		result = downloadStoreTagFile();
 		if (!result) {
@@ -425,13 +432,33 @@ public class SynchronizationAlgorithmBackend {
 		return true;
 	}
 
+	public void fixUpFileLogs() {
+		
+		ArrayList<SyncLogEntry> temp_list = new ArrayList<SyncLogEntry>();
+		
+		for(SyncLogEntry entry : m_source_entries) {
+			
+			// check if file exist
+			File file = new File(entry.m_file_name);
+			if (!file.exists() || !file.isFile()) {
+				temp_list.add(entry);
+			}
+		}
+		
+		// remove deleted entries
+		m_source_entries.removeAll(temp_list);
+	}
+	
 	public boolean performSynchronization() {
 
 		// now initialize the store files
 		readFileLogs();
 
+		// fix up log
+		fixUpFileLogs();
+		
 		// dump file logs
-		dumpFileLogs();
+		//dumpFileLogs();
 
 		// construct conflict list
 		m_conflict_list = new ArrayList<ConflictData>();
@@ -519,12 +546,30 @@ public class SynchronizationAlgorithmBackend {
 			}
 		}
 
+		SyncLogEntry entry = getEntry(data.m_source_file, isLocalPath(data.m_source_file));
+		if (data.m_type == ConflictType.DELETE_WRITE_CONFLICT) {
+			
+			SyncLogEntry target_entry = replicateNewEntry(entry);
+			if (isLocalEntry(entry)) 
+				m_target_entries.add(target_entry);
+			else
+				m_source_entries.add(target_entry);
+		}
+		
 		// get entries
-		SyncLogEntry entry, target_entry;
-		entry = getEntry(data.m_source_file, isLocalPath(data.m_source_file));
-		target_entry = getEntry(data.m_source_file,
+		SyncLogEntry target_entry;
+
+		target_entry = getEntry(data.m_target_file,
 				isLocalPath(data.m_target_file));
 
+		if (data.m_type == ConflictType.SEMANTIC_CONFLICT_TYPE) {
+			
+			// apply tags from source
+			target_entry.m_tags = entry.m_tags;
+		}
+		
+		
+		
 		if (isLocalPath(data.m_target_file)) {
 			// sync file
 			syncNewTags(entry, target_entry, false, m_target_sync_entries);
@@ -539,12 +584,8 @@ public class SynchronizationAlgorithmBackend {
 			syncFile(entry, target_entry);
 		}
 
-		if (!m_conflict_list.isEmpty()) {
-			// fire conflict event
-			m_event_dispatcher.signalEvent(
-					EventDispatcher.EventId.SYNC_CONFLICT_EVENT, null);
-		}
-
+		// fire conflict event
+		m_event_dispatcher.signalEvent(EventDispatcher.EventId.SYNC_CONFLICT_EVENT, null);
 	}
 
 	/**
@@ -689,19 +730,19 @@ public class SynchronizationAlgorithmBackend {
 
 		// target log entries
 		m_target_log.writeLogEntries(m_target_store_tag_path,
-				target_item_path_prefix, m_target_entries);
+				target_item_path_prefix, m_target_entries, false);
 
 		// source log entries
 		m_source_log.writeLogEntries(m_source_store_tag_path,
-				source_item_path_prefix, m_source_entries);
+				source_item_path_prefix, m_source_entries, false);
 
 		// target sync log entries
 		m_target_sync_log.writeLogEntries(m_target_store_sync_tag_path,
-				target_item_path_prefix, m_target_sync_entries);
+				target_item_path_prefix, m_target_sync_entries, false);
 
 		// source sync log entries
 		m_source_sync_log.writeLogEntries(m_source_store_sync_tag_path,
-				source_item_path_prefix, m_source_sync_entries);
+				source_item_path_prefix, m_source_sync_entries, false);
 
 		// init paths
 		String target_sync_path = m_target_store_path + File.separator
@@ -785,6 +826,11 @@ public class SynchronizationAlgorithmBackend {
 
 		for (SyncLogEntry entry : source_list) {
 
+			if (!entry.m_tags.contains(FileLog.SHARED_TAG))
+			{
+				Logger.e(entry.m_tags);
+				continue;
+			}
 			synchronizeLogEntry(entry, target_list, target_sync_list);
 		}
 
@@ -921,23 +967,7 @@ public class SynchronizationAlgorithmBackend {
 				isLocalEntry(entry));
 		if (source_date.compareTo(sync_date) <= 0) {
 
-			Logger.i("[SYNC] syncing source file " + entry.m_file_name);
-
-			// sync new entries
-			syncNewTags(entry, target_entry, isLocalEntry(entry),
-					target_sync_entries);
-
-			// sync file
-			syncFile(entry, target_entry);
-			return;
-		}
-
-		// get modification date from remote store
-		Date target_date = getModificationDate(target_entry.m_file_name,
-				isLocalEntry(target_entry));
-		if (target_date.compareTo(sync_date) <= 0) {
-
-			Logger.i("[SYNC] syncing target file " + entry.m_file_name);
+			Logger.i("[SYNC] syncing file " + target_entry.m_file_name);
 
 			// sync new entries
 			syncNewTags(entry, target_entry, isLocalEntry(entry),
@@ -948,14 +978,50 @@ public class SynchronizationAlgorithmBackend {
 			return;
 		}
 
+		// get modification date from remote store
+		Date target_date = getModificationDate(target_entry.m_file_name,
+				isLocalEntry(target_entry));
+		if (target_date.compareTo(sync_date) <= 0) {
+
+			Logger.i("[SYNC] syncing file " + entry.m_file_name);
+
+			// sync new entries
+			syncNewTags(entry, target_entry, isLocalEntry(entry),
+					target_sync_entries);
+
+			// sync file
+			syncFile(entry, target_entry);
+			return;
+		}
+
 		// both files modified or semantic conflict
+		Set<String> source_tags = m_utility.splitTagText(entry.m_tags);
+		Set<String> target_tags = m_utility.splitTagText(target_entry.m_tags);
+		
+		// remove shared tag
+		source_tags.remove(FileLog.SHARED_TAG);
+		target_tags.remove(FileLog.SHARED_TAG);
+		
+		// check if any are contained
+		int size = source_tags.size();
+		source_tags.removeAll(target_tags);
+		int new_size = source_tags.size();
+
 		Logger.e("[SYNC] write conflict sync date: " + sync_date
 				+ " source_file: " + source_date + " target date: "
-				+ target_date);
-
-		// add conflict
-		addConflict(entry.m_file_name, target_entry.m_file_name,
-				ConflictType.WRITE_CONFLICT_TYPE);
+				+ target_date + " semantic: " + (size == new_size));
+		
+		if (size == new_size) {
+			
+			// semantic conflict
+			addConflict(entry.m_file_name, target_entry.m_file_name, ConflictType.SEMANTIC_CONFLICT_TYPE);
+		}
+		else
+		{
+			// write conflict
+			addConflict(entry.m_file_name, target_entry.m_file_name,
+					ConflictType.WRITE_CONFLICT_TYPE);			
+		}
 	}
 
 	private void updateSyncLogEntryTimeStamp(SyncLogEntry entry) {
@@ -980,7 +1046,7 @@ public class SynchronizationAlgorithmBackend {
 		}
 	}
 
-	private void syncFile(SyncLogEntry target_entry, SyncLogEntry source_entry) {
+	private void syncFile(SyncLogEntry source_entry, SyncLogEntry target_entry) {
 
 		String target_rev = null;
 		String remote_path = "";
@@ -1089,6 +1155,11 @@ public class SynchronizationAlgorithmBackend {
 
 			// add to target sync list
 			target_sync_entries.add(sync_entry);
+		}
+		else
+		{
+			// append merge tags
+			sync_entry.m_tags = convertToString(source_tags);
 		}
 
 		// store sync date
@@ -1239,6 +1310,16 @@ public class SynchronizationAlgorithmBackend {
 
 	}
 
+	private Date getSyncModificationDate(SyncLogEntry entry) {
+		
+		String date_str = entry.m_time_stamp;
+		if (date_str == null)
+			return null;
+		
+		TimeFormatUtility utility = new TimeFormatUtility();
+		return utility.parseDate(date_str, TimeZone.getDefault());
+	}
+	
 	private void synchronizeNewEntry(SyncLogEntry source_entry,
 			ArrayList<SyncLogEntry> target_entries,
 			ArrayList<SyncLogEntry> target_sync_entries) {
@@ -1252,6 +1333,21 @@ public class SynchronizationAlgorithmBackend {
 		if (target_sync_entry != null) {
 			Logger.i("[SKIP] File " + source_file_name
 					+ " was already synchronized once");
+			
+			// test delete write conflict
+			Date source_mod_date = getModificationDate(source_entry.m_file_name, isLocalEntry(source_entry));
+			Date sync_mod_date = getSyncModificationDate(target_sync_entry);
+			if (source_mod_date != null && sync_mod_date != null) {
+				
+				if (source_mod_date.after(sync_mod_date)) {
+					
+					// delete write conflict
+					addConflict(source_entry.m_file_name, m_target_storage_path + File.separator + source_file_name,
+							ConflictType.DELETE_WRITE_CONFLICT);					
+					return;
+				}
+			}
+			
 			return;
 		}
 
@@ -1490,8 +1586,7 @@ public class SynchronizationAlgorithmBackend {
 
 	public enum ConflictType {
 
-		CREATE_CONFLICT_TYPE, WRITE_CONFLICT_TYPE, SEMANTIC_CONFLICT_TYPE
-	};
+		CREATE_CONFLICT_TYPE, WRITE_CONFLICT_TYPE, SEMANTIC_CONFLICT_TYPE, DELETE_WRITE_CONFLICT};
 
 	public class ConflictData {
 

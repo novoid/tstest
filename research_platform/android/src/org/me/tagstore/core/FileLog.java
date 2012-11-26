@@ -1,13 +1,20 @@
 package org.me.tagstore.core;
 
+import android.annotation.SuppressLint;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 
 /**
@@ -116,7 +123,7 @@ public class FileLog {
 	}
 
 	public boolean readLogEntries(BufferedReader reader,
-			ArrayList<SyncLogEntry> entries, String item_path_prefix) {
+			ArrayList<SyncLogEntry> entries, String item_path_prefix, boolean remove_shared_tag) {
 
 		try {
 			boolean settings_section_found = false;
@@ -192,7 +199,7 @@ public class FileLog {
 					}
 
 					// now extract all entries
-					return readEntries(reader, entries, item_path_prefix);
+					return readEntries(reader, entries, item_path_prefix, remove_shared_tag);
 				}
 
 			} while (line != null);
@@ -212,7 +219,7 @@ public class FileLog {
 	 *            populated list of sync log entries after reading the log
 	 */
 	public boolean readLogEntries(String path, String item_path_prefix,
-			ArrayList<SyncLogEntry> entries) {
+			ArrayList<SyncLogEntry> entries, boolean remove_shared_tag) {
 
 		//
 		// initialize sync reader
@@ -220,7 +227,9 @@ public class FileLog {
 		BufferedReader reader = null;
 
 		try {
-			reader = new BufferedReader(new FileReader(path));
+			//reader = new BufferedReader(new FileReader(path));
+			reader = new BufferedReader(new InputStreamReader(new FileInputStream(path), "ISO-8859-15"));
+			
 		} catch (IOException e) {
 			return false;
 		}
@@ -228,7 +237,7 @@ public class FileLog {
 		//
 		// read entries
 		//
-		boolean result = readLogEntries(reader, entries, item_path_prefix);
+		boolean result = readLogEntries(reader, entries, item_path_prefix, remove_shared_tag);
 
 		try {
 			reader.close();
@@ -244,8 +253,9 @@ public class FileLog {
 	 * @param entries
 	 *            stores the initialized SyncLogEntry objects
 	 */
+	@SuppressLint("NewApi")
 	private boolean readEntries(BufferedReader reader,
-			ArrayList<SyncLogEntry> entries, String path) {
+			ArrayList<SyncLogEntry> entries, String path, boolean remove_shared_tag) {
 
 		// append seperator
 		path += File.separator;
@@ -258,7 +268,7 @@ public class FileLog {
 				String line = reader.readLine();
 				if (line == null)
 					break;
-
+				
 				// check for white spaces and empty lines
 				line.trim();
 				if (line.length() == 0)
@@ -309,7 +319,11 @@ public class FileLog {
 				if (keyword.compareTo(FileLog.TIMESTAMP) == 0) {
 					log_entry.m_time_stamp = value;
 				} else if (keyword.compareTo(FileLog.TAGS) == 0) {
-					log_entry.m_tags = value.replace(SHARED_TAG, "");
+					
+					if (remove_shared_tag)
+						log_entry.m_tags = value.replace(SHARED_TAG, "");
+					else
+						log_entry.m_tags = value;
 				}
 
 			} while (true);
@@ -321,7 +335,7 @@ public class FileLog {
 	}
 
 	public boolean writeLogEntries(BufferedWriter writer,
-			String strip_path_prefix, ArrayList<SyncLogEntry> entries) {
+			String strip_path_prefix, ArrayList<SyncLogEntry> entries, boolean append_shared_tag) {
 
 		try {
 			writer.append(SETTINGS_SECTION);
@@ -350,11 +364,16 @@ public class FileLog {
 						.length() + 1);
 			}
 
+			String tags = entry.m_tags;
+			if (append_shared_tag)
+				tags += "," + SHARED_TAG;
+			
+			
 			//
 			// add log entry
 			//
 			if (!processFile(writer, file_name,
-					entry.m_tags + "," + SHARED_TAG, entry.m_time_stamp,
+					tags, entry.m_time_stamp,
 					entry.m_hash_sum))
 				return false;
 		}
@@ -369,19 +388,20 @@ public class FileLog {
 	 * @return true on success
 	 */
 	public boolean writeLogEntries(String filepath, String strip_path_prefix,
-			ArrayList<SyncLogEntry> entries) {
+			ArrayList<SyncLogEntry> entries, boolean append_shared_tag) {
 
 		// construct file writer
 		BufferedWriter writer = null;
 
 		try {
-			writer = new BufferedWriter(new FileWriter(filepath, false));
+			writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filepath), "ISO-8859-15"));
+					
 		} catch (IOException exc) {
 			return false;
 		}
 
 		// write entries
-		boolean result = writeLogEntries(writer, strip_path_prefix, entries);
+		boolean result = writeLogEntries(writer, strip_path_prefix, entries, append_shared_tag);
 
 		//
 		// close the log

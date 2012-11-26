@@ -184,7 +184,10 @@ public class FileWatchdogService extends Service implements
 		// file was created, construct file object
 		//
 		File new_file = new File(file_name);
-
+		if (new_file.isDirectory()) {
+			return;
+		}
+		
 		//
 		// get parent directory of file
 		//
