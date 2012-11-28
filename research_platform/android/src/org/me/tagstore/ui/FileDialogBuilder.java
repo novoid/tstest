@@ -1,6 +1,7 @@
 package org.me.tagstore.ui;
 
 import java.io.File;
+import java.sql.Date;
 import java.util.ArrayList;
 
 import org.me.tagstore.R;
@@ -290,17 +291,30 @@ public class FileDialogBuilder {
 			// get & update file date
 			//
 			String utc_file_date = m_db_man.getFileDate(file_name);
+			TimeFormatUtility format_utility = new TimeFormatUtility();
 			if (utc_file_date != null) {
 				//
 				// convert date to local time
 				//
-				String local_time = new TimeFormatUtility()
+				String local_time = format_utility
 						.convertStringToLocalTime(utc_file_date);
 
 				//
 				// update time
 				//
 				text.setText(local_time);
+			}
+			else
+			{
+				// construct date object
+				Date date = new Date(file.lastModified());
+				String local_time = format_utility.convertDateToLocalTime(date);
+				if (local_time != null) {
+					//
+					// update time
+					//
+					text.setText(local_time);
+				}
 			}
 		}
 	}
