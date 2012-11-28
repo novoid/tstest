@@ -10,6 +10,7 @@ import java.net.MalformedURLException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.TimeZone;
 
 import jcifs.UniAddress;
 import jcifs.smb.NtlmPasswordAuthentication;
@@ -285,8 +286,13 @@ public class SMBStorageProvider implements StorageProvider {
 
 			// construct smb file
 			SmbFile file = new SmbFile(target_path, m_authentication);
-			return new Date(file.lastModified());
-
+			Date date = new Date(file.lastModified());
+			
+			// FIXME 
+			// detect timezone
+			TimeFormatUtility utility = new TimeFormatUtility();
+			return utility.parseDate(utility.convertDateToUTC(date), TimeZone.getDefault());
+			
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		} catch (SmbException e) {

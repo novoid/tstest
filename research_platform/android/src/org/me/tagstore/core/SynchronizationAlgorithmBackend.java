@@ -549,12 +549,32 @@ public class SynchronizationAlgorithmBackend {
 		SyncLogEntry entry = getEntry(data.m_source_file, isLocalPath(data.m_source_file));
 		if (data.m_type == ConflictType.DELETE_WRITE_CONFLICT) {
 			
-			SyncLogEntry target_entry = replicateNewEntry(entry);
+			SyncLogEntry target_entry = replicateNewEntry(entry, !isLocalEntry(entry));
 			if (isLocalEntry(entry)) 
 				m_target_entries.add(target_entry);
 			else
 				m_source_entries.add(target_entry);
 		}
+		else if (data.m_type == ConflictType.CREATE_CONFLICT_TYPE) {
+			
+			// check local sync entry
+			SyncLogEntry temp_entry;
+			if (isLocalPath(data.m_source_file))
+				temp_entry = findEntry(getFilenameFromEntry(entry), m_source_sync_entries);
+			else
+				temp_entry = findEntry(getFilenameFromEntry(entry), m_target_sync_entries);
+			
+			if (temp_entry == null) {
+				// lets create an entry
+				temp_entry = replicateNewEntry(entry, isLocalEntry(entry));
+				if (isLocalPath(data.m_source_file))
+					m_source_sync_entries.add(temp_entry);
+				else
+					m_target_sync_entries.add(temp_entry);
+			}
+			
+		}
+		
 		
 		// get entries
 		SyncLogEntry target_entry;
@@ -572,13 +592,13 @@ public class SynchronizationAlgorithmBackend {
 		
 		if (isLocalPath(data.m_target_file)) {
 			// sync file
-			syncNewTags(entry, target_entry, false, m_target_sync_entries);
+			syncNewTags(entry, target_entry, m_source_sync_entries);
 
 			// sync file
 			syncFile(entry, target_entry);
 		} else {
 			// sync file
-			syncNewTags(entry, target_entry, true, m_source_sync_entries);
+			syncNewTags(entry, target_entry, m_target_sync_entries);
 
 			// sync file
 			syncFile(entry, target_entry);
@@ -880,7 +900,8 @@ public class SynchronizationAlgorithmBackend {
 			}
 
 			// acquire source time modified
-			return new Date(source_file.lastModified());
+			TimeFormatUtility utility = new TimeFormatUtility();
+			return utility.parseDate(utility.convertDateToUTC(new Date(source_file.lastModified())), TimeZone.getDefault());
 		} else {
 			// get modification date
 			return m_provider.getFileModificationDate(file_path);
@@ -932,7 +953,7 @@ public class SynchronizationAlgorithmBackend {
 
 		if (files_equal) {
 			// sync new tags
-			syncNewTags(entry, target_entry, isLocalEntry(entry),
+			syncNewTags(entry, target_entry,
 					target_sync_entries);
 
 			String target_rev = m_provider
@@ -970,7 +991,7 @@ public class SynchronizationAlgorithmBackend {
 			Logger.i("[SYNC] syncing file " + target_entry.m_file_name);
 
 			// sync new entries
-			syncNewTags(entry, target_entry, isLocalEntry(entry),
+			syncNewTags(entry, target_entry,
 					target_sync_entries);
 
 			// sync file
@@ -986,7 +1007,7 @@ public class SynchronizationAlgorithmBackend {
 			Logger.i("[SYNC] syncing file " + entry.m_file_name);
 
 			// sync new entries
-			syncNewTags(entry, target_entry, isLocalEntry(entry),
+			syncNewTags(entry, target_entry,
 					target_sync_entries);
 
 			// sync file
@@ -1131,8 +1152,8 @@ public class SynchronizationAlgorithmBackend {
 		return temp_file;
 	}
 
-	private void syncNewTags(SyncLogEntry entry, SyncLogEntry target_entry,
-			boolean source_local, ArrayList<SyncLogEntry> target_sync_entries) {
+	private void syncNewTags(SyncLogEntry entry, SyncLogEntry target_entry, 
+			ArrayList<SyncLogEntry> target_sync_entries) {
 
 		// source tags
 		Set<String> source_tags = m_utility.splitTagText(entry.m_tags);
@@ -1151,7 +1172,7 @@ public class SynchronizationAlgorithmBackend {
 				target_sync_entries);
 		if (sync_entry == null) {
 			// no sync entry, construct new entry
-			sync_entry = replicateNewEntry(target_entry);
+			sync_entry = replicateNewEntry(target_entry, isLocalEntry(target_entry));
 
 			// add to target sync list
 			target_sync_entries.add(sync_entry);
@@ -1341,9 +1362,13 @@ public class SynchronizationAlgorithmBackend {
 				
 				if (source_mod_date.after(sync_mod_date)) {
 					
-					// delete write conflict
-					addConflict(source_entry.m_file_name, m_target_storage_path + File.separator + source_file_name,
-							ConflictType.DELETE_WRITE_CONFLICT);					
+					if (isLocalEntry(source_entry)) 
+						// delete write conflict
+						addConflict(source_entry.m_file_name, m_target_storage_path + File.separator + source_file_name,
+							ConflictType.DELETE_WRITE_CONFLICT);
+					else
+						addConflict(source_entry.m_file_name, m_source_storage_path + File.separator + source_file_name,
+								ConflictType.DELETE_WRITE_CONFLICT);
 					return;
 				}
 			}
@@ -1435,7 +1460,7 @@ public class SynchronizationAlgorithmBackend {
 		}
 
 		// construct replication entry for the log
-		SyncLogEntry new_entry = replicateNewEntry(source_entry);
+		SyncLogEntry new_entry = replicateNewEntry(source_entry, !isLocalEntry(source_entry));
 
 		// add new entry
 		target_entries.add(new_entry);
@@ -1443,6 +1468,20 @@ public class SynchronizationAlgorithmBackend {
 		// add to sync
 		target_sync_entries.add(new_entry);
 
+		// construct local entry
+		SyncLogEntry new_sync_entry = new SyncLogEntry();
+		new_sync_entry.m_file_name = source_entry.m_file_name;
+		new_sync_entry.m_hash_sum = source_entry.m_hash_sum;
+		new_sync_entry.m_tags = source_entry.m_tags;
+		new_sync_entry.m_time_stamp = new_entry.m_time_stamp;
+		
+		if (isLocalEntry(source_entry))
+			m_source_sync_entries.add(new_sync_entry);
+		else
+			m_target_sync_entries.add(new_sync_entry);
+		
+		
+		
 		if (target_rev != null) {
 			// store target revision
 			DBManager.getInstance().addSyncFileLog(
@@ -1451,7 +1490,7 @@ public class SynchronizationAlgorithmBackend {
 		}
 	}
 
-	private SyncLogEntry replicateNewEntry(SyncLogEntry entry) {
+	private SyncLogEntry replicateNewEntry(SyncLogEntry entry, boolean is_local) {
 
 		// construct new entry
 		SyncLogEntry new_entry = new SyncLogEntry();
@@ -1463,13 +1502,13 @@ public class SynchronizationAlgorithmBackend {
 		// get source name
 		String source_file_name = getFilenameFromEntry(entry);
 
-		if (isLocalEntry(entry)) {
+		if (is_local) {
 			// construct file name
-			new_entry.m_file_name = m_target_storage_path + File.separator
+			new_entry.m_file_name = m_source_storage_path + File.separator
 					+ source_file_name;
 		} else {
 			// construct local file name
-			new_entry.m_file_name = m_source_storage_path + File.separator
+			new_entry.m_file_name = m_target_storage_path + File.separator
 					+ source_file_name;
 		}
 
