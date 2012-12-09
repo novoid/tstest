@@ -56,7 +56,7 @@ class PidHelper(object):
         """
         LOG = LogHelper.get_app_logger(logging.INFO)
 
-        if pid != None and pid == "android"
+        if pid != None and pid == "android":
             # android serialization workaround
             return True
 
