@@ -57,7 +57,7 @@ class PidHelper(object):
         LOG = LogHelper.get_app_logger(logging.INFO)
 
         if pid != None and pid == "android"
-            # android serialization workarround
+            # android serialization workaround
             return True
 
         if sys.platform[:3] == "win":
