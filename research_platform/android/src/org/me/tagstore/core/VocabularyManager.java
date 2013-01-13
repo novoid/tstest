@@ -17,11 +17,6 @@ import android.os.Environment;
 public class VocabularyManager {
 
 	/**
-	 * reference to single instance
-	 */
-	private static VocabularyManager s_instance = null;
-
-	/**
 	 * application context
 	 */
 	private Context m_context;
@@ -34,28 +29,6 @@ public class VocabularyManager {
 	private IOUtils m_utils;
 
 	/**
-	 * returns the instance to the vocabulary manager
-	 * 
-	 * @return
-	 */
-	public static VocabularyManager getInstance() {
-
-		return s_instance;
-	}
-
-	/**
-	 * builds the single instance of the vocabulary manager
-	 * 
-	 * @param context
-	 *            application context
-	 */
-	public static VocabularyManager buildVocabularyManager(Context context) {
-
-		// done
-		return buildVocabularyManager(context, new IOUtils());
-	}
-
-	/**
 	 * builds single instance of the vocabulary manager
 	 * 
 	 * @param context
@@ -64,15 +37,12 @@ public class VocabularyManager {
 	 *            io class
 	 * @return
 	 */
-	public static VocabularyManager buildVocabularyManager(Context context,
+	public void initializeVocabularyManager(Context context,
 			IOUtils utils) {
 
-		// construct instance
-		s_instance = new VocabularyManager();
 
 		// initialize
-		s_instance.initialize(context, utils);
-		return s_instance;
+		initialize(context, utils);
 	}
 
 	/**

@@ -4,10 +4,10 @@ import java.util.ArrayList;
 
 import org.me.tagstore.R;
 import org.me.tagstore.core.ConfigurationSettings;
-import org.me.tagstore.core.DBManager;
 import org.me.tagstore.core.DropboxStorageProvider;
 import org.me.tagstore.core.Logger;
-import org.me.tagstore.ui.ToastManager;
+import org.me.tagstore.core.TagstoreApplication;
+
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -58,6 +58,8 @@ public class DropboxSettingsActivity extends Activity {
 	 */
 	private ArrayList<CharSequence> m_tagstore_list;
 
+	private TagstoreApplication m_app;
+
 	private static final String STORE_TGS_PATH = "/.tagstore/store.tgs";
 
 	public void onCreate(Bundle savedInstanceState) {
@@ -77,6 +79,10 @@ public class DropboxSettingsActivity extends Activity {
 		//
 		setContentView(R.layout.dropbox_settings);
 
+		
+		// get application object
+		m_app = (TagstoreApplication)DropboxSettingsActivity.this.getApplication();
+		
 		//
 		// initialize
 		//
@@ -258,10 +264,10 @@ public class DropboxSettingsActivity extends Activity {
 		String table_name = ((String) tagstore_name).substring(1);
 
 		// construct sync table
-		boolean result = DBManager.getInstance().createSyncTable(table_name);
+		boolean result = m_app.getDBManager().createSyncTable(table_name);
 		if (!result) {
 			// failed to create sync table
-			ToastManager.getInstance().displayToastWithString(
+			m_app.getToastManager().displayToastWithString(
 					R.string.error_failed_configure_tagstore);
 			return;
 		}
@@ -316,7 +322,7 @@ public class DropboxSettingsActivity extends Activity {
 				showDialog(DropboxSettingsActivity.SELECT_DIALOG_ID);
 			} else {
 				// display toast that no tagstores have yet been created
-				ToastManager.getInstance().displayToastWithString(
+				m_app.getToastManager().displayToastWithString(
 						R.string.no_tagstores_found);
 			}
 

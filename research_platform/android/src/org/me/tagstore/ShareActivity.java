@@ -13,6 +13,7 @@ import java.util.Locale;
 import org.me.tagstore.R;
 import org.me.tagstore.core.DBManager;
 import org.me.tagstore.core.Logger;
+import org.me.tagstore.core.TagstoreApplication;
 import org.me.tagstore.ui.StatusBarNotification;
 
 import android.app.ListActivity;
@@ -63,6 +64,8 @@ public class ShareActivity extends ListActivity {
 	 */
 	private StatusBarNotification m_status_bar;
 
+	private TagstoreApplication m_app;
+
 	public void onCreate(Bundle savedInstanceState) {
 
 		//
@@ -75,11 +78,13 @@ public class ShareActivity extends ListActivity {
 		//
 		setContentView(R.layout.share_list_view);
 
+		// get application object
+		m_app = (TagstoreApplication)ShareActivity.this.getApplication();
+		
 		//
 		// initialize database manager
 		//
-		m_db = DBManager.getInstance();
-		m_db.initializeDBManager(this);
+		m_db = m_app.getDBManager();
 
 		//
 		// build status bar
@@ -405,6 +410,7 @@ public class ShareActivity extends ListActivity {
 		//
 		File file = new File(target_file);
 		if (file.exists()) {
+			
 			//
 			// can't save here, file already exists
 			//

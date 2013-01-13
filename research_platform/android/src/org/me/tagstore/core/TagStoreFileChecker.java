@@ -3,6 +3,8 @@ package org.me.tagstore.core;
 import java.io.File;
 import java.util.ArrayList;
 
+import junit.framework.Assert;
+
 /**
  * checks all tagstore files if they still exist. If they no longer exist, then
  * the file is removed from the tagstore. After all files have been checked, it
@@ -42,13 +44,8 @@ public class TagStoreFileChecker implements
 
 		Logger.i("TagStoreFileChecker::diskAvailable");
 
-		if (m_db_man == null) {
-
-			//
-			// acquire instance
-			//
-			m_db_man = DBManager.getInstance();
-		}
+		// sanity check
+		Assert.assertNotNull(m_db_man);
 
 		//
 		// get all files

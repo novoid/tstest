@@ -2,6 +2,8 @@ package org.me.tagstore.core;
 
 import java.util.ArrayList;
 
+import junit.framework.Assert;
+
 /**
  * This class enumerates all present files in the tagstore and writes them to
  * the tagstore store file
@@ -59,14 +61,9 @@ public class SyncFileWriter {
 	 */
 	private void constructSyncLogEntries(ArrayList<SyncLogEntry> entries) {
 
-		if (m_db_man == null) {
-
-			//
-			// get instance of database manager
-			//
-			m_db_man = DBManager.getInstance();
-		}
-
+		// sanity check
+		Assert.assertNotNull(m_db_man);
+		
 		//
 		// get all files
 		//

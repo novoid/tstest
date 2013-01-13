@@ -8,12 +8,11 @@ import org.me.tagstore.R;
 import org.me.tagstore.core.ConfigurationSettings;
 import org.me.tagstore.core.DBManager;
 import org.me.tagstore.core.DirectoryChangeWorker;
-import org.me.tagstore.core.FileTagUtility;
 import org.me.tagstore.core.Logger;
 import org.me.tagstore.core.MainServiceConnection;
 import org.me.tagstore.core.PendingFileChecker;
 import org.me.tagstore.core.ServiceLaunchRunnable;
-import org.me.tagstore.ui.ToastManager;
+import org.me.tagstore.core.TagstoreApplication;
 
 import android.app.Activity;
 import android.app.ListActivity;
@@ -50,6 +49,8 @@ public class DirectoryListActivity extends ListActivity {
 	 * stores the path to the tagstore storage directory
 	 */
 	private String m_tagstore_directory;
+
+	private TagstoreApplication m_app;
 
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -110,7 +111,7 @@ public class DirectoryListActivity extends ListActivity {
 		//
 		// inform user that the entry was already present
 		//
-		ToastManager.getInstance().displayToastWithString(
+		m_app.getToastManager().displayToastWithString(
 				R.string.directory_present);
 	}
 
@@ -136,6 +137,11 @@ public class DirectoryListActivity extends ListActivity {
 		// informal debug message
 		//
 		Logger.d("DirectoryListActivity::onCreate");
+		
+		
+		// get application object
+		m_app = (TagstoreApplication)DirectoryListActivity.this.getApplication();
+		
 
 		//
 		// initialize
@@ -245,7 +251,7 @@ public class DirectoryListActivity extends ListActivity {
 		//
 		// acquire instance of database
 		//
-		DBManager db_man = DBManager.getInstance();
+		DBManager db_man = m_app.getDBManager();
 
 		//
 		// read listed directories
@@ -278,7 +284,7 @@ public class DirectoryListActivity extends ListActivity {
 		//
 		// get instance of database manager
 		//
-		DBManager db_man = DBManager.getInstance();
+		DBManager db_man = m_app.getDBManager();
 
 		//
 		// get list of directories
@@ -374,7 +380,7 @@ public class DirectoryListActivity extends ListActivity {
 		//
 		// cancel any on-going toast when switching the view
 		//
-		ToastManager.getInstance().cancelToast();
+		m_app.getToastManager().cancelToast();
 	}
 
 	/**
@@ -385,17 +391,10 @@ public class DirectoryListActivity extends ListActivity {
 	private void queryAddNewDirectories(String directory_path) {
 
 		//
-		// get instance of database manager
-		//
-		DBManager db_man = DBManager.getInstance();
-
-		//
 		// construct directory change worker
 		//
 		DirectoryChangeWorker change_worker = new DirectoryChangeWorker();
-		FileTagUtility utility = new FileTagUtility();
-		utility.initializeFileTagUtility();
-		change_worker.initializeDirectoryChangeWorker(db_man, utility,
+		change_worker.initializeDirectoryChangeWorker(m_app.getDBManager(), m_app.getFileTagUtility(),
 				new PendingFileChecker());
 
 		//
@@ -406,7 +405,7 @@ public class DirectoryListActivity extends ListActivity {
 
 		for (String file : files) {
 			Logger.i("new file in directory: " + file);
-			db_man.addPendingFile(file);
+			m_app.getDBManager().addPendingFile(file);
 		}
 	}
 
@@ -418,17 +417,11 @@ public class DirectoryListActivity extends ListActivity {
 	private void removePendingFilesfromDirectory(String directory_path) {
 
 		//
-		// new file tag utility class
-		//
-		FileTagUtility utility = new FileTagUtility();
-		utility.initializeFileTagUtility();
-
-		//
 		// get pending file checker
 		//
 		PendingFileChecker file_checker = new PendingFileChecker();
-		file_checker.initializePendingFileChecker(DBManager.getInstance(),
-				utility);
+		file_checker.initializePendingFileChecker(m_app.getDBManager(),
+				m_app.getFileTagUtility());
 
 		//
 		// get pending files
@@ -444,7 +437,7 @@ public class DirectoryListActivity extends ListActivity {
 				//
 				// file is directory which got removed
 				//
-				utility.removePendingFile(current_file);
+				m_app.getFileTagUtility().removePendingFile(current_file);
 			}
 		}
 	}
@@ -527,7 +520,7 @@ public class DirectoryListActivity extends ListActivity {
 			//
 			// the media is currently not accessible
 			//
-			ToastManager.getInstance().displayToastWithString(
+			m_app.getToastManager().displayToastWithString(
 					R.string.error_media_not_mounted);
 
 			//
@@ -599,7 +592,7 @@ public class DirectoryListActivity extends ListActivity {
 			//
 			// the tagstore directory storage directory can not be removed
 			//
-			ToastManager.getInstance().displayToastWithString(
+			m_app.getToastManager().displayToastWithString(
 					R.string.error_tagstore_directory);
 			return;
 		}

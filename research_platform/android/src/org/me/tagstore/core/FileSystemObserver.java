@@ -22,24 +22,6 @@ public class FileSystemObserver {
 	private HashMap<String, FsObserver> m_observer_map = new HashMap<String, FsObserver>();
 
 	/**
-	 * stores the static instance of FileSystemObserver
-	 */
-	static private final FileSystemObserver s_instance = new FileSystemObserver();
-
-	/**
-	 * acquires an instance of FileSystemObserver
-	 * 
-	 * @return
-	 */
-	public static FileSystemObserver acquireInstance() {
-
-		//
-		// returns the instance
-		//
-		return s_instance;
-	}
-
-	/**
 	 * this function adds an observer. When a file is changed or deleted the
 	 * notification is invoked
 	 * 

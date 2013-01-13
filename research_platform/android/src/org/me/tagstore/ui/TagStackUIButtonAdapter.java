@@ -5,6 +5,7 @@ import java.util.Iterator;
 import org.me.tagstore.R;
 import org.me.tagstore.core.EventDispatcher;
 import org.me.tagstore.core.TagStackManager;
+import org.me.tagstore.core.TagstoreApplication;
 import org.me.tagstore.interfaces.EventDispatcherInterface;
 
 import android.content.Context;
@@ -38,6 +39,8 @@ public class TagStackUIButtonAdapter extends RelativeLayout {
 	 */
 	private EventDispatcherInterface m_event;
 
+	private TagstoreApplication m_app;
+
 	/**
 	 * constructor of class TagStackUIButtonAdapter
 	 * 
@@ -57,12 +60,17 @@ public class TagStackUIButtonAdapter extends RelativeLayout {
 		super(context, attrs, defStyle);
 
 		//
+		// get application object
+		//
+		m_app = (TagstoreApplication)context.getApplicationContext();
+		
+		//
 		// init objects
 		//
 		m_buttons = new Button[5];
 		m_button_listener = new ButtonClickListener();
 		m_button_long_listener = new ButtonLongClickListener();
-		m_event = EventDispatcher.getInstance();
+		m_event = m_app.getEventDispatcher();
 
 		//
 		// init adapter
@@ -143,7 +151,7 @@ public class TagStackUIButtonAdapter extends RelativeLayout {
 		//
 		// get iterator
 		//
-		Iterator<String> it = TagStackManager.getInstance().getIterator();
+		Iterator<String> it = m_app.getTagStackManager().getIterator();
 
 		//
 		// iterate until 5 buttons have been set or set is empty

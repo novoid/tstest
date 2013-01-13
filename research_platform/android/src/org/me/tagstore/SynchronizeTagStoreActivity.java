@@ -6,16 +6,14 @@ import java.util.Locale;
 
 import org.me.tagstore.R;
 import org.me.tagstore.core.ConfigurationSettings;
-import org.me.tagstore.core.DBManager;
 import org.me.tagstore.core.EventDispatcher;
-import org.me.tagstore.core.FileTagUtility;
 import org.me.tagstore.core.Logger;
 import org.me.tagstore.core.SyncFileLog;
 import org.me.tagstore.core.SyncFileWriter;
 import org.me.tagstore.core.SyncManager;
 import org.me.tagstore.core.SyncTask;
+import org.me.tagstore.core.TagstoreApplication;
 import org.me.tagstore.interfaces.SyncTaskCallback;
-import org.me.tagstore.ui.ToastManager;
 
 import android.app.Activity;
 import android.content.Context;
@@ -40,6 +38,8 @@ public class SynchronizeTagStoreActivity extends Activity implements
 	 */
 	private Button m_synch_button;
 
+	private TagstoreApplication m_app;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 
@@ -58,6 +58,9 @@ public class SynchronizeTagStoreActivity extends Activity implements
 		//
 		setContentView(R.layout.synchronize_tag_store);
 
+		// get application object
+		m_app = (TagstoreApplication)SynchronizeTagStoreActivity.this.getApplication(); 
+		
 		//
 		// initialize
 		//
@@ -74,7 +77,7 @@ public class SynchronizeTagStoreActivity extends Activity implements
 		//
 		// unregister us from the event dispatcher
 		//
-		EventDispatcher.getInstance().unregisterEvent(
+		m_app.getEventDispatcher().unregisterEvent(
 				EventDispatcher.EventId.SYNC_COMPLETE_EVENT,
 				SynchronizeTagStoreActivity.this);
 	}
@@ -132,7 +135,7 @@ public class SynchronizeTagStoreActivity extends Activity implements
 		//
 		// register us with the event dispatcher
 		//
-		EventDispatcher.getInstance().registerEvent(
+		m_app.getEventDispatcher().registerEvent(
 				EventDispatcher.EventId.SYNC_COMPLETE_EVENT,
 				SynchronizeTagStoreActivity.this);
 	}
@@ -148,7 +151,7 @@ public class SynchronizeTagStoreActivity extends Activity implements
 			//
 			// the media is currently not accessible
 			//
-			ToastManager.getInstance().displayToastWithString(
+			m_app.getToastManager().displayToastWithString(
 					R.string.error_media_not_mounted);
 
 			//
@@ -166,13 +169,11 @@ public class SynchronizeTagStoreActivity extends Activity implements
 		// create sync task
 		//
 		SyncTask task = new SyncTask();
-		FileTagUtility utility = new FileTagUtility();
-		utility.initializeFileTagUtility();
 		task.initializeSyncTask(
 				SynchronizeTagStoreActivity.this.getApplicationContext(),
 				new SyncManager(), new SyncFileWriter(),
-				EventDispatcher.getInstance(), DBManager.getInstance(),
-				new SyncFileLog(), utility);
+				m_app.getEventDispatcher(), m_app.getDBManager(),
+				new SyncFileLog(), m_app.getFileTagUtility());
 
 		//
 		// create sync thread
@@ -216,7 +217,7 @@ public class SynchronizeTagStoreActivity extends Activity implements
 			//
 			// no updates found
 			//
-			ToastManager.getInstance().displayToastWithString(
+			m_app.getToastManager().displayToastWithString(
 					R.string.no_update);
 		}
 

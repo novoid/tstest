@@ -51,6 +51,8 @@ public class FileWatchdogService extends Service implements
 	 */
 	private boolean m_service_created;
 
+	private TagstoreApplication m_app;
+
 	public void onCreate() {
 
 		Logger.e("FileWatchdogService::onCreate");
@@ -60,9 +62,15 @@ public class FileWatchdogService extends Service implements
 		super.onCreate();
 
 		//
+		// get application object
+		//
+		m_app = (TagstoreApplication)FileWatchdogService.this.getApplication();
+		
+		
+		//
 		// acquire instance
 		//
-		m_observer = FileSystemObserver.acquireInstance();
+		m_observer = m_app.getFileSystemObserver();
 
 		//
 		// create array list for external observers
@@ -125,12 +133,13 @@ public class FileWatchdogService extends Service implements
 		//
 		// acquire database manager
 		//
-		DBManager db_man = DBManager.getInstance();
+		DBManager db_man = m_app.getDBManager();
 
 		if (isSyncActive()) {
 
 			// ignore file changes
 			m_sync_active = true;
+			Logger.e("[SYNC] IGNORING file arrival " + file_name);
 			return;
 		} else {
 			// was the sync active
@@ -141,10 +150,8 @@ public class FileWatchdogService extends Service implements
 
 				// get list of new files
 				DirectoryChangeWorker worker = new DirectoryChangeWorker();
-				FileTagUtility utility = new FileTagUtility();
-				utility.initializeFileTagUtility();
-				worker.initializeDirectoryChangeWorker(DBManager.getInstance(),
-						utility, new PendingFileChecker());
+				worker.initializeDirectoryChangeWorker(m_app.getDBManager(),
+						m_app.getFileTagUtility(), new PendingFileChecker());
 
 				// get list of new files
 				ArrayList<String> files = worker.getAllNewFiles();
@@ -291,7 +298,7 @@ public class FileWatchdogService extends Service implements
 			// external disk not available
 			// let's try later
 			//
-			StorageTimerTask.acquireInstance().addCallback(this);
+			m_app.getStorageTimerTask().addCallback(this);
 		}
 	}
 
@@ -362,7 +369,7 @@ public class FileWatchdogService extends Service implements
 			//
 			// get observed directories from the database
 			//
-			DBManager db_man = DBManager.getInstance();
+			DBManager db_man = m_app.getDBManager();
 			ArrayList<String> observed_directory_list = db_man.getDirectories();
 			if (observed_directory_list != null) {
 

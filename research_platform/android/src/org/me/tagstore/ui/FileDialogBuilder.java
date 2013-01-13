@@ -10,6 +10,7 @@ import org.me.tagstore.core.EventDispatcher;
 import org.me.tagstore.core.FileTagUtility;
 import org.me.tagstore.core.Logger;
 import org.me.tagstore.core.TagValidator;
+import org.me.tagstore.core.TagstoreApplication;
 import org.me.tagstore.core.TimeFormatUtility;
 
 import android.app.AlertDialog;
@@ -39,12 +40,14 @@ public class FileDialogBuilder {
 			R.id.button_rename_new };
 	private DBManager m_db_man;
 	private FileTagUtility m_utility;
+	private TimeFormatUtility m_time_format;
 
 	public void initializeFileDialogBuilder(DBManager db_man,
-			FileTagUtility utility) {
+			FileTagUtility utility, TimeFormatUtility time_format) {
 
 		m_db_man = db_man;
 		m_utility = utility;
+		m_time_format = time_format;
 	}
 
 	public Dialog buildGeneralTagDialog(FragmentActivity m_activity_group,
@@ -146,11 +149,17 @@ public class FileDialogBuilder {
 		String[] menu_option_list = menu_options.toArray(new String[1]);
 
 		//
+		// get application object
+		//
+		TagstoreApplication app = (TagstoreApplication) m_activity_group.getApplication();
+		
+		
+		//
 		// create menu click listener
 		//
 		FileMenuClickListener listener = new FileMenuClickListener();
 		listener.initFileMenuClickListener(action_ids, fragment,
-				EventDispatcher.getInstance());
+				app.getEventDispatcher());
 
 		//
 		// set menu options and click handler
@@ -291,12 +300,11 @@ public class FileDialogBuilder {
 			// get & update file date
 			//
 			String utc_file_date = m_db_man.getFileDate(file_name);
-			TimeFormatUtility format_utility = new TimeFormatUtility();
 			if (utc_file_date != null) {
 				//
 				// convert date to local time
 				//
-				String local_time = format_utility
+				String local_time = m_time_format
 						.convertStringToLocalTime(utc_file_date);
 
 				//
@@ -308,7 +316,7 @@ public class FileDialogBuilder {
 			{
 				// construct date object
 				Date date = new Date(file.lastModified());
-				String local_time = format_utility.convertDateToLocalTime(date);
+				String local_time = m_time_format.convertDateToLocalTime(date);
 				if (local_time != null) {
 					//
 					// update time
@@ -408,7 +416,13 @@ public class FileDialogBuilder {
 			//
 			new_view.setText(new_file_name);
 		}
-
+		
+		//
+		// get application object
+		//
+		TagstoreApplication app = (TagstoreApplication) fragment.getActivity().getApplication();
+		
+		
 		//
 		// add click listener for all buttons
 		//
@@ -423,7 +437,7 @@ public class FileDialogBuilder {
 				//
 				OptionsDialogButtonListener listener = new OptionsDialogButtonListener();
 				listener.initializeOptionsDialogButtonListener(view, fragment,
-						EventDispatcher.getInstance());
+						app.getEventDispatcher());
 
 				//
 				// set click listener
@@ -513,6 +527,12 @@ public class FileDialogBuilder {
 		Button button_tag = (Button) view.findViewById(R.id.button_tag_done);
 
 		//
+		// get application object
+		//
+		TagstoreApplication app = (TagstoreApplication) fragment.getActivity().getApplication();
+				
+		
+		//
 		// get tag text field
 		//
 		EditText edit_text = (EditText) view.findViewById(R.id.tag_field);
@@ -523,7 +543,7 @@ public class FileDialogBuilder {
 			//
 			RetagButtonClickListener listener = new RetagButtonClickListener();
 			listener.initializeRetagButtonClickListener(edit_text,
-					current_file, fragment, EventDispatcher.getInstance(),
+					current_file, fragment, app.getEventDispatcher(),
 					m_utility);
 
 			//
@@ -540,7 +560,7 @@ public class FileDialogBuilder {
 			// construct text watcher
 			//
 			UITagTextWatcher watcher = new UITagTextWatcher();
-			watcher.initializeUITagTextWatcher(false, true);
+			watcher.initializeUITagTextWatcher(app.getTagValidator(), app.getToastManager(), false);
 
 			//
 			// add text changed listener
@@ -645,6 +665,12 @@ public class FileDialogBuilder {
 			name = new File(item_name).getName();
 		}
 
+		//
+		// get application object
+		//
+		TagstoreApplication app = (TagstoreApplication) fragment.getActivity().getApplication();
+		
+		
 		EditText edit_text = (EditText) view.findViewById(R.id.new_file_name);
 		if (edit_text != null) {
 			//
@@ -661,7 +687,7 @@ public class FileDialogBuilder {
 			// construct text watcher
 			//
 			UITagTextWatcher watcher = new UITagTextWatcher();
-			watcher.initializeUITagTextWatcher(false, true);
+			watcher.initializeUITagTextWatcher(app.getTagValidator(), app.getToastManager(), false);
 
 			//
 			// add text changed listener
@@ -669,6 +695,8 @@ public class FileDialogBuilder {
 			edit_text.addTextChangedListener(watcher);
 		}
 
+		
+		
 		//
 		// get rename button
 		//
@@ -679,8 +707,8 @@ public class FileDialogBuilder {
 			//
 			RenameDialogButtonListener listener = new RenameDialogButtonListener();
 			listener.initializeRenameDialogButtonListener(edit_text, item_name,
-					is_tag, fragment, EventDispatcher.getInstance(), m_utility,
-					new TagValidator(), ToastManager.getInstance());
+					is_tag, fragment, app.getEventDispatcher(), m_utility,
+					app.getTagValidator(), app.getToastManager());
 
 			//
 			// add listener
@@ -696,6 +724,12 @@ public class FileDialogBuilder {
 		//
 		AlertDialog.Builder builder = new AlertDialog.Builder(m_activity_group);
 
+		//
+		// get application object
+		//
+		TagstoreApplication app = (TagstoreApplication) fragment.getActivity().getApplication();
+		
+		
 		//
 		// get localized title
 		//
@@ -746,7 +780,7 @@ public class FileDialogBuilder {
 		//
 		FileMenuClickListener listener = new FileMenuClickListener();
 		listener.initFileMenuClickListener(action_ids, fragment,
-				EventDispatcher.getInstance());
+				app.getEventDispatcher());
 
 		//
 		// set menu options and click handler

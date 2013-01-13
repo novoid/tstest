@@ -9,11 +9,9 @@ import org.me.tagstore.R;
 import org.me.tagstore.core.ConfigurationSettings;
 import org.me.tagstore.core.DBManager;
 import org.me.tagstore.core.EventDispatcher;
-import org.me.tagstore.core.FileTagUtility;
 import org.me.tagstore.core.Logger;
 import org.me.tagstore.core.PendingFileChecker;
-import org.me.tagstore.core.TagValidator;
-import org.me.tagstore.core.VocabularyManager;
+import org.me.tagstore.core.TagstoreApplication;
 import org.me.tagstore.interfaces.GeneralDialogCallback;
 import org.me.tagstore.interfaces.OptionsDialogCallback;
 import org.me.tagstore.interfaces.RenameDialogCallback;
@@ -24,7 +22,6 @@ import org.me.tagstore.ui.FileDialogBuilder;
 import org.me.tagstore.ui.FileDialogBuilder.MENU_ITEM_ENUM;
 import org.me.tagstore.ui.MainPageAdapter;
 import org.me.tagstore.ui.StatusBarNotification;
-import org.me.tagstore.ui.ToastManager;
 import org.me.tagstore.ui.UIEditorActionListener;
 import org.me.tagstore.ui.UITagTextWatcher;
 
@@ -112,6 +109,8 @@ public class AddFileTagActivity extends Fragment implements
 	 * indicator if the tagging should be performed automatically
 	 */
 	private boolean m_perform_tag = false;
+
+	private TagstoreApplication m_app;
 
 	public void renamedFile(String old_file_name, String new_file) {
 
@@ -216,7 +215,7 @@ public class AddFileTagActivity extends Fragment implements
 		//
 		// acquire database manager
 		//
-		DBManager db_man = DBManager.getInstance();
+		DBManager db_man = m_app.getDBManager();
 
 		if (ignore) {
 			if (file_name.compareTo(m_duplicate_file_name) == 0) {
@@ -289,7 +288,7 @@ public class AddFileTagActivity extends Fragment implements
 		//
 		// cancel any on-going toast when switching the view
 		//
-		ToastManager.getInstance().cancelToast();
+		m_app.getToastManager().cancelToast();
 	}
 
 	/**
@@ -318,13 +317,13 @@ public class AddFileTagActivity extends Fragment implements
 		//
 		// unregister us from event dispatcher
 		//
-		EventDispatcher.getInstance().unregisterEvent(
+		m_app.getEventDispatcher().unregisterEvent(
 				EventDispatcher.EventId.TAG_RENAMED_EVENT, this);
-		EventDispatcher.getInstance().unregisterEvent(
+		m_app.getEventDispatcher().unregisterEvent(
 				EventDispatcher.EventId.FILE_RENAMED_EVENT, this);
-		EventDispatcher.getInstance().unregisterEvent(
+		m_app.getEventDispatcher().unregisterEvent(
 				EventDispatcher.EventId.ITEM_CONFLICT_EVENT, this);
-		EventDispatcher.getInstance().unregisterEvent(
+		m_app.getEventDispatcher().unregisterEvent(
 				EventDispatcher.EventId.ITEM_MENU_EVENT, this);
 	}
 
@@ -336,18 +335,20 @@ public class AddFileTagActivity extends Fragment implements
 		//
 		super.onCreate(savedInstanceState);
 
+		// get application object
+		m_app = (TagstoreApplication)getActivity().getApplication();
+		
+		
 		//
 		// construct on create dialog operations object
 		//
 		m_dialog_operations = new DialogItemOperations();
-		FileTagUtility utility = new FileTagUtility();
-		utility.initializeFileTagUtility();
 
 		FileDialogBuilder builder = new FileDialogBuilder();
-		builder.initializeFileDialogBuilder(DBManager.getInstance(), utility);
+		builder.initializeFileDialogBuilder(m_app.getDBManager(), m_app.getFileTagUtility(), m_app.getTimeFormatUtility());
 
 		m_dialog_operations.initDialogItemOperations(getActivity(),
-				getFragmentManager(), utility, ToastManager.getInstance(),
+				getFragmentManager(), m_app.getFileTagUtility(), m_app.getToastManager(),
 				builder);
 
 		//
@@ -360,13 +361,13 @@ public class AddFileTagActivity extends Fragment implements
 		//
 		// register us with the event dispatcher
 		//
-		EventDispatcher.getInstance().registerEvent(
+		m_app.getEventDispatcher().registerEvent(
 				EventDispatcher.EventId.TAG_RENAMED_EVENT, this);
-		EventDispatcher.getInstance().registerEvent(
+		m_app.getEventDispatcher().registerEvent(
 				EventDispatcher.EventId.FILE_RENAMED_EVENT, this);
-		EventDispatcher.getInstance().registerEvent(
+		m_app.getEventDispatcher().registerEvent(
 				EventDispatcher.EventId.ITEM_CONFLICT_EVENT, this);
-		EventDispatcher.getInstance().registerEvent(
+		m_app.getEventDispatcher().registerEvent(
 				EventDispatcher.EventId.ITEM_MENU_EVENT, this);
 	}
 
@@ -465,7 +466,7 @@ public class AddFileTagActivity extends Fragment implements
 		//
 		// acquire database manager
 		//
-		DBManager db_man = DBManager.getInstance();
+		DBManager db_man = m_app.getDBManager();
 
 		//
 		// get all files which have the same name
@@ -550,10 +551,8 @@ public class AddFileTagActivity extends Fragment implements
 		// construct pending file checker
 		//
 		PendingFileChecker file_checker = new PendingFileChecker();
-		FileTagUtility utility = new FileTagUtility();
-		utility.initializeFileTagUtility();
-		file_checker.initializePendingFileChecker(DBManager.getInstance(),
-				utility);
+		file_checker.initializePendingFileChecker(m_app.getDBManager(),
+				m_app.getFileTagUtility());
 
 		//
 		// are there pending files
@@ -676,7 +675,7 @@ public class AddFileTagActivity extends Fragment implements
 		// construct text watcher
 		//
 		UITagTextWatcher watcher = new UITagTextWatcher();
-		watcher.initializeUITagTextWatcher(true, true);
+		watcher.initializeUITagTextWatcher(m_app.getTagValidator(), m_app.getToastManager(), true);
 
 		//
 		// add text changed listener
@@ -761,7 +760,7 @@ public class AddFileTagActivity extends Fragment implements
 		//
 		// acquire database manager instance
 		//
-		DBManager db_man = DBManager.getInstance();
+		DBManager db_man = m_app.getDBManager();
 
 		//
 		// acquire shared settings
@@ -781,11 +780,11 @@ public class AddFileTagActivity extends Fragment implements
 
 		ArrayList<String> tags = null;
 
-		if (VocabularyManager.getInstance().getControlledVocabularyState()) {
+		if (m_app.getVocabularyManager().getControlledVocabularyState()) {
 			//
 			// get controlled vocabulary
 			//
-			HashSet<String> vocabulary = VocabularyManager.getInstance()
+			HashSet<String> vocabulary = m_app.getVocabularyManager()
 					.getVocabulary();
 
 			if (vocabulary != null) {
@@ -1185,15 +1184,9 @@ public class AddFileTagActivity extends Fragment implements
 		}
 
 		//
-		// create file tag utility
-		//
-		FileTagUtility utility = new FileTagUtility();
-		utility.initializeFileTagUtility();
-
-		//
 		// first validate the tags
 		//
-		if (!utility.validateTags(tag_text, m_text_view)) {
+		if (!m_app.getFileTagUtility().validateTags(tag_text, m_text_view)) {
 
 			//
 			// done for now
@@ -1228,18 +1221,13 @@ public class AddFileTagActivity extends Fragment implements
 		String file_name = new File(m_file_name).getName();
 
 		//
-		// construct tag validator
-		//
-		TagValidator validator = new TagValidator();
-
-		//
 		// check if the file name contains invalid characters
 		//
-		if (validator.containsReservedCharacters(file_name)) {
+		if (m_app.getTagValidator().containsReservedCharacters(file_name)) {
 			//
 			// display toast
 			//
-			ToastManager.getInstance().displayToastWithString(
+			m_app.getToastManager().displayToastWithString(
 					R.string.reserved_character_file_name);
 			Logger.e("invalid character found in " + file_name);
 
@@ -1262,11 +1250,11 @@ public class AddFileTagActivity extends Fragment implements
 		//
 		// check if the file name is a reserved keyword
 		//
-		if (validator.isReservedKeyword(file_name)) {
+		if (m_app.getTagValidator().isReservedKeyword(file_name)) {
 			//
 			// not allowed
 			//
-			ToastManager.getInstance().displayToastWithString(
+			m_app.getToastManager().displayToastWithString(
 					R.string.reserved_keyword_file_name);
 
 			//
@@ -1288,7 +1276,7 @@ public class AddFileTagActivity extends Fragment implements
 		//
 		// add file
 		//
-		if (utility.tagFile(m_file_name, tag_text, true) == false) {
+		if (m_app.getFileTagUtility().tagFile(m_file_name, tag_text, true) == false) {
 
 			//
 			// failed to tag
@@ -1299,7 +1287,7 @@ public class AddFileTagActivity extends Fragment implements
 		//
 		// dispatch tagged event
 		//
-		EventDispatcher.getInstance().signalEvent(
+		m_app.getEventDispatcher().signalEvent(
 				EventDispatcher.EventId.FILE_TAGGED_EVENT,
 				new Object[] { m_file_name });
 

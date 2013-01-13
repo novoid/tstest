@@ -10,6 +10,7 @@ import org.me.tagstore.core.DBManager;
 import org.me.tagstore.core.FileTagUtility;
 import org.me.tagstore.core.Logger;
 import org.me.tagstore.core.PendingFileChecker;
+import org.me.tagstore.core.TagstoreApplication;
 import org.me.tagstore.interfaces.TabPageIndicatorCallback;
 
 import android.content.Context;
@@ -52,6 +53,8 @@ public class MainPageAdapter extends FragmentStatePagerAdapter implements
 	 */
 	private final TabPageIndicator m_tab_indicator;
 
+	private TagstoreApplication m_app;
+
 	/**
 	 * constructor of class MainPageAdapter
 	 * 
@@ -74,11 +77,13 @@ public class MainPageAdapter extends FragmentStatePagerAdapter implements
 		// init members
 		//
 		m_fragments = new ArrayList<Fragment>();
-		;
 		m_titles = new ArrayList<String>();
 		m_context = context;
 		m_tab_indicator = tab_indicator;
 
+		// get app object
+		m_app = (TagstoreApplication)m_context.getApplicationContext();
+		
 		//
 		// build default fragments
 		//
@@ -96,10 +101,8 @@ public class MainPageAdapter extends FragmentStatePagerAdapter implements
 		// construct pending file checker
 		//
 		PendingFileChecker file_checker = new PendingFileChecker();
-		FileTagUtility utility = new FileTagUtility();
-		utility.initializeFileTagUtility();
-		file_checker.initializePendingFileChecker(DBManager.getInstance(),
-				utility);
+		file_checker.initializePendingFileChecker(m_app.getDBManager(),
+				m_app.getFileTagUtility());
 
 		//
 		// any files pending
@@ -374,6 +377,22 @@ public class MainPageAdapter extends FragmentStatePagerAdapter implements
 		// get current item position
 		//
 		int old_position = m_tab_indicator.getCurrentItem();
+
+		//
+		// notify on change
+		//
+		Fragment fragment = m_fragments.get(old_position);
+		if (fragment instanceof ViewPager.OnPageChangeListener) {
+			ViewPager.OnPageChangeListener listener = (ViewPager.OnPageChangeListener) fragment;
+			listener.onPageSelected(position);
+		}
+		
+		Fragment new_fragment = m_fragments.get(position);
+		if (new_fragment instanceof ViewPager.OnPageChangeListener) {
+			ViewPager.OnPageChangeListener listener = (ViewPager.OnPageChangeListener) new_fragment;
+			listener.onPageSelected(position);
+		}
+		
 
 		Logger.i("onPageSelected new_position: " + position + " old position: "
 				+ old_position);

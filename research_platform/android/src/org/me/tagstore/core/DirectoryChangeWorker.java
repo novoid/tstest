@@ -5,7 +5,7 @@ import java.io.FileFilter;
 import java.util.ArrayList;
 
 /**
- * This class analyizes directories and searches for existing files which have
+ * This class analyzes directories and searches for existing files which have
  * not yet been added to the tagstore or are not in the pending file list
  * 
  */

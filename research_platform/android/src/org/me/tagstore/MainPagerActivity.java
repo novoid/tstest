@@ -17,10 +17,9 @@ import org.me.tagstore.core.SyncFileLog;
 import org.me.tagstore.core.SyncFileWriter;
 import org.me.tagstore.core.TagStackManager;
 import org.me.tagstore.core.TagStoreFileChecker;
-import org.me.tagstore.core.VocabularyManager;
+import org.me.tagstore.core.TagstoreApplication;
 import org.me.tagstore.ui.MainPageAdapter;
 import org.me.tagstore.ui.TabPageIndicator;
-import org.me.tagstore.ui.ToastManager;
 
 import android.content.Context;
 import android.content.Intent;
@@ -91,6 +90,8 @@ public class MainPagerActivity extends FragmentActivity {
 	
 	public boolean m_success = false;
 	public boolean m_test_done = false;
+
+	private TagstoreApplication m_app;
 	
 	
 	protected void onActivityResult(int requestCode, int resultCode,
@@ -166,7 +167,7 @@ public class MainPagerActivity extends FragmentActivity {
 		//
 		// acquire tag stack
 		//
-		TagStackManager tag_stack = TagStackManager.getInstance();
+		TagStackManager tag_stack = m_app.getTagStackManager();
 
 		//
 		// check if object stack is empty
@@ -195,7 +196,7 @@ public class MainPagerActivity extends FragmentActivity {
 		//
 		// notify fragment of back key pressed via event dispatcher
 		//
-		EventDispatcher.getInstance().signalEvent(
+		m_app.getEventDispatcher().signalEvent(
 				EventDispatcher.EventId.BACK_KEY_EVENT, null);
 
 		//
@@ -248,17 +249,10 @@ public class MainPagerActivity extends FragmentActivity {
 	 */
 	private void initDatabase() {
 
-		long start = System.currentTimeMillis();
-
 		//
 		// initialize database manager
 		//
-		DBManager db_man = DBManager.getInstance();
-		db_man.initializeDBManager(this);
-
-		long diff = System.currentTimeMillis() - start;
-
-		Logger.e("DB startup time: " + diff);
+		DBManager db_man = m_app.getDBManager();
 
 		//
 		// check if the default storage directory is registered
@@ -293,13 +287,13 @@ public class MainPagerActivity extends FragmentActivity {
 		//
 		m_file_checker = new TagStoreFileChecker();
 		SyncFileWriter file_writer = new SyncFileWriter();
-		file_writer.setDBManagerAndFileLog(DBManager.getInstance(), new SyncFileLog());
-		m_file_checker.initializeTagStoreFileChecker(DBManager.getInstance(),  file_writer);
+		file_writer.setDBManagerAndFileLog(m_app.getDBManager(), new SyncFileLog());
+		m_file_checker.initializeTagStoreFileChecker(m_app.getDBManager(),  file_writer);
 		
 		//
 		// acquire instance of storage timer task
 		//
-		m_timer_task = StorageTimerTask.acquireInstance();
+		m_timer_task = m_app.getStorageTimerTask();
 
 		//
 		// register tasks
@@ -309,16 +303,7 @@ public class MainPagerActivity extends FragmentActivity {
 
 	}
 
-	/**
-	 * initializes the toast manager
-	 */
-	private void initToastManager() {
-		//
-		// initializes the toast manager
-		//
-		ToastManager.buildToastManager(getApplicationContext());
-	}
-
+	@SuppressWarnings("unused")
 	private void initLocale() {
 
 		String languageToLoad = "en";
@@ -330,13 +315,7 @@ public class MainPagerActivity extends FragmentActivity {
 				getBaseContext().getResources().getDisplayMetrics());
 	}
 
-	private void initVocabulary() {
 
-		//
-		// initialize vocabulary manager
-		//
-		VocabularyManager.buildVocabularyManager(getApplicationContext());
-	}
 
 	/**
 	 * initializes the application
@@ -358,17 +337,12 @@ public class MainPagerActivity extends FragmentActivity {
 		//
 		initConfiguration();
 
-		//
-		// init vocabulary manager
-		//
-		initVocabulary();
+
 	}
 
 	public void onStart() {
 
 		super.onStart();
-
-		initToastManager();
 	}
 
 	public void onCreate(Bundle savedInstanceState) {
@@ -385,6 +359,10 @@ public class MainPagerActivity extends FragmentActivity {
 		//
 		// initLocale();
 
+		// application object
+		m_app = (TagstoreApplication)MainPagerActivity.this.getApplication();
+		
+		
 		//
 		// no window should be displayed
 		//
@@ -424,7 +402,7 @@ public class MainPagerActivity extends FragmentActivity {
 			//
 			// failed to initialize
 			//
-			ToastManager.getInstance().displayToastWithString(
+			m_app.getToastManager().displayToastWithString(
 					"Error: failed to initialize application layout");
 			return;
 		}

@@ -31,31 +31,6 @@ public class StorageTimerTask {
 	}
 
 	/**
-	 * sole instance of timer task
-	 */
-	private static StorageTimerTask s_Instance;
-
-	/**
-	 * acquires an instance of the class StorageTimerTask
-	 * 
-	 * @return StorageTimerTask
-	 */
-	public static StorageTimerTask acquireInstance() {
-
-		if (s_Instance == null) {
-			//
-			// construct new storage timer task
-			//
-			s_Instance = new StorageTimerTask();
-		}
-
-		//
-		// done
-		//
-		return s_Instance;
-	}
-
-	/**
 	 * adds a call back
 	 * 
 	 * @param callback

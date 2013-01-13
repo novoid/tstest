@@ -5,6 +5,8 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 
+import junit.framework.Assert;
+
 /**
  * This class is used to store the currently used tags. The class is used in a
  * singleton pattern as multiple view classes access the tag stack
@@ -43,14 +45,9 @@ public class TagStackManager {
 	 */
 	public void verifyTags() {
 
-		if (m_db_man == null) {
-
-			//
-			// acquire instance of Database Manager
-			//
-			m_db_man = DBManager.getInstance();
-		}
-
+		// sanity check
+		Assert.assertNotNull(m_db_man);
+		
 		//
 		// get alphabetic tags
 		//
@@ -82,26 +79,6 @@ public class TagStackManager {
 		// collection
 		//
 		m_tags.retainAll(tag_list);
-	}
-
-	/**
-	 * This function acquires an instance of the TagStackManager
-	 * 
-	 * @return
-	 */
-	public static TagStackManager getInstance() {
-
-		if (s_Instance == null) {
-			//
-			// construct new instance
-			//
-			s_Instance = new TagStackManager();
-		}
-
-		//
-		// done
-		//
-		return s_Instance;
 	}
 
 	/**

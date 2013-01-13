@@ -18,10 +18,9 @@ public class UITagTextWatcher implements TextWatcher {
 	 */
 	private boolean m_is_tag;
 
-	/**
-	 * stores the setting if a toast should be displayed
-	 */
-	private boolean m_display_toast = true;
+	private ToastManager m_toast;
+
+	private TagValidator m_validator;
 
 	/**
 	 * constructor of class UITagTextWatcher
@@ -29,12 +28,14 @@ public class UITagTextWatcher implements TextWatcher {
 	 * @param context
 	 *            which is used to construct notifications
 	 */
-	public void initializeUITagTextWatcher(boolean is_tag, boolean display_toast) {
+	public void initializeUITagTextWatcher(TagValidator validator, ToastManager manager, boolean is_tag) {
 
 		//
 		// init members
 		//
 		m_is_tag = is_tag;
+		m_validator = validator;
+		m_toast = manager;
 	}
 
 	public void afterTextChanged(Editable s) {
@@ -45,25 +46,20 @@ public class UITagTextWatcher implements TextWatcher {
 		String tag_text = s.toString();
 
 		//
-		// construct tag validator
-		//
-		TagValidator validator = new TagValidator();
-
-		//
 		// check if it contains reserved characters
 		//
-		if (validator.containsReservedCharacters(tag_text)) {
-			if (m_is_tag && m_display_toast) {
+		if (m_validator.containsReservedCharacters(tag_text)) {
+			if (m_is_tag && m_toast != null) {
 				//
 				// reserved character error message for tag
 				//
-				ToastManager.getInstance().displayToastWithString(
+				m_toast.displayToastWithString(
 						R.string.reserved_character_tag);
-			} else if (m_display_toast) {
+			} else if (m_toast != null) {
 				//
 				// reserved character error message for file name
 				//
-				ToastManager.getInstance().displayToastWithString(
+				m_toast.displayToastWithString(
 						R.string.reserved_character_file_name);
 			}
 
@@ -75,7 +71,7 @@ public class UITagTextWatcher implements TextWatcher {
 			//
 			// append the 'cleaned' text
 			//
-			s.append(validator.removeReservedCharacters(tag_text));
+			s.append(m_validator.removeReservedCharacters(tag_text));
 
 			//
 			// done

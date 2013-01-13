@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 import java.util.StringTokenizer;
 
@@ -27,6 +28,7 @@ public class FileTagUtility {
 	private TagValidator m_validator;
 	private ToastManager m_toast_man;
 	private VocabularyManager m_voc_manager;
+	private TimeFormatUtility m_time_format;
 
 	/**
 	 * initializes the file tag utility
@@ -35,23 +37,15 @@ public class FileTagUtility {
 	 */
 	public void initializeFileTagUtility(DBManager db_man,
 			SyncFileWriter file_writer, TagValidator tag_validator,
-			ToastManager toast_man, VocabularyManager voc_man) {
+			ToastManager toast_man, VocabularyManager voc_man, TimeFormatUtility time_format) {
 		m_db_man = db_man;
 		m_file_writer = file_writer;
 		m_validator = tag_validator;
 		m_toast_man = toast_man;
 		m_voc_manager = voc_man;
+		m_time_format = time_format;
 	}
-
-	public void initializeFileTagUtility() {
-		m_db_man = DBManager.getInstance();
-		m_file_writer = new SyncFileWriter();
-		m_validator = new TagValidator();
-		m_toast_man = ToastManager.getInstance();
-		m_voc_manager = VocabularyManager.getInstance();
-
-	}
-
+	
 	/**
 	 * this function processes the associated tags. It will create tag entry if
 	 * the tag is new, or update the reference count of existing tags
@@ -222,8 +216,7 @@ public class FileTagUtility {
 		//
 		// get time stamp in UTC
 		//
-		TimeFormatUtility format_helper = new TimeFormatUtility();
-		String create_date = format_helper.getCurrentTimeInUTC();
+		String create_date = m_time_format.getCurrentTimeInUTC();
 
 		//
 		// get file extension
@@ -536,7 +529,7 @@ public class FileTagUtility {
 				//
 				// tag not part of controlled vocabulary
 				//
-				ToastManager.getInstance().displayToastWithString(
+				m_toast_man.displayToastWithString(
 						R.string.tag_not_in_controlled_vocabulary);
 				if (edit_text != null) {
 					//
@@ -815,7 +808,7 @@ public class FileTagUtility {
 		Collections.sort(result_list, new Comparator<String>() {
 
 			public int compare(String arg0, String arg1) {
-				return arg0.toLowerCase().compareTo(arg1.toLowerCase());
+				return arg0.toLowerCase(Locale.getDefault()).compareTo(arg1.toLowerCase(Locale.getDefault()));
 			}
 		});
 

@@ -22,18 +22,12 @@ public class ToastManager {
 	private Context m_context;
 
 	/**
-	 * reference to instance
-	 */
-	private static ToastManager s_instance;
-
-	/**
 	 * constructor of toast manager
 	 * 
 	 * @param context
 	 *            application context
 	 */
-	@SuppressLint("ShowToast")
-	private void initializeToastManager(Context context) {
+	public void initializeToastManager(Context context) {
 
 		//
 		// store context
@@ -44,30 +38,6 @@ public class ToastManager {
 		// build toast
 		//
 		m_toast = Toast.makeText(context, "", Toast.LENGTH_SHORT);
-	}
-
-	/**
-	 * acquires an instance of the toast manager
-	 * 
-	 * @param context
-	 *            application context
-	 * @return instance
-	 */
-	public static ToastManager getInstance() {
-
-		return s_instance;
-	}
-
-	/**
-	 * called by main activity to construct toast manager
-	 * 
-	 * @param context
-	 *            application context
-	 */
-	public static void buildToastManager(Context context) {
-
-		s_instance = new ToastManager();
-		s_instance.initializeToastManager(context);
 	}
 
 	/**

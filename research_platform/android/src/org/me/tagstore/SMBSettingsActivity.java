@@ -4,10 +4,9 @@ import java.util.ArrayList;
 
 import org.me.tagstore.R;
 import org.me.tagstore.core.ConfigurationSettings;
-import org.me.tagstore.core.DBManager;
 import org.me.tagstore.core.Logger;
 import org.me.tagstore.core.SMBStorageProvider;
-import org.me.tagstore.ui.ToastManager;
+import org.me.tagstore.core.TagstoreApplication;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -64,6 +63,8 @@ public class SMBSettingsActivity extends Activity {
 	 */
 	private ArrayList<CharSequence> m_tagstore_list;
 
+	private TagstoreApplication m_app;
+
 	private static final String STORE_TGS_PATH = "/.tagstore/store.tgs";
 
 	public void onCreate(Bundle savedInstanceState) {
@@ -83,6 +84,10 @@ public class SMBSettingsActivity extends Activity {
 		//
 		setContentView(R.layout.dropbox_settings);
 
+		// get app object
+		m_app = (TagstoreApplication)SMBSettingsActivity.this.getApplication();
+		
+		
 		//
 		// initialize
 		//
@@ -291,7 +296,7 @@ public class SMBSettingsActivity extends Activity {
 					if (user_name_txt != null) {
 
 						if (user_name_txt.getText().toString().length() == 0) {
-							ToastManager.getInstance().displayToastWithString(
+							m_app.getToastManager().displayToastWithString(
 									R.string.error_no_user_name);
 							return;
 						}
@@ -300,7 +305,7 @@ public class SMBSettingsActivity extends Activity {
 					if (pwd_txt != null) {
 
 						if (pwd_txt.getText().toString().length() == 0) {
-							ToastManager.getInstance().displayToastWithString(
+							m_app.getToastManager().displayToastWithString(
 									R.string.error_no_password);
 							return;
 						}
@@ -309,7 +314,7 @@ public class SMBSettingsActivity extends Activity {
 					if (server_txt != null) {
 
 						if (server_txt.getText().toString().length() == 0) {
-							ToastManager.getInstance().displayToastWithString(
+							m_app.getToastManager().displayToastWithString(
 									R.string.error_no_server);
 							return;
 						}
@@ -318,7 +323,7 @@ public class SMBSettingsActivity extends Activity {
 					if (share_txt != null) {
 
 						if (share_txt.getText().toString().length() == 0) {
-							ToastManager.getInstance().displayToastWithString(
+							m_app.getToastManager().displayToastWithString(
 									R.string.error_no_share);
 							return;
 						}
@@ -333,7 +338,7 @@ public class SMBSettingsActivity extends Activity {
 					boolean connect = connect(user_name, pwd, server, share);
 					if (connect) {
 						// successfully connected
-						ToastManager.getInstance().displayToastWithString(
+						m_app.getToastManager().displayToastWithString(
 								R.string.connect_success);
 
 						// save configuration
@@ -346,7 +351,7 @@ public class SMBSettingsActivity extends Activity {
 						toggleButtonState();
 					} else {
 						// failed to connect
-						ToastManager.getInstance().displayToastWithString(
+						m_app.getToastManager().displayToastWithString(
 								R.string.error_failed_connect);
 					}
 				}
@@ -437,10 +442,10 @@ public class SMBSettingsActivity extends Activity {
 		String table_name = ((String) tagstore_name).substring(1);
 
 		// construct sync table
-		boolean result = DBManager.getInstance().createSyncTable(table_name);
+		boolean result = m_app.getDBManager().createSyncTable(table_name);
 		if (!result) {
 			// failed to create sync table
-			ToastManager.getInstance().displayToastWithString(
+			m_app.getToastManager().displayToastWithString(
 					R.string.error_failed_configure_tagstore);
 			return;
 		}
@@ -521,7 +526,7 @@ public class SMBSettingsActivity extends Activity {
 				showDialog(SMBSettingsActivity.SELECT_DIALOG_ID);
 			} else {
 				// display toast that no tagstores have yet been created
-				ToastManager.getInstance().displayToastWithString(
+				m_app.getToastManager().displayToastWithString(
 						R.string.no_tagstores_found);
 			}
 

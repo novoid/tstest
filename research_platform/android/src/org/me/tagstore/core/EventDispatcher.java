@@ -85,12 +85,7 @@ public class EventDispatcher implements EventDispatcherInterface {
 			m_event_id = event_id;
 		}
 	}
-
-	/**
-	 * stores instance of object dispatcher
-	 */
-	private static EventDispatcherInterface s_instance = null;
-
+	
 	/**
 	 * holds the map event id -> event details
 	 */
@@ -105,35 +100,12 @@ public class EventDispatcher implements EventDispatcherInterface {
 		// construct dispatcher
 		//
 		m_map = new HashMap<String, EventDetails>();
-
-		//
-		// initialize events
-		//
-		initialize();
-	}
-
-	/**
-	 * acquires an instance of the event dispatcher
-	 * 
-	 * @return
-	 */
-	public static EventDispatcherInterface getInstance() {
-
-		if (s_instance == null) {
-
-			//
-			// build instance
-			//
-			s_instance = new EventDispatcher();
-		}
-
-		return s_instance;
 	}
 
 	/**
 	 * initializes the events
 	 */
-	private void initialize() {
+	public void initialize() {
 
 		//
 		// init event dispatcher

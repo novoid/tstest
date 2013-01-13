@@ -97,7 +97,9 @@ public class CloudViewSurfaceAdapter extends SurfaceView implements
 
 	public void refreshView() {
 		
-		m_tag_adapter.initializeView();
+		if (m_tag_adapter != null)
+			m_tag_adapter.initializeView();
+		
 		this.invalidate();
 	}
 	

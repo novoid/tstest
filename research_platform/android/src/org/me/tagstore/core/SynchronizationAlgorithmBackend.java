@@ -129,6 +129,8 @@ public class SynchronizationAlgorithmBackend {
 	 */
 	private SyncTask m_sync_task;
 
+	private DBManager m_db_man;
+
 	/**
 	 * initializes the synchronization algorithm backend
 	 * 
@@ -146,7 +148,8 @@ public class SynchronizationAlgorithmBackend {
 			StorageProvider provider, Context context, FileTagUtility utility,
 			EventDispatcherInterface event_dispatcher, FileLog source_log,
 			FileLog source_sync_log, FileLog target_log,
-			FileLog target_sync_log, SyncTask sync_task) {
+			FileLog target_sync_log, SyncTask sync_task, 
+			DBManager db_man) {
 
 		// store provider
 		m_provider = provider;
@@ -166,7 +169,10 @@ public class SynchronizationAlgorithmBackend {
 		m_target_log = target_log;
 		m_target_sync_log = target_sync_log;
 		m_sync_task = sync_task;
-
+	
+		// db manager
+		m_db_man = db_man;
+		
 		// initialize basic properties
 		initialize();
 	}
@@ -962,7 +968,7 @@ public class SynchronizationAlgorithmBackend {
 			if (target_rev != null) {
 				// store target revision
 				TimeFormatUtility format_helper = new TimeFormatUtility();
-				DBManager.getInstance().addSyncFileLog(
+				m_db_man.addSyncFileLog(
 						m_target_store_path.substring(1),
 						isLocalEntry(entry) ? target_entry.m_file_name
 								: entry.m_file_name, target_rev,
@@ -1102,7 +1108,7 @@ public class SynchronizationAlgorithmBackend {
 		if (target_rev != null) {
 			// store target revision
 			TimeFormatUtility format_helper = new TimeFormatUtility();
-			DBManager.getInstance().addSyncFileLog(
+			m_db_man.addSyncFileLog(
 					m_target_store_path.substring(1), remote_path, target_rev,
 					format_helper.getCurrentTimeInUTC(), "NOHASHSUM");
 		}
@@ -1268,7 +1274,7 @@ public class SynchronizationAlgorithmBackend {
 		if (file_rev != null) {
 			// provider supports revision
 			// get sync revision
-			String sync_rev = DBManager.getInstance().getSyncFileRev(
+			String sync_rev = m_db_man.getSyncFileRev(
 					m_target_store_path.substring(1), remote_file);
 			if (sync_rev != null) {
 
@@ -1484,7 +1490,7 @@ public class SynchronizationAlgorithmBackend {
 		
 		if (target_rev != null) {
 			// store target revision
-			DBManager.getInstance().addSyncFileLog(
+			m_db_man.addSyncFileLog(
 					m_target_store_path.substring(1), remote_path, target_rev,
 					new_entry.m_time_stamp, new_entry.m_hash_sum);
 		}

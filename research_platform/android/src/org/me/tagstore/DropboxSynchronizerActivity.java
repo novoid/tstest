@@ -6,10 +6,8 @@ import java.util.Locale;
 
 import org.me.tagstore.R;
 import org.me.tagstore.core.ConfigurationSettings;
-import org.me.tagstore.core.DBManager;
 import org.me.tagstore.core.EventDispatcher;
 import org.me.tagstore.core.FileLog;
-import org.me.tagstore.core.FileTagUtility;
 import org.me.tagstore.core.Logger;
 import org.me.tagstore.core.StorageProviderFactory;
 import org.me.tagstore.core.SyncFileLog;
@@ -18,10 +16,10 @@ import org.me.tagstore.core.SyncManager;
 import org.me.tagstore.core.SyncTask;
 import org.me.tagstore.core.SynchronizationAlgorithmBackend;
 import org.me.tagstore.core.SynchronizationAlgorithmBackend.ConflictData;
+import org.me.tagstore.core.TagstoreApplication;
 import org.me.tagstore.interfaces.StorageProvider;
 import org.me.tagstore.interfaces.SyncTaskCallback;
 import org.me.tagstore.interfaces.SynchronizationAlgorithmCallback;
-import org.me.tagstore.ui.ToastManager;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -80,6 +78,8 @@ public class DropboxSynchronizerActivity extends Activity implements
 
 	private ConflictData m_conflict;
 
+	private TagstoreApplication m_app;
+
 	public void onCreate(Bundle savedInstanceState) {
 
 		//
@@ -88,8 +88,9 @@ public class DropboxSynchronizerActivity extends Activity implements
 		super.onCreate(savedInstanceState);
 
 		//
-		// informal debug message
+		// get application object
 		//
+		m_app = (TagstoreApplication)DropboxSynchronizerActivity.this.getApplication();
 		Logger.d("DropboxSynchronizerActivity::onCreate");
 
 		//
@@ -98,25 +99,25 @@ public class DropboxSynchronizerActivity extends Activity implements
 		setContentView(R.layout.dropbox_synchronizer);
 
 		// register events
-		EventDispatcher.getInstance().registerEvent(
+		m_app.getEventDispatcher().registerEvent(
 				EventDispatcher.EventId.SYNC_COMPLETE_EVENT,
 				DropboxSynchronizerActivity.this);
-		EventDispatcher.getInstance().registerEvent(
+		m_app.getEventDispatcher().registerEvent(
 				EventDispatcher.EventId.SYNC_DOWNLOAD_EVENT,
 				DropboxSynchronizerActivity.this);
-		EventDispatcher.getInstance().registerEvent(
+		m_app.getEventDispatcher().registerEvent(
 				EventDispatcher.EventId.SYNC_ERROR_EVENT,
 				DropboxSynchronizerActivity.this);
-		EventDispatcher.getInstance().registerEvent(
+		m_app.getEventDispatcher().registerEvent(
 				EventDispatcher.EventId.SYNC_INFO_EVENT,
 				DropboxSynchronizerActivity.this);
-		EventDispatcher.getInstance().registerEvent(
+		m_app.getEventDispatcher().registerEvent(
 				EventDispatcher.EventId.SYNC_UPLOAD_EVENT,
 				DropboxSynchronizerActivity.this);
-		EventDispatcher.getInstance().registerEvent(
+		m_app.getEventDispatcher().registerEvent(
 				EventDispatcher.EventId.SYNC_FILE_INFO_EVENT,
 				DropboxSynchronizerActivity.this);
-		EventDispatcher.getInstance().registerEvent(
+		m_app.getEventDispatcher().registerEvent(
 				EventDispatcher.EventId.SYNC_CONFLICT_EVENT,
 				DropboxSynchronizerActivity.this);
 
@@ -176,23 +177,21 @@ public class DropboxSynchronizerActivity extends Activity implements
 
 		// construct synchronization backend
 		m_backend = new SynchronizationAlgorithmBackend();
-		FileTagUtility utility = new FileTagUtility();
-		utility.initializeFileTagUtility();
 
 		SyncTask task = new SyncTask();
 		task.initializeSyncTask(DropboxSynchronizerActivity.this,
 				new SyncManager(), new SyncFileWriter(),
-				EventDispatcher.getInstance(), DBManager.getInstance(),
-				new SyncFileLog(), utility);
+				m_app.getEventDispatcher(), m_app.getDBManager(),
+				new SyncFileLog(), m_app.getFileTagUtility());
 
 		m_backend.initializeSynchronizationAlgorithmBackend(m_provider,
-				DropboxSynchronizerActivity.this, utility,
-				EventDispatcher.getInstance(), new FileLog(), new FileLog(),
-				new FileLog(), new FileLog(), task);
+				DropboxSynchronizerActivity.this, m_app.getFileTagUtility(),
+				m_app.getEventDispatcher(), new FileLog(), new FileLog(),
+				new FileLog(), new FileLog(), task, m_app.getDBManager());
 
 		if (!m_provider.isLoggedIn()) {
 			// not logged in
-			ToastManager.getInstance().displayToastWithString(
+			m_app.getToastManager().displayToastWithString(
 					"Need to authenticate first");
 			// Intent intent = new Intent(DropboxSynchronizerActivity.this,
 			// DropboxSettingsActivity.class);
@@ -211,7 +210,7 @@ public class DropboxSynchronizerActivity extends Activity implements
 		if (target_store.length() == 0) {
 
 			// no tagstore yet selected
-			ToastManager.getInstance().displayToastWithString(
+			m_app.getToastManager().displayToastWithString(
 					"No tagstore yet selected");
 			// Intent intent = new Intent(DropboxSynchronizerActivity.this,
 			// DropboxSettingsActivity.class);
@@ -304,25 +303,25 @@ public class DropboxSynchronizerActivity extends Activity implements
 		super.onResume();
 
 		// register events
-		EventDispatcher.getInstance().registerEvent(
+		m_app.getEventDispatcher().registerEvent(
 				EventDispatcher.EventId.SYNC_COMPLETE_EVENT,
 				DropboxSynchronizerActivity.this);
-		EventDispatcher.getInstance().registerEvent(
+		m_app.getEventDispatcher().registerEvent(
 				EventDispatcher.EventId.SYNC_DOWNLOAD_EVENT,
 				DropboxSynchronizerActivity.this);
-		EventDispatcher.getInstance().registerEvent(
+		m_app.getEventDispatcher().registerEvent(
 				EventDispatcher.EventId.SYNC_ERROR_EVENT,
 				DropboxSynchronizerActivity.this);
-		EventDispatcher.getInstance().registerEvent(
+		m_app.getEventDispatcher().registerEvent(
 				EventDispatcher.EventId.SYNC_INFO_EVENT,
 				DropboxSynchronizerActivity.this);
-		EventDispatcher.getInstance().registerEvent(
+		m_app.getEventDispatcher().registerEvent(
 				EventDispatcher.EventId.SYNC_UPLOAD_EVENT,
 				DropboxSynchronizerActivity.this);
-		EventDispatcher.getInstance().registerEvent(
+		m_app.getEventDispatcher().registerEvent(
 				EventDispatcher.EventId.SYNC_FILE_INFO_EVENT,
 				DropboxSynchronizerActivity.this);
-		EventDispatcher.getInstance().registerEvent(
+		m_app.getEventDispatcher().registerEvent(
 				EventDispatcher.EventId.SYNC_CONFLICT_EVENT,
 				DropboxSynchronizerActivity.this);
 
@@ -333,25 +332,25 @@ public class DropboxSynchronizerActivity extends Activity implements
 		super.onPause();
 
 		// unregister events
-		EventDispatcher.getInstance().unregisterEvent(
+		m_app.getEventDispatcher().unregisterEvent(
 				EventDispatcher.EventId.SYNC_COMPLETE_EVENT,
 				DropboxSynchronizerActivity.this);
-		EventDispatcher.getInstance().unregisterEvent(
+		m_app.getEventDispatcher().unregisterEvent(
 				EventDispatcher.EventId.SYNC_DOWNLOAD_EVENT,
 				DropboxSynchronizerActivity.this);
-		EventDispatcher.getInstance().unregisterEvent(
+		m_app.getEventDispatcher().unregisterEvent(
 				EventDispatcher.EventId.SYNC_ERROR_EVENT,
 				DropboxSynchronizerActivity.this);
-		EventDispatcher.getInstance().unregisterEvent(
+		m_app.getEventDispatcher().unregisterEvent(
 				EventDispatcher.EventId.SYNC_INFO_EVENT,
 				DropboxSynchronizerActivity.this);
-		EventDispatcher.getInstance().unregisterEvent(
+		m_app.getEventDispatcher().unregisterEvent(
 				EventDispatcher.EventId.SYNC_UPLOAD_EVENT,
 				DropboxSynchronizerActivity.this);
-		EventDispatcher.getInstance().unregisterEvent(
+		m_app.getEventDispatcher().unregisterEvent(
 				EventDispatcher.EventId.SYNC_FILE_INFO_EVENT,
 				DropboxSynchronizerActivity.this);
-		EventDispatcher.getInstance().unregisterEvent(
+		m_app.getEventDispatcher().unregisterEvent(
 				EventDispatcher.EventId.SYNC_CONFLICT_EVENT,
 				DropboxSynchronizerActivity.this);
 	}

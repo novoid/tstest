@@ -3,12 +3,12 @@ package org.me.tagstore;
 import java.util.ArrayList;
 
 import org.me.tagstore.R;
-import org.me.tagstore.core.DBManager;
 import org.me.tagstore.core.EventDispatcher;
-import org.me.tagstore.core.FileTagUtility;
 import org.me.tagstore.core.Logger;
 import org.me.tagstore.core.TagStackManager;
+import org.me.tagstore.core.TagstoreApplication;
 import org.me.tagstore.interfaces.BackKeyCallback;
+import org.me.tagstore.interfaces.EventDispatcherInterface;
 import org.me.tagstore.interfaces.GeneralDialogCallback;
 import org.me.tagstore.interfaces.ItemViewClickListener;
 import org.me.tagstore.interfaces.RenameDialogCallback;
@@ -23,13 +23,13 @@ import org.me.tagstore.ui.CommonDialogFragment;
 import org.me.tagstore.ui.DialogIds;
 import org.me.tagstore.ui.DialogItemOperations;
 import org.me.tagstore.ui.FileDialogBuilder;
-import org.me.tagstore.ui.ToastManager;
 import org.me.tagstore.ui.FileDialogBuilder.MENU_ITEM_ENUM;
 import org.me.tagstore.ui.MainPageAdapter;
 import org.me.tagstore.ui.TagStackUIButtonAdapter;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,7 +37,7 @@ import android.view.ViewGroup;
 public class TagStoreCloudViewActivity extends Fragment implements
 		GeneralDialogCallback, RenameDialogCallback, BackKeyCallback,
 		ItemViewClickListener, RetagDialogCallback, TagStackUIButtonCallback,
-		TagEventNotification {
+		TagEventNotification, ViewPager.OnPageChangeListener {
 	/**
 	 * stores the cloud view
 	 */
@@ -80,6 +80,8 @@ public class TagStoreCloudViewActivity extends Fragment implements
 
 	private CloudViewTagAdapter m_tag_adapter;
 
+	private TagstoreApplication m_app;
+
 	@Override
 	public void onResume() {
 
@@ -91,7 +93,7 @@ public class TagStoreCloudViewActivity extends Fragment implements
 		//
 		// get tag stack
 		//
-		TagStackManager tag_stack = TagStackManager.getInstance();
+		TagStackManager tag_stack = m_app.getTagStackManager();
 		if (tag_stack != null) {
 			//
 			// verify the tag stack
@@ -149,7 +151,7 @@ public class TagStoreCloudViewActivity extends Fragment implements
 			//
 			// unregister event
 			//
-			EventDispatcher.getInstance().unregisterEvent(event, this);
+			m_app.getEventDispatcher().unregisterEvent(event, this);
 		}
 	}
 
@@ -159,7 +161,7 @@ public class TagStoreCloudViewActivity extends Fragment implements
 			//
 			// unregister event
 			//
-			EventDispatcher.getInstance().registerEvent(event, this);
+			m_app.getEventDispatcher().registerEvent(event, this);
 		}
 	}
 
@@ -197,26 +199,30 @@ public class TagStoreCloudViewActivity extends Fragment implements
 		Logger.i("CloudView::onCreate");
 
 		//
+		// get application object
+		//
+		m_app = (TagstoreApplication)TagStoreCloudViewActivity.this.getActivity().getApplication();
+		
+		
+		//
 		// create common dialog operations object
 		//
 		m_dialog_operations = new DialogItemOperations();
-		FileTagUtility utility = new FileTagUtility();
-		utility.initializeFileTagUtility();
 
 		FileDialogBuilder builder = new FileDialogBuilder();
-		builder.initializeFileDialogBuilder(DBManager.getInstance(), utility);
+		builder.initializeFileDialogBuilder(m_app.getDBManager(), m_app.getFileTagUtility(), m_app.getTimeFormatUtility());
 
 		// init dialog operations
 		m_dialog_operations.initDialogItemOperations(getActivity(),
-				getFragmentManager(), utility, ToastManager.getInstance(),
+				getFragmentManager(), m_app.getFileTagUtility(), m_app.getToastManager(),
 				builder);
 
 		//
 		// create tag adapter
 		//
 		m_tag_adapter = new CloudViewTagAdapter();
-		m_tag_adapter.initializeCloudViewTagAdapter(DBManager.getInstance(),
-				utility, TagStackManager.getInstance(),
+		m_tag_adapter.initializeCloudViewTagAdapter(m_app.getDBManager(),
+				m_app.getFileTagUtility(), m_app.getTagStackManager(),
 				new CloudViewScreenBoxManager());
 
 		//
@@ -247,7 +253,7 @@ public class TagStoreCloudViewActivity extends Fragment implements
 		//
 		// get tag stack manager
 		//
-		TagStackManager tag_stack = TagStackManager.getInstance();
+		TagStackManager tag_stack = m_app.getTagStackManager();
 		if (tag_stack != null) {
 			//
 			// verify the tag stack
@@ -304,6 +310,12 @@ public class TagStoreCloudViewActivity extends Fragment implements
 				.findViewById(R.id.tagstore_cloud_view);
 
 		//
+		// now init view
+		//
+		m_view.initCloudViewSurfaceAdapter(m_tag_adapter, (EventDispatcherInterface)m_app.getEventDispatcher(), m_app.getTagStackManager());
+		
+		
+		//
 		// construct cloud touch listener
 		//
 		m_listener = new CloudViewTouchListener();
@@ -340,7 +352,7 @@ public class TagStoreCloudViewActivity extends Fragment implements
 		//
 		// get tag stack manager
 		//
-		TagStackManager tag_stack = TagStackManager.getInstance();
+		TagStackManager tag_stack = m_app.getTagStackManager();
 
 		Logger.i("TagStoreCloudViewActivity::onBackPressed tag stack size: "
 				+ tag_stack.getSize());
@@ -514,7 +526,7 @@ public class TagStoreCloudViewActivity extends Fragment implements
 		//
 		// get tag stack manager
 		//
-		TagStackManager tag_stack = TagStackManager.getInstance();
+		TagStackManager tag_stack = m_app.getTagStackManager();
 
 		//
 		// clear tag stack
@@ -559,6 +571,40 @@ public class TagStoreCloudViewActivity extends Fragment implements
 		//
 		refreshView();
 
+	}
+
+	@Override
+	public void onPageScrollStateChanged(int arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onPageScrolled(int arg0, float arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onPageSelected(int page) {
+		
+		if (page == 0) {
+			
+			//
+			// register us with event dispatcher
+			//
+			registerEvents(getEvents());
+		}
+		else
+		{
+			//
+			// unregister us with event dispatcher
+			//
+			unregisterEvents(getEvents());
+		}
+		
+		// TODO Auto-generated method stub
+		
 	}
 
 }

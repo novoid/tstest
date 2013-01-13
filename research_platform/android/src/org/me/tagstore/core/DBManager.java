@@ -190,20 +190,6 @@ public class DBManager {
 	 */
 	private final static String SYNC_FIELD_REV = "sync_rev";
 
-	/**
-	 * gets an instance of the database manager
-	 * 
-	 * @return
-	 */
-	public static DBManager getInstance() {
-
-		if (instance == null) {
-			instance = new DBManager();
-		}
-
-		return instance;
-	}
-
 	@SuppressWarnings("unused")
 	private void constructTestDatabase() {
 
@@ -1288,7 +1274,7 @@ public class DBManager {
 
 		Cursor cursor = m_db.query(PENDING_FILE_TABLE_NAME,
 				new String[] { PENDING_FIELD_PATH }, null, null, null, null,
-				PENDING_FIELD_ID + " DESC");
+				PENDING_FIELD_PATH + " DESC");
 
 		//
 		// construct array list

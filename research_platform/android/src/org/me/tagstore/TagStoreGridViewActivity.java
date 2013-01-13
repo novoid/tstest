@@ -9,9 +9,9 @@ import org.me.tagstore.R;
 import org.me.tagstore.core.ConfigurationSettings;
 import org.me.tagstore.core.DBManager;
 import org.me.tagstore.core.EventDispatcher;
-import org.me.tagstore.core.FileTagUtility;
 import org.me.tagstore.core.Logger;
 import org.me.tagstore.core.TagStackManager;
+import org.me.tagstore.core.TagstoreApplication;
 import org.me.tagstore.interfaces.BackKeyCallback;
 import org.me.tagstore.interfaces.GeneralDialogCallback;
 import org.me.tagstore.interfaces.ItemViewClickListener;
@@ -45,11 +45,12 @@ import android.view.animation.AnimationUtils;
 import android.view.animation.GridLayoutAnimationController;
 import android.view.animation.LayoutAnimationController;
 import android.widget.GridView;
+import android.support.v4.view.ViewPager;
 
 public class TagStoreGridViewActivity extends DialogFragment implements
 		GeneralDialogCallback, RenameDialogCallback, TagStackUIButtonCallback,
 		ItemViewClickListener, RetagDialogCallback, BackKeyCallback,
-		TagEventNotification {
+		TagEventNotification, ViewPager.OnPageChangeListener {
 	/**
 	 * list view contents
 	 */
@@ -85,6 +86,8 @@ public class TagStoreGridViewActivity extends DialogFragment implements
 	 */
 	private boolean m_is_tag;
 
+	private TagstoreApplication m_app;
+
 	@Override
 	public void onPause() {
 
@@ -98,7 +101,7 @@ public class TagStoreGridViewActivity extends DialogFragment implements
 		//
 		// cancel any active toast
 		//
-		ToastManager toast = ToastManager.getInstance();
+		ToastManager toast = m_app.getToastManager();
 		if (toast != null) {
 			//
 			// cancel toast
@@ -175,7 +178,7 @@ public class TagStoreGridViewActivity extends DialogFragment implements
 			//
 			// unregister event
 			//
-			EventDispatcher.getInstance().unregisterEvent(event, this);
+			m_app.getEventDispatcher().unregisterEvent(event, this);
 		}
 	}
 
@@ -185,7 +188,7 @@ public class TagStoreGridViewActivity extends DialogFragment implements
 			//
 			// unregister event
 			//
-			EventDispatcher.getInstance().registerEvent(event, this);
+			m_app.getEventDispatcher().registerEvent(event, this);
 		}
 	}
 
@@ -238,6 +241,12 @@ public class TagStoreGridViewActivity extends DialogFragment implements
 		Logger.d("TagStoreGridViewActivity::onCreate");
 
 		//
+		// get application object
+		//
+		m_app = (TagstoreApplication)TagStoreGridViewActivity.this.getActivity().getApplication();
+		
+		
+		//
 		// construct list map
 		//
 		m_list_map = new ArrayList<HashMap<String, Object>>();
@@ -246,12 +255,11 @@ public class TagStoreGridViewActivity extends DialogFragment implements
 		// create dialog operations object
 		//
 		m_dialog_operations = new DialogItemOperations();
-		FileTagUtility utility = new FileTagUtility();
-		utility.initializeFileTagUtility();
+
 		FileDialogBuilder builder = new FileDialogBuilder();
-		builder.initializeFileDialogBuilder(DBManager.getInstance(), utility);
+		builder.initializeFileDialogBuilder(m_app.getDBManager(), m_app.getFileTagUtility(), m_app.getTimeFormatUtility());
 		m_dialog_operations.initDialogItemOperations(getActivity(),
-				getFragmentManager(), utility, ToastManager.getInstance(),
+				getFragmentManager(), m_app.getFileTagUtility(), m_app.getToastManager(),
 				builder);
 
 		//
@@ -275,7 +283,7 @@ public class TagStoreGridViewActivity extends DialogFragment implements
 		//
 		// acquire tag stack manager
 		//
-		TagStackManager tag_stack = TagStackManager.getInstance();
+		TagStackManager tag_stack = m_app.getTagStackManager();
 
 		//
 		// verify the tag stack
@@ -335,7 +343,7 @@ public class TagStoreGridViewActivity extends DialogFragment implements
 		//
 		// get tag stack manager
 		//
-		TagStackManager tag_stack = TagStackManager.getInstance();
+		TagStackManager tag_stack = m_app.getTagStackManager();
 
 		//
 		// clear tag stack
@@ -408,7 +416,7 @@ public class TagStoreGridViewActivity extends DialogFragment implements
 		//
 		// get tag stack manager
 		//
-		TagStackManager tag_stack = TagStackManager.getInstance();
+		TagStackManager tag_stack = m_app.getTagStackManager();
 
 		//
 		// check if not back button was pressed
@@ -459,7 +467,7 @@ public class TagStoreGridViewActivity extends DialogFragment implements
 		//
 		// acquire database manager
 		//
-		DBManager db_man = DBManager.getInstance();
+		DBManager db_man = m_app.getDBManager();
 
 		//
 		// tag list
@@ -594,7 +602,7 @@ public class TagStoreGridViewActivity extends DialogFragment implements
 		//
 		IconViewListAdapter list_adapter = new IconViewListAdapter();
 		list_adapter.initIconViewListAdapter(m_list_map, getActivity()
-				.getApplicationContext(), EventDispatcher.getInstance());
+				.getApplicationContext(), m_app.getEventDispatcher());
 
 		//
 		// load animation
@@ -628,7 +636,7 @@ public class TagStoreGridViewActivity extends DialogFragment implements
 		//
 		m_scroll_listener = new IconViewScrollListener();
 		m_scroll_listener.initIconViewScrollListener(list_adapter,
-				ToastManager.getInstance());
+				m_app.getToastManager());
 
 		//
 		// set new scroll listener
@@ -666,7 +674,7 @@ public class TagStoreGridViewActivity extends DialogFragment implements
 		//
 		// get instance of database manager
 		//
-		DBManager db_man = DBManager.getInstance();
+		DBManager db_man = m_app.getDBManager();
 
 		//
 		// get tag reference counts
@@ -761,19 +769,12 @@ public class TagStoreGridViewActivity extends DialogFragment implements
 		//
 		// get instance of tagstack manager
 		//
-		TagStackManager tag_stack = TagStackManager.getInstance();
-
-		//
-		// new file tag utility class
-		//
-		FileTagUtility utility = new FileTagUtility();
-		utility.initializeFileTagUtility();
+		TagStackManager tag_stack = m_app.getTagStackManager();
 
 		//
 		// get associated tags
 		//
-		ArrayList<String> linked_tags = utility.getLinkedTags(TagStackManager
-				.getInstance());
+		ArrayList<String> linked_tags = m_app.getFileTagUtility().getLinkedTags(m_app.getTagStackManager());
 
 		//
 		// apply sorting
@@ -806,8 +807,7 @@ public class TagStoreGridViewActivity extends DialogFragment implements
 		//
 		// get linked files
 		//
-		ArrayList<String> linked_files = utility.getLinkedFiles(TagStackManager
-				.getInstance());
+		ArrayList<String> linked_files = m_app.getFileTagUtility().getLinkedFiles(m_app.getTagStackManager());
 
 		if (linked_files != null) {
 			//
@@ -916,7 +916,7 @@ public class TagStoreGridViewActivity extends DialogFragment implements
 		//
 		// get tag stack manager
 		//
-		TagStackManager tag_stack = TagStackManager.getInstance();
+		TagStackManager tag_stack = m_app.getTagStackManager();
 
 		//
 		// add item to visited tag stack
@@ -960,5 +960,39 @@ public class TagStoreGridViewActivity extends DialogFragment implements
 		//
 		refreshView();
 
+	}
+
+	@Override
+	public void onPageScrollStateChanged(int arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onPageScrolled(int arg0, float arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onPageSelected(int page) {
+		
+		if (page == 0) {
+			
+			//
+			// register us with event dispatcher
+			//
+			registerEvents(getEvents());
+		}
+		else
+		{
+			//
+			// unregister us with event dispatcher
+			//
+			unregisterEvents(getEvents());
+		}
+		
+		// TODO Auto-generated method stub
+		
 	}
 }

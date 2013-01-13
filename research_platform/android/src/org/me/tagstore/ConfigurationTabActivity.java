@@ -2,18 +2,16 @@ package org.me.tagstore;
 
 import org.me.tagstore.R;
 import org.me.tagstore.core.ConfigurationSettings;
-import org.me.tagstore.core.DBManager;
 import org.me.tagstore.core.DatabaseResetTask;
 import org.me.tagstore.core.EventDispatcher;
 import org.me.tagstore.core.Logger;
 import org.me.tagstore.core.MainServiceConnection;
 import org.me.tagstore.core.ServiceLaunchRunnable;
-import org.me.tagstore.core.SyncFileLog;
+import org.me.tagstore.core.TagstoreApplication;
 import org.me.tagstore.core.VocabularyManager;
 import org.me.tagstore.interfaces.DatabaseResetCallback;
 import org.me.tagstore.ui.MainPageAdapter;
 import org.me.tagstore.ui.StatusBarNotification;
-import org.me.tagstore.ui.ToastManager;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -48,6 +46,8 @@ public class ConfigurationTabActivity extends PreferenceActivity implements
 	 */
 	private StatusBarNotification m_status_bar = null;
 
+	private TagstoreApplication m_app;
+
 	public void onStop() {
 
 		//
@@ -58,7 +58,7 @@ public class ConfigurationTabActivity extends PreferenceActivity implements
 		//
 		// unregister us from the event dispatcher
 		//
-		EventDispatcher.getInstance().unregisterEvent(
+		m_app.getEventDispatcher().unregisterEvent(
 				EventDispatcher.EventId.DATABASE_RESET_EVENT, this);
 	}
 
@@ -75,6 +75,10 @@ public class ConfigurationTabActivity extends PreferenceActivity implements
 		//
 		super.onCreate(savedInstanceState);
 
+		// get db manager
+		m_app = (TagstoreApplication)ConfigurationTabActivity.this.getApplication();
+		
+		
 		//
 		// load preferences from resource
 		//
@@ -107,7 +111,7 @@ public class ConfigurationTabActivity extends PreferenceActivity implements
 							task.initializeDatabaseResetTask(
 									ConfigurationTabActivity.this
 											.getApplicationContext(),
-									m_connection, EventDispatcher.getInstance(), DBManager.getInstance(), new SyncFileLog());
+									m_connection, m_app.getEventDispatcher(), m_app.getDBManager(), m_app.getSyncFileLog());
 
 							//
 							// construct worker thread
@@ -270,7 +274,7 @@ public class ConfigurationTabActivity extends PreferenceActivity implements
 		//
 		// register us with event dispatcher
 		//
-		EventDispatcher.getInstance().registerEvent(
+		m_app.getEventDispatcher().registerEvent(
 				EventDispatcher.EventId.DATABASE_RESET_EVENT, this);
 
 	}
@@ -448,7 +452,7 @@ public class ConfigurationTabActivity extends PreferenceActivity implements
 			//
 			// get instance of vocabulary manager
 			//
-			VocabularyManager voc_manager = VocabularyManager.getInstance();
+			VocabularyManager voc_manager = m_app.getVocabularyManager();
 
 			if (value.booleanValue()) {
 				//
@@ -458,7 +462,7 @@ public class ConfigurationTabActivity extends PreferenceActivity implements
 					//
 					// display warning toast
 					//
-					ToastManager.getInstance().displayToastWithString(
+					m_app.getToastManager().displayToastWithString(
 							R.string.error_vocabulary_file_not_exists);
 					return false;
 				}
@@ -580,13 +584,13 @@ public class ConfigurationTabActivity extends PreferenceActivity implements
 			//
 			// successfully deleted database
 			//
-			ToastManager.getInstance().displayToastWithString(
+			m_app.getToastManager().displayToastWithString(
 					R.string.reset_database);
 		} else {
 			//
 			// failed to reset database
 			//
-			ToastManager.getInstance().displayToastWithString(
+			m_app.getToastManager().displayToastWithString(
 					R.string.error_reset_database);
 		}
 	}
