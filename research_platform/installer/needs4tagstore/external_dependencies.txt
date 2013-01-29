@@ -1,0 +1,4 @@
+PyQt-Py2.7-x86-gpl-4.9.4-1.exe
+python-2.7.3.msi
+python-2.7-macosx10.5.dmg
+pywin32-214.win32-py2.7.exe
