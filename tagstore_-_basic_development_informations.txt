@@ -1,6 +1,0 @@
-
-Author: Karl.Voit@IST.TUGraz.at
-
-Please read the development guidelines on the project trac:
-https://intra.ist.tugraz.at/trac/tagstore/wiki/DevelopmentGuidelines
-
