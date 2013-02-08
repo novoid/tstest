@@ -1,4 +1,4 @@
-## Time-stamp: <2013-02-08 11:16:07 vk>
+## Time-stamp: <2013-02-08 11:41:47 vk>
 ## -*- coding: utf-8 -*-
 ## This file is best viewed with GNU Emacs Org-mode: http://orgmode.org/
 
@@ -44,6 +44,32 @@ split-up github projects listed below.
     could not fix in time, this tool was never used in a
     study. Nevertheless, it was very hard to implement and somebody
     might want to learn from it.
+
+- [[https://github.com/novoid/2011-01-tagstore-formal-experiment][2011-01-tagstore-formal-experiment]]
+  - A formal experiment which compared tagstore filing and re-finding
+    to Windows Explorer filling and re-finding:
+    - session pause: more than 15 minutes
+    - 18 test persons
+    - filing of 30 test items
+    - re-finding of six test items
+  - test artifacts
+  - logs
+  - derived data
+  - results
+  - tools
+
+- [[https://github.com/novoid/2011-04-tagstore-formal-experiment][2011-04-tagstore-formal-experiment]]
+  - A formal experiment which compared tagstore filing and re-finding
+    to Windows Explorer filling and re-finding:
+    - session pause: two months
+    - 27 test persons
+    - filing of 60 test items
+    - re-finding of ten test items
+  - test artifacts
+  - logs
+  - derived data
+  - results
+  - tools
 
 ** About this Repository
 
