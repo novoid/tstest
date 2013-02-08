@@ -1,4 +1,4 @@
-## Time-stamp: <2013-02-08 11:41:47 vk>
+## Time-stamp: <2013-02-08 12:42:23 vk>
 ## -*- coding: utf-8 -*-
 ## This file is best viewed with GNU Emacs Org-mode: http://orgmode.org/
 
@@ -79,8 +79,8 @@ accessible [[https://en.wikipedia.org/wiki/Trac][Trac]] with [[https://en.wikipe
 2013-01 the Subversion repository was migrated to github (using
 git-svn). So far, we could not manage to migrate the Trac issue
 history to github issues. Therefore, we provided the Trac database
-file ([[https://en.wikipedia.org/wiki/Sqlite3][SQLite3]]) that anybody is able to look at the design decisions we
-had to make.
+file ("trac-export_SQLite3.db", [[https://en.wikipedia.org/wiki/Sqlite3][SQLite3]]) that anybody is able to look
+at the design decisions we had to make.
 
 Starting with 2013-01, this monolithic repository was split up into
 several different github repositories - each for one specific
@@ -91,8 +91,8 @@ these new repositories.
 
 - [ ] split up tagstore into projects mentioned above
 - [ ] link other projects in list above
-- [ ] publish trac issue DB file
-- [ ] link SQLite3 DB
+- [X] publish trac issue DB file
+- [X] link SQLite3 DB
 - [ ] link PhD Voit
 
 * Local Variables                                                  :noexport:
