@@ -1,0 +1,77 @@
+## Time-stamp: <2013-02-08 11:16:07 vk>
+## -*- coding: utf-8 -*-
+## This file is best viewed with GNU Emacs Org-mode: http://orgmode.org/
+
+* tagstore
+
+If you do not know tagstore, please start by reading
+http://tagstore.org (especially the about- and FAQ-page).
+
+NOTE: This repository is *for archiving purpose only*! It holds the
+(subversion/trac) history of (internal) tagstore development until
+2013-01. If you need the up to date sources/data, please use the
+split-up github projects listed below.
+
+** tagstore Resources on the Internet
+
+- [[http://tagstore.org]] - main project page (English and German)
+  - Introduction
+  - FAQs
+  - download page
+  - contact information
+  - whitepapers
+    - abstracts
+    - PDF files
+    - [[https://en.wikipedia.org/wiki/BibTeX][BiBTeX]] files
+    - For detailed project information, you might want to get a copy
+      of the PhD thesis of Karl Voit.
+    - Several sub-systems of tagstore were described in Bachelor and
+      Diploma thesis. Write an email to: tagstore (a t) IST TUGraz at 
+
+- This github repository
+  - Read section below for further information.
+
+- tagstore-source
+  - The Python 2.7/PyQt source code of tagstore.
+- tagstore-installer
+  - Files and data related to generate installation packages for tagstore-source.
+- tagstore-android
+  - tagstore has an Android client which synchronizes between
+    desktop-tagstore and Android.
+- tagstore-filemonitor
+  - This is a side-project which was developed to log read-access on
+    Windows systems for a field study. Because of stability issues we
+    could not fix in time, this tool was never used in a
+    study. Nevertheless, it was very hard to implement and somebody
+    might want to learn from it.
+
+** About this Repository
+
+From 2009 to end of 2012, tagstore was developed using a non-public
+accessible [[https://en.wikipedia.org/wiki/Trac][Trac]] with [[https://en.wikipedia.org/wiki/Subversion_%2528software%2529][Subversion]] and issue tracking.
+
+2013-01 the Subversion repository was migrated to github (using
+git-svn). So far, we could not manage to migrate the Trac issue
+history to github issues. Therefore, we provided the Trac database
+file ([[https://en.wikipedia.org/wiki/Sqlite3][SQLite3]]) that anybody is able to look at the design decisions we
+had to make.
+
+Starting with 2013-01, this monolithic repository was split up into
+several different github repositories - each for one specific
+independent tagstore component. New contributions were done only to
+these new repositories.
+
+** Open Tasks
+
+- [ ] split up tagstore into projects mentioned above
+- [ ] link other projects in list above
+- [ ] publish trac issue DB file
+- [ ] link SQLite3 DB
+- [ ] link PhD Voit
+
+* Local Variables                                                  :noexport:
+# Local Variables:
+# mode: auto-fill
+# mode: flyspell
+# eval: (ispell-change-dictionary "en_US")
+# End:
